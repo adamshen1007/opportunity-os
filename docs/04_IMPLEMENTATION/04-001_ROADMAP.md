@@ -109,6 +109,54 @@ Milestone:
 
 Every engineer and AI coding agent can build and run the project locally.
 
+## Completion Checklist
+
+Phase 0 is complete when:
+
+- repository structure matches the Engineering Kit
+
+- package manager, Node, workspace, and TypeScript policies are enforced
+
+- repository verification passes
+
+- lint, build, and test commands pass
+
+- Docker Compose configuration validates
+
+- local PostgreSQL and Redis services are documented
+
+- environment setup, production configuration expectations, and future validation contract are documented
+
+- logging architecture and sensitive data policy are documented
+
+- testing strategy is documented
+
+- contribution, pull request, security, cross-reference, and document-numbering rules are documented
+
+- no application code exists
+
+- no business logic exists
+
+- no APIs, connectors, AI workflows, or database schema implementation exists
+
+## Phase 1 Readiness
+
+Phase 1 may begin only after the Phase 0 completion checklist passes.
+
+The first Phase 1 task must identify:
+
+- owning package
+
+- referenced Engineering Kit documents
+
+- dependencies
+
+- acceptance criteria
+
+- required tests
+
+- documentation updates
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

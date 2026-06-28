@@ -1,24 +1,27 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: opportunity_os
-      POSTGRES_USER: opportunity_os
-      POSTGRES_PASSWORD: opportunity_os
+      POSTGRES_DB: ${POSTGRES_DB:-opportunity_os}
+      POSTGRES_USER: ${POSTGRES_USER:-opportunity_os}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-opportunity_os}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U opportunity_os -d opportunity_os"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   redis:
-    image: redis:7-alpine
+    image: ${REDIS_IMAGE:-redis:8-alpine}
+    restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -26,8 +29,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
 volumes:
   postgres_data:
+    name: ${POSTGRES_VOLUME:-opportunity_os_postgres_data}
   redis_data:
-
+    name: ${REDIS_VOLUME:-opportunity_os_redis_data}

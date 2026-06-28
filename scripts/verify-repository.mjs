@@ -66,6 +66,11 @@ const requiredReadmes = [
 ];
 
 const errors = [];
+const expectedPackageManager = "pnpm@11.7.0";
+const expectedNodeEngine = ">=22 <23";
+const expectedPnpmEngine = "11.7.0";
+const expectedNodeVersion = "22";
+const placeholderOnlyRoots = ["apps", "packages"];
 
 function exists(relativePath) {
   return fs.existsSync(path.join(root, relativePath));
@@ -73,6 +78,10 @@ function exists(relativePath) {
 
 function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), "utf8");
+}
+
+function readTrimmed(relativePath) {
+  return read(relativePath).trim();
 }
 
 function listMarkdownFiles(dir) {
@@ -86,6 +95,17 @@ function listMarkdownFiles(dir) {
   });
 }
 
+function listFiles(dir) {
+  const absoluteDir = path.join(root, dir);
+  if (!fs.existsSync(absoluteDir)) return [];
+  const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const relativePath = path.join(dir, entry.name);
+    if (entry.isDirectory()) return listFiles(relativePath);
+    return entry.isFile() ? [relativePath] : [];
+  });
+}
+
 function fail(message) {
   errors.push(message);
 }
@@ -96,6 +116,37 @@ for (const file of requiredFoundationFiles) {
 
 for (const file of requiredReadmes) {
   if (!exists(file)) fail(`Missing README file: ${file}`);
+}
+
+if (exists("package.json")) {
+  try {
+    const packageJson = JSON.parse(read("package.json"));
+    if (packageJson.packageManager !== expectedPackageManager) {
+      fail(`package.json packageManager must be "${expectedPackageManager}" but found "${packageJson.packageManager ?? "missing"}"`);
+    }
+    if (packageJson.engines?.node !== expectedNodeEngine) {
+      fail(`package.json engines.node must be "${expectedNodeEngine}" but found "${packageJson.engines?.node ?? "missing"}"`);
+    }
+    if (packageJson.engines?.pnpm !== expectedPnpmEngine) {
+      fail(`package.json engines.pnpm must be "${expectedPnpmEngine}" but found "${packageJson.engines?.pnpm ?? "missing"}"`);
+    }
+  } catch (error) {
+    fail(`package.json must be valid JSON: ${error.message}`);
+  }
+}
+
+for (const versionFile of [".node-version", ".nvmrc"]) {
+  if (exists(versionFile) && readTrimmed(versionFile) !== expectedNodeVersion) {
+    fail(`${versionFile} must contain "${expectedNodeVersion}" but found "${readTrimmed(versionFile)}"`);
+  }
+}
+
+for (const placeholderRoot of placeholderOnlyRoots) {
+  for (const file of listFiles(placeholderRoot)) {
+    if (path.basename(file) !== "README.md") {
+      fail(`Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files; found unauthorized file: ${file}`);
+    }
+  }
 }
 
 const docsFiles = listMarkdownFiles("docs").filter((file) => path.basename(file) !== "README.md");

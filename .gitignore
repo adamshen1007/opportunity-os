@@ -9,6 +9,12 @@ Thumbs.db
 *.pem
 *.key
 *.crt
+*.p12
+*.pfx
+*.jks
+*.kubeconfig
+id_rsa
+id_ed25519
 
 # Dependencies
 node_modules/
@@ -44,6 +50,7 @@ yarn-error.log*
 tmp/
 temp/
 .cache/
+.docker/
 
 # Local unrelated research artifacts
 youtube-ai-creator-watchlist/
@@ -52,3 +59,8 @@ youtube-ai-creator-watchlist/
 *.zip
 *.tar
 *.tar.gz
+
+# Local exports and scratch artifacts
+exports/
+artifacts/
+scratch/
