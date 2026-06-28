@@ -1,0 +1,23 @@
+name: Documentation change
+description: Improve or correct Engineering Kit documentation.
+title: "[Docs]: "
+labels: ["type:documentation", "area:docs", "status:needs-triage"]
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: Documentation issue
+      description: What is unclear, missing, stale, or inconsistent?
+    validations:
+      required: true
+  - type: input
+    id: document
+    attributes:
+      label: Document path
+      placeholder: docs/00_INDEX/00-001_DOCUMENTATION_INDEX.md
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected update
+      description: What should the document say or link to?
+

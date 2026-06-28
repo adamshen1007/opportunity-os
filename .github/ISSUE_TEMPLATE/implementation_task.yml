@@ -1,0 +1,41 @@
+name: Implementation task
+description: Track approved implementation work after documentation review.
+title: "[Implementation]: "
+labels: ["type:implementation", "status:needs-triage"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What should be implemented?
+    validations:
+      required: true
+  - type: textarea
+    id: source_docs
+    attributes:
+      label: Source documents
+      description: Link every relevant spec, playbook, or checklist.
+      placeholder: |
+        - docs/03_SPECIFICATIONS/...
+        - developer-ai/03_PLAYBOOKS/...
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How will reviewers know this is complete?
+    validations:
+      required: true
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: Gates
+      options:
+        - label: The work is covered by an approved specification.
+          required: true
+        - label: The package boundary is identified.
+          required: true
+        - label: Required tests are identified.
+          required: true
+

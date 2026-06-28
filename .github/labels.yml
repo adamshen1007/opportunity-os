@@ -1,0 +1,41 @@
+labels:
+  - name: type:foundation
+    color: "0E8A16"
+    description: Repository scaffolding, tooling, governance, or CI.
+  - name: type:documentation
+    color: "0075CA"
+    description: Documentation updates only.
+  - name: type:architecture
+    color: "5319E7"
+    description: Architecture, specification, or decision records.
+  - name: type:implementation
+    color: "FBCA04"
+    description: Product implementation work.
+  - name: area:docs
+    color: "1D76DB"
+    description: Engineering Kit documentation.
+  - name: area:developer-ai
+    color: "1D76DB"
+    description: AI agent standards, patterns, prompts, or checklists.
+  - name: area:ci
+    color: "BFDADC"
+    description: GitHub Actions or repository automation.
+  - name: priority:p0
+    color: "B60205"
+    description: Critical blocker.
+  - name: priority:p1
+    color: "D93F0B"
+    description: High priority.
+  - name: priority:p2
+    color: "FBCA04"
+    description: Normal priority.
+  - name: priority:p3
+    color: "C2E0C6"
+    description: Low priority.
+  - name: status:needs-triage
+    color: "EDEDED"
+    description: Needs review and classification.
+  - name: status:blocked
+    color: "000000"
+    description: Blocked by another decision or dependency.
+

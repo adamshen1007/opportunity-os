@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Engineering Kit
+    url: https://github.com/adamshen1007/opportunity-os/tree/main/docs
+    about: Start with the documentation before opening implementation work.
+

@@ -1,0 +1,29 @@
+name: Repository foundation task
+description: Track repository setup, tooling, CI, or governance work.
+title: "[Foundation]: "
+labels: ["type:foundation", "status:needs-triage"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What repository foundation change is needed?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: List the files, folders, or workflows expected to change.
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      options:
+        - label: This task does not introduce business logic.
+          required: true
+        - label: This task does not introduce connectors, APIs, or AI workflows.
+          required: true
+

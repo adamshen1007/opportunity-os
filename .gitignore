@@ -1,0 +1,54 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+.turbo/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Runtime data
+tmp/
+temp/
+.cache/
+
+# Local unrelated research artifacts
+youtube-ai-creator-watchlist/
+
+# Generated archives
+*.zip
+*.tar
+*.tar.gz

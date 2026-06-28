@@ -1,0 +1,22 @@
+{
+  "name": "opportunity-os",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Documentation-first engineering foundation for Opportunity OS.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=22 <23",
+    "pnpm": "11.7.0"
+  },
+  "scripts": {
+    "repo:check": "node scripts/verify-repository.mjs",
+    "lint": "node scripts/verify-repository.mjs",
+    "build": "node scripts/verify-repository.mjs --phase build",
+    "test": "node scripts/verify-repository.mjs --phase test"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  }
+}
