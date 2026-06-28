@@ -49,7 +49,7 @@ Reasons:
 
 Runtime:
 
-Node.js 22 LTS
+Node.js 24
 
 Framework:
 

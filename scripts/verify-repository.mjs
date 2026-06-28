@@ -67,10 +67,47 @@ const requiredReadmes = [
 
 const errors = [];
 const expectedPackageManager = "pnpm@11.7.0";
-const expectedNodeEngine = ">=22 <23";
+const expectedNodeEngine = ">=24 <25";
 const expectedPnpmEngine = "11.7.0";
-const expectedNodeVersion = "22";
+const expectedNodeVersion = "24";
 const placeholderOnlyRoots = ["apps", "packages"];
+const phase = process.argv.includes("--phase") ? process.argv[process.argv.indexOf("--phase") + 1] : "lint";
+const phaseOneAliases = new Set(["review", "phase1", "phase-1", "phase-1-milestone-1", "shared-infrastructure"]);
+const isPhaseOne = phaseOneAliases.has(phase);
+const phaseOneImplementationRoot = "packages/config";
+const prohibitedConfigDependencyPatterns = [
+  /(^|[/@-])apps?($|[/@-])/iu,
+  /(^|[/@-])api($|[/@-])/iu,
+  /(^|[/@-])application($|[/@-])/iu,
+  /(^|[/@-])acquisition($|[/@-])/iu,
+  /(^|[/@-])connector(s)?($|[/@-])/iu,
+  /(^|[/@-])ai($|[/@-])/iu,
+  /(^|[/@-])workflow(s)?($|[/@-])/iu,
+  /(^|[/@-])database($|[/@-])/iu,
+  /(^|[/@-])domain($|[/@-])/iu,
+  /(^|[/@-])business($|[/@-])/iu,
+  /(^|[/@-])intelligence($|[/@-])/iu
+];
+const engineeringKitRequiredEnvironmentVariables = [
+  "APP_NAME",
+  "NODE_ENV",
+  "PORT",
+  "DATABASE_URL",
+  "REDIS_URL",
+  "OPENAI_API_KEY",
+  "ANTHROPIC_API_KEY",
+  "OPENAI_MODEL",
+  "ANTHROPIC_MODEL",
+  "JWT_SECRET",
+  "JWT_EXPIRES_IN",
+  "LOG_LEVEL",
+  "OTEL_EXPORTER_ENDPOINT"
+];
+const engineeringKitOptionalEnvironmentVariables = [
+  "SENTRY_DSN",
+  "LANGFUSE_API_KEY",
+  "LANGSMITH_API_KEY"
+];
 
 function exists(relativePath) {
   return fs.existsSync(path.join(root, relativePath));
@@ -110,6 +147,54 @@ function fail(message) {
   errors.push(message);
 }
 
+function parseEnvExampleVariables(relativePath) {
+  if (!exists(relativePath)) return [];
+
+  return read(relativePath)
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"))
+    .map((line) => line.match(/^([A-Z][A-Z0-9_]*)=/u)?.[1])
+    .filter(Boolean);
+}
+
+function parseExportedConstArray(relativePath, exportName) {
+  if (!exists(relativePath)) return [];
+
+  const content = read(relativePath);
+  const match = content.match(new RegExp(`export\\s+const\\s+${exportName}\\s*=\\s*\\[([\\s\\S]*?)\\]\\s+as\\s+const`, "u"));
+  if (!match) return [];
+
+  return [...match[1].matchAll(/"([A-Z][A-Z0-9_]*)"/gu)].map((entry) => entry[1]);
+}
+
+function assertSameVariableSet(label, expectedVariables, actualVariables) {
+  const expected = new Set(expectedVariables);
+  const actual = new Set(actualVariables);
+
+  for (const variableName of expected) {
+    if (!actual.has(variableName)) {
+      fail(`${label} is missing required variable name: ${variableName}`);
+    }
+  }
+
+  for (const variableName of actual) {
+    if (!expected.has(variableName)) {
+      fail(`${label} contains undocumented variable name: ${variableName}`);
+    }
+  }
+}
+
+function assertNoDuplicateVariables(label, variables) {
+  const seen = new Set();
+  for (const variableName of variables) {
+    if (seen.has(variableName)) {
+      fail(`${label} contains duplicate variable name: ${variableName}`);
+    }
+    seen.add(variableName);
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -141,13 +226,61 @@ for (const versionFile of [".node-version", ".nvmrc"]) {
   }
 }
 
+function isReadmePlaceholder(file) {
+  return path.basename(file) === "README.md";
+}
+
+function isAllowedPhaseOneImplementationFile(file) {
+  return file.startsWith(`${phaseOneImplementationRoot}/`) && !isReadmePlaceholder(file);
+}
+
 for (const placeholderRoot of placeholderOnlyRoots) {
   for (const file of listFiles(placeholderRoot)) {
-    if (path.basename(file) !== "README.md") {
-      fail(`Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files; found unauthorized file: ${file}`);
-    }
+    if (isReadmePlaceholder(file)) continue;
+    if (isPhaseOne && isAllowedPhaseOneImplementationFile(file)) continue;
+
+    const policyName = isPhaseOne
+      ? `Phase 1 permits implementation files only inside "${phaseOneImplementationRoot}/"`
+      : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
+    fail(`${policyName}; found unauthorized file: ${file}`);
   }
 }
+
+const configPackageJsonPath = "packages/config/package.json";
+if (exists(configPackageJsonPath)) {
+  try {
+    const configPackageJson = JSON.parse(read(configPackageJsonPath));
+    const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+    for (const dependencyField of dependencyFields) {
+      const dependencies = configPackageJson[dependencyField] ?? {};
+      for (const [dependencyName, dependencyVersion] of Object.entries(dependencies)) {
+        const dependencyReference = `${dependencyName} ${dependencyVersion}`;
+        if (prohibitedConfigDependencyPatterns.some((pattern) => pattern.test(dependencyReference))) {
+          fail(`packages/config must not depend on apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages; found ${dependencyField}.${dependencyName}`);
+        }
+      }
+    }
+  } catch (error) {
+    fail(`${configPackageJsonPath} must be valid JSON: ${error.message}`);
+  }
+}
+
+const envExampleVariables = parseEnvExampleVariables(".env.example");
+const schemaRequiredVariables = parseExportedConstArray("packages/config/src/schema.ts", "REQUIRED_ENVIRONMENT_VARIABLES");
+const schemaOptionalVariables = parseExportedConstArray("packages/config/src/schema.ts", "OPTIONAL_ENVIRONMENT_VARIABLES");
+const schemaVariables = [...schemaRequiredVariables, ...schemaOptionalVariables];
+const engineeringKitEnvironmentVariables = [
+  ...engineeringKitRequiredEnvironmentVariables,
+  ...engineeringKitOptionalEnvironmentVariables
+];
+
+assertNoDuplicateVariables(".env.example", envExampleVariables);
+assertNoDuplicateVariables("packages/config schema required variables", schemaRequiredVariables);
+assertNoDuplicateVariables("packages/config schema optional variables", schemaOptionalVariables);
+assertSameVariableSet(".env.example", engineeringKitEnvironmentVariables, envExampleVariables);
+assertSameVariableSet("packages/config required environment schema", engineeringKitRequiredEnvironmentVariables, schemaRequiredVariables);
+assertSameVariableSet("packages/config optional environment schema", engineeringKitOptionalEnvironmentVariables, schemaOptionalVariables);
+assertSameVariableSet("packages/config schema and .env.example", envExampleVariables, schemaVariables);
 
 const docsFiles = listMarkdownFiles("docs").filter((file) => path.basename(file) !== "README.md");
 const developerAiFiles = listMarkdownFiles("developer-ai").filter((file) => path.basename(file) !== "README.md");
@@ -248,5 +381,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-const phase = process.argv.includes("--phase") ? process.argv[process.argv.indexOf("--phase") + 1] : "lint";
 console.log(`Repository verification passed (${phase}).`);

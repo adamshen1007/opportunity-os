@@ -157,6 +157,70 @@ The first Phase 1 task must identify:
 
 - documentation updates
 
+## Phase 1 Milestone 1 — Runtime Configuration And Validation
+
+Goal:
+
+Establish typed runtime configuration in `packages/config`.
+
+Deliverables:
+
+- environment schema validation
+
+- typed configuration exports
+
+- fail-fast configuration loading
+
+- secret-safe validation errors
+
+- package-level tests
+
+- environment documentation consistency checks
+
+Usage rule:
+
+Future packages should consume configuration from `@opportunity-os/config`. They should not read `process.env` directly once they depend on this shared package.
+
+Out of scope:
+
+- apps
+
+- APIs
+
+- connectors
+
+- AI workflows
+
+- database behavior
+
+- domain logic
+
+- intelligence logic
+
+- business processes
+
+Next milestone dependency:
+
+The next shared-infrastructure milestone must depend on `packages/config` for validated runtime values such as service name, environment, log level, exporter endpoint, service URLs, provider keys, and authentication settings.
+
+Readiness gate:
+
+- `packages/config` is implemented, tested, documented, and independently buildable through the workspace build
+
+- all required and optional environment variables are validated and documented
+
+- configuration errors are clear for local development and CI while remaining secret-safe
+
+- `apps/` contains no application implementation
+
+- no business logic, connectors, AI workflows, API routes, database implementation, or frontend implementation exists
+
+- repository verification, lint, build, tests, and Docker Compose config pass
+
+Handoff:
+
+After this gate passes, the next shared-infrastructure milestone may consume `@opportunity-os/config` as the canonical source for runtime configuration.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

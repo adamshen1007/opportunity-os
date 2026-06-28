@@ -1,0 +1,137 @@
+import { z } from "zod";
+
+import { EnvironmentValidationError, type ConfigValidationIssue } from "./errors.js";
+import type { OptionalEnvironment, RequiredEnvironment } from "./types.js";
+
+export const REQUIRED_ENVIRONMENT_VARIABLES = [
+  "APP_NAME",
+  "NODE_ENV",
+  "PORT",
+  "DATABASE_URL",
+  "REDIS_URL",
+  "OPENAI_API_KEY",
+  "ANTHROPIC_API_KEY",
+  "OPENAI_MODEL",
+  "ANTHROPIC_MODEL",
+  "JWT_SECRET",
+  "JWT_EXPIRES_IN",
+  "LOG_LEVEL",
+  "OTEL_EXPORTER_ENDPOINT"
+] as const;
+
+export const OPTIONAL_ENVIRONMENT_VARIABLES = [
+  "SENTRY_DSN",
+  "LANGFUSE_API_KEY",
+  "LANGSMITH_API_KEY"
+] as const;
+
+export type RequiredEnvironmentVariable = (typeof REQUIRED_ENVIRONMENT_VARIABLES)[number];
+export type OptionalEnvironmentVariable = (typeof OPTIONAL_ENVIRONMENT_VARIABLES)[number];
+export type EnvironmentVariableName = RequiredEnvironmentVariable | OptionalEnvironmentVariable;
+
+export const DEFAULT_ENVIRONMENT_VALUES = {
+  NODE_ENV: "local",
+  PORT: 3000,
+  LOG_LEVEL: "info"
+} as const;
+
+const runtimeEnvironmentSchema = z.enum(["local", "development", "staging", "production"]);
+const logLevelSchema = z.enum(["trace", "debug", "info", "warn", "error", "fatal"]);
+
+const nonEmptyStringSchema = z.string().trim().min(1);
+const urlStringSchema = nonEmptyStringSchema.url();
+
+export const requiredEnvironmentSchema = z.object({
+  APP_NAME: nonEmptyStringSchema,
+  NODE_ENV: runtimeEnvironmentSchema.default(DEFAULT_ENVIRONMENT_VALUES.NODE_ENV),
+  PORT: z.coerce.number().int().min(1).max(65535).default(DEFAULT_ENVIRONMENT_VALUES.PORT),
+  DATABASE_URL: urlStringSchema,
+  REDIS_URL: urlStringSchema,
+  OPENAI_API_KEY: nonEmptyStringSchema,
+  ANTHROPIC_API_KEY: nonEmptyStringSchema,
+  OPENAI_MODEL: nonEmptyStringSchema,
+  ANTHROPIC_MODEL: nonEmptyStringSchema,
+  JWT_SECRET: nonEmptyStringSchema,
+  JWT_EXPIRES_IN: nonEmptyStringSchema,
+  LOG_LEVEL: logLevelSchema.default(DEFAULT_ENVIRONMENT_VALUES.LOG_LEVEL),
+  OTEL_EXPORTER_ENDPOINT: urlStringSchema
+});
+
+export const optionalEnvironmentSchema = z.object({
+  SENTRY_DSN: urlStringSchema.optional(),
+  LANGFUSE_API_KEY: nonEmptyStringSchema.optional(),
+  LANGSMITH_API_KEY: nonEmptyStringSchema.optional()
+});
+
+export function validateRequiredEnvironment(input: Record<string, unknown>): RequiredEnvironment {
+  const result = requiredEnvironmentSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new EnvironmentValidationError(formatEnvironmentIssues(result.error.issues));
+  }
+
+  return result.data;
+}
+
+export function validateOptionalEnvironment(input: Record<string, unknown>): OptionalEnvironment {
+  const result = optionalEnvironmentSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new EnvironmentValidationError(formatEnvironmentIssues(result.error.issues));
+  }
+
+  return result.data;
+}
+
+function formatEnvironmentIssues(issues: readonly z.ZodIssue[]): ConfigValidationIssue[] {
+  return issues.map((issue) => {
+    const variableName = getIssueVariableName(issue);
+    return {
+      code: "CONFIG_REQUIRED_ENVIRONMENT_INVALID",
+      variableName,
+      message: getIssueMessage(variableName, issue)
+    };
+  });
+}
+
+function getIssueVariableName(issue: z.ZodIssue): EnvironmentVariableName {
+  const candidate = String(issue.path[0] ?? "UNKNOWN");
+
+  if (REQUIRED_ENVIRONMENT_VARIABLES.includes(candidate as RequiredEnvironmentVariable)) {
+    return candidate as RequiredEnvironmentVariable;
+  }
+
+  if (OPTIONAL_ENVIRONMENT_VARIABLES.includes(candidate as OptionalEnvironmentVariable)) {
+    return candidate as OptionalEnvironmentVariable;
+  }
+
+  return "APP_NAME";
+}
+
+function getIssueMessage(variableName: EnvironmentVariableName, issue: z.ZodIssue): string {
+  if (issue.code === "invalid_type") {
+    return `${variableName} is required`;
+  }
+
+  if (variableName === "NODE_ENV") {
+    return "NODE_ENV must be one of: local, development, staging, production";
+  }
+
+  if (variableName === "LOG_LEVEL") {
+    return "LOG_LEVEL must be one of: trace, debug, info, warn, error, fatal";
+  }
+
+  if (variableName === "PORT") {
+    return "PORT must be an integer between 1 and 65535";
+  }
+
+  if (variableName === "DATABASE_URL" || variableName === "REDIS_URL" || variableName === "OTEL_EXPORTER_ENDPOINT") {
+    return `${variableName} must be a valid URL`;
+  }
+
+  if (variableName === "SENTRY_DSN") {
+    return "SENTRY_DSN must be a valid URL";
+  }
+
+  return `${variableName} must be a non-empty string`;
+}

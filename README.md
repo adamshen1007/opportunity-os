@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-At this stage, these commands verify repository structure, document numbering, README coverage, and cross references.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, and `packages/config` tests.
 
 ## Phase Workflow
 
@@ -93,7 +93,7 @@ Numbered documents under `docs/` must keep their folder prefix and file heading 
 
 ## Testing Strategy
 
-During Phase 0, `pnpm test` runs repository verification only. It does not run application, API, business logic, connector, or AI workflow tests because those implementations do not exist yet.
+During Phase 1 Milestone 1, `pnpm test` runs repository verification and `packages/config` tests. It does not run application, API, business logic, connector, or AI workflow tests because those implementations do not exist yet.
 
 Future implementation phases should introduce tests in layers:
 
@@ -127,13 +127,42 @@ Optional variables:
 - `LANGFUSE_API_KEY`
 - `LANGSMITH_API_KEY`
 
-For local repository foundation work, secret values may stay empty because no runtime application code exists yet. Before implementation work uses AI providers, authentication, or external observability, fill the relevant values in your local `.env`; never commit real secrets.
+Safe defaults are documented in `.env.example` and `packages/config/README.md`:
+
+- `NODE_ENV=local`
+- `PORT=3000`
+- `LOG_LEVEL=info`
+
+Runtime configuration validation fails fast when required values are missing or malformed. Required secrets do not receive fake defaults. Before implementation work uses AI providers, authentication, or external observability, fill the relevant values in your local `.env`; never commit real secrets.
 
 Production environments must provide required variables through the deployment platform or secret manager. Production secrets must not be copied from local files, committed to Git, or stored in documentation.
 
+## Config Package Usage
+
+`packages/config` owns runtime configuration during Phase 1 Milestone 1.
+
+Future packages should consume typed configuration from `@opportunity-os/config` rather than reading `process.env` directly. Use `loadRuntimeConfig()` for runtime environment loading and `createRuntimeConfig(requiredEnvironment, optionalEnvironment)` for tests or controlled package boundaries.
+
+Typed config is grouped by `application`, `services`, `aiProviders`, `authentication`, `observability`, and `optionalIntegrations`.
+
+Apps, APIs, connectors, AI workflows, and business logic are not part of this milestone. The next shared-infrastructure milestone should depend on `packages/config` for validated service name, environment, log level, exporter endpoint, and related runtime settings.
+
+## Phase 1 Milestone 1 Readiness
+
+Phase 1 Milestone 1 is complete when all of the following are true:
+
+- `packages/config` implements environment schema validation, typed exports, fail-fast loading, and secret-safe configuration errors
+- `packages/config` is documented, tested, and independently buildable through the workspace build
+- `.env.example`, repository documentation, and the config schema describe the same required and optional variables
+- `apps/` contains no application implementation
+- no business logic, connectors, AI workflows, API routes, database implementation, or frontend implementation exists
+- `node scripts/verify-repository.mjs --phase review`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+After this gate passes, the next shared infrastructure milestone may consume `@opportunity-os/config` instead of reading from `process.env` directly.
+
 ## Logging Architecture
 
-Logging is planned for the future shared infrastructure phase. No logger implementation exists during Phase 0.
+Logging is planned for a future shared infrastructure milestone. No logger implementation exists during Phase 1 Milestone 1.
 
 The future logging package will live under `packages/shared/` and should emit structured logs with these required fields:
 
@@ -152,7 +181,7 @@ Sensitive data must never be logged. This includes API keys, tokens, passwords, 
 
 ## Local Services
 
-The repository includes a Docker Compose baseline for local PostgreSQL and Redis only. It does not define application containers during Phase 0.
+The repository includes a Docker Compose baseline for local PostgreSQL and Redis only. It does not define application containers during Phase 1 Milestone 1.
 
 Validate the Compose file:
 
@@ -186,4 +215,4 @@ Every pull request should:
 
 ## Current Status
 
-Repository foundation is prepared for Phase 1 after the Phase 0 completion checklist passes. The next phase should begin only after a scoped shared-infrastructure task is opened and linked to the relevant Engineering Kit documents.
+Phase 1 Milestone 1 establishes runtime configuration in `packages/config`. The repository is ready for the next shared infrastructure milestone after the readiness gate commands pass and no out-of-scope implementation files are present.

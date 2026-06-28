@@ -1,0 +1,33 @@
+{
+  "name": "@opportunity-os/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runtime configuration package for Opportunity OS shared infrastructure.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": "11.7.0"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.16"
+  }
+}

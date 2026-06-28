@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-At this repository foundation stage, these commands validate the repository structure and documentation integrity.
+During Phase 1 Milestone 1, these commands validate repository structure, documentation integrity, package boundaries, and the `packages/config` implementation.
 
 ## Phase 0 and Phase 1
 
@@ -77,6 +77,21 @@ Before Phase 1 begins, confirm:
 - no secrets, generated local artifacts, or unrelated local files are staged
 
 If any item fails, keep the work in Phase 0 and fix the foundation before starting Phase 1.
+
+## Phase 1 Milestone 1 Readiness
+
+Phase 1 Milestone 1 is limited to runtime configuration and validation in `packages/config`.
+
+Before handing off to the next shared infrastructure milestone, confirm:
+
+- `packages/config` is implemented, tested, documented, and buildable through `pnpm build`
+- all required and optional environment variables are validated and documented
+- config errors identify invalid variable names and reason codes without printing raw secret values
+- `apps/` still contains no application code
+- no business logic, connectors, AI workflows, API routes, database implementation, or frontend implementation exists
+- `node scripts/verify-repository.mjs --phase review`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Future implementation work should consume typed configuration from `@opportunity-os/config` and keep direct `process.env` reads inside this package unless a later Engineering Kit task changes the boundary.
 
 ## Documentation Rules
 
@@ -110,6 +125,30 @@ Every implementation pull request should identify the test layer it affects and 
 
 Use `.env.example` as the contract for required and optional variables.
 
+Required variables:
+
+- `APP_NAME`
+- `NODE_ENV`
+- `PORT`
+- `DATABASE_URL`
+- `REDIS_URL`
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `OPENAI_MODEL`
+- `ANTHROPIC_MODEL`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `LOG_LEVEL`
+- `OTEL_EXPORTER_ENDPOINT`
+
+Optional variables:
+
+- `SENTRY_DSN`
+- `LANGFUSE_API_KEY`
+- `LANGSMITH_API_KEY`
+
+Safe defaults are limited to `NODE_ENV=local`, `PORT=3000`, and `LOG_LEVEL=info`. Required secrets and credentials do not receive defaults.
+
 For local work:
 
 1. Create `.env` from `.env.example`.
@@ -123,7 +162,7 @@ For production work:
 - Do not reuse local secrets.
 - Do not commit `.env`, credentials, API keys, tokens, or generated secret files.
 
-Future runtime configuration validation belongs in the config package and must fail fast when required variables are missing. Do not add runtime validation outside an approved implementation task.
+Runtime configuration validation now belongs to `packages/config` during Phase 1 shared infrastructure work. It fails fast when required variables are missing or malformed and must not print raw secret values in error output.
 
 ## Security and Repository Hygiene
 
