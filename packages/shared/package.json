@@ -28,7 +28,8 @@
     "@opportunity-os/config": "workspace:*",
     "@opportunity-os/errors": "workspace:*",
     "@opportunity-os/types": "workspace:*",
-    "@opportunity-os/utils": "workspace:*"
+    "@opportunity-os/utils": "workspace:*",
+    "pino": "^10.3.1"
   },
   "devDependencies": {
     "vitest": "^4.0.16"

@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 Milestone 2, these commands validate repository structure, documentation integrity, package boundaries, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+During Phase 1 Milestone 3, these commands validate repository structure, documentation integrity, package boundaries, logging foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
 
 ## Phase 0 and Phase 1
 
@@ -126,6 +126,45 @@ Before handing off to the next milestone, confirm:
 
 The next milestone must consume the shared foundation packages rather than redefining configuration, error, utility, logging, context, or validation contracts inside downstream implementation packages.
 
+## Logging Foundation Usage
+
+Phase 1 Milestone 3 implements the logging foundation in `packages/shared`. Future packages should consume logging through `@opportunity-os/shared`.
+
+Use the shared logger as follows:
+
+- create explicit logger configuration with `createLoggerConfig()`
+- create logger instances with `createPinoLogger()`
+- use injectable destinations and clocks in tests
+- use `logger.child()` for immutable inherited correlation, request, and base context
+- use severity methods `debug`, `info`, `warn`, and `error`
+- provide a `correlationId` through the call input or child logger
+- provide `requestId` only when request context exists
+
+Do not read `process.env` from logging consumers. Logging runtime values should come from validated configuration once a future package wires `@opportunity-os/config` to `@opportunity-os/shared`.
+
+Secret-safe logging rules:
+
+- never log secrets, tokens, API keys, provider keys, passwords, credentials, DSNs, connection strings with credentials, or raw auth headers
+- log stable identifiers, event names, correlation IDs, request IDs, and operational metadata instead of sensitive payloads
+- rely on shared normalization for defense in depth, but do not intentionally pass sensitive data to the logger
+- log `OpportunityError` and unknown `Error` values through the shared logger so stacks and raw causes stay out of safe output
+
+Milestone 3 does not include HTTP middleware, API integration, connector integration, AI workflow integration, database integration, frontend integration, app startup, or business logic.
+
+## Phase 1 Milestone 3 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/shared` owns the Pino-backed structured logger foundation
+- logger contracts, config, Pino level mapping, clock, destination, child logger, severity methods, and error normalization are tested
+- logging output remains secret-safe, schema-stable, and stack-safe
+- workspace exports expose approved logging capabilities from `@opportunity-os/shared`
+- repository verification enforces logging files, exports, dependency boundaries, and Pino scoping
+- no application code, APIs, connectors, AI workflows, database implementation, frontend implementation, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Do not begin Phase 1 Milestone 4 until its task scope, owning package, Engineering Kit references, acceptance criteria, and tests are approved.
+
 ## Documentation Rules
 
 Cross references must point to existing files or approved Engineering Kit document aliases. Prefer repository-relative paths.
@@ -140,7 +179,7 @@ When adding or renaming Markdown documents:
 
 ## Testing
 
-At Phase 1 Milestone 2, `pnpm test` runs repository verification and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+At Phase 1 Milestone 3, `pnpm test` runs repository verification and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
 
 Do not add test suites for application behavior, APIs, connectors, AI workflows, or business logic until the relevant implementation task exists.
 

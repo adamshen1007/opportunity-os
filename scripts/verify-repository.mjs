@@ -73,11 +73,41 @@ const expectedNodeVersion = "24";
 const placeholderOnlyRoots = ["apps", "packages"];
 const phase = process.argv.includes("--phase") ? process.argv[process.argv.indexOf("--phase") + 1] : "lint";
 const phaseOneAliases = new Set(["phase1", "phase-1", "phase-1-milestone-1"]);
-const phaseTwoAliases = new Set(["review", "phase-1-milestone-2", "shared-foundation"]);
+const phaseTwoAliases = new Set(["phase-1-milestone-2", "shared-foundation"]);
+const phaseThreeAliases = new Set(["review", "phase-1-milestone-3", "logging-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
+const requiredLoggingImplementationFiles = [
+  "packages/shared/src/logging/index.ts",
+  "packages/shared/src/logging/logger-clock.ts",
+  "packages/shared/src/logging/logger-config.ts",
+  "packages/shared/src/logging/logger-destination.ts",
+  "packages/shared/src/logging/log-entry.ts",
+  "packages/shared/src/logging/log-level.ts",
+  "packages/shared/src/logging/logger.ts",
+  "packages/shared/src/logging/pino-level.ts",
+  "packages/shared/src/logging/pino-logger.ts",
+  "packages/shared/src/logging/safe-log-entry.ts",
+  "packages/shared/src/__tests__/logger-core.test.ts",
+  "packages/shared/src/__tests__/logging-contract.test.ts"
+];
+const requiredLoggingExports = [
+  "createPinoLogger",
+  "createInMemoryLoggerDestination",
+  "createLoggerConfig",
+  "createFixedLoggerClock",
+  "normalizeLogEntry",
+  "normalizeLogError",
+  "LOG_LEVELS",
+  "PINO_LOG_LEVELS",
+  "StructuredLogger",
+  "LoggerChildContext",
+  "SafeLogEntry",
+  "SafeLogError"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -258,6 +288,69 @@ function assertSharedFoundationPackageDependencies(packageRoot, packageRule) {
   }
 }
 
+function readJson(relativePath) {
+  return JSON.parse(read(relativePath));
+}
+
+function listPackageJsonFiles(dir = ".") {
+  const absoluteDir = path.join(root, dir);
+  if (!fs.existsSync(absoluteDir)) return [];
+
+  const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist") {
+      return [];
+    }
+
+    const relativePath = dir === "." ? entry.name : path.join(dir, entry.name);
+    if (entry.isDirectory()) return listPackageJsonFiles(relativePath);
+    return entry.isFile() && entry.name === "package.json" ? [relativePath] : [];
+  });
+}
+
+function assertLoggingImplementationPolicy() {
+  for (const file of requiredLoggingImplementationFiles) {
+    if (!exists(file)) {
+      fail(`Logging implementation is missing required file: ${file}`);
+    }
+  }
+
+  const loggingIndexPath = "packages/shared/src/logging/index.ts";
+  if (exists(loggingIndexPath)) {
+    const loggingIndex = read(loggingIndexPath);
+    for (const exportName of requiredLoggingExports) {
+      if (!loggingIndex.includes(exportName)) {
+        fail(`${loggingIndexPath} must export logging contract "${exportName}"`);
+      }
+    }
+  }
+
+  const sharedIndexPath = "packages/shared/src/index.ts";
+  if (exists(sharedIndexPath)) {
+    const sharedIndex = read(sharedIndexPath);
+    for (const exportName of requiredLoggingExports) {
+      if (!sharedIndex.includes(exportName)) {
+        fail(`${sharedIndexPath} must re-export logging contract "${exportName}"`);
+      }
+    }
+  }
+
+  for (const packageJsonPath of listPackageJsonFiles()) {
+    try {
+      const packageJson = readJson(packageJsonPath);
+      const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+      for (const dependencyField of dependencyFields) {
+        const dependencies = packageJson[dependencyField] ?? {};
+        if ("pino" in dependencies && packageJsonPath !== "packages/shared/package.json") {
+          fail(`Pino may only be declared by packages/shared; found ${dependencyField}.pino in ${packageJsonPath}`);
+        }
+      }
+    } catch (error) {
+      fail(`${packageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -307,7 +400,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? "1 Milestone 2" : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -315,6 +408,10 @@ for (const placeholderRoot of placeholderOnlyRoots) {
 
 for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageRules)) {
   assertSharedFoundationPackageDependencies(packageRoot, packageRule);
+}
+
+if (isPhaseThree) {
+  assertLoggingImplementationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

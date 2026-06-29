@@ -15,16 +15,43 @@ export {
   type RequestContextInput,
   type RequestId
 } from "./context/request-context.js";
-export { LOG_LEVELS, type LogLevel } from "./logging/log-level.js";
-export type { LogEntry, LogEntryContext } from "./logging/log-entry.js";
+export {
+  createFixedLoggerClock,
+  createInMemoryLoggerDestination,
+  createLoggerConfig,
+  createPinoLogger,
+  createSystemLoggerClock,
+  LOG_LEVELS,
+  PINO_LOG_LEVELS,
+  normalizeLogEntry,
+  normalizeLogError,
+  systemLoggerClock,
+  isLogLevel,
+  toPinoLogLevel,
+  type InMemoryLoggerDestination,
+  type LogLevel,
+  type LoggerClock,
+  type LoggerChildContext,
+  type LoggerConfig,
+  type LoggerConfigInput,
+  type LoggerDestination,
+  type PinoLoggerDestination,
+  type PinoLoggerFactoryInput,
+  type PinoLogLevel,
+  type SafeLogEntry,
+  type SafeLogError,
+  type SafeLogValue
+} from "./logging/index.js";
 export type {
+  LogEntry,
+  LogEntryContext,
   Logger,
   LoggerFactory,
   LoggerFactoryOptions,
   LogInput,
   LogMethodInput,
   StructuredLogger
-} from "./logging/logger.js";
+} from "./logging/index.js";
 export type {
   ValidationIssue,
   ValidationIssueMetadata,

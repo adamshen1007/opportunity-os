@@ -10,8 +10,9 @@ export type LogEntry = {
   readonly environment: string;
   readonly severity: LogLevel;
   readonly correlationId: string;
-  readonly requestId: string;
+  readonly requestId?: string;
   readonly eventName: string;
   readonly message: string;
   readonly context?: LogEntryContext;
+  readonly error?: unknown;
 };

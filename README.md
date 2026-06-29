@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
 
 ## Phase Workflow
 
@@ -196,22 +196,57 @@ After this gate passes, the next milestone may depend on shared foundation packa
 
 ## Logging Architecture
 
-Logging contracts exist in `packages/shared`; no logger implementation exists during Phase 1 Milestone 2.
+Phase 1 Milestone 3 implements the structured logging foundation in `packages/shared`. `packages/shared` is the owner of the logging foundation, and Pino is the approved structured logging implementation.
 
-The future logger implementation should consume the shared logging contracts and emit structured logs with these required fields:
+The logging foundation must remain compatible with the Phase 1 Milestone 2 dependency direction:
+
+- `packages/types` and `packages/utils` sit at the base.
+- `packages/errors` may depend on `@opportunity-os/types`.
+- `packages/shared` may depend on `@opportunity-os/config`, `@opportunity-os/types`, `@opportunity-os/errors`, and `@opportunity-os/utils`.
+
+The logging foundation remains out of scope for application code, APIs, connectors, AI workflows, database implementation, frontend implementation, and business logic.
+
+The Pino logger implementation consumes the shared logging contracts and emits structured logs with these required fields:
 
 - `timestamp`
 - `service`
 - `environment`
 - `severity`
 - `correlationId`
-- `requestId`
+- `requestId` when a request context exists
 - `eventName`
 - `message`
 
-Logging configuration should come from `packages/config`, including service name, environment, and log level.
+Logger usage:
+
+- use `createLoggerConfig()` with explicit `service`, `environment`, and `logLevel`
+- create logger instances with `createPinoLogger()`
+- pass an injectable destination for deterministic tests when needed
+- pass an injectable clock for deterministic timestamps when needed
+- use `logger.child()` to inherit immutable correlation, request, and base context
+- call `debug`, `info`, `warn`, or `error` with `correlationId`, `eventName`, `message`, and optional `requestId`, `context`, or `error`
+
+Future packages should consume logging through `@opportunity-os/shared`; they must not create local logger factories, read `process.env` for logging settings, or declare their own Pino dependency. Application, API, connector, AI workflow, frontend, and database integration remain future milestones.
 
 Sensitive data must never be logged. This includes API keys, tokens, passwords, raw authentication headers, credentials, and unredacted secret values.
+
+The shared logger normalizes log entries and errors through secret-safe output. `OpportunityError` and unknown `Error` values are logged without stack traces, raw causes, provider keys, tokens, DSNs, passwords, or auth headers.
+
+## Phase 1 Milestone 3 Readiness
+
+Phase 1 Milestone 3 is complete when all of the following are true:
+
+- `packages/shared` contains the Pino-backed logging foundation, logging contracts, context support, secret-safe normalization, and deterministic tests
+- logger configuration is explicit and does not read `process.env`
+- logger destinations and clocks are injectable for deterministic testing
+- correlation IDs are required, request IDs are optional, and child loggers inherit immutable context
+- `OpportunityError` and unknown `Error` logging remain stack-safe and secret-safe
+- logging exports are available from `@opportunity-os/shared`
+- repository verification enforces logging files, exports, dependency boundaries, and Pino scoping
+- no application code, APIs, connectors, AI workflows, database implementation, frontend implementation, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+After this gate passes, the next milestone may consume `@opportunity-os/shared` logging from future implementation packages. Do not begin Phase 1 Milestone 4 until its owning package, scope, tests, and Engineering Kit references are approved.
 
 ## Local Services
 
@@ -249,4 +284,4 @@ Every pull request should:
 
 ## Current Status
 
-Phase 1 Milestone 2 establishes the shared foundation package layer. The repository remains free of business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, and app code.
+Phase 1 Milestone 3 establishes the shared logging foundation inside `packages/shared`. The repository remains free of business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, and app code.

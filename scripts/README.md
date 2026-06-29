@@ -12,6 +12,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - local Node version files: `.node-version` and `.nvmrc` must both be `24`
 - placeholder boundaries: `apps/` and `packages/` may contain only `README.md` files until approved implementation work begins
 - shared foundation package dependency boundaries and reverse dependency rules
+- logging foundation file, export, and dependency stability checks during Phase 1 Milestone 3
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 ## Phase 1 Shared Infrastructure Boundaries
@@ -40,7 +41,20 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 1 Milestone 2 boundary.
+Phase 1 Milestone 3 adds the logging foundation inside `packages/shared/`. It uses the same shared infrastructure implementation roots and keeps all application, API, connector, AI workflow, frontend, database, domain, intelligence, and business implementation blocked.
+
+Run the active review boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+```
+
+The `review` phase now uses the active Phase 1 Milestone 3 boundary and additionally verifies:
+
+- required logging implementation files exist under `packages/shared/src/logging/`
+- logging contracts are exported through `packages/shared/src/logging/index.ts`
+- workspace root shared exports expose the approved logging contracts
+- `pino` is declared only by `packages/shared`
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 

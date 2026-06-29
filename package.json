@@ -10,10 +10,10 @@
     "pnpm": "11.7.0"
   },
   "scripts": {
-    "repo:check": "node scripts/verify-repository.mjs --phase phase-1-milestone-2",
-    "lint": "node scripts/verify-repository.mjs --phase phase-1-milestone-2 && turbo run lint",
-    "build": "node scripts/verify-repository.mjs --phase phase-1-milestone-2 && turbo run build",
-    "test": "node scripts/verify-repository.mjs --phase phase-1-milestone-2 && turbo run test"
+    "repo:check": "node scripts/verify-repository.mjs --phase review",
+    "lint": "node scripts/verify-repository.mjs --phase review && turbo run lint",
+    "build": "node scripts/verify-repository.mjs --phase review && turbo run build",
+    "test": "node scripts/verify-repository.mjs --phase review && turbo run test"
   },
   "devDependencies": {
     "turbo": "^2.5.4",

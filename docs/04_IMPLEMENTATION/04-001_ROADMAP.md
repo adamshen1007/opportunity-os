@@ -291,6 +291,94 @@ Next milestone dependency:
 
 The next milestone must depend on the shared foundation packages for runtime configuration, generic type contracts, generic error contracts, deterministic utilities, logging contracts, request and correlation context contracts, and validation result contracts. Downstream implementation packages must not redefine these shared contracts locally.
 
+## Phase 1 Milestone 3 — Logging Foundation
+
+Goal:
+
+Implement the structured logging foundation without application behavior.
+
+Owner:
+
+- `packages/shared`
+
+Approved implementation:
+
+- Pino-based structured logger
+
+Required capabilities:
+
+- structured log entries based on the shared logging contracts
+
+- correlation ID support
+
+- request ID support
+
+- secret-safe logging behavior
+
+- logger tests
+
+- documentation updates
+
+- repository verification updates if needed
+
+Dependency direction:
+
+- `packages/types` and `packages/utils` remain base shared foundation packages.
+
+- `packages/errors` may depend on `packages/types`.
+
+- `packages/shared` may depend on `packages/config`, `packages/types`, `packages/errors`, and `packages/utils`.
+
+Compatibility rule:
+
+Phase 1 Milestone 3 must preserve the Phase 1 Milestone 2 dependency direction. It must not introduce reverse dependencies from base packages into `packages/shared`, apps, APIs, connectors, AI workflows, database packages, frontend packages, or business packages.
+
+Out of scope:
+
+- application code
+
+- APIs or API routes
+
+- connectors
+
+- AI workflows
+
+- database implementation
+
+- frontend implementation
+
+- business logic
+
+Implementation guardrail:
+
+Phase 1 Milestone 3 must not introduce domain behavior, connector behavior, API behavior, persistence behavior, application behavior, user interface behavior, or business rules.
+
+Readiness gate:
+
+- `packages/shared` owns and exports the Pino-backed logging foundation
+
+- logger configuration is explicit and never reads `process.env`
+
+- log level mapping to Pino is deterministic and rejects unsupported severities
+
+- clocks and destinations are injectable for deterministic tests
+
+- correlation IDs are required, request IDs are optional, and child loggers inherit immutable parent context
+
+- severity methods `debug`, `info`, `warn`, and `error` emit structured log entries
+
+- `OpportunityError` and unknown `Error` values are normalized without stack traces, raw causes, credentials, tokens, provider keys, DSNs, passwords, or raw auth headers
+
+- secret redaction, schema stability, workspace exports, and repository verification are covered
+
+- repository verification continues blocking apps, APIs, connectors, AI workflows, frontend, database, domain, intelligence, and business implementation
+
+- `node scripts/verify-repository.mjs --phase review`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Handoff:
+
+After this gate passes, future milestones may consume `@opportunity-os/shared` logging. Phase 1 Milestone 4 must not begin until its scope, owning package, Engineering Kit references, acceptance criteria, and required tests are approved.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal
