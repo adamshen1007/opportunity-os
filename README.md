@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, and `packages/events`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging and event foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, and `packages/events`.
 
 ## Phase Workflow
 
@@ -248,6 +248,46 @@ Phase 1 Milestone 3 is complete when all of the following are true:
 
 After this gate passes, the next milestone may consume `@opportunity-os/shared` logging from future implementation packages. Do not begin Phase 1 Milestone 4 until its owning package, scope, tests, and Engineering Kit references are approved.
 
+## Event Foundation
+
+Phase 1 Milestone 4 implements the Event Foundation in `packages/events`.
+
+`packages/events` owns infrastructure-level event contracts:
+
+- stable event category constants
+- event metadata with event ID, event name, category, version, timestamp, source, correlation ID, optional causation ID, optional request ID, and optional idempotency key
+- generic `vN` event versioning
+- generic event envelopes with metadata and payload
+- event context for correlation, causation, and request IDs
+- library-agnostic event schema contracts
+- transport-agnostic publisher and consumer interfaces
+- deterministic serialization and safe deserialization
+- idempotency and replay-readiness contracts
+- generic event result and secret-safe event error contracts
+- test-only in-memory event bus support
+
+Event privacy rules:
+
+- event errors, logs, test fixtures, and documentation must not expose raw payloads, API keys, tokens, passwords, raw auth headers, provider keys, credentials, DSNs, or credential-bearing URLs
+- event metadata must stay operational and must not include business payload fields
+- event payload types in this package must remain generic and business-agnostic
+
+`packages/events` does not define business events, domain-specific event names, a database event store, Kafka/NATS/Redis transport, connectors, APIs, AI workflows, frontend code, or business logic.
+
+Future packages may consume these event contracts once their own milestone approves the dependency. Do not add production transports, persistence, API integration, connector integration, AI workflow integration, or domain event names inside `packages/events`.
+
+## Phase 1 Milestone 4 Readiness
+
+Phase 1 Milestone 4 is complete when all of the following are true:
+
+- `packages/events` is implemented, tested, documented, and independently buildable
+- event envelope, metadata, versioning, correlation, causation, publisher, consumer, serialization, idempotency, replay, result, and error contracts are exported from `@opportunity-os/events`
+- the in-memory event bus is documented and constrained as test-only infrastructure
+- event security tests verify secret-safe errors and deserialization failures
+- repository verification supports `phase-1-milestone-4`, permits `packages/events`, and continues blocking apps, APIs, connectors, AI workflows, frontend, database, domain, intelligence, acquisition, application, and business implementation
+- no application code, APIs, connectors, AI workflows, database implementation, frontend implementation, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-4`, `pnpm lint`, `pnpm build`, and `pnpm test` pass
+
 ## Local Services
 
 The repository includes a Docker Compose baseline for local PostgreSQL and Redis only. It does not define application containers during Phase 1 Milestone 1.
@@ -284,4 +324,4 @@ Every pull request should:
 
 ## Current Status
 
-Phase 1 Milestone 3 establishes the shared logging foundation inside `packages/shared`. The repository remains free of business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, and app code.
+Phase 1 Milestone 4 establishes the shared Event Foundation inside `packages/events`. The repository remains free of business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, and app code.

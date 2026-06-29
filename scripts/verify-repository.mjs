@@ -74,12 +74,15 @@ const placeholderOnlyRoots = ["apps", "packages"];
 const phase = process.argv.includes("--phase") ? process.argv[process.argv.indexOf("--phase") + 1] : "lint";
 const phaseOneAliases = new Set(["phase1", "phase-1", "phase-1-milestone-1"]);
 const phaseTwoAliases = new Set(["phase-1-milestone-2", "shared-foundation"]);
-const phaseThreeAliases = new Set(["review", "phase-1-milestone-3", "logging-foundation"]);
+const phaseThreeAliases = new Set(["phase-1-milestone-3", "logging-foundation"]);
+const phaseFourAliases = new Set(["review", "phase-1-milestone-4", "event-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
+const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -108,6 +111,74 @@ const requiredLoggingExports = [
   "SafeLogEntry",
   "SafeLogError"
 ];
+const requiredEventFoundationFiles = [
+  "packages/events/package.json",
+  "packages/events/tsconfig.json",
+  "packages/events/vitest.config.ts",
+  "packages/events/src/index.ts",
+  "packages/events/src/event-category.ts",
+  "packages/events/src/event-consumer.ts",
+  "packages/events/src/event-context.ts",
+  "packages/events/src/event-envelope.ts",
+  "packages/events/src/event-error.ts",
+  "packages/events/src/event-metadata.ts",
+  "packages/events/src/event-publisher.ts",
+  "packages/events/src/event-result.ts",
+  "packages/events/src/event-schema.ts",
+  "packages/events/src/event-serialization.ts",
+  "packages/events/src/event-version.ts",
+  "packages/events/src/idempotency.ts",
+  "packages/events/src/replay.ts",
+  "packages/events/src/testing/index.ts",
+  "packages/events/src/testing/in-memory-event-bus.ts",
+  "packages/events/src/__tests__/event-category.test.ts",
+  "packages/events/src/__tests__/event-consumer.test.ts",
+  "packages/events/src/__tests__/event-contract-stability.test.ts",
+  "packages/events/src/__tests__/event-context.test.ts",
+  "packages/events/src/__tests__/event-envelope.test.ts",
+  "packages/events/src/__tests__/event-result.test.ts",
+  "packages/events/src/__tests__/event-serialization.test.ts",
+  "packages/events/src/__tests__/event-security.test.ts",
+  "packages/events/src/__tests__/event-metadata.test.ts",
+  "packages/events/src/__tests__/event-publisher.test.ts",
+  "packages/events/src/__tests__/event-schema.test.ts",
+  "packages/events/src/__tests__/event-version.test.ts",
+  "packages/events/src/__tests__/in-memory-event-bus.test.ts",
+  "packages/events/src/__tests__/idempotency.test.ts",
+  "packages/events/src/__tests__/replay.test.ts"
+];
+const requiredEventFoundationExports = [
+  "EVENT_CATEGORIES",
+  "EventCategory",
+  "isEventCategory",
+  "EventMetadata",
+  "EventMetadataInput",
+  "createEventMetadata",
+  "EventEnvelope",
+  "createEventEnvelope",
+  "EventContext",
+  "createEventContext",
+  "EventSchema",
+  "EventSchemaValidationResult",
+  "EventPublisher",
+  "EventConsumer",
+  "IDEMPOTENCY_STATUSES",
+  "IdempotencyStatus",
+  "ReplayMetadata",
+  "ReplayCheckpoint",
+  "ReplayEligibility",
+  "serializeEventEnvelope",
+  "deserializeEventEnvelope",
+  "EventResult",
+  "EventError",
+  "EVENT_ERROR_CODES",
+  "createInMemoryEventBus",
+  "InMemoryEventBus",
+  "EVENT_VERSION_PATTERN",
+  "EventVersion",
+  "createEventVersion",
+  "isEventVersion"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -133,6 +204,10 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/errors",
       "@opportunity-os/utils"
     ]
+  },
+  "packages/events": {
+    packageName: "@opportunity-os/events",
+    allowedWorkspaceDependencies: []
   }
 };
 const prohibitedSharedFoundationDependencyPatterns = [
@@ -351,6 +426,24 @@ function assertLoggingImplementationPolicy() {
   }
 }
 
+function assertEventFoundationPolicy() {
+  for (const file of requiredEventFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Event foundation is missing required file: ${file}`);
+    }
+  }
+
+  const eventsIndexPath = "packages/events/src/index.ts";
+  if (exists(eventsIndexPath)) {
+    const eventsIndex = read(eventsIndexPath);
+    for (const exportName of requiredEventFoundationExports) {
+      if (!eventsIndex.includes(exportName)) {
+        fail(`${eventsIndexPath} must export event foundation contract "${exportName}"`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -387,7 +480,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseTwo
+  const allowedImplementationRoots = isPhaseFour
+    ? allowedPhaseFourImplementationRoots
+    : isPhaseTwo
     ? allowedPhaseTwoImplementationRoots
     : allowedPhaseOneImplementationRoots;
 
@@ -400,7 +495,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -412,6 +507,10 @@ for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageR
 
 if (isPhaseThree) {
   assertLoggingImplementationPolicy();
+}
+
+if (isPhaseFour) {
+  assertEventFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

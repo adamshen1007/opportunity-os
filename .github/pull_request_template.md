@@ -27,6 +27,7 @@
 - [ ] I did not commit `.env`, secrets, credentials, tokens, private keys, database dumps, or generated local artifacts.
 - [ ] `.env.example` contains placeholders only.
 - [ ] Logs, screenshots, archives, and generated reports contain no secrets or private data.
+- [ ] If event contracts changed, I completed event privacy review: no raw payloads, secrets, tokens, API keys, provider keys, credentials, DSNs, auth headers, or production transports were introduced.
 - [ ] I cleaned up unrelated local files before opening this PR.
 
 ## Checklist

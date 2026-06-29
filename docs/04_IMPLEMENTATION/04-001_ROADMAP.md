@@ -379,6 +379,112 @@ Handoff:
 
 After this gate passes, future milestones may consume `@opportunity-os/shared` logging. Phase 1 Milestone 4 must not begin until its scope, owning package, Engineering Kit references, acceptance criteria, and required tests are approved.
 
+## Phase 1 Milestone 4 — Event Foundation
+
+Goal:
+
+Implement shared event foundation contracts without persistence, transport, application, or business behavior.
+
+Owner:
+
+- `packages/events`
+
+Deliverables:
+
+- `@opportunity-os/events` TypeScript package
+
+- stable infrastructure-level event category contracts
+
+- event metadata contracts
+
+- generic event versioning contracts
+
+- generic event envelope contracts
+
+- event context contracts for correlation, causation, and request IDs
+
+- library-agnostic event schema contracts
+
+- transport-agnostic event publisher and consumer interfaces
+
+- deterministic event serialization and safe deserialization
+
+- idempotency contracts
+
+- replay-readiness contracts
+
+- generic event result and event error contracts
+
+- test-only in-memory event bus support
+
+- event contract stability tests
+
+- event privacy and secret-safety tests
+
+- documentation boundaries
+
+Dependency direction:
+
+- `packages/events` is a shared infrastructure package.
+
+- `packages/events` must not depend on apps, APIs, connectors, AI workflows, database packages, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages.
+
+- `packages/events` currently remains independent of other workspace packages unless a future approved milestone changes the boundary.
+
+Out of scope:
+
+- database event store
+
+- Kafka, NATS, Redis, or other event transport
+
+- connectors
+
+- APIs or API routes
+
+- AI workflows
+
+- frontend implementation
+
+- business logic
+
+- business events or domain-specific event names
+
+- domain payload models
+
+Implementation guardrail:
+
+Phase 1 Milestone 4 must not introduce persistence behavior, transport behavior, connector behavior, API behavior, workflow behavior, application behavior, user interface behavior, domain behavior, intelligence behavior, acquisition behavior, or business rules.
+
+Readiness gate:
+
+- `packages/events` is scaffolded as `@opportunity-os/events`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/events/src/index.ts`
+
+- event categories are stable infrastructure-level constants
+
+- event metadata includes event ID, event name, category, version, timestamp, source, correlation ID, optional causation ID, optional request ID, and optional idempotency key
+
+- event version format is generic, documented, and deterministic
+
+- event envelopes, context, schemas, publisher and consumer interfaces, serialization, idempotency, replay, results, and errors are generic and documented
+
+- in-memory event bus support is test-only and explicitly not production transport
+
+- package-level tests cover categories, metadata, versioning, envelopes, context, schemas, publisher and consumer interfaces, serialization, idempotency, replay, results, safe errors, in-memory bus behavior, contract stability, and event privacy
+
+- repository verification permits `packages/events` while continuing to block apps, APIs, connectors, AI workflows, frontend, database, domain, intelligence, acquisition, application, and business implementation
+
+- repository verification rejects prohibited reverse dependencies
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-4`, `pnpm lint`, `pnpm build`, and `pnpm test` pass
+
+Handoff:
+
+After this gate passes, future milestones may consume `@opportunity-os/events` contracts. Phase 1 Milestone 5 must not begin until its scope, owning package, Engineering Kit references, acceptance criteria, and required tests are approved.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

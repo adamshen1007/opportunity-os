@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 Milestone 3, these commands validate repository structure, documentation integrity, package boundaries, logging foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+During Phase 1 Milestone 4, these commands validate repository structure, documentation integrity, package boundaries, logging and event foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, and `packages/events`.
 
 ## Phase 0 and Phase 1
 
@@ -165,6 +165,40 @@ Before handing off to the next milestone, confirm:
 
 Do not begin Phase 1 Milestone 4 until its task scope, owning package, Engineering Kit references, acceptance criteria, and tests are approved.
 
+## Event Foundation Usage
+
+Phase 1 Milestone 4 implements event foundation contracts in `packages/events`. Future packages should consume event contracts through `@opportunity-os/events` once their implementation milestone approves the dependency.
+
+Use the event package for:
+
+- infrastructure-level event categories
+- event metadata and generic event envelopes
+- correlation, causation, request, idempotency, and replay-readiness contracts
+- transport-agnostic publisher and consumer interfaces
+- deterministic event serialization and safe deserialization
+- generic event results and secret-safe event errors
+- test-only in-memory event bus support
+
+Do not add business event names, domain payload types, database event stores, Kafka/NATS/Redis transport, production queues, connector integration, API integration, AI workflow integration, frontend integration, app startup, or business logic to `packages/events`.
+
+Event privacy rules:
+
+- never expose raw event payloads, secrets, tokens, API keys, provider keys, passwords, credentials, DSNs, credential-bearing URLs, or raw auth headers in event errors, logs, tests, generated artifacts, pull requests, or documentation
+- keep event metadata operational; do not place business payload fields in metadata
+- treat the in-memory event bus as test-only infrastructure and never as production transport
+- update package tests and contract stability checks whenever event contract shapes change
+
+## Phase 1 Milestone 4 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/events` owns and exports Event Foundation contracts
+- event categories, metadata, versioning, envelopes, context, schemas, publisher and consumer interfaces, serialization, idempotency, replay, results, errors, and test-only in-memory bus behavior are tested
+- event errors and deserialization failures remain secret-safe
+- repository verification supports `phase-1-milestone-4`, permits `packages/events`, and continues blocking apps, APIs, connectors, AI workflows, frontend, database, domain, intelligence, acquisition, application, and business implementation
+- no application code, APIs, connectors, AI workflows, database implementation, frontend implementation, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-4`, `pnpm lint`, `pnpm build`, and `pnpm test` pass
+
 ## Documentation Rules
 
 Cross references must point to existing files or approved Engineering Kit document aliases. Prefer repository-relative paths.
@@ -179,7 +213,9 @@ When adding or renaming Markdown documents:
 
 ## Testing
 
-At Phase 1 Milestone 3, `pnpm test` runs repository verification and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+At Phase 1 Milestone 4, `pnpm test` runs repository verification and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, and `packages/events`.
+
+Event Foundation work must remain infrastructure-only and must not introduce business events, domain-specific event names, database event stores, Kafka/NATS/Redis transport, connectors, APIs, AI workflows, frontend code, or business logic.
 
 Do not add test suites for application behavior, APIs, connectors, AI workflows, or business logic until the relevant implementation task exists.
 

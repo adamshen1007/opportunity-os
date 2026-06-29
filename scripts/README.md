@@ -13,6 +13,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - placeholder boundaries: `apps/` and `packages/` may contain only `README.md` files until approved implementation work begins
 - shared foundation package dependency boundaries and reverse dependency rules
 - logging foundation file, export, and dependency stability checks during Phase 1 Milestone 3
+- event foundation file, export, and dependency stability checks during Phase 1 Milestone 4
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 ## Phase 1 Shared Infrastructure Boundaries
@@ -49,12 +50,31 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 1 Milestone 3 boundary and additionally verifies:
+The `review` phase now uses the active Phase 1 Milestone 4 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
 - workspace root shared exports expose the approved logging contracts
 - `pino` is declared only by `packages/shared`
+
+Phase 1 Milestone 4 adds the Event Foundation in `packages/events/`. It keeps all application, API, connector, AI workflow, frontend, database, domain, intelligence, and business implementation blocked.
+
+Run the explicit Event Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-1-milestone-4
+```
+
+In Milestone 4 mode, implementation files are permitted in:
+
+- `packages/config/`
+- `packages/types/`
+- `packages/errors/`
+- `packages/utils/`
+- `packages/shared/`
+- `packages/events/`
+
+The verifier checks that foundational event category, metadata, versioning, envelope, context, schema, publisher, consumer, idempotency, replay, serialization, result, error, test-only in-memory bus, contract stability, security, and public export files exist during the Event Foundation slice. It also verifies prohibited reverse dependencies so apps, APIs, connectors, AI workflows, frontend, database, domain, intelligence, acquisition, application, and business packages cannot depend into or be depended on by the shared foundation packages before their approved milestones.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
