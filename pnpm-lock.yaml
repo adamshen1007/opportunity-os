@@ -25,6 +25,43 @@ importers:
         specifier: ^4.0.16
         version: 4.1.9(vite@8.1.0)
 
+  packages/errors:
+    devDependencies:
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(vite@8.1.0)
+
+  packages/shared:
+    dependencies:
+      '@opportunity-os/config':
+        specifier: workspace:*
+        version: link:../config
+      '@opportunity-os/errors':
+        specifier: workspace:*
+        version: link:../errors
+      '@opportunity-os/types':
+        specifier: workspace:*
+        version: link:../types
+      '@opportunity-os/utils':
+        specifier: workspace:*
+        version: link:../utils
+    devDependencies:
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(vite@8.1.0)
+
+  packages/types:
+    devDependencies:
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(vite@8.1.0)
+
+  packages/utils:
+    devDependencies:
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(vite@8.1.0)
+
 packages:
 
   '@emnapi/core@1.11.1':

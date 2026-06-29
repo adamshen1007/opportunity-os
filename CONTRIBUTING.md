@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 Milestone 1, these commands validate repository structure, documentation integrity, package boundaries, and the `packages/config` implementation.
+During Phase 1 Milestone 2, these commands validate repository structure, documentation integrity, package boundaries, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
 
 ## Phase 0 and Phase 1
 
@@ -93,6 +93,39 @@ Before handing off to the next shared infrastructure milestone, confirm:
 
 Future implementation work should consume typed configuration from `@opportunity-os/config` and keep direct `process.env` reads inside this package unless a later Engineering Kit task changes the boundary.
 
+## Shared Foundation Package Boundaries
+
+Phase 1 Milestone 2 introduces shared foundation packages only. It does not introduce business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, or app code.
+
+Package ownership:
+
+- `packages/config` owns runtime configuration validation and typed configuration exports.
+- `packages/types` owns generic shared TypeScript types only.
+- `packages/errors` owns generic error categories, error codes, base error contracts, and secret-safe error serialization.
+- `packages/utils` owns generic deterministic object, string, redaction, and time utilities.
+- `packages/shared` owns shared contracts and approved aggregation for logging, context, validation results, and shared foundation exports.
+
+Allowed dependency direction:
+
+- `packages/types` and `packages/utils` are base packages.
+- `packages/errors` may depend on `@opportunity-os/types`.
+- `packages/shared` may depend on `@opportunity-os/config`, `@opportunity-os/types`, `@opportunity-os/errors`, and `@opportunity-os/utils`.
+- Shared foundation packages must not depend on apps, API packages, connectors, AI workflows, database packages, frontend packages, domain packages, or business packages.
+
+Future packages should import from the package that owns the concern. Do not read `process.env` outside `@opportunity-os/config`; do not define duplicate error, validation, logging, context, or utility contracts in downstream packages when the shared foundation already provides them.
+
+## Phase 1 Milestone 2 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared` are implemented, tested, documented, and independently buildable
+- dependency direction remains valid: base packages first, `packages/errors` may depend on `packages/types`, and `packages/shared` may depend on `packages/config`, `packages/types`, `packages/errors`, and `packages/utils`
+- shared contracts for configuration, generic types, errors, utilities, logging, context, and validation results are documented for future consumers
+- no business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, or app code exists
+- `node scripts/verify-repository.mjs --phase review`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+The next milestone must consume the shared foundation packages rather than redefining configuration, error, utility, logging, context, or validation contracts inside downstream implementation packages.
+
 ## Documentation Rules
 
 Cross references must point to existing files or approved Engineering Kit document aliases. Prefer repository-relative paths.
@@ -107,7 +140,7 @@ When adding or renaming Markdown documents:
 
 ## Testing
 
-At Phase 0, `pnpm test` runs repository verification only.
+At Phase 1 Milestone 2, `pnpm test` runs repository verification and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
 
 Do not add test suites for application behavior, APIs, connectors, AI workflows, or business logic until the relevant implementation task exists.
 
@@ -175,6 +208,14 @@ Secret handling:
 - Keep real secrets in your local `.env`, OS keychain, password manager, deployment platform, or secret manager.
 - Use placeholder values in documentation and examples.
 - Rotate any secret immediately if it is accidentally committed or pasted into an issue, pull request, log, or generated artifact.
+
+Shared foundation security expectations:
+
+- Error output exposed outside the throwing boundary must use secret-safe serialization.
+- Safe errors may include stable codes, categories, safe messages, `correlationId`, and `requestId`; they must not include raw causes, stack traces, provider keys, credentials, tokens, passwords, raw auth headers, or secret values by default.
+- Logging must never include secrets, tokens, raw auth headers, provider keys, credentials, API keys, passwords, or connection strings with credentials.
+- Future logging implementations must use structured fields from `packages/shared` and avoid placing sensitive payloads in `message` or structured context.
+- Generic redaction helpers from `@opportunity-os/utils` may be used for infrastructure-safe diagnostics, but redaction is defense in depth and not permission to collect or log sensitive values.
 
 Ignored files:
 

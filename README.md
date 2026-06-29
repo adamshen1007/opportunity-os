@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` is reserved for future workspace packages.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, and `packages/config` tests.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
 
 ## Phase Workflow
 
@@ -93,7 +93,7 @@ Numbered documents under `docs/` must keep their folder prefix and file heading 
 
 ## Testing Strategy
 
-During Phase 1 Milestone 1, `pnpm test` runs repository verification and `packages/config` tests. It does not run application, API, business logic, connector, or AI workflow tests because those implementations do not exist yet.
+During Phase 1 Milestone 2, `pnpm test` runs repository verification and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`. It does not run application, API, business logic, connector, AI workflow, database, or frontend tests because those implementations do not exist yet.
 
 Future implementation phases should introduce tests in layers:
 
@@ -160,11 +160,45 @@ Phase 1 Milestone 1 is complete when all of the following are true:
 
 After this gate passes, the next shared infrastructure milestone may consume `@opportunity-os/config` instead of reading from `process.env` directly.
 
+## Shared Foundation Usage
+
+Phase 1 Milestone 2 establishes shared foundation packages without application behavior.
+
+Package ownership:
+
+- `packages/config` owns runtime configuration validation and typed configuration exports.
+- `packages/types` owns generic shared TypeScript types such as branded primitives, result contracts, and metadata contracts.
+- `packages/errors` owns generic error categories, stable error codes, base error contracts, and secret-safe error serialization.
+- `packages/utils` owns generic deterministic object, string, redaction, and time utilities.
+- `packages/shared` owns shared contracts and approved aggregation for logging, request/correlation context, validation results, and shared foundation exports.
+
+Allowed dependency direction:
+
+- `packages/types` and `packages/utils` sit at the base and should remain dependency-light.
+- `packages/errors` may depend on `@opportunity-os/types`.
+- `packages/shared` may depend on `@opportunity-os/config`, `@opportunity-os/types`, `@opportunity-os/errors`, and `@opportunity-os/utils`.
+
+Future packages should consume shared foundation capabilities through the owning package first. Use `@opportunity-os/config` for runtime configuration, `@opportunity-os/types` for generic type contracts, `@opportunity-os/errors` for error contracts, `@opportunity-os/utils` for deterministic helpers, and `@opportunity-os/shared` for cross-cutting shared contracts. Do not create new shared abstractions inside apps, connectors, APIs, workflows, database packages, or frontend packages when an existing shared foundation package owns the concern.
+
+Phase 1 Milestone 2 does not include business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, or app code.
+
+## Phase 1 Milestone 2 Readiness
+
+Phase 1 Milestone 2 is complete when all of the following are true:
+
+- `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared` are implemented, tested, documented, and independently buildable
+- shared package boundaries and dependency direction are enforced by repository verification
+- package-level tests run through `pnpm test`
+- no business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, or app code exists
+- `node scripts/verify-repository.mjs --phase review`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+After this gate passes, the next milestone may depend on shared foundation packages for typed configuration, generic types, safe errors, deterministic utilities, logging contracts, request/correlation context contracts, and validation result contracts. Future implementation packages should consume these contracts instead of redefining them locally.
+
 ## Logging Architecture
 
-Logging is planned for a future shared infrastructure milestone. No logger implementation exists during Phase 1 Milestone 1.
+Logging contracts exist in `packages/shared`; no logger implementation exists during Phase 1 Milestone 2.
 
-The future logging package will live under `packages/shared/` and should emit structured logs with these required fields:
+The future logger implementation should consume the shared logging contracts and emit structured logs with these required fields:
 
 - `timestamp`
 - `service`
@@ -175,7 +209,7 @@ The future logging package will live under `packages/shared/` and should emit st
 - `eventName`
 - `message`
 
-Logging configuration should come from the future config package, including service name, environment, and log level.
+Logging configuration should come from `packages/config`, including service name, environment, and log level.
 
 Sensitive data must never be logged. This includes API keys, tokens, passwords, raw authentication headers, credentials, and unredacted secret values.
 
@@ -215,4 +249,4 @@ Every pull request should:
 
 ## Current Status
 
-Phase 1 Milestone 1 establishes runtime configuration in `packages/config`. The repository is ready for the next shared infrastructure milestone after the readiness gate commands pass and no out-of-scope implementation files are present.
+Phase 1 Milestone 2 establishes the shared foundation package layer. The repository remains free of business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, and app code.

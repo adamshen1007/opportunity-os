@@ -221,6 +221,76 @@ Handoff:
 
 After this gate passes, the next shared-infrastructure milestone may consume `@opportunity-os/config` as the canonical source for runtime configuration.
 
+## Phase 1 Milestone 2 — Shared Foundation
+
+Goal:
+
+Define and implement shared foundation packages without business behavior.
+
+Packages:
+
+- `packages/types`
+
+- `packages/utils`
+
+- `packages/errors`
+
+- `packages/shared`
+
+Ownership boundaries:
+
+- `packages/types` owns generic shared TypeScript types only.
+
+- `packages/utils` owns generic deterministic utilities only.
+
+- `packages/errors` owns generic shared error contracts only.
+
+- `packages/shared` owns shared infrastructure contracts and approved aggregation only.
+
+Dependency direction:
+
+- `packages/types` and `packages/utils` sit at the base.
+
+- `packages/errors` may depend on `packages/types`.
+
+- `packages/shared` may depend on `packages/config`, `packages/types`, `packages/errors`, and `packages/utils`.
+
+Out of scope:
+
+- business logic
+
+- connectors
+
+- APIs or API routes
+
+- AI workflows
+
+- database implementation
+
+- frontend implementation
+
+- app code
+
+Implementation guardrail:
+
+Phase 1 Milestone 2 must not introduce domain behavior, connector behavior, persistence behavior, application behavior, or user interface behavior.
+
+Readiness gate:
+
+- `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared` are implemented, tested, documented, and independently buildable
+
+- repository verification enforces package boundaries and shared foundation dependency direction
+
+- package-level tests run through the root workspace pipeline
+
+- no business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, or app code exists
+
+- repository verification, lint, build, tests, and Docker Compose config pass
+
+Next milestone dependency:
+
+The next milestone must depend on the shared foundation packages for runtime configuration, generic type contracts, generic error contracts, deterministic utilities, logging contracts, request and correlation context contracts, and validation result contracts. Downstream implementation packages must not redefine these shared contracts locally.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

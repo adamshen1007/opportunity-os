@@ -72,12 +72,44 @@ const expectedPnpmEngine = "11.7.0";
 const expectedNodeVersion = "24";
 const placeholderOnlyRoots = ["apps", "packages"];
 const phase = process.argv.includes("--phase") ? process.argv[process.argv.indexOf("--phase") + 1] : "lint";
-const phaseOneAliases = new Set(["review", "phase1", "phase-1", "phase-1-milestone-1", "shared-infrastructure"]);
+const phaseOneAliases = new Set(["phase1", "phase-1", "phase-1-milestone-1"]);
+const phaseTwoAliases = new Set(["review", "phase-1-milestone-2", "shared-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const phaseOneImplementationRoot = "packages/config";
-const prohibitedConfigDependencyPatterns = [
+const isPhaseTwo = phaseTwoAliases.has(phase);
+const allowedPhaseOneImplementationRoots = ["packages/config"];
+const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
+const sharedFoundationPackageRules = {
+  "packages/config": {
+    packageName: "@opportunity-os/config",
+    allowedWorkspaceDependencies: []
+  },
+  "packages/types": {
+    packageName: "@opportunity-os/types",
+    allowedWorkspaceDependencies: []
+  },
+  "packages/errors": {
+    packageName: "@opportunity-os/errors",
+    allowedWorkspaceDependencies: ["@opportunity-os/types"]
+  },
+  "packages/utils": {
+    packageName: "@opportunity-os/utils",
+    allowedWorkspaceDependencies: []
+  },
+  "packages/shared": {
+    packageName: "@opportunity-os/shared",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/config",
+      "@opportunity-os/types",
+      "@opportunity-os/errors",
+      "@opportunity-os/utils"
+    ]
+  }
+};
+const prohibitedSharedFoundationDependencyPatterns = [
   /(^|[/@-])apps?($|[/@-])/iu,
   /(^|[/@-])api($|[/@-])/iu,
+  /(^|[/@-])ui($|[/@-])/iu,
+  /(^|[/@-])frontend($|[/@-])/iu,
   /(^|[/@-])application($|[/@-])/iu,
   /(^|[/@-])acquisition($|[/@-])/iu,
   /(^|[/@-])connector(s)?($|[/@-])/iu,
@@ -195,6 +227,37 @@ function assertNoDuplicateVariables(label, variables) {
   }
 }
 
+function assertSharedFoundationPackageDependencies(packageRoot, packageRule) {
+  const packageJsonPath = `${packageRoot}/package.json`;
+  if (!exists(packageJsonPath)) return;
+
+  try {
+    const packageJson = JSON.parse(read(packageJsonPath));
+    if (packageJson.name !== packageRule.packageName) {
+      fail(`${packageJsonPath} name must be "${packageRule.packageName}" but found "${packageJson.name ?? "missing"}"`);
+    }
+
+    const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+    const allowedWorkspaceDependencies = new Set(packageRule.allowedWorkspaceDependencies);
+
+    for (const dependencyField of dependencyFields) {
+      const dependencies = packageJson[dependencyField] ?? {};
+      for (const [dependencyName, dependencyVersion] of Object.entries(dependencies)) {
+        const dependencyReference = `${dependencyName} ${dependencyVersion}`;
+        if (prohibitedSharedFoundationDependencyPatterns.some((pattern) => pattern.test(dependencyReference))) {
+          fail(`${packageRoot} must not depend on apps, APIs, connectors, AI workflows, database, frontend, domain, intelligence, or business packages; found ${dependencyField}.${dependencyName}`);
+        }
+
+        if (dependencyName.startsWith("@opportunity-os/") && !allowedWorkspaceDependencies.has(dependencyName)) {
+          fail(`${packageRoot} has prohibited reverse dependency ${dependencyField}.${dependencyName}; allowed workspace dependencies are ${JSON.stringify(packageRule.allowedWorkspaceDependencies)}`);
+        }
+      }
+    }
+  } catch (error) {
+    fail(`${packageJsonPath} must be valid JSON: ${error.message}`);
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -230,39 +293,28 @@ function isReadmePlaceholder(file) {
   return path.basename(file) === "README.md";
 }
 
-function isAllowedPhaseOneImplementationFile(file) {
-  return file.startsWith(`${phaseOneImplementationRoot}/`) && !isReadmePlaceholder(file);
+function isAllowedPhaseImplementationFile(file) {
+  const allowedImplementationRoots = isPhaseTwo
+    ? allowedPhaseTwoImplementationRoots
+    : allowedPhaseOneImplementationRoots;
+
+  return allowedImplementationRoots.some((implementationRoot) => file.startsWith(`${implementationRoot}/`)) && !isReadmePlaceholder(file);
 }
 
 for (const placeholderRoot of placeholderOnlyRoots) {
   for (const file of listFiles(placeholderRoot)) {
     if (isReadmePlaceholder(file)) continue;
-    if (isPhaseOne && isAllowedPhaseOneImplementationFile(file)) continue;
+    if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
-    const policyName = isPhaseOne
-      ? `Phase 1 permits implementation files only inside "${phaseOneImplementationRoot}/"`
+    const policyName = isPhaseOne || isPhaseTwo
+      ? `Phase ${isPhaseTwo ? "1 Milestone 2" : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
 }
 
-const configPackageJsonPath = "packages/config/package.json";
-if (exists(configPackageJsonPath)) {
-  try {
-    const configPackageJson = JSON.parse(read(configPackageJsonPath));
-    const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
-    for (const dependencyField of dependencyFields) {
-      const dependencies = configPackageJson[dependencyField] ?? {};
-      for (const [dependencyName, dependencyVersion] of Object.entries(dependencies)) {
-        const dependencyReference = `${dependencyName} ${dependencyVersion}`;
-        if (prohibitedConfigDependencyPatterns.some((pattern) => pattern.test(dependencyReference))) {
-          fail(`packages/config must not depend on apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages; found ${dependencyField}.${dependencyName}`);
-        }
-      }
-    }
-  } catch (error) {
-    fail(`${configPackageJsonPath} must be valid JSON: ${error.message}`);
-  }
+for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageRules)) {
+  assertSharedFoundationPackageDependencies(packageRoot, packageRule);
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

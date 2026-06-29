@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "lint": {
-      "dependsOn": ["^lint"],
+      "dependsOn": ["^build", "^lint"],
       "outputs": []
     },
     "build": {
@@ -11,7 +11,7 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": ["coverage/**", "test-results/**", ".vitest/**"]
+      "outputs": []
     }
   }
 }
