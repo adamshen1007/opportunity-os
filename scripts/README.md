@@ -51,7 +51,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 1 Milestone 5 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 1 Milestone 6 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -97,6 +97,27 @@ In Milestone 5 mode, implementation files are permitted in:
 
 The verifier checks that the database package, strict TypeScript config, Prisma schema, PostgreSQL datasource, Prisma client generator, baseline migration, explicit database configuration contract, database client factory contract, lifecycle contracts, generic repository contracts, transaction contracts, safe error contracts, health contract, seed placeholder, schema policy tests, database security tests, export stability tests, package boundary tests, optional local verification script, and public exports exist during the active Database Foundation slice. It also rejects Prisma dependencies outside `packages/database`, non-approved ORM dependencies, unapproved `packages/database` dependencies, automatic client connection, process-level client singleton patterns, direct `process.env` reads in runtime database config/client files, and prohibited schema models such as Raw Content workflow, connector, event store, AI workflow, API, frontend, or business models. The optional local verification script must remain outside the default test pipeline so CI does not require a running database.
 
+Phase 1 Milestone 6 adds the Domain Foundation in `packages/domain/`. Slice A keeps connector execution, Raw Content workflows, AI workflows, APIs, frontend, application services, business scoring logic, database repository implementations, and production event store transport blocked.
+
+Run the explicit Domain Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-1-milestone-6
+```
+
+In Milestone 6 mode, implementation files are permitted in:
+
+- `packages/config/`
+- `packages/types/`
+- `packages/errors/`
+- `packages/utils/`
+- `packages/shared/`
+- `packages/events/`
+- `packages/database/`
+- `packages/domain/`
+
+The verifier checks that the domain package, strict TypeScript config, package test config, public export boundary, generic primitive contracts, value object contracts, entity contracts, aggregate root contracts, metadata contracts, domain event contracts, domain error contracts, repository interface contracts, validation contracts, result contracts, export stability tests, package-boundary tests, contract stability tests, and deterministic domain contract tests exist during the active Domain Foundation slice. It also rejects unapproved `packages/domain` dependencies and scans runtime domain package source files for prohibited connector, Raw Content, AI workflow, API, frontend, application service, business scoring, database repository, and production event store transport implementation references.
+
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
 For Phase 1 Milestone 2, the verifier also checks shared foundation package dependencies:
@@ -106,7 +127,8 @@ For Phase 1 Milestone 2, the verifier also checks shared foundation package depe
 - `packages/shared` may depend only on `@opportunity-os/config`, `@opportunity-os/types`, `@opportunity-os/errors`, and `@opportunity-os/utils`.
 - `packages/events` currently must not depend on other workspace packages.
 - `packages/database` may depend only on approved shared infrastructure packages and Prisma-related dependencies explicitly allowed by the Database Foundation policy.
-- Shared foundation and database foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, domain, intelligence, acquisition, application, or business packages.
+- `packages/domain` may depend only on `@opportunity-os/types`, `@opportunity-os/errors`, `@opportunity-os/events`, and optionally `@opportunity-os/utils`.
+- Shared foundation, database foundation, and domain foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, intelligence, acquisition, application, or business packages.
 
 ## Environment Contract Verification
 

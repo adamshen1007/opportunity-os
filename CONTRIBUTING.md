@@ -114,6 +114,21 @@ Allowed dependency direction:
 
 Future packages should import from the package that owns the concern. Do not read `process.env` outside `@opportunity-os/config`; do not define duplicate error, validation, logging, context, or utility contracts in downstream packages when the shared foundation already provides them.
 
+## Domain Foundation Governance
+
+Phase 1 Milestone 6 implements generic domain contracts in `packages/domain`. Future packages must consume `@opportunity-os/domain` instead of redefining or bypassing domain primitives, entities, value objects, aggregate roots, domain events, domain errors, repository contracts, validation contracts, or result contracts.
+
+Domain changes must remain generic. They must not introduce connector execution, Raw Content persistence workflows, AI workflows, APIs, frontend implementation, application services, business scoring logic, database repository implementations, production event store transport, concrete business aggregates, concrete event names, or concrete payloads.
+
+When domain files change, reviewers should confirm:
+
+- public exports route through `packages/domain/src/index.ts`
+- dependencies remain limited to approved shared infrastructure packages
+- domain errors remain secret-safe and stack-safe by default
+- repository contracts stay interface-only and do not depend on Prisma, SQL, or persistence mapping
+- validation and result contracts remain generic
+- future package guidance does not bypass Domain Foundation contracts
+
 ## Phase 1 Milestone 2 Readiness
 
 Before handing off to the next milestone, confirm:

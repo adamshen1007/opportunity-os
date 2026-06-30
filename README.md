@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, and `packages/database`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, and `packages/domain`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, and database foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, and `packages/database`.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, and domain foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, and `packages/domain`.
 
 ## Phase Workflow
 
@@ -367,4 +367,44 @@ Every pull request should:
 
 ## Current Status
 
-Phase 1 Milestone 5 Slice D hardens the Database Foundation with schema policy tests, secret-safe database security tests, optional local verification, public export stability tests, and package boundary tests. The repository remains free of business logic, connectors, APIs, AI workflows, frontend implementation, app code, connector persistence, Raw Content workflow tables, event store tables, and application services.
+Phase 1 Milestone 6 Slice E completes Domain Foundation documentation and governance. The repository remains free of business logic, connectors, APIs, AI workflows, frontend implementation, app code, connector execution, Raw Content persistence workflows, database repository implementations, production event store transport, and application services.
+
+## Domain Foundation
+
+Phase 1 Milestone 6 introduces the Domain Foundation in `packages/domain`.
+
+Slice A establishes the package boundary only:
+
+- `@opportunity-os/domain` workspace package
+- strict TypeScript package configuration
+- public exports through `packages/domain/src/index.ts`
+- dependency boundaries for approved shared infrastructure packages
+- repository verification support for `phase-1-milestone-6`
+
+Slice B adds generic domain primitive and structure contracts:
+
+- domain ID, timestamp, and version contracts
+- immutable value object contracts
+- entity contracts with identity and metadata
+- aggregate root contracts with identity, version, and pending event references
+- created, updated, and version metadata contracts
+
+Slice C adds generic domain event, error, repository, validation, and result contracts:
+
+- domain event contracts reuse `@opportunity-os/events` concepts
+- domain error contracts use `@opportunity-os/errors` patterns
+- repository contracts return domain entities or aggregate roots
+- validation and result contracts remain generic
+
+Slice D hardens the package with export stability tests, package-boundary tests, contract stability tests, and root workspace pipeline coverage.
+
+Slice E completes documentation and governance for the Domain Foundation:
+
+- repository verification supports `phase-1-milestone-6`
+- future packages must consume `@opportunity-os/domain` contracts instead of redefining or bypassing them
+- PR governance requires domain contract review when domain files change
+- the roadmap records deliverables, dependency direction, non-goals, readiness gate, and next milestone dependency
+
+`packages/domain` owns generic domain contracts only. Future packages must not bypass domain primitives, entities, value objects, aggregate roots, domain events, domain errors, repository contracts, validation contracts, or result contracts when those concepts apply.
+
+Phase 1 Milestone 6 does not implement connector execution, Raw Content persistence workflows, AI workflows, APIs, frontend implementation, application services, business scoring logic, database repository implementations, production event store transport, concrete aggregate types, concrete event names, concrete payloads, command handlers, business processes, persistence models, publication, transport, or runtime behavior.

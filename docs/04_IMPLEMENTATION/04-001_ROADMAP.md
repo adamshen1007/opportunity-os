@@ -629,6 +629,144 @@ Handoff:
 
 After this gate passes, future Database Foundation slices may add documentation and final readiness checks. Do not begin connector persistence, Raw Content workflow persistence, API, AI workflow, frontend, application service, business logic, or production event store transport work until a later approved milestone scopes it.
 
+## Phase 1 Milestone 6 — Domain Foundation
+
+Goal:
+
+Establish the domain package boundary and prepare generic domain contract implementation without business behavior.
+
+Owner:
+
+- `packages/domain`
+
+Slice A deliverables:
+
+- `@opportunity-os/domain` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/domain/src/index.ts`
+
+- dependency boundary documentation
+
+- repository verification support for `phase-1-milestone-6`
+
+Slice B deliverables:
+
+- generic domain ID, timestamp, and version contracts
+
+- immutable value object contracts
+
+- generic entity contracts with identity and metadata
+
+- aggregate root contracts with identity, version, and pending domain event references
+
+- generic created, updated, and version metadata contracts
+
+- deterministic contract tests
+
+Slice C deliverables:
+
+- generic domain event contracts that reuse `@opportunity-os/events` concepts
+
+- domain event collection contracts without publication, persistence, transport, or workflow behavior
+
+- domain error contracts that use `@opportunity-os/errors` patterns
+
+- secret-safe domain error tests
+
+- generic domain repository interface contracts
+
+- generic validation contracts
+
+- generic domain result contracts
+
+Slice D deliverables:
+
+- public export stability tests
+
+- package dependency boundary tests
+
+- domain contract stability tests
+
+- root workspace pipeline coverage for lint, build, and test
+
+Slice E deliverables:
+
+- repository verification and documentation for `phase-1-milestone-6`
+
+- Domain Foundation usage guidance for future packages
+
+- PR checklist governance for domain contract review
+
+- readiness gate and next milestone dependency documentation
+
+Dependency direction:
+
+- `packages/domain` owns generic domain contracts only.
+
+- `packages/domain` may depend only on `@opportunity-os/types`, `@opportunity-os/errors`, `@opportunity-os/events`, and optionally `@opportunity-os/utils`.
+
+- `packages/domain` must not depend on apps, APIs, connectors, AI workflows, frontend packages, database implementation packages, intelligence packages, acquisition packages, application packages, or business packages.
+
+Out of scope:
+
+- connector execution
+
+- Raw Content persistence workflows
+
+- AI workflows
+
+- APIs
+
+- frontend implementation
+
+- application services
+
+- business scoring logic
+
+- database repository implementations
+
+- production event store transport
+
+- business rules
+
+Implementation guardrail:
+
+Phase 1 Milestone 6 may define package ownership, strict TypeScript setup, public export routing, dependency policy, documentation boundaries, repository verification, generic domain primitives, immutable value object contracts, entity contracts, aggregate root contracts, metadata contracts, generic domain event contracts, domain event collection contracts, generic domain error contracts, generic repository interface contracts, generic validation contracts, generic result contracts, public export stability tests, package boundary tests, contract stability tests, deterministic contract tests, usage documentation, PR governance, and readiness documentation only. It must not implement concrete aggregate types, concrete event names, concrete payloads, scoring, command handlers, application services, business processes, runtime behavior, persistence behavior, workflow behavior, API behavior, or frontend behavior.
+
+Readiness gate for Phase 1 Milestone 6:
+
+- `packages/domain` is scaffolded as `@opportunity-os/domain`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/domain/src/index.ts`
+
+- package dependencies are limited to approved shared infrastructure packages and deterministic test/build tooling
+
+- repository verification permits `packages/domain` while continuing to block connector execution, Raw Content workflows, AI workflows, APIs, frontend, application services, business scoring logic, database repository implementations, and production event store transport
+
+- generic primitive, value object, entity, aggregate root, and metadata contracts are tested
+
+- generic domain event, error, repository, validation, and result contracts are tested
+
+- domain errors serialize without secrets, tokens, auth headers, provider keys, credentials, raw payloads, or stack traces by default
+
+- public exports are stable and routed through `packages/domain/src/index.ts`
+
+- package-boundary tests verify `packages/domain` has no app, API, connector, AI workflow, frontend, database implementation, acquisition, intelligence, application, or business package dependencies
+
+- future packages are instructed to consume `@opportunity-os/domain` contracts rather than bypassing or redefining them
+
+- PR governance includes domain contract review when domain files change
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-6`, `pnpm --filter @opportunity-os/domain test`, `pnpm --filter @opportunity-os/domain build`, `pnpm lint`, `pnpm build`, and `pnpm test` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/domain` for generic domain contracts. Do not begin connector execution, Raw Content persistence workflows, AI workflows, APIs, frontend, application services, business scoring logic, database repository implementations, or production event store transport until later approved milestones scope them.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

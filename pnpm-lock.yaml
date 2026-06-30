@@ -41,6 +41,22 @@ importers:
         specifier: ^4.0.16
         version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
 
+  packages/domain:
+    dependencies:
+      '@opportunity-os/errors':
+        specifier: workspace:*
+        version: link:../errors
+      '@opportunity-os/events':
+        specifier: workspace:*
+        version: link:../events
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
   packages/errors:
     devDependencies:
       vitest:

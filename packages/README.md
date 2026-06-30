@@ -13,6 +13,7 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/shared` owns shared contracts and approved aggregation for the shared foundation layer.
 - `packages/events` owns Event Foundation contracts for envelopes, metadata, versioning, publisher and consumer interfaces, serialization, idempotency, replay-readiness, event results, event errors, and test-only in-memory event bus support.
 - `packages/database` owns Database Foundation infrastructure for Prisma setup, PostgreSQL schema foundation, migration framework commands, database client creation, repository contracts, transaction contracts, seed placeholders, and health contracts.
+- `packages/domain` owns generic Domain Foundation contracts only.
 
 ## Dependency Direction
 
@@ -21,12 +22,15 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/shared` may depend on `@opportunity-os/config`, `@opportunity-os/types`, `@opportunity-os/errors`, and `@opportunity-os/utils`.
 - `packages/events` is a shared infrastructure package and currently must remain independent of other workspace packages unless a future approved milestone changes the boundary.
 - `packages/database` is a persistence infrastructure package and may declare Prisma dependencies plus explicitly approved shared infrastructure package dependencies when a scoped milestone requires them.
+- `packages/domain` may depend only on `@opportunity-os/types`, `@opportunity-os/errors`, `@opportunity-os/events`, and optionally `@opportunity-os/utils`.
 
-Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone.
+Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone. Domain package dependencies must remain limited to approved shared infrastructure packages.
 
 ## Non-Goals
 
-Phase 1 Milestone 5 does not include business logic, connectors, APIs, AI workflows, frontend implementation, app code, connector persistence, Raw Content workflow tables, event store tables, AI workflow tables, API tables, frontend tables, business tables, application services, production event store transport, or full business workflows.
+Phase 1 Milestone 6 does not include business logic, connectors, APIs, AI workflows, frontend implementation, app code, connector execution, Raw Content persistence workflows, database repository implementations, business scoring logic, application services, production event store transport, or full business workflows.
+
+Future packages must not bypass `@opportunity-os/domain` for domain primitives, entities, value objects, aggregate roots, domain events, domain errors, repository contracts, validation contracts, or result contracts.
 
 The in-memory event bus in `packages/events` is test-only infrastructure. It must not be used as production transport, persistence, queueing, stream processing, connector behavior, workflow behavior, API behavior, or business behavior.
 
@@ -40,6 +44,7 @@ Future package work should:
 - add contract tests for exported types, schemas, event envelopes, connector contracts, and AI workflow input/output contracts only when those scoped packages exist
 - keep Event Foundation contract tests inside `packages/events`
 - keep Database Foundation tests and Prisma validation inside `packages/database`
+- keep Domain Foundation contract tests inside `packages/domain`
 - add integration tests only when implementation depends on PostgreSQL, Redis, queues, or provider adapters
 
 Do not add tests for application behavior, APIs, connectors, AI workflows, database behavior, or business logic before the corresponding implementation task is approved.

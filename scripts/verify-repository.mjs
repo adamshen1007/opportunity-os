@@ -76,16 +76,19 @@ const phaseOneAliases = new Set(["phase1", "phase-1", "phase-1-milestone-1"]);
 const phaseTwoAliases = new Set(["phase-1-milestone-2", "shared-foundation"]);
 const phaseThreeAliases = new Set(["phase-1-milestone-3", "logging-foundation"]);
 const phaseFourAliases = new Set(["phase-1-milestone-4", "event-foundation"]);
-const phaseFiveAliases = new Set(["review", "phase-1-milestone-5", "database-foundation"]);
+const phaseFiveAliases = new Set(["phase-1-milestone-5", "database-foundation"]);
+const phaseSixAliases = new Set(["review", "phase-1-milestone-6", "domain-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
+const isPhaseSix = phaseSixAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
 const allowedPhaseFiveImplementationRoots = [...allowedPhaseFourImplementationRoots, "packages/database"];
+const allowedPhaseSixImplementationRoots = [...allowedPhaseFiveImplementationRoots, "packages/domain"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -237,6 +240,83 @@ const requiredDatabaseFoundationExports = [
   "createSeedPlaceholder",
   "DatabaseSeedPlan"
 ];
+const requiredDomainFoundationFiles = [
+  "packages/domain/package.json",
+  "packages/domain/tsconfig.json",
+  "packages/domain/vitest.config.ts",
+  "packages/domain/src/index.ts",
+  "packages/domain/src/aggregate/aggregate-root.ts",
+  "packages/domain/src/aggregate/index.ts",
+  "packages/domain/src/entity/entity.ts",
+  "packages/domain/src/entity/index.ts",
+  "packages/domain/src/metadata/domain-metadata.ts",
+  "packages/domain/src/metadata/index.ts",
+  "packages/domain/src/primitives/domain-id.ts",
+  "packages/domain/src/primitives/index.ts",
+  "packages/domain/src/value-object/value-object.ts",
+  "packages/domain/src/value-object/index.ts",
+  "packages/domain/src/events/domain-event.ts",
+  "packages/domain/src/events/domain-event-collection.ts",
+  "packages/domain/src/events/index.ts",
+  "packages/domain/src/errors/domain-error.ts",
+  "packages/domain/src/errors/index.ts",
+  "packages/domain/src/repository/domain-repository.ts",
+  "packages/domain/src/repository/index.ts",
+  "packages/domain/src/result/domain-result.ts",
+  "packages/domain/src/result/index.ts",
+  "packages/domain/src/validation/domain-validation.ts",
+  "packages/domain/src/validation/index.ts",
+  "packages/domain/src/__tests__/domain-contract-stability.test.ts",
+  "packages/domain/src/__tests__/domain-event-contract.test.ts",
+  "packages/domain/src/__tests__/domain-error-security.test.ts",
+  "packages/domain/src/__tests__/exports.test.ts",
+  "packages/domain/src/__tests__/package-boundary.test.ts",
+  "packages/domain/src/__tests__/domain-primitives.test.ts",
+  "packages/domain/src/__tests__/domain-repository-contract.test.ts",
+  "packages/domain/src/__tests__/domain-structure.test.ts",
+  "packages/domain/src/__tests__/domain-validation-result.test.ts"
+];
+const requiredDomainFoundationExports = [
+  "AggregateIdentity",
+  "AggregateRoot",
+  "DomainEventReference",
+  "Entity",
+  "EntityIdentity",
+  "CreatedMetadata",
+  "DomainMetadata",
+  "UpdatedMetadata",
+  "VersionMetadata",
+  "DomainId",
+  "DomainTimestamp",
+  "DomainVersion",
+  "ValueObject",
+  "ValueObjectEquality",
+  "ValueObjectProperties",
+  "DomainEventCollection",
+  "DomainEventCollectionSnapshot",
+  "DomainEventMetadata",
+  "DomainEventName",
+  "DomainEventPayload",
+  "DomainEventReference",
+  "DomainEventVersion",
+  "DomainError",
+  "createDomainError",
+  "DomainErrorCategory",
+  "DomainErrorCode",
+  "DomainErrorOptions",
+  "SafeDomainErrorDetails",
+  "DomainRepositoryContext",
+  "DomainRepositoryContract",
+  "domainFailure",
+  "domainSuccess",
+  "DomainFailure",
+  "DomainResult",
+  "DomainSuccess",
+  "DomainValidationFailure",
+  "DomainValidationIssue",
+  "DomainValidationResult",
+  "DomainValidationSuccess"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -276,6 +356,15 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/utils",
       "@opportunity-os/shared",
       "@opportunity-os/events"
+    ]
+  },
+  "packages/domain": {
+    packageName: "@opportunity-os/domain",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/types",
+      "@opportunity-os/errors",
+      "@opportunity-os/events",
+      "@opportunity-os/utils"
     ]
   }
 };
@@ -319,6 +408,14 @@ const allowedDatabasePackageDependencies = new Set([
   "@prisma/client",
   "@types/node",
   "prisma",
+  "vitest"
+]);
+const allowedDomainPackageDependencies = new Set([
+  "@opportunity-os/types",
+  "@opportunity-os/errors",
+  "@opportunity-os/events",
+  "@opportunity-os/utils",
+  "@types/node",
   "vitest"
 ]);
 const engineeringKitOptionalEnvironmentVariables = [
@@ -656,6 +753,74 @@ function assertDatabaseFoundationPolicy() {
   }
 }
 
+function assertDomainFoundationPolicy() {
+  for (const file of requiredDomainFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Domain foundation is missing required file: ${file}`);
+    }
+  }
+
+  const domainIndexPath = "packages/domain/src/index.ts";
+  if (exists(domainIndexPath)) {
+    const domainIndex = read(domainIndexPath);
+    if (!domainIndex.includes("Domain Foundation")) {
+      fail(`${domainIndexPath} must document the Phase 1 Milestone 6 Domain Foundation public export boundary`);
+    }
+    for (const exportName of requiredDomainFoundationExports) {
+      if (!domainIndex.includes(exportName)) {
+        fail(`${domainIndexPath} must export domain foundation contract "${exportName}"`);
+      }
+    }
+  }
+
+  const domainPackageJsonPath = "packages/domain/package.json";
+  if (exists(domainPackageJsonPath)) {
+    try {
+      const domainPackageJson = readJson(domainPackageJsonPath);
+      for (const dependencyField of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+        const dependencies = domainPackageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if (!allowedDomainPackageDependencies.has(dependencyName)) {
+            fail(`${domainPackageJsonPath} may depend only on approved shared infrastructure packages and deterministic test/build tooling; found ${dependencyField}.${dependencyName}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${domainPackageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+
+  for (const file of listFiles("packages/domain")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/domain/dist/") ||
+      file.startsWith("packages/domain/node_modules/") ||
+      file.startsWith("packages/domain/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+    const content = read(file);
+    const prohibitedTerms = [
+      ["connector execution", /\bexecuteConnector\b|\bConnectorRunner\b|\bconnector execution\b/iu],
+      ["Raw Content workflow", /\bRawContent\b|\braw content workflow\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
+      ["API implementation", /\broute handler\b|\bapi route\b|\bcontroller\b/iu],
+      ["frontend implementation", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["application service", /\bApplicationService\b|\bapplication service\b/iu],
+      ["business scoring logic", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness scoring\b/iu],
+      ["database repository implementation", /\bPrismaClient\b|\bsql\b|\bdatabase repository implementation\b/iu],
+      ["production event store transport", /\bKafka\b|\bNATS\b|\bRedis stream\b|\bevent store transport\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Domain foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -692,7 +857,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseFive
+  const allowedImplementationRoots = isPhaseSix
+    ? allowedPhaseSixImplementationRoots
+    : isPhaseFive
     ? allowedPhaseFiveImplementationRoots
     : isPhaseFour
     ? allowedPhaseFourImplementationRoots
@@ -709,7 +876,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -729,6 +896,10 @@ if (isPhaseFour) {
 
 if (isPhaseFive) {
   assertDatabaseFoundationPolicy();
+}
+
+if (isPhaseSix) {
+  assertDomainFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");
