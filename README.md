@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, and `packages/domain`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, and `packages/application`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, and domain foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, and `packages/domain`.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, and application foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, and `packages/application`.
 
 ## Phase Workflow
 
@@ -367,7 +367,7 @@ Every pull request should:
 
 ## Current Status
 
-Phase 1 Milestone 6 Slice E completes Domain Foundation documentation and governance. The repository remains free of business logic, connectors, APIs, AI workflows, frontend implementation, app code, connector execution, Raw Content persistence workflows, database repository implementations, production event store transport, and application services.
+Phase 1 Milestone 7 Slice E completes Application Foundation documentation and governance. The repository remains free of business logic, connectors, APIs, REST API routes, controllers, authentication implementation, authorization implementation, AI workflows, frontend implementation, app code, connector execution, Raw Content persistence workflows, database repository implementations, production event store transport, business scoring logic, and product use cases.
 
 ## Domain Foundation
 
@@ -408,3 +408,23 @@ Slice E completes documentation and governance for the Domain Foundation:
 `packages/domain` owns generic domain contracts only. Future packages must not bypass domain primitives, entities, value objects, aggregate roots, domain events, domain errors, repository contracts, validation contracts, or result contracts when those concepts apply.
 
 Phase 1 Milestone 6 does not implement connector execution, Raw Content persistence workflows, AI workflows, APIs, frontend implementation, application services, business scoring logic, database repository implementations, production event store transport, concrete aggregate types, concrete event names, concrete payloads, command handlers, business processes, persistence models, publication, transport, or runtime behavior.
+
+## Application Foundation
+
+Phase 1 Milestone 7 introduces the Application Foundation in `packages/application`.
+
+`packages/application` owns generic application-layer contracts only:
+
+- command and query contracts
+- use-case boundary contracts
+- application service contracts
+- dependency injection token and provider contracts
+- request context contracts using shared context and logging concepts
+- secret-safe application error contracts
+- event publishing and dispatch ports
+- repository ports using domain contracts
+- transaction boundary ports
+- application result and validation outcome contracts
+- handler execution context contracts
+
+Future packages must consume `@opportunity-os/application` for application-layer contracts instead of redefining or bypassing them. Application Foundation does not implement REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repositories, frontend, business scoring, concrete product commands, product handlers, or actual product use cases.

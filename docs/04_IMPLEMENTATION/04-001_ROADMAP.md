@@ -767,6 +767,140 @@ Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/domain` for generic domain contracts. Do not begin connector execution, Raw Content persistence workflows, AI workflows, APIs, frontend, application services, business scoring logic, database repository implementations, or production event store transport until later approved milestones scope them.
 
+## Phase 1 Milestone 7 — Application Foundation
+
+Goal:
+
+Establish the application package boundary and prepare generic application-layer contract implementation without product use cases.
+
+Owner:
+
+- `packages/application`
+
+Slice A deliverables:
+
+- `@opportunity-os/application` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/application/src/index.ts`
+
+- dependency boundary documentation
+
+- repository verification support for `phase-1-milestone-7`
+
+Slice B deliverables:
+
+- generic application command and command handler contracts
+
+- generic application query and query handler contracts
+
+- use-case boundary contracts and success/failure result shapes
+
+- generic application service interfaces
+
+- deterministic contract tests
+
+Slice C deliverables:
+
+- dependency injection token and provider contracts
+
+- application request context contracts using shared context and logging concepts
+
+- secret-safe application error contracts using `@opportunity-os/errors`
+
+- application event publishing contracts using `@opportunity-os/events`
+
+- repository port contracts using `@opportunity-os/domain`
+
+- transaction boundary port contracts without database implementation
+
+- deterministic contract tests for each contract family
+
+Slice D deliverables:
+
+- generic application result and validation outcome contracts
+
+- handler execution context contracts
+
+- public export stability tests
+
+- package dependency boundary tests
+
+- security tests for application errors and validation failures
+
+- root workspace pipeline integration for lint, build, and test
+
+Slice E deliverables:
+
+- Application Foundation usage documentation for future packages
+
+- roadmap readiness and next milestone dependency documentation
+
+- PR checklist governance for application contract review
+
+Dependency direction:
+
+- `packages/application` owns generic application-layer contracts only.
+
+- `packages/application` may depend only on approved foundation packages when later scoped slices require them.
+
+- `packages/application` must not depend on apps, REST APIs, controllers, connectors, AI workflows, frontend packages, database repository implementations, intelligence packages, acquisition packages, or business packages.
+
+Out of scope:
+
+- REST API routes
+
+- controllers
+
+- authentication implementation
+
+- authorization implementation
+
+- connector execution
+
+- AI workflows
+
+- database repository implementations
+
+- frontend implementation
+
+- business scoring logic
+
+- actual product use cases
+
+Implementation guardrail:
+
+Phase 1 Milestone 7 may define package ownership, strict TypeScript setup, public export routing, dependency policy, documentation boundaries, repository verification, generic command contracts, generic query contracts, use-case boundary contracts, generic result shapes, generic validation outcomes, generic handler execution context contracts, generic application service interfaces, dependency injection contracts, application request context contracts, application error contracts, application event publishing contracts, repository port contracts, transaction boundary port contracts, public export stability tests, package boundary tests, security tests, deterministic contract tests, usage documentation, PR governance, and readiness documentation only. It must not implement concrete commands, concrete queries, concrete use cases, product handlers, runtime dispatch, handler registries, runtime containers, service locators, app startup, dependency resolution, HTTP behavior, authentication behavior, authorization behavior, persistence behavior, workflow behavior, connector behavior, frontend behavior, scoring behavior, event transport, repository implementation, or business behavior.
+
+Readiness gate for Phase 1 Milestone 7:
+
+- `packages/application` is scaffolded as `@opportunity-os/application`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/application/src/index.ts`
+
+- package dependencies are limited to deterministic test/build tooling and approved foundation packages
+
+- repository verification permits `packages/application` while continuing to block REST API routes, controllers, auth implementation, connector execution, AI workflows, database repository implementations, frontend, business scoring, and actual product use cases
+
+- generic command, query, use-case, result, and application service contracts are tested
+
+- DI, request context, application error, event publishing, repository port, and transaction boundary contracts are tested
+
+- result, validation, handler, export stability, package boundary, and security contracts are tested
+
+- future packages are instructed to consume `@opportunity-os/application` contracts rather than bypassing or redefining them
+
+- PR governance includes application contract review when application files change
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-7`, `pnpm --filter @opportunity-os/application test`, `pnpm --filter @opportunity-os/application build`, `pnpm lint`, `pnpm build`, and `pnpm test` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/application` for generic application-layer contracts. Do not begin REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repository implementations, frontend, business scoring logic, or actual product use cases until later approved milestones scope them.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

@@ -77,18 +77,21 @@ const phaseTwoAliases = new Set(["phase-1-milestone-2", "shared-foundation"]);
 const phaseThreeAliases = new Set(["phase-1-milestone-3", "logging-foundation"]);
 const phaseFourAliases = new Set(["phase-1-milestone-4", "event-foundation"]);
 const phaseFiveAliases = new Set(["phase-1-milestone-5", "database-foundation"]);
-const phaseSixAliases = new Set(["review", "phase-1-milestone-6", "domain-foundation"]);
+const phaseSixAliases = new Set(["phase-1-milestone-6", "domain-foundation"]);
+const phaseSevenAliases = new Set(["review", "phase-1-milestone-7", "application-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase);
-const isPhaseSix = phaseSixAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
+const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
+const isPhaseSeven = phaseSevenAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
 const allowedPhaseFiveImplementationRoots = [...allowedPhaseFourImplementationRoots, "packages/database"];
 const allowedPhaseSixImplementationRoots = [...allowedPhaseFiveImplementationRoots, "packages/domain"];
+const allowedPhaseSevenImplementationRoots = [...allowedPhaseSixImplementationRoots, "packages/application"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -317,6 +320,126 @@ const requiredDomainFoundationExports = [
   "DomainValidationResult",
   "DomainValidationSuccess"
 ];
+const requiredApplicationFoundationFiles = [
+  "packages/application/package.json",
+  "packages/application/tsconfig.json",
+  "packages/application/vitest.config.ts",
+  "packages/application/src/index.ts",
+  "packages/application/src/commands/command.ts",
+  "packages/application/src/commands/command-handler.ts",
+  "packages/application/src/commands/index.ts",
+  "packages/application/src/queries/query.ts",
+  "packages/application/src/queries/query-handler.ts",
+  "packages/application/src/queries/index.ts",
+  "packages/application/src/use-cases/use-case.ts",
+  "packages/application/src/use-cases/use-case-result.ts",
+  "packages/application/src/use-cases/index.ts",
+  "packages/application/src/services/application-service.ts",
+  "packages/application/src/services/index.ts",
+  "packages/application/src/results/application-result.ts",
+  "packages/application/src/results/index.ts",
+  "packages/application/src/validation/application-validation.ts",
+  "packages/application/src/validation/index.ts",
+  "packages/application/src/handlers/handler-context.ts",
+  "packages/application/src/handlers/handler-contract.ts",
+  "packages/application/src/handlers/index.ts",
+  "packages/application/src/di/injection-token.ts",
+  "packages/application/src/di/provider.ts",
+  "packages/application/src/di/container-contract.ts",
+  "packages/application/src/di/index.ts",
+  "packages/application/src/context/application-context.ts",
+  "packages/application/src/context/request-context.ts",
+  "packages/application/src/context/index.ts",
+  "packages/application/src/errors/application-error.ts",
+  "packages/application/src/errors/index.ts",
+  "packages/application/src/events/application-event-publisher.ts",
+  "packages/application/src/events/application-event-dispatch.ts",
+  "packages/application/src/events/index.ts",
+  "packages/application/src/ports/repository-port.ts",
+  "packages/application/src/ports/domain-repository-port.ts",
+  "packages/application/src/ports/transaction-port.ts",
+  "packages/application/src/ports/index.ts",
+  "packages/application/src/__tests__/command-contract.test.ts",
+  "packages/application/src/__tests__/query-contract.test.ts",
+  "packages/application/src/__tests__/use-case-contract.test.ts",
+  "packages/application/src/__tests__/application-service-contract.test.ts",
+  "packages/application/src/__tests__/di-contract.test.ts",
+  "packages/application/src/__tests__/application-context.test.ts",
+  "packages/application/src/__tests__/application-error.test.ts",
+  "packages/application/src/__tests__/application-event-contract.test.ts",
+  "packages/application/src/__tests__/repository-port-contract.test.ts",
+  "packages/application/src/__tests__/transaction-port-contract.test.ts",
+  "packages/application/src/__tests__/application-result-validation.test.ts",
+  "packages/application/src/__tests__/handler-contract.test.ts",
+  "packages/application/src/__tests__/exports.test.ts",
+  "packages/application/src/__tests__/application-contract-stability.test.ts",
+  "packages/application/src/__tests__/package-boundary.test.ts",
+  "packages/application/src/__tests__/application-security.test.ts"
+];
+const requiredApplicationFoundationExports = [
+  "ApplicationCommand",
+  "ApplicationCommandHandler",
+  "ApplicationCommandInput",
+  "ApplicationCommandMetadata",
+  "ApplicationQuery",
+  "ApplicationQueryHandler",
+  "ApplicationQueryInput",
+  "ApplicationQueryMetadata",
+  "UseCase",
+  "UseCaseContext",
+  "UseCaseFailure",
+  "UseCaseInput",
+  "UseCaseResult",
+  "UseCaseSuccess",
+  "useCaseFailure",
+  "useCaseSuccess",
+  "ApplicationService",
+  "ApplicationServiceOperation",
+  "ApplicationResult",
+  "ApplicationSuccess",
+  "ApplicationFailure",
+  "applicationSuccess",
+  "applicationFailure",
+  "ApplicationValidationIssue",
+  "ApplicationValidationResult",
+  "ApplicationValidationSuccess",
+  "ApplicationValidationFailure",
+  "applicationValidationSuccess",
+  "applicationValidationFailure",
+  "ApplicationHandler",
+  "HandlerExecutionContext",
+  "HandlerExecutionInput",
+  "InjectionToken",
+  "createInjectionToken",
+  "ApplicationProvider",
+  "ValueProvider",
+  "FactoryProvider",
+  "ContainerContract",
+  "ApplicationContext",
+  "ApplicationContextInput",
+  "createApplicationContext",
+  "RequestContext",
+  "RequestContextInput",
+  "CorrelationId",
+  "RequestId",
+  "createRequestContext",
+  "APPLICATION_ERROR_CODES",
+  "ApplicationError",
+  "createApplicationError",
+  "ApplicationErrorCategory",
+  "ApplicationErrorCode",
+  "ApplicationErrorOptions",
+  "SafeApplicationErrorDetails",
+  "ApplicationEventPublisher",
+  "ApplicationEventPublisherPort",
+  "ApplicationEventDispatchInput",
+  "ApplicationEventDispatchPort",
+  "ApplicationEventDispatchResult",
+  "ApplicationRepositoryPort",
+  "DomainRepositoryPort",
+  "TransactionBoundaryPort",
+  "TransactionScope"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -365,6 +488,17 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/errors",
       "@opportunity-os/events",
       "@opportunity-os/utils"
+    ]
+  },
+  "packages/application": {
+    packageName: "@opportunity-os/application",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/types",
+      "@opportunity-os/errors",
+      "@opportunity-os/events",
+      "@opportunity-os/utils",
+      "@opportunity-os/shared",
+      "@opportunity-os/domain"
     ]
   }
 };
@@ -415,6 +549,16 @@ const allowedDomainPackageDependencies = new Set([
   "@opportunity-os/errors",
   "@opportunity-os/events",
   "@opportunity-os/utils",
+  "@types/node",
+  "vitest"
+]);
+const allowedApplicationPackageDependencies = new Set([
+  "@opportunity-os/types",
+  "@opportunity-os/errors",
+  "@opportunity-os/events",
+  "@opportunity-os/utils",
+  "@opportunity-os/shared",
+  "@opportunity-os/domain",
   "@types/node",
   "vitest"
 ]);
@@ -527,7 +671,9 @@ function assertSharedFoundationPackageDependencies(packageRoot, packageRule) {
       const dependencies = packageJson[dependencyField] ?? {};
       for (const [dependencyName, dependencyVersion] of Object.entries(dependencies)) {
         const dependencyReference = `${dependencyName} ${dependencyVersion}`;
-        if (prohibitedSharedFoundationDependencyPatterns.some((pattern) => pattern.test(dependencyReference))) {
+        const allowedWorkspaceDependency = dependencyName.startsWith("@opportunity-os/")
+          && allowedWorkspaceDependencies.has(dependencyName);
+        if (!allowedWorkspaceDependency && prohibitedSharedFoundationDependencyPatterns.some((pattern) => pattern.test(dependencyReference))) {
           fail(`${packageRoot} must not depend on apps, APIs, connectors, AI workflows, database, frontend, domain, intelligence, or business packages; found ${dependencyField}.${dependencyName}`);
         }
 
@@ -821,6 +967,75 @@ function assertDomainFoundationPolicy() {
   }
 }
 
+function assertApplicationFoundationPolicy() {
+  for (const file of requiredApplicationFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Application foundation is missing required file: ${file}`);
+    }
+  }
+
+  const applicationIndexPath = "packages/application/src/index.ts";
+  if (exists(applicationIndexPath)) {
+    const applicationIndex = read(applicationIndexPath);
+    if (!applicationIndex.includes("Application Foundation")) {
+      fail(`${applicationIndexPath} must document the Phase 1 Milestone 7 Application Foundation public export boundary`);
+    }
+    for (const exportName of requiredApplicationFoundationExports) {
+      if (!applicationIndex.includes(exportName)) {
+        fail(`${applicationIndexPath} must export application foundation contract "${exportName}"`);
+      }
+    }
+  }
+
+  const applicationPackageJsonPath = "packages/application/package.json";
+  if (exists(applicationPackageJsonPath)) {
+    try {
+      const applicationPackageJson = readJson(applicationPackageJsonPath);
+      for (const dependencyField of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+        const dependencies = applicationPackageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if (!allowedApplicationPackageDependencies.has(dependencyName)) {
+            fail(`${applicationPackageJsonPath} may depend only on approved foundation packages and deterministic test/build tooling; found ${dependencyField}.${dependencyName}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${applicationPackageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+
+  for (const file of listFiles("packages/application")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/application/dist/") ||
+      file.startsWith("packages/application/node_modules/") ||
+      file.startsWith("packages/application/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["REST API route", /\bREST API route\b|\bapi route\b|\broute handler\b/iu],
+      ["controller", /\bcontroller\b/iu],
+      ["authentication implementation", /\bauthentication implementation\b|\bauthorization implementation\b|\bauth middleware\b/iu],
+      ["connector execution", /\bexecuteConnector\b|\bConnectorRunner\b|\bconnector execution\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
+      ["database repository implementation", /\bPrismaClient\b|\bsql\b|\bdatabase repository implementation\b/iu],
+      ["frontend implementation", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["business scoring logic", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness scoring\b/iu],
+      ["actual product use case", /\bOpportunityExplorer\b|\bClusterExplorer\b|\bTrendExplorer\b|\bConnectorManagement\b|\bactual product use case\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Application foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -857,7 +1072,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseSix
+  const allowedImplementationRoots = isPhaseSeven
+    ? allowedPhaseSevenImplementationRoots
+    : isPhaseSix
     ? allowedPhaseSixImplementationRoots
     : isPhaseFive
     ? allowedPhaseFiveImplementationRoots
@@ -876,7 +1093,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -900,6 +1117,10 @@ if (isPhaseFive) {
 
 if (isPhaseSix) {
   assertDomainFoundationPolicy();
+}
+
+if (isPhaseSeven) {
+  assertApplicationFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

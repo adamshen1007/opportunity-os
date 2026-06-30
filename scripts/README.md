@@ -118,6 +118,28 @@ In Milestone 6 mode, implementation files are permitted in:
 
 The verifier checks that the domain package, strict TypeScript config, package test config, public export boundary, generic primitive contracts, value object contracts, entity contracts, aggregate root contracts, metadata contracts, domain event contracts, domain error contracts, repository interface contracts, validation contracts, result contracts, export stability tests, package-boundary tests, contract stability tests, and deterministic domain contract tests exist during the active Domain Foundation slice. It also rejects unapproved `packages/domain` dependencies and scans runtime domain package source files for prohibited connector, Raw Content, AI workflow, API, frontend, application service, business scoring, database repository, and production event store transport implementation references.
 
+Phase 1 Milestone 7 adds the Application Foundation in `packages/application/`. Slice A keeps REST API routes, controllers, authentication implementation, authorization implementation, connector execution, AI workflows, database repository implementations, frontend, business scoring logic, and actual product use cases blocked.
+
+Run the explicit Application Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-1-milestone-7
+```
+
+In Milestone 7 mode, implementation files are permitted in:
+
+- `packages/config/`
+- `packages/types/`
+- `packages/errors/`
+- `packages/utils/`
+- `packages/shared/`
+- `packages/events/`
+- `packages/database/`
+- `packages/domain/`
+- `packages/application/`
+
+The verifier checks that the application package, strict TypeScript config, package test config, public export boundary, command/query contracts, use-case contracts, application result contracts, validation outcome contracts, handler context contracts, application service contracts, DI contracts, request context contracts, application error contracts, event publishing contracts, repository port contracts, transaction boundary contracts, export stability tests, package boundary tests, security tests, and deterministic contract tests exist during the active Application Foundation slice. It rejects unapproved `packages/application` dependencies and scans runtime application package source files for prohibited REST API routes, controllers, auth implementation, connector execution, AI workflows, database repository implementations, frontend implementation, business scoring logic, and actual product use cases.
+
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
 For Phase 1 Milestone 2, the verifier also checks shared foundation package dependencies:
@@ -128,7 +150,8 @@ For Phase 1 Milestone 2, the verifier also checks shared foundation package depe
 - `packages/events` currently must not depend on other workspace packages.
 - `packages/database` may depend only on approved shared infrastructure packages and Prisma-related dependencies explicitly allowed by the Database Foundation policy.
 - `packages/domain` may depend only on `@opportunity-os/types`, `@opportunity-os/errors`, `@opportunity-os/events`, and optionally `@opportunity-os/utils`.
-- Shared foundation, database foundation, and domain foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, intelligence, acquisition, application, or business packages.
+- `packages/application` may depend only on approved foundation packages when a scoped milestone requires them.
+- Shared foundation, database foundation, domain foundation, and application foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, intelligence, acquisition, or business packages.
 
 ## Environment Contract Verification
 

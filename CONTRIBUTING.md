@@ -129,6 +129,22 @@ When domain files change, reviewers should confirm:
 - validation and result contracts remain generic
 - future package guidance does not bypass Domain Foundation contracts
 
+## Application Foundation Governance
+
+Phase 1 Milestone 7 implements generic application-layer contracts in `packages/application`. Future packages must consume `@opportunity-os/application` instead of redefining or bypassing command/query contracts, use-case boundaries, application services, DI contracts, request contexts, application errors, event publishing ports, repository ports, transaction boundary ports, results, validation outcomes, or handler execution context contracts.
+
+Application changes must remain generic. They must not introduce REST API routes, controllers, authentication implementation, authorization implementation, connector execution, AI workflows, database repository implementations, frontend implementation, business scoring logic, concrete product commands, product handlers, or actual product use cases.
+
+When application files change, reviewers should confirm:
+
+- public exports route through `packages/application/src/index.ts`
+- dependencies remain limited to approved foundation packages
+- application errors and validation failures remain secret-safe and stack-safe by default
+- repository ports stay interface-only and do not depend on Prisma, SQL, persistence mapping, or database clients
+- event publishing ports remain transport-agnostic and do not introduce event buses or production transports
+- DI and handler contracts do not introduce runtime containers, service locators, registries, dispatch engines, or app startup behavior
+- future package guidance does not bypass Application Foundation contracts
+
 ## Phase 1 Milestone 2 Readiness
 
 Before handing off to the next milestone, confirm:

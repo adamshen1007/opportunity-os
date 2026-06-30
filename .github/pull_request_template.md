@@ -30,6 +30,7 @@
 - [ ] If event contracts changed, I completed event privacy review: no raw payloads, secrets, tokens, API keys, provider keys, credentials, DSNs, auth headers, or production transports were introduced.
 - [ ] If database files changed, I completed database migration and secret-safety review: migrations are scoped and reviewed, no prohibited tables or production event store transport were introduced, and no `DATABASE_URL`, credentials, SQL payloads, auth headers, provider details, or Prisma internals are exposed.
 - [ ] If domain files changed, I completed domain contract review: public exports route through `packages/domain/src/index.ts`, dependencies stay within approved shared infrastructure packages, no concrete business aggregates/events/payloads/scoring/workflows/app services/database repositories were introduced, and future packages are not directed to bypass `@opportunity-os/domain`.
+- [ ] If application files changed, I completed application contract review: public exports route through `packages/application/src/index.ts`, dependencies stay within approved foundation packages, no REST APIs/controllers/auth/connectors/AI workflows/database repositories/frontend/scoring/product use cases were introduced, and future packages are not directed to bypass `@opportunity-os/application`.
 - [ ] I cleaned up unrelated local files before opening this PR.
 
 ## Checklist
