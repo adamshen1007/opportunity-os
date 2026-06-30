@@ -53,6 +53,7 @@ const requiredReadmes = [
   "packages/acquisition/README.md",
   "packages/ai/README.md",
   "packages/application/README.md",
+  "packages/container/README.md",
   "packages/config/README.md",
   "packages/database/README.md",
   "packages/domain/README.md",
@@ -78,20 +79,23 @@ const phaseThreeAliases = new Set(["phase-1-milestone-3", "logging-foundation"])
 const phaseFourAliases = new Set(["phase-1-milestone-4", "event-foundation"]);
 const phaseFiveAliases = new Set(["phase-1-milestone-5", "database-foundation"]);
 const phaseSixAliases = new Set(["phase-1-milestone-6", "domain-foundation"]);
-const phaseSevenAliases = new Set(["review", "phase-1-milestone-7", "application-foundation"]);
+const phaseSevenAliases = new Set(["phase-1-milestone-7", "application-foundation"]);
+const phaseEightAliases = new Set(["review", "phase-1-milestone-8", "container-foundation", "composition-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
-const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase);
-const isPhaseSeven = phaseSevenAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase);
+const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase);
+const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase);
+const isPhaseEight = phaseEightAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
 const allowedPhaseFiveImplementationRoots = [...allowedPhaseFourImplementationRoots, "packages/database"];
 const allowedPhaseSixImplementationRoots = [...allowedPhaseFiveImplementationRoots, "packages/domain"];
 const allowedPhaseSevenImplementationRoots = [...allowedPhaseSixImplementationRoots, "packages/application"];
+const allowedPhaseEightImplementationRoots = [...allowedPhaseSevenImplementationRoots, "packages/container"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -440,6 +444,108 @@ const requiredApplicationFoundationExports = [
   "TransactionBoundaryPort",
   "TransactionScope"
 ];
+const requiredContainerFoundationFiles = [
+  "packages/container/package.json",
+  "packages/container/README.md",
+  "packages/container/tsconfig.json",
+  "packages/container/vitest.config.ts",
+  "packages/container/src/index.ts",
+  "packages/container/src/bindings/config-binding.ts",
+  "packages/container/src/bindings/index.ts",
+  "packages/container/src/bindings/logger-binding.ts",
+  "packages/container/src/composition/composition-result.ts",
+  "packages/container/src/composition/composition-root.ts",
+  "packages/container/src/composition/index.ts",
+  "packages/container/src/container/container.ts",
+  "packages/container/src/container/index.ts",
+  "packages/container/src/container/resolver.ts",
+  "packages/container/src/errors/container-error.ts",
+  "packages/container/src/errors/index.ts",
+  "packages/container/src/lifetime/index.ts",
+  "packages/container/src/lifetime/lifetime.ts",
+  "packages/container/src/modules/index.ts",
+  "packages/container/src/modules/module-definition.ts",
+  "packages/container/src/modules/module-registration.ts",
+  "packages/container/src/registration/class-registration.ts",
+  "packages/container/src/registration/factory-registration.ts",
+  "packages/container/src/registration/index.ts",
+  "packages/container/src/registration/service-descriptor.ts",
+  "packages/container/src/registration/value-registration.ts",
+  "packages/container/src/scope/index.ts",
+  "packages/container/src/scope/scope.ts",
+  "packages/container/src/scope/scoped-container.ts",
+  "packages/container/src/tokens/dependency-token.ts",
+  "packages/container/src/tokens/index.ts",
+  "packages/container/src/validation/index.ts",
+  "packages/container/src/validation/registration-validation.ts",
+  "packages/container/src/__tests__/config-binding.test.ts",
+  "packages/container/src/__tests__/container-contract.test.ts",
+  "packages/container/src/__tests__/container-error.test.ts",
+  "packages/container/src/__tests__/contract-stability.test.ts",
+  "packages/container/src/__tests__/dependency-token.test.ts",
+  "packages/container/src/__tests__/exports.test.ts",
+  "packages/container/src/__tests__/lifetime.test.ts",
+  "packages/container/src/__tests__/logger-binding.test.ts",
+  "packages/container/src/__tests__/module-registration.test.ts",
+  "packages/container/src/__tests__/package-boundary.test.ts",
+  "packages/container/src/__tests__/registration-contract.test.ts",
+  "packages/container/src/__tests__/registration-validation.test.ts",
+  "packages/container/src/__tests__/scope-contract.test.ts",
+  "packages/container/src/__tests__/service-descriptor.test.ts"
+];
+const requiredContainerFoundationExports = [
+  "ConfigBinding",
+  "ConfigBindingInput",
+  "LoggerBinding",
+  "LoggerBindingContract",
+  "LoggerFactoryBinding",
+  "ContainerContract",
+  "DependencyResolver",
+  "COMPOSITION_RESULT_STATUSES",
+  "CompositionFailure",
+  "CompositionIssue",
+  "CompositionResult",
+  "CompositionResultStatus",
+  "CompositionRoot",
+  "CompositionRootInput",
+  "CompositionSuccess",
+  "CONTAINER_ERROR_CODES",
+  "ContainerError",
+  "createContainerError",
+  "ContainerErrorCode",
+  "ContainerErrorOptions",
+  "SafeContainerErrorDetails",
+  "CONTAINER_LIFETIMES",
+  "ContainerLifetime",
+  "ModuleDefinition",
+  "ModuleId",
+  "ModuleRegistration",
+  "SERVICE_REGISTRATION_KINDS",
+  "ClassRegistration",
+  "DependencyFactory",
+  "FactoryRegistration",
+  "FactoryResolutionContext",
+  "ServiceConstructor",
+  "ServiceDescriptor",
+  "ServiceRegistration",
+  "ServiceRegistrationKind",
+  "ValueRegistration",
+  "createDependencyToken",
+  "DependencyToken",
+  "REGISTRATION_VALIDATION_ISSUE_CODES",
+  "DuplicateTokenIssue",
+  "MissingDependencyIssue",
+  "RegistrationValidationFailure",
+  "RegistrationValidationIssue",
+  "RegistrationValidationIssueCode",
+  "RegistrationValidationResult",
+  "RegistrationValidationSuccess",
+  "UnsupportedLifetimeIssue",
+  "ContainerScope",
+  "ScopeFactory",
+  "ScopeId",
+  "ScopedContainer"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -500,6 +606,16 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/shared",
       "@opportunity-os/domain"
     ]
+  },
+  "packages/container": {
+    packageName: "@opportunity-os/container",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/types",
+      "@opportunity-os/errors",
+      "@opportunity-os/utils",
+      "@opportunity-os/shared",
+      "@opportunity-os/config"
+    ]
   }
 };
 const prohibitedSharedFoundationDependencyPatterns = [
@@ -559,6 +675,15 @@ const allowedApplicationPackageDependencies = new Set([
   "@opportunity-os/utils",
   "@opportunity-os/shared",
   "@opportunity-os/domain",
+  "@types/node",
+  "vitest"
+]);
+const allowedContainerPackageDependencies = new Set([
+  "@opportunity-os/types",
+  "@opportunity-os/errors",
+  "@opportunity-os/utils",
+  "@opportunity-os/shared",
+  "@opportunity-os/config",
   "@types/node",
   "vitest"
 ]);
@@ -1036,6 +1161,76 @@ function assertApplicationFoundationPolicy() {
   }
 }
 
+function assertContainerFoundationPolicy() {
+  for (const file of requiredContainerFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Container foundation is missing required file: ${file}`);
+    }
+  }
+
+  const containerIndexPath = "packages/container/src/index.ts";
+  if (exists(containerIndexPath)) {
+    const containerIndex = read(containerIndexPath);
+    if (!containerIndex.includes("Container Foundation")) {
+      fail(`${containerIndexPath} must document the Phase 1 Milestone 8 Container Foundation public export boundary`);
+    }
+    for (const exportName of requiredContainerFoundationExports) {
+      if (!containerIndex.includes(exportName)) {
+        fail(`${containerIndexPath} must export container foundation contract "${exportName}"`);
+      }
+    }
+  }
+
+  const containerPackageJsonPath = "packages/container/package.json";
+  if (exists(containerPackageJsonPath)) {
+    try {
+      const containerPackageJson = readJson(containerPackageJsonPath);
+      for (const dependencyField of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+        const dependencies = containerPackageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if (!allowedContainerPackageDependencies.has(dependencyName)) {
+            fail(`${containerPackageJsonPath} may depend only on approved foundation packages and deterministic test/build tooling; found ${dependencyField}.${dependencyName}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${containerPackageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+
+  for (const file of listFiles("packages/container")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/container/dist/") ||
+      file.startsWith("packages/container/node_modules/") ||
+      file.startsWith("packages/container/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["REST API", /\bREST API\b|\bapi route\b|\broute handler\b/iu],
+      ["controller", /\bcontroller\b/iu],
+      ["authentication implementation", /\bauthentication implementation\b|\bauthorization implementation\b|\bauth middleware\b/iu],
+      ["connector execution", /\bexecuteConnector\b|\bConnectorRunner\b|\bconnector execution\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
+      ["database repository implementation", /\bPrismaClient\b|\bsql\b|\bdatabase repository implementation\b/iu],
+      ["frontend implementation", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["application service", /\bApplicationService\b|\bapplication service\b/iu],
+      ["product workflow", /\bOpportunityExplorer\b|\bClusterExplorer\b|\bTrendExplorer\b|\bConnectorManagement\b|\bproduct workflow\b/iu],
+      ["business logic", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness logic\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Container foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -1072,7 +1267,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseSeven
+  const allowedImplementationRoots = isPhaseEight
+    ? allowedPhaseEightImplementationRoots
+    : isPhaseSeven
     ? allowedPhaseSevenImplementationRoots
     : isPhaseSix
     ? allowedPhaseSixImplementationRoots
@@ -1093,7 +1290,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -1121,6 +1318,10 @@ if (isPhaseSix) {
 
 if (isPhaseSeven) {
   assertApplicationFoundationPolicy();
+}
+
+if (isPhaseEight) {
+  assertContainerFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

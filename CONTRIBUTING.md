@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 Milestone 4, these commands validate repository structure, documentation integrity, package boundaries, logging and event foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, and `packages/events`.
+During Phase 1 Milestone 8, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, and container foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, and `packages/container`.
 
 ## Phase 0 and Phase 1
 
@@ -144,6 +144,36 @@ When application files change, reviewers should confirm:
 - event publishing ports remain transport-agnostic and do not introduce event buses or production transports
 - DI and handler contracts do not introduce runtime containers, service locators, registries, dispatch engines, or app startup behavior
 - future package guidance does not bypass Application Foundation contracts
+
+## Container Foundation Governance
+
+Phase 1 Milestone 8 implements generic dependency injection and composition contracts in `packages/container`. Future packages must consume `@opportunity-os/container` instead of redefining or bypassing dependency tokens, service registrations, lifetimes, resolver contracts, scope contracts, module definitions, composition root contracts, config binding contracts, logger binding contracts, registration validation contracts, or container error contracts.
+
+Container changes must remain generic. They must not introduce REST APIs, controllers, authentication implementation, authorization implementation, connector execution, AI workflows, database repository implementations, frontend implementation, application services, product workflows, business logic, runtime dependency resolution, reflection, service locators, module loading, app startup, API boot, or product workflow composition.
+
+When container files change, reviewers should confirm:
+
+- public exports route through `packages/container/src/index.ts`
+- dependencies remain limited to approved foundation packages and deterministic test/build tooling
+- dependency tokens remain typed identities only
+- lifetimes remain the stable vocabulary `singleton`, `scoped`, and `transient`
+- registration contracts remain declarative and do not execute dependency graphs
+- resolver, scope, module, and composition contracts remain interface-only
+- config binding consumes explicit typed configuration and does not read `process.env`
+- logger binding does not introduce a singleton, transport, or app integration
+- container errors remain secret-safe and stack-safe by default
+- future package guidance does not bypass Container Foundation contracts
+
+## Phase 1 Milestone 8 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/container` is implemented, tested, documented, and independently buildable
+- dependency tokens, registration contracts, lifetimes, resolver contracts, scope contracts, module contracts, composition root contracts, config bindings, logger bindings, validation contracts, and container errors are documented for future consumers
+- export stability, dependency boundary, contract stability, and security-safe error tests pass
+- repository verification supports `phase-1-milestone-8`
+- no REST APIs, controllers, auth implementation, connector execution, AI workflows, database repositories, frontend implementation, application services, product workflows, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-8`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
 ## Phase 1 Milestone 2 Readiness
 

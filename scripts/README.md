@@ -15,6 +15,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - logging foundation file, export, and dependency stability checks during Phase 1 Milestone 3
 - event foundation file, export, and dependency stability checks during Phase 1 Milestone 4
 - database foundation file, Prisma schema, dependency, and package-boundary checks during Phase 1 Milestone 5
+- container foundation package and dependency-boundary checks during Phase 1 Milestone 8
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 ## Phase 1 Shared Infrastructure Boundaries
@@ -51,7 +52,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 1 Milestone 6 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 1 Milestone 8 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -140,6 +141,29 @@ In Milestone 7 mode, implementation files are permitted in:
 
 The verifier checks that the application package, strict TypeScript config, package test config, public export boundary, command/query contracts, use-case contracts, application result contracts, validation outcome contracts, handler context contracts, application service contracts, DI contracts, request context contracts, application error contracts, event publishing contracts, repository port contracts, transaction boundary contracts, export stability tests, package boundary tests, security tests, and deterministic contract tests exist during the active Application Foundation slice. It rejects unapproved `packages/application` dependencies and scans runtime application package source files for prohibited REST API routes, controllers, auth implementation, connector execution, AI workflows, database repository implementations, frontend implementation, business scoring logic, and actual product use cases.
 
+Phase 1 Milestone 8 adds the Container Foundation in `packages/container/`. It keeps REST APIs, controllers, authentication implementation, authorization implementation, connector execution, AI workflows, database repository implementations, frontend, application services, product workflows, business logic, runtime service locators, reflection, app startup, API boot, and product workflow composition blocked.
+
+Run the explicit Container Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-1-milestone-8
+```
+
+In Milestone 8 mode, implementation files are permitted in:
+
+- `packages/config/`
+- `packages/types/`
+- `packages/errors/`
+- `packages/utils/`
+- `packages/shared/`
+- `packages/events/`
+- `packages/database/`
+- `packages/domain/`
+- `packages/application/`
+- `packages/container/`
+
+The verifier checks that the container package, strict TypeScript config, package test config, public export boundary, README boundary documentation, dependency token contracts, registration contracts, lifetime contracts, resolver contracts, scope contracts, module contracts, composition root contracts, config binding contracts, logger binding contracts, validation contracts, container errors, export stability tests, package boundary tests, and contract stability tests exist during Milestone 8. It rejects unapproved `packages/container` dependencies and scans runtime container package source files for prohibited REST APIs, controllers, auth implementation, connector execution, AI workflows, database repository implementations, frontend implementation, application services, product workflows, and business logic.
+
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
 For Phase 1 Milestone 2, the verifier also checks shared foundation package dependencies:
@@ -151,7 +175,8 @@ For Phase 1 Milestone 2, the verifier also checks shared foundation package depe
 - `packages/database` may depend only on approved shared infrastructure packages and Prisma-related dependencies explicitly allowed by the Database Foundation policy.
 - `packages/domain` may depend only on `@opportunity-os/types`, `@opportunity-os/errors`, `@opportunity-os/events`, and optionally `@opportunity-os/utils`.
 - `packages/application` may depend only on approved foundation packages when a scoped milestone requires them.
-- Shared foundation, database foundation, domain foundation, and application foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, intelligence, acquisition, or business packages.
+- `packages/container` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
+- Shared foundation, database foundation, domain foundation, application foundation, and container foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, intelligence, acquisition, or business packages.
 
 ## Environment Contract Verification
 

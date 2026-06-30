@@ -901,6 +901,152 @@ Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/application` for generic application-layer contracts. Do not begin REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repository implementations, frontend, business scoring logic, or actual product use cases until later approved milestones scope them.
 
+## Phase 1 Milestone 8 — Dependency Injection And Composition Foundation
+
+Goal:
+
+Define dependency injection and composition contracts without application startup, product workflows, or business behavior.
+
+Owner:
+
+- `packages/container`
+
+Deliverables:
+
+- `@opportunity-os/container` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/container/src/index.ts`
+
+- package boundary documentation
+
+- repository verification support for `phase-1-milestone-8`
+
+- dependency policy for approved foundation packages
+
+- dependency token contracts
+
+- service registration contracts
+
+- singleton, scoped, and transient lifetime contracts
+
+- factory registration contracts
+
+- class and value registration contracts
+
+- resolver and container contracts
+
+- scope and scoped container contracts
+
+- composition root contracts
+
+- module registration contracts
+
+- configuration binding contracts
+
+- logger integration contracts
+
+- registration validation contracts
+
+- secret-safe container error contracts
+
+- export stability tests
+
+- dependency boundary tests
+
+- contract stability tests
+
+- deterministic tests
+
+Dependency direction:
+
+- `packages/container` is a shared composition infrastructure package.
+
+- It may depend only on approved foundation packages when a scoped slice requires them: `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared`.
+
+- It must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repositories, frontend packages, application services, product workflows, or business packages.
+
+Out of scope:
+
+- REST APIs
+
+- controllers
+
+- authentication implementation
+
+- authorization implementation
+
+- connector execution
+
+- AI workflows
+
+- database repositories
+
+- frontend implementation
+
+- application services
+
+- product workflows
+
+- business logic
+
+Verification commands:
+
+- `node scripts/verify-repository.mjs --phase review`
+
+- `node scripts/verify-repository.mjs --phase phase-1-milestone-8`
+
+- `pnpm install --frozen-lockfile`
+
+- `pnpm --filter @opportunity-os/container test`
+
+- `pnpm --filter @opportunity-os/container build`
+
+- `pnpm lint`
+
+- `pnpm build`
+
+- `pnpm test`
+
+- `docker compose config`
+
+Implementation guardrail:
+
+Phase 1 Milestone 8 may define package ownership, strict TypeScript setup, public export routing, dependency policy, documentation boundaries, repository verification, dependency token contracts, service registration contracts, lifetime contracts, resolver contracts, scope contracts, module contracts, composition root contracts, config binding contracts, logger binding contracts, registration validation contracts, container error contracts, export stability tests, dependency boundary tests, contract stability tests, and deterministic package tests only. It must not implement runtime dependency resolution, service locator behavior, reflection, app startup, API boot, module loading, product workflow composition, or business behavior.
+
+Readiness gate for Phase 1 Milestone 8:
+
+- `packages/container` is scaffolded as `@opportunity-os/container`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/container/src/index.ts`
+
+- repository verification permits `packages/container` while continuing to block APIs, controllers, auth, connectors, AI workflows, database repositories, frontend, application services, product workflows, and business logic
+
+- package dependencies are limited to approved foundation packages and deterministic test/build tooling
+
+- dependency token, registration, lifetime, resolver, scope, module, composition root, config binding, logger binding, validation, and error contracts are implemented and documented
+
+- config binding contracts consume explicit typed config and do not read `process.env`
+
+- logger binding contracts do not introduce logger singletons, transports, or app integration
+
+- container errors serialize safely without secrets, tokens, auth headers, credentials, raw config values, stack traces, or raw causes
+
+- export stability, dependency boundary, contract stability, and package tests pass
+
+- future packages are instructed to consume `@opportunity-os/container` contracts rather than bypassing or redefining them
+
+- PR governance includes DI boundary review, lifetime review, config binding review, logger binding review, and non-goal confirmation when container files change
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-8`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/container` for generic dependency injection and composition contracts. Do not begin REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repository implementations, frontend, application services, product workflows, or business logic until later approved milestones scope them.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

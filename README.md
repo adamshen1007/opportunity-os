@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, and `packages/application`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, and `packages/container`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, and application foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, and `packages/application`.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, and container foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, and `packages/container`.
 
 ## Phase Workflow
 
@@ -428,3 +428,21 @@ Phase 1 Milestone 7 introduces the Application Foundation in `packages/applicati
 - handler execution context contracts
 
 Future packages must consume `@opportunity-os/application` for application-layer contracts instead of redefining or bypassing them. Application Foundation does not implement REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repositories, frontend, business scoring, concrete product commands, product handlers, or actual product use cases.
+
+## Container Foundation
+
+Phase 1 Milestone 8 introduces the Dependency Injection and Composition Foundation in `packages/container`.
+
+`packages/container` owns generic dependency injection and composition contracts only. It provides typed dependency tokens, service registration contracts, stable lifetimes, resolver contracts, scope contracts, module definitions, composition root contracts, config binding contracts, logger binding contracts, registration validation contracts, and secret-safe container error contracts.
+
+Future packages must consume `@opportunity-os/container` for dependency injection and composition contracts instead of redefining or bypassing them.
+
+Use `createDependencyToken` and `DependencyToken` for typed dependency identity. Use `ServiceDescriptor`, `ClassRegistration`, `FactoryRegistration`, and `ValueRegistration` for declarative registrations. Use `CONTAINER_LIFETIMES` for the stable `singleton`, `scoped`, and `transient` lifecycle vocabulary. Use resolver, scope, module, and composition root contracts to describe future assembly boundaries without implementing runtime dependency graph execution.
+
+Use `ConfigBinding` with explicit typed configuration from `@opportunity-os/config`; consumers must not read `process.env` through container contracts. Use `LoggerBinding` and `LoggerFactoryBinding` with shared logging contracts from `@opportunity-os/shared`; consumers must not introduce logger singletons or app integration in `packages/container`.
+
+Container validation and errors are contract-only. `RegistrationValidationResult` documents duplicate token, missing dependency, and unsupported lifetime issues. `ContainerError` serializes safely without exposing secrets, tokens, auth headers, credentials, raw config values, stack traces, or raw causes by default.
+
+`packages/container` must not implement REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repositories, frontend behavior, application services, product workflows, business logic, runtime service locators, reflection, app startup, API boot, or product workflow composition.
+
+Phase 1 Milestone 8 is complete when `@opportunity-os/container` is implemented, tested, documented, independently buildable, covered by export stability and dependency boundary tests, included in root lint/build/test, and verified by `node scripts/verify-repository.mjs --phase review` and `node scripts/verify-repository.mjs --phase phase-1-milestone-8`.
