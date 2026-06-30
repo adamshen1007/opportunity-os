@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, and `packages/events`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, and `packages/database`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging and event foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, and `packages/events`.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, and database foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, and `packages/database`.
 
 ## Phase Workflow
 
@@ -288,6 +288,49 @@ Phase 1 Milestone 4 is complete when all of the following are true:
 - no application code, APIs, connectors, AI workflows, database implementation, frontend implementation, or business logic exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-4`, `pnpm lint`, `pnpm build`, and `pnpm test` pass
 
+## Database Foundation
+
+Phase 1 Milestone 5 introduces the Database Foundation in `packages/database`.
+
+Slice A establishes the package and Prisma foundation only:
+
+- `@opportunity-os/database` workspace package
+- strict TypeScript package configuration
+- Prisma dependency scoped to `packages/database`
+- PostgreSQL datasource using `DATABASE_URL`
+- Prisma client generator
+- package scripts for build, lint, test, and Prisma validation
+- public exports through `packages/database/src/index.ts`
+
+Slice B adds the migration and configuration boundary:
+
+- documented Prisma migration commands
+- empty foundation baseline migration
+- explicit typed database configuration input
+- database client factory contract with injected client creation
+- no process-level singleton and no automatic connection during import
+
+Slice C adds runtime contracts:
+
+- connect, disconnect, and safe shutdown contracts
+- generic repository interfaces
+- transaction boundary contracts
+- secret-safe database error mapping
+- database health check contract
+- seed framework placeholder
+
+Slice D hardens the package boundary:
+
+- schema policy tests that keep prohibited business models out of Prisma
+- database security tests for secret-safe errors and health failures
+- optional local database integration verification through `verify:local`
+- public export stability tests
+- package dependency boundary tests
+
+`packages/database` owns Prisma setup, database client creation, migration framework, repository contracts, transaction contracts, seed placeholders, and database health contracts.
+
+Slice D does not define connector persistence, Raw Content workflow tables, event store tables, AI workflow tables, API tables, frontend tables, business tables, application services, business logic, API routes, or production event store transport.
+
 ## Local Services
 
 The repository includes a Docker Compose baseline for local PostgreSQL and Redis only. It does not define application containers during Phase 1 Milestone 1.
@@ -324,4 +367,4 @@ Every pull request should:
 
 ## Current Status
 
-Phase 1 Milestone 4 establishes the shared Event Foundation inside `packages/events`. The repository remains free of business logic, connectors, APIs, AI workflows, database implementation, frontend implementation, and app code.
+Phase 1 Milestone 5 Slice D hardens the Database Foundation with schema policy tests, secret-safe database security tests, optional local verification, public export stability tests, and package boundary tests. The repository remains free of business logic, connectors, APIs, AI workflows, frontend implementation, app code, connector persistence, Raw Content workflow tables, event store tables, and application services.

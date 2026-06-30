@@ -1,0 +1,41 @@
+{
+  "name": "@opportunity-os/database",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Database foundation package for Opportunity OS shared infrastructure.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "migrate:deploy": "prisma --config=./prisma.config.ts migrate deploy",
+    "migrate:dev": "prisma --config=./prisma.config.ts migrate dev",
+    "migrate:status": "prisma --config=./prisma.config.ts migrate status",
+    "prisma": "prisma --config=./prisma.config.ts",
+    "test": "vitest run src --passWithNoTests",
+    "verify:local": "prisma --config=./prisma.config.ts migrate status"
+  },
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": "11.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "prisma": "^7.8.0",
+    "vitest": "^4.0.16"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.8.0"
+  }
+}

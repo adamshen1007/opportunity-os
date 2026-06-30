@@ -485,6 +485,150 @@ Handoff:
 
 After this gate passes, future milestones may consume `@opportunity-os/events` contracts. Phase 1 Milestone 5 must not begin until its scope, owning package, Engineering Kit references, acceptance criteria, and required tests are approved.
 
+## Phase 1 Milestone 5 — Database Foundation
+
+Goal:
+
+Establish the database package and Prisma foundation without connector persistence, application services, production event store transport, or business workflows.
+
+Owner:
+
+- `packages/database`
+
+Slice A deliverables:
+
+- `@opportunity-os/database` TypeScript package
+
+- strict TypeScript package setup
+
+- Prisma dependency scoped to `packages/database`
+
+- PostgreSQL datasource using `DATABASE_URL`
+
+- Prisma client generator
+
+- package scripts for build, lint, test, and Prisma validation
+
+- public exports through `packages/database/src/index.ts`
+
+- documentation boundaries
+
+Slice B deliverables:
+
+- migration framework documentation and validation
+
+- empty foundation baseline migration
+
+- explicit typed database configuration input
+
+- database client factory
+
+Slice C deliverables:
+
+- repository interface contracts
+
+- transaction boundary contracts
+
+- seed framework placeholders
+
+- database health check contracts
+
+- database lifecycle contracts
+
+- secret-safe database error contracts
+
+Slice D deliverables:
+
+- schema policy tests that verify no prohibited business models or tables exist
+
+- database security tests for secret-safe errors and health failures
+
+- optional local database integration verification command
+
+- public export stability tests
+
+- package boundary tests
+
+Dependency direction:
+
+- `packages/database` is a persistence infrastructure package.
+
+- Slice A must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages.
+
+- Slice A does not add workspace package dependencies.
+
+Out of scope:
+
+- connector persistence
+
+- Raw Content workflow tables
+
+- event store tables
+
+- AI workflow tables
+
+- API tables
+
+- frontend tables
+
+- business tables
+
+- application services
+
+- business logic
+
+- production event store transport
+
+Implementation guardrail:
+
+Phase 1 Milestone 5 Slice D may define Prisma and PostgreSQL schema foundation, migration policy, explicit database configuration input, database client factory contracts, lifecycle contracts, generic repository contracts, transaction contracts, safe error contracts, health contracts, seed placeholders, schema policy tests, database security tests, optional local verification, public export stability tests, and package boundary tests only. It must not implement full business workflows, connector persistence, application services, API behavior, workflow behavior, frontend behavior, or production event transport.
+
+Readiness gate for Slice A:
+
+- `packages/database` is scaffolded as `@opportunity-os/database`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/database/src/index.ts`
+
+- Prisma schema declares PostgreSQL datasource and Prisma client generator
+
+- no Prisma data models are introduced
+
+- foundation baseline migration creates no tables
+
+- database configuration is created from explicit typed input and keeps `DATABASE_URL` as the required connection source
+
+- database client factory accepts explicit config, uses injected client creation, does not create a process-level singleton, and does not automatically connect during import
+
+- lifecycle contracts define connect, disconnect, and safe shutdown around injected clients
+
+- repository and transaction contracts are generic and contain no domain-specific methods
+
+- database errors serialize to safe infrastructure shapes without credentials, connection strings, SQL payloads, raw causes, stack traces, or Prisma internals
+
+- database health check contract is injectable and does not implement API routes
+
+- seed framework is placeholder-only and inserts no seed data
+
+- schema policy tests verify prohibited business models and tables are absent
+
+- database security tests verify errors and health failures do not leak credentials, connection strings, SQL payloads, auth headers, provider details, raw causes, stack traces, or Prisma internals
+
+- optional local database verification is available without becoming part of the default CI, lint, build, or test pipeline
+
+- public exports and package boundaries are covered by deterministic tests
+
+- Prisma dependencies are scoped to `packages/database`
+
+- repository verification permits `packages/database` while continuing to block apps, APIs, connectors, AI workflows, frontend, domain, intelligence, acquisition, application, and business implementation
+
+- `pnpm install --frozen-lockfile`, `pnpm --filter @opportunity-os/database prisma validate`, `pnpm --filter @opportunity-os/database build`, `pnpm lint`, `pnpm build`, and `pnpm test` pass
+
+Handoff:
+
+After this gate passes, future Database Foundation slices may add documentation and final readiness checks. Do not begin connector persistence, Raw Content workflow persistence, API, AI workflow, frontend, application service, business logic, or production event store transport work until a later approved milestone scopes it.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

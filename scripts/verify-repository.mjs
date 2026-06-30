@@ -75,14 +75,17 @@ const phase = process.argv.includes("--phase") ? process.argv[process.argv.index
 const phaseOneAliases = new Set(["phase1", "phase-1", "phase-1-milestone-1"]);
 const phaseTwoAliases = new Set(["phase-1-milestone-2", "shared-foundation"]);
 const phaseThreeAliases = new Set(["phase-1-milestone-3", "logging-foundation"]);
-const phaseFourAliases = new Set(["review", "phase-1-milestone-4", "event-foundation"]);
+const phaseFourAliases = new Set(["phase-1-milestone-4", "event-foundation"]);
+const phaseFiveAliases = new Set(["review", "phase-1-milestone-5", "database-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
+const allowedPhaseFiveImplementationRoots = [...allowedPhaseFourImplementationRoots, "packages/database"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -179,6 +182,61 @@ const requiredEventFoundationExports = [
   "createEventVersion",
   "isEventVersion"
 ];
+const requiredDatabaseFoundationFiles = [
+  "packages/database/package.json",
+  "packages/database/tsconfig.json",
+  "packages/database/vitest.config.ts",
+  "packages/database/prisma.config.ts",
+  "packages/database/prisma/schema.prisma",
+  "packages/database/prisma/migrations/00000000000000_foundation_baseline/migration.sql",
+  "packages/database/src/index.ts",
+  "packages/database/src/client.ts",
+  "packages/database/src/database-config.ts",
+  "packages/database/src/database-error.ts",
+  "packages/database/src/health.ts",
+  "packages/database/src/lifecycle.ts",
+  "packages/database/src/repository.ts",
+  "packages/database/src/seed.ts",
+  "packages/database/src/transaction.ts",
+  "packages/database/src/__tests__/client.test.ts",
+  "packages/database/src/__tests__/database-config.test.ts",
+  "packages/database/src/__tests__/database-error.test.ts",
+  "packages/database/src/__tests__/database-security.test.ts",
+  "packages/database/src/__tests__/exports.test.ts",
+  "packages/database/src/__tests__/health.test.ts",
+  "packages/database/src/__tests__/lifecycle.test.ts",
+  "packages/database/src/__tests__/migration-policy.test.ts",
+  "packages/database/src/__tests__/package-boundary.test.ts",
+  "packages/database/src/__tests__/repository.test.ts",
+  "packages/database/src/__tests__/schema-policy.test.ts",
+  "packages/database/src/__tests__/seed.test.ts",
+  "packages/database/src/__tests__/transaction.test.ts"
+];
+const requiredDatabaseFoundationExports = [
+  "createDatabaseConfig",
+  "DatabaseConfigurationError",
+  "DatabaseConfigInput",
+  "DatabaseRuntimeConfig",
+  "createDatabaseClient",
+  "DatabaseClientContract",
+  "DatabaseClientCreator",
+  "DatabaseClientFactoryInput",
+  "connectDatabase",
+  "disconnectDatabase",
+  "safelyShutdownDatabase",
+  "RepositoryContract",
+  "RepositoryOperationContext",
+  "createTransactionBoundary",
+  "TransactionBoundary",
+  "DATABASE_ERROR_CODES",
+  "DatabaseError",
+  "toSafeDatabaseErrorDetails",
+  "SafeDatabaseErrorDetails",
+  "checkDatabaseHealth",
+  "DatabaseHealthResult",
+  "createSeedPlaceholder",
+  "DatabaseSeedPlan"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -208,6 +266,17 @@ const sharedFoundationPackageRules = {
   "packages/events": {
     packageName: "@opportunity-os/events",
     allowedWorkspaceDependencies: []
+  },
+  "packages/database": {
+    packageName: "@opportunity-os/database",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/config",
+      "@opportunity-os/types",
+      "@opportunity-os/errors",
+      "@opportunity-os/utils",
+      "@opportunity-os/shared",
+      "@opportunity-os/events"
+    ]
   }
 };
 const prohibitedSharedFoundationDependencyPatterns = [
@@ -240,6 +309,18 @@ const engineeringKitRequiredEnvironmentVariables = [
   "LOG_LEVEL",
   "OTEL_EXPORTER_ENDPOINT"
 ];
+const allowedDatabasePackageDependencies = new Set([
+  "@opportunity-os/config",
+  "@opportunity-os/types",
+  "@opportunity-os/errors",
+  "@opportunity-os/utils",
+  "@opportunity-os/shared",
+  "@opportunity-os/events",
+  "@prisma/client",
+  "@types/node",
+  "prisma",
+  "vitest"
+]);
 const engineeringKitOptionalEnvironmentVariables = [
   "SENTRY_DSN",
   "LANGFUSE_API_KEY",
@@ -444,6 +525,137 @@ function assertEventFoundationPolicy() {
   }
 }
 
+function assertDatabaseFoundationPolicy() {
+  for (const file of requiredDatabaseFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Database foundation is missing required file: ${file}`);
+    }
+  }
+
+  const schemaPath = "packages/database/prisma/schema.prisma";
+  if (exists(schemaPath)) {
+    const schema = read(schemaPath);
+    if (!schema.includes('provider = "postgresql"')) {
+      fail(`${schemaPath} must declare a PostgreSQL datasource provider`);
+    }
+    if (!schema.includes('provider = "prisma-client-js"')) {
+      fail(`${schemaPath} must declare the Prisma client generator`);
+    }
+
+    const prohibitedModelNames = [
+      "RawContent",
+      "Connector",
+      "EventStore",
+      "AiWorkflow",
+      "Api",
+      "Frontend",
+      "Business"
+    ];
+    for (const modelName of prohibitedModelNames) {
+      if (new RegExp(`\\bmodel\\s+${modelName}\\b`, "u").test(schema)) {
+        fail(`${schemaPath} must not define prohibited Slice A model: ${modelName}`);
+      }
+    }
+  }
+
+  const baselineMigrationPath = "packages/database/prisma/migrations/00000000000000_foundation_baseline/migration.sql";
+  if (exists(baselineMigrationPath)) {
+    const baselineMigration = read(baselineMigrationPath);
+    if (/\bCREATE\s+TABLE\b/iu.test(baselineMigration)) {
+      fail(`${baselineMigrationPath} must not create tables in Slice B`);
+    }
+  }
+
+  const databaseIndexPath = "packages/database/src/index.ts";
+  if (exists(databaseIndexPath)) {
+    const databaseIndex = read(databaseIndexPath);
+    for (const exportName of requiredDatabaseFoundationExports) {
+      if (!databaseIndex.includes(exportName)) {
+        fail(`${databaseIndexPath} must export database foundation contract "${exportName}"`);
+      }
+    }
+  }
+
+  const databaseClientPath = "packages/database/src/client.ts";
+  if (exists(databaseClientPath)) {
+    const databaseClient = read(databaseClientPath);
+    if (databaseClient.includes("new PrismaClient")) {
+      fail(`${databaseClientPath} must not create a process-level PrismaClient singleton`);
+    }
+    if (databaseClient.includes("process.env")) {
+      fail(`${databaseClientPath} must not read process.env; pass explicit typed configuration instead`);
+    }
+    if (databaseClient.includes("$connect()")) {
+      fail(`${databaseClientPath} must not automatically connect during client creation`);
+    }
+  }
+
+  const databaseConfigPath = "packages/database/src/database-config.ts";
+  if (exists(databaseConfigPath)) {
+    const databaseConfig = read(databaseConfigPath);
+    if (databaseConfig.includes("process.env")) {
+      fail(`${databaseConfigPath} must not read process.env; consume explicit typed configuration input`);
+    }
+    if (!databaseConfig.includes("databaseUrl")) {
+      fail(`${databaseConfigPath} must define databaseUrl as the explicit DATABASE_URL configuration field`);
+    }
+  }
+
+  const databasePackageJsonPath = "packages/database/package.json";
+  if (exists(databasePackageJsonPath)) {
+    try {
+      const databasePackageJson = readJson(databasePackageJsonPath);
+      if (databasePackageJson.scripts?.["verify:local"] !== "prisma --config=./prisma.config.ts migrate status") {
+        fail(`${databasePackageJsonPath} must define verify:local as optional Prisma migration status verification`);
+      }
+      if (databasePackageJson.scripts?.test?.includes("verify:local")) {
+        fail(`${databasePackageJsonPath} test script must not require local database verification`);
+      }
+      for (const dependencyField of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+        const dependencies = databasePackageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if (!allowedDatabasePackageDependencies.has(dependencyName)) {
+            fail(`${databasePackageJsonPath} may depend only on approved shared infrastructure packages, Prisma dependencies, and deterministic test/build tooling; found ${dependencyField}.${dependencyName}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${databasePackageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+
+  const prismaConfigPath = "packages/database/prisma.config.ts";
+  if (exists(prismaConfigPath)) {
+    const prismaConfig = read(prismaConfigPath);
+    if (!prismaConfig.includes("DATABASE_URL")) {
+      fail(`${prismaConfigPath} must read DATABASE_URL for Prisma datasource configuration`);
+    }
+    if (!prismaConfig.includes('schema: "prisma/schema.prisma"')) {
+      fail(`${prismaConfigPath} must point to prisma/schema.prisma`);
+    }
+  }
+
+  for (const packageJsonPath of listPackageJsonFiles()) {
+    try {
+      const packageJson = readJson(packageJsonPath);
+      const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+      for (const dependencyField of dependencyFields) {
+        const dependencies = packageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if ((dependencyName === "prisma" || dependencyName === "@prisma/client") && packageJsonPath !== "packages/database/package.json") {
+            fail(`Prisma dependencies may only be declared by packages/database; found ${dependencyField}.${dependencyName} in ${packageJsonPath}`);
+          }
+          if (["sequelize", "typeorm", "mongoose"].includes(dependencyName)) {
+            fail(`Non-approved database library ${dependencyField}.${dependencyName} found in ${packageJsonPath}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${packageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -480,7 +692,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseFour
+  const allowedImplementationRoots = isPhaseFive
+    ? allowedPhaseFiveImplementationRoots
+    : isPhaseFour
     ? allowedPhaseFourImplementationRoots
     : isPhaseTwo
     ? allowedPhaseTwoImplementationRoots
@@ -495,7 +709,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -511,6 +725,10 @@ if (isPhaseThree) {
 
 if (isPhaseFour) {
   assertEventFoundationPolicy();
+}
+
+if (isPhaseFive) {
+  assertDatabaseFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

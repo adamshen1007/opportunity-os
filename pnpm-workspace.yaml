@@ -3,3 +3,10 @@ packages:
   - "packages/*"
   - "config/*"
 
+onlyBuiltDependencies:
+  - "@prisma/engines"
+  - "prisma"
+
+allowBuilds:
+  "@prisma/engines": true
+  "prisma": true

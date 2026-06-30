@@ -28,6 +28,7 @@
 - [ ] `.env.example` contains placeholders only.
 - [ ] Logs, screenshots, archives, and generated reports contain no secrets or private data.
 - [ ] If event contracts changed, I completed event privacy review: no raw payloads, secrets, tokens, API keys, provider keys, credentials, DSNs, auth headers, or production transports were introduced.
+- [ ] If database files changed, I completed database migration and secret-safety review: migrations are scoped and reviewed, no prohibited tables or production event store transport were introduced, and no `DATABASE_URL`, credentials, SQL payloads, auth headers, provider details, or Prisma internals are exposed.
 - [ ] I cleaned up unrelated local files before opening this PR.
 
 ## Checklist

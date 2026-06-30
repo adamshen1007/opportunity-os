@@ -1,0 +1,4 @@
+-- Phase 1 Milestone 5 database foundation baseline.
+-- This migration intentionally creates no tables.
+-- Business tables, connector persistence, Raw Content workflow tables, event store tables,
+-- AI workflow tables, API tables, and frontend tables are out of scope for Slice B.
