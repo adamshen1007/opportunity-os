@@ -32,6 +32,7 @@ export function sanitizeRedditConnectorErrorMessage(message: string): string {
     message
       .replace(authorizationHeaderPattern, "[REDACTED]")
       .replace(sensitiveAssignmentPattern, "[REDACTED]")
+      .replace(/\b(raw[-\s]?provider[-\s]?response|provider response|stack frame|stack trace|raw cause|stack|cause)\b/giu, "[REDACTED]")
   );
 }
 

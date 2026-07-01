@@ -107,6 +107,39 @@ export type {
   RedditReadOperationFilters
 } from "./operations/index.js";
 export {
+  REDDIT_FIXTURE_ENVELOPE_METADATA,
+  REDDIT_FIXTURE_PROVIDER_SNAPSHOT,
+  REDDIT_RUNTIME_FAKE_CLOCK,
+  RedditRuntimeError,
+  createRedditFakeProvider,
+  createRedditFixtureProvider,
+  createRedditLifecycleReadiness,
+  createRedditRuntimeConnector,
+  createRedditRuntimeError,
+  createRedditRuntimeHarness,
+  mapRedditRuntimeFailure,
+  mapRedditRuntimeSuccess,
+  readRedditFixtureAuthors,
+  readRedditFixtureComments,
+  readRedditFixtureOperation,
+  readRedditFixturePosts,
+  readRedditFixtureSubreddits,
+  validateRedditRuntimeConfig
+} from "./runtime/index.js";
+export type {
+  RedditFakeProvider,
+  RedditFakeProviderSnapshot,
+  RedditRuntimeConnector,
+  RedditRuntimeConnectorInput,
+  RedditRuntimeErrorOptions,
+  RedditRuntimeFakeClock,
+  RedditRuntimeFakeContext,
+  RedditRuntimeHarness,
+  RedditRuntimeReadResult,
+  RedditRuntimeResultMetadataInput,
+  SafeRedditRuntimeErrorDetails
+} from "./runtime/index.js";
+export {
   REDDIT_FAKE_AUTHOR,
   REDDIT_FAKE_COMMENT,
   REDDIT_FAKE_CONFIG,
@@ -137,6 +170,6 @@ export type {
 
 export type RedditConnectorBoundary = {
   readonly packageName: "@opportunity-os/connectors-reddit";
-  readonly milestone: "phase-2-milestone-13";
-  readonly scope: "reddit-connector-contracts";
+  readonly milestone: "phase-2-milestone-14";
+  readonly scope: "reddit-connector-runtime";
 };

@@ -30,8 +30,8 @@ describe("reddit connector package boundaries", () => {
   it("routes public exports through the package root", () => {
     const boundary: RedditConnectorBoundary = {
       packageName: "@opportunity-os/connectors-reddit",
-      milestone: "phase-2-milestone-13",
-      scope: "reddit-connector-contracts"
+      milestone: "phase-2-milestone-14",
+      scope: "reddit-connector-runtime"
     };
 
     expect(boundary.packageName).toBe("@opportunity-os/connectors-reddit");

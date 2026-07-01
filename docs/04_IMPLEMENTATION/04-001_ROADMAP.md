@@ -1715,6 +1715,108 @@ Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/connectors-reddit` for Reddit connector contracts. Do not begin OAuth, live Reddit API calls, HTTP clients, provider calls, scraping, scheduler, queue, worker process, host startup, runner loops, database persistence, AI workflows, APIs, frontend, business logic, or actual connector execution until later approved milestones scope them.
 
+## Phase 2 Milestone 14 — Reddit Connector Runtime Implementation
+
+Goal:
+
+Implement deterministic, non-network Reddit connector runtime behavior using existing Reddit connector contracts, Connector SDK contracts, Connector Host contracts, and connector runtime test harness contracts.
+
+Owner:
+
+- `packages/connectors-reddit`
+
+Deliverables:
+
+- repository verification support for `phase-2-milestone-14`
+
+- active `review` phase moved to the Reddit Runtime Foundation boundary
+
+- continued permission for implementation files only in approved foundation packages, with Reddit runtime implementation scoped to `packages/connectors-reddit`
+
+- documentation of the non-network Reddit runtime adapter boundary
+
+- fake provider and fixture provider runtime support
+
+- connector construction using existing Reddit connector contracts
+
+- explicit runtime config validation
+
+- deterministic lifecycle readiness behavior
+
+- fixture-backed read operations for posts, comments, subreddits, and authors
+
+- pagination and rate-limit metadata preservation
+
+- connector result mapping
+
+- safe Reddit runtime error handling
+
+- deterministic runtime harness using fake provider, fake clock, and fake context
+
+- export stability, contract stability, runtime security, dependency boundary, and root pipeline coverage
+
+- documentation and PR governance for Reddit runtime changes
+
+Dependency direction:
+
+- Reddit runtime work must remain inside `packages/connectors-reddit`.
+
+- Runtime code may consume existing contracts from `@opportunity-os/connectors-reddit`, `@opportunity-os/connectors`, `@opportunity-os/connector-host`, and deterministic connector runtime test harness contracts.
+
+- Runtime implementation must not depend on OAuth packages, HTTP client packages, scraping packages, scheduler packages, queue packages, worker packages, database persistence packages, AI workflows, API packages, frontend packages, product workflows, or business packages.
+
+Out of scope:
+
+- OAuth implementation
+
+- live Reddit API calls
+
+- HTTP clients
+
+- scraping
+
+- scheduler
+
+- queue
+
+- worker process
+
+- database persistence
+
+- AI workflows
+
+- APIs
+
+- frontend implementation
+
+- business logic
+
+- external connector execution
+
+Implementation guardrail:
+
+Phase 2 Milestone 14 implements only deterministic, fixture-backed Reddit runtime behavior. It may construct a local runtime adapter from existing contracts, validate explicit config, expose deterministic lifecycle/read behavior, map results, create safe runtime errors, and provide a deterministic runtime harness. It must not add OAuth behavior, live provider calls, HTTP behavior, scraping behavior, scheduler behavior, queue behavior, worker behavior, database persistence behavior, event publishing, host startup, runner loops, external connector execution, workflow behavior, API behavior, frontend behavior, or business behavior.
+
+Readiness gate:
+
+- `node scripts/verify-repository.mjs --phase review` passes
+
+- `node scripts/verify-repository.mjs --phase phase-2-milestone-14` passes
+
+- `pnpm install --frozen-lockfile` passes
+
+- `pnpm lint` passes
+
+- `pnpm build` passes
+
+- `pnpm test` passes
+
+- `docker compose config` passes
+
+Handoff:
+
+After this gate passes, the next milestone may depend on the deterministic Reddit runtime surface in `@opportunity-os/connectors-reddit`. Do not begin OAuth, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend, business logic, provider integration, event publishing, host startup, runner loops, or external connector execution until later approved milestones scope them.
+
 # Phase 2 — Data Acquisition Platform
 
 ## Goal

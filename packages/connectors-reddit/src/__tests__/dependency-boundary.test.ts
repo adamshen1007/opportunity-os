@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -15,6 +15,22 @@ const packageJson = JSON.parse(
 
 const prohibitedDependencyPattern =
   /(^|[/@-])(apps?|api|auth|oauth|http|scrap(e|ing|er)|scheduler|queue|worker|database|ai|workflow|frontend|product|business)($|[/@-])/iu;
+
+const prohibitedSourceImportPattern =
+  /from\s+["'][^"']*(apps?|apis?|auth|oauth|http|scrap(e|ing|er)|scheduler|queues?|workers?|database|ai|workflow|frontend|product|business)[^"']*["']/iu;
+
+function listSourceFiles(directory: string): readonly string[] {
+  return readdirSync(directory).flatMap((entry) => {
+    const absolutePath = join(directory, entry);
+    const stats = statSync(absolutePath);
+
+    if (stats.isDirectory()) {
+      return listSourceFiles(absolutePath);
+    }
+
+    return absolutePath.endsWith(".ts") ? [absolutePath] : [];
+  });
+}
 
 describe("reddit connector dependency boundaries", () => {
   it("depends only on approved foundation packages and deterministic tooling", () => {
@@ -34,6 +50,20 @@ describe("reddit connector dependency boundaries", () => {
 
     for (const dependencyName of Object.keys(dependencies)) {
       expect(dependencyName).not.toMatch(prohibitedDependencyPattern);
+    }
+  });
+
+  it("keeps runtime source imports inside approved foundation boundaries", () => {
+    const runtimeFiles = listSourceFiles(join(packageRoot, "src", "runtime"));
+
+    expect(runtimeFiles.length).toBeGreaterThan(0);
+
+    for (const sourceFile of runtimeFiles) {
+      const sourceText = readFileSync(sourceFile, "utf8");
+
+      expect(sourceText).not.toMatch(prohibitedSourceImportPattern);
+      expect(sourceText).not.toContain("fetch(");
+      expect(sourceText).not.toContain("XMLHttpRequest");
     }
   });
 });

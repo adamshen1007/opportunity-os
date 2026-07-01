@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 connector foundation work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, and Reddit connector foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
+During Phase 2 connector runtime work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
 
 ## Phase Workflow
 
@@ -532,3 +532,29 @@ Phase 2 Milestone 13 is complete when `@opportunity-os/connectors-reddit` is imp
 `packages/connectors-reddit` must not implement OAuth, live Reddit API calls, HTTP clients, provider calls, scraping, schedulers, queues, worker processes, host startup, runner loops, database persistence, AI workflows, APIs, frontend behavior, business logic, or connector execution.
 
 After this gate passes, the next milestone may depend on `@opportunity-os/connectors-reddit` for Reddit connector contracts. It must not begin OAuth, live Reddit API calls, HTTP clients, scraping, schedulers, queues, worker processes, database persistence, API integration, auth implementation, AI workflows, frontend integration, business logic, provider integration, or actual connector execution until scoped by an approved milestone.
+
+## Reddit Runtime Foundation
+
+Phase 2 Milestone 14 establishes the Reddit Runtime Foundation boundary in `packages/connectors-reddit`.
+
+Milestone 14 implements deterministic, non-network Reddit runtime behavior using the existing Reddit connector contracts, Connector SDK contracts, Connector Host contracts, and deterministic runtime test harness contracts.
+
+The runtime provides:
+
+- a fake provider and fixture provider only
+- explicit runtime config validation
+- deterministic lifecycle readiness
+- fixture-backed read operations for posts, comments, subreddits, and authors
+- deterministic pagination and rate-limit metadata preservation
+- connector result mapping
+- secret-safe runtime errors
+- a deterministic runtime harness with fake provider, fake clock, and fake context
+- export stability, contract stability, runtime security, and dependency boundary tests
+
+Runtime behavior remains local and deterministic. It does not call Reddit, construct OAuth flows, use HTTP clients, scrape content, persist data, schedule work, create queues or workers, start a host, run external connectors, publish events, or implement business behavior.
+
+Future Reddit provider integration must consume `@opportunity-os/connectors-reddit` instead of bypassing the Reddit runtime foundation.
+
+`packages/connectors-reddit` must continue blocking OAuth, live Reddit API calls, HTTP clients, provider calls, scraping, schedulers, queues, worker processes, database persistence, AI workflows, APIs, frontend behavior, business logic, and external connector execution.
+
+Phase 2 Milestone 14 is complete when `@opportunity-os/connectors-reddit` contains the deterministic fake-provider runtime, fixture-backed read behavior, safe result/error handling, deterministic test harness, runtime stability tests, runtime security tests, dependency boundary tests, and public exports; remains independently buildable and covered by the root workspace pipeline; and passes `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-14`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`.

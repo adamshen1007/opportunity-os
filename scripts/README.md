@@ -57,7 +57,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 2 Milestone 13 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 2 Milestone 14 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -259,6 +259,20 @@ In Milestone 13 mode, implementation files are also permitted in:
 - `packages/connectors-reddit/`
 
 The verifier checks that the Reddit connector package, strict TypeScript config, package test config, public export boundary, README boundary documentation, metadata contracts, capability contracts, configuration contracts, validation contracts, data shape contracts, operation contracts, lifecycle contracts, factory contracts, host integration contracts, safe error contracts, deterministic fixture contracts, package-boundary test, export stability test, contract stability test, security test, dependency boundary test, and approved dependency set exist. It rejects unapproved `packages/connectors-reddit` dependencies and scans Reddit connector package source files for prohibited OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend implementation, business logic, and actual connector execution.
+
+Phase 2 Milestone 14 establishes the Reddit Runtime Foundation boundary in `packages/connectors-reddit/`. Slice A updates repository verification and documentation only. It permits future non-network Reddit runtime adapter implementation only inside `packages/connectors-reddit/` while continuing to block OAuth, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend, business logic, and external connector execution.
+
+Run the explicit Reddit Runtime Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-14
+```
+
+In Milestone 14 mode, implementation files are permitted in the same approved package set as Milestone 13:
+
+- `packages/connectors-reddit/`
+
+The verifier requires the Milestone 13 Reddit connector foundation files and confirms the Reddit package documents the Phase 2 Milestone 14 non-network runtime boundary. Slice A does not require runtime source files and does not allow runtime execution behavior.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 

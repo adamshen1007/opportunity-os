@@ -4,6 +4,8 @@
 
 Phase 2 Milestone 13 establishes the package boundary for Reddit connector foundation work. Slice F completes documentation, governance, roadmap alignment, and final readiness verification while keeping the package contract-only.
 
+Phase 2 Milestone 14 establishes the Reddit Runtime Foundation boundary. The milestone may introduce a non-network Reddit runtime adapter in future slices, but Slice A updates verification and documentation only. No runtime execution exists in Slice A.
+
 ## Ownership
 
 This package defines Reddit-specific connector contracts for:
@@ -35,6 +37,14 @@ Approved workspace dependencies for this milestone:
 - `@opportunity-os/connector-host`
 
 No other workspace package dependencies are allowed unless a future scoped milestone updates the verifier and documentation.
+
+## Runtime Boundary
+
+Future Phase 2 Milestone 14 slices may implement deterministic, fixture-backed runtime behavior inside `packages/connectors-reddit` only. Runtime work must use existing Reddit connector contracts, Connector SDK contracts, Connector Host contracts, and deterministic test harness contracts.
+
+The only approved runtime direction is a non-network Reddit runtime adapter using an in-memory or fake provider adapter. It may support deterministic fixture-based reads in later scoped slices, but it must not perform external connector execution.
+
+Slice A does not add runtime source files, provider adapters, connector construction, lifecycle behavior, validation behavior, read behavior, or result mapping.
 
 ## Contracts
 

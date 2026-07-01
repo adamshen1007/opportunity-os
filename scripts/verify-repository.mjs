@@ -90,20 +90,22 @@ const phaseNineAliases = new Set(["phase-1-milestone-9", "infrastructure-composi
 const phaseTenAliases = new Set(["phase-2-milestone-10", "connector-sdk-foundation", "connectors-foundation"]);
 const phaseElevenAliases = new Set(["phase-2-milestone-11", "connector-runtime-foundation"]);
 const phaseTwelveAliases = new Set(["phase-2-milestone-12", "connector-host-foundation"]);
-const phaseThirteenAliases = new Set(["review", "phase-2-milestone-13", "reddit-connector-foundation"]);
+const phaseThirteenAliases = new Set(["phase-2-milestone-13", "reddit-connector-foundation"]);
+const phaseFourteenAliases = new Set(["review", "phase-2-milestone-14", "reddit-runtime-foundation", "reddit-connector-runtime-implementation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseEleven = phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseTwelve = phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
-const isPhaseThirteen = phaseThirteenAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseEleven = phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseTwelve = phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseThirteen = phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
+const isPhaseFourteen = phaseFourteenAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
@@ -116,6 +118,7 @@ const allowedPhaseTenImplementationRoots = [...allowedPhaseNineImplementationRoo
 const allowedPhaseElevenImplementationRoots = [...allowedPhaseTenImplementationRoots, "packages/connector-runtime"];
 const allowedPhaseTwelveImplementationRoots = [...allowedPhaseElevenImplementationRoots, "packages/connector-host"];
 const allowedPhaseThirteenImplementationRoots = [...allowedPhaseTwelveImplementationRoots, "packages/connectors-reddit"];
+const allowedPhaseFourteenImplementationRoots = allowedPhaseThirteenImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -2347,6 +2350,26 @@ function assertRedditConnectorFoundationPolicy() {
   }
 }
 
+function assertRedditRuntimeFoundationPolicy() {
+  assertRedditConnectorFoundationPolicy();
+
+  const redditReadmePath = "packages/connectors-reddit/README.md";
+  if (exists(redditReadmePath)) {
+    const redditReadme = read(redditReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 2 Milestone 14",
+      "non-network Reddit runtime adapter",
+      "No runtime execution exists in Slice A"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!redditReadme.includes(statement)) {
+        fail(`${redditReadmePath} must document the Phase 2 Milestone 14 Reddit Runtime Foundation boundary: missing "${statement}"`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -2383,7 +2406,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseThirteen
+  const allowedImplementationRoots = isPhaseFourteen
+    ? allowedPhaseFourteenImplementationRoots
+    : isPhaseThirteen
     ? allowedPhaseThirteenImplementationRoots
     : isPhaseTwelve
     ? allowedPhaseTwelveImplementationRoots
@@ -2416,7 +2441,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -2468,6 +2493,10 @@ if (isPhaseTwelve) {
 
 if (isPhaseThirteen) {
   assertRedditConnectorFoundationPolicy();
+}
+
+if (isPhaseFourteen) {
+  assertRedditRuntimeFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

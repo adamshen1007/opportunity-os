@@ -4,7 +4,10 @@ import {
   REDDIT_FAKE_HOST_CONTEXT,
   REDDIT_FAKE_PAGINATION,
   REDDIT_FAKE_RATE_LIMIT,
-  createRedditConnectorError
+  createRedditConnectorError,
+  createRedditRuntimeError,
+  createRedditRuntimeHarness,
+  mapRedditRuntimeFailure
 } from "../index.js";
 import type {
   RedditHostIntegrationContract,
@@ -12,7 +15,7 @@ import type {
 } from "../index.js";
 
 const unsafePattern =
-  /secret-value|token-value|authorization:\s*bearer|provider-key|credential-value|postgres:\/\/|raw-provider-response|raw-payload|stack trace|dependency-internal/iu;
+  /secret-value|token-value|raw-token|authorization:\s*bearer|provider-key|credential-value|postgres:\/\/|raw-provider-response|raw-payload|provider response|stack trace|dependency-internal|raw cause|stack frame/iu;
 
 describe("reddit connector security contracts", () => {
   it("keeps validation failures safe", () => {
@@ -77,5 +80,30 @@ describe("reddit connector security contracts", () => {
         .filter((field) => field.sensitive)
         .every((field) => field.kind === "secret")
     ).toBe(true);
+  });
+
+  it("keeps runtime failures, errors, and harness output secret-safe", () => {
+    const error = createRedditRuntimeError({
+      message:
+        "token=secret-value authorization: bearer raw-token provider response raw-provider-response stack frame raw cause",
+      correlationId: "corr_runtime_security",
+      requestId: "req_runtime_security",
+      cause: new Error("raw cause secret-value stack frame")
+    });
+    const failure = mapRedditRuntimeFailure(
+      "password=secret-value token=token-value provider response stack trace raw cause",
+      {
+        operationName: "reddit.read.posts",
+        correlationId: "corr_runtime_security",
+        requestId: "req_runtime_security"
+      }
+    );
+    const harnessResult = createRedditRuntimeHarness().read("reddit.read.posts");
+
+    expect(JSON.stringify(error.toRedditRuntimeSafeDetails())).not.toMatch(
+      unsafePattern
+    );
+    expect(JSON.stringify(failure)).not.toMatch(unsafePattern);
+    expect(JSON.stringify(harnessResult)).not.toMatch(unsafePattern);
   });
 });

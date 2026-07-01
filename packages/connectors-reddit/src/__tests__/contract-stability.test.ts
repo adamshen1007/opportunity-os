@@ -6,11 +6,18 @@ import {
   REDDIT_CONNECTOR_METADATA,
   REDDIT_FAKE_PAGINATION,
   REDDIT_FAKE_RATE_LIMIT,
+  REDDIT_FIXTURE_ENVELOPE_METADATA,
+  REDDIT_FIXTURE_PROVIDER_SNAPSHOT,
   REDDIT_LIFECYCLE_READINESS_STATES,
   REDDIT_OPERATION_NAMES,
   REDDIT_READ_CONTRACT_AREAS,
+  REDDIT_RUNTIME_FAKE_CLOCK,
   REDDIT_SENSITIVE_CONFIG_FIELD_KEYS,
   REDDIT_VALIDATION_ISSUE_CODES,
+  createRedditFixtureProvider,
+  createRedditRuntimeConnector,
+  createRedditRuntimeError,
+  createRedditRuntimeHarness,
   createRedditConnectorError
 } from "../index.js";
 import type {
@@ -129,5 +136,81 @@ describe("reddit connector contract stability", () => {
       "correlationId",
       "requestId"
     ]);
+  });
+
+  it("locks runtime fixture, connector, result, harness, and safe error shapes", () => {
+    const provider = createRedditFixtureProvider();
+    const connector = createRedditRuntimeConnector({
+      config: {
+        fields: [
+          {
+            key: "userAgent",
+            value: "opportunity-os-test",
+            sensitive: false,
+            required: true,
+            kind: "string"
+          },
+          {
+            key: "readOnlyMode",
+            value: true,
+            sensitive: false,
+            required: true,
+            kind: "boolean"
+          }
+        ]
+      },
+      provider
+    });
+    const harness = createRedditRuntimeHarness();
+    const error = createRedditRuntimeError({
+      message: "Runtime contract failure.",
+      correlationId: "corr_runtime_stability",
+      requestId: "req_runtime_stability"
+    });
+    const result = harness.read("reddit.read.posts");
+
+    expect(Object.keys(REDDIT_FIXTURE_PROVIDER_SNAPSHOT)).toEqual([
+      "posts",
+      "comments",
+      "subreddits",
+      "authors"
+    ]);
+    expect(REDDIT_FIXTURE_ENVELOPE_METADATA).toEqual({
+      pagination: REDDIT_FAKE_PAGINATION,
+      rateLimit: REDDIT_FAKE_RATE_LIMIT,
+      safeSourceMetadata: {
+        source: "fixture"
+      }
+    });
+    expect(REDDIT_RUNTIME_FAKE_CLOCK.now()).toBe("2026-07-01T00:00:00.000Z");
+    expect(Object.keys(connector)).toEqual([
+      "metadata",
+      "capabilities",
+      "config",
+      "lifecycle",
+      "provider",
+      "operations",
+      "read",
+      "validate"
+    ]);
+    expect(connector.provider.kind).toBe("reddit-fake-provider");
+    expect(connector.operations.map((operation) => operation.name)).toEqual(
+      REDDIT_OPERATION_NAMES
+    );
+    expect(Object.keys(harness)).toEqual([
+      "clock",
+      "context",
+      "connector",
+      "read"
+    ]);
+    expect(result.ok).toBe(true);
+    expect(Object.keys(result)).toEqual(["ok", "value", "metadata"]);
+    expect(error.toRedditRuntimeSafeDetails()).toEqual({
+      code: "REDDIT_CONNECTOR_OPERATION_INVALID",
+      category: "external dependency",
+      message: "Runtime contract failure.",
+      correlationId: "corr_runtime_stability",
+      requestId: "req_runtime_stability"
+    });
   });
 });
