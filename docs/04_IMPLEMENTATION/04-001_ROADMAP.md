@@ -1898,17 +1898,99 @@ Next milestone dependency:
 
 Goal:
 
-Persist acquired customer conversations as immutable Raw Content.
+Establish the Raw Content Pipeline Foundation.
+
+Status:
+
+- complete
+
+Package owner:
+
+- `packages/raw-content`
+
+Dependency direction:
+
+- consumes Reddit provider output contracts from `@opportunity-os/connectors-reddit`
+- consumes event envelope vocabulary from `@opportunity-os/events`
+- consumes domain/application/database/shared vocabulary only as contracts
+- exposes Raw Content Pipeline Foundation contracts through `@opportunity-os/raw-content`
+
+Slice completion:
+
+- Slice A established the `@opportunity-os/raw-content` package boundary, strict TypeScript scaffold, public export routing, package documentation, and `phase-2-milestone-16` repository verification
+- Slice B defined canonical Raw Content contracts for source metadata, authors, communities, posts, comments, ingestion metadata, provenance, and raw content envelopes
+- Slice C defined normalization boundary, fingerprint, deduplication, validation, storage port, raw-content event, and Reddit-to-RawContent mapping contracts
+- Slice D added deterministic fixtures, safe structured errors, export stability tests, and contract stability tests
+- Slice E added security tests, dependency boundary tests, root pipeline integration, and stricter repository verification
+- Slice F completed documentation, PR governance, roadmap readiness, and the final Milestone 16 readiness gate
 
 Deliverables:
 
-- Raw Content domain contracts
-- Raw Content database schema and migrations
-- repository implementations
-- ingestion records
+- raw content contracts for posts, comments, authors, and communities
+- source metadata
+- ingestion metadata
 - provenance metadata
-- acquisition events
-- persistence tests
+- normalization boundary contracts
+- deduplication contracts
+- fingerprinting contracts
+- validation contracts
+- storage port contracts
+- raw content event contracts
+- Reddit provider output mapping contracts
+- deterministic fixture contracts
+- safe Raw Content error contracts
+- export stability tests
+- contract stability tests
+- security tests
+- dependency boundary tests
+- deterministic tests
+- repository verification
+
+Non-goals:
+
+- database persistence implementation
+- Prisma repository implementation
+- normalization algorithms
+- hashing engine
+- event bus implementation
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- database persistence
+- business scoring logic
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-16
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Readiness gate:
+
+- `@opportunity-os/raw-content` is implemented, tested, documented, and independently buildable
+- public exports route through `packages/raw-content/src/index.ts`
+- source metadata and provenance expose safe references and safe metadata placeholders only
+- storage ports remain interface-only and do not introduce Prisma, SQL, database writes, repository implementations, or persistence behavior
+- raw-content events remain event contract shapes and do not introduce an event bus, production transport, or persistence workflow
+- Reddit-to-RawContent mapping remains boundary-only and does not execute provider calls, persist provider payloads, or expose raw provider responses
+- deterministic fixtures contain no secrets, credentials, tokens, auth headers, DSNs, database URLs, raw provider payloads, or real provider responses
+- Raw Content errors and validation failures remain secret-safe and stack-safe by default
+- export stability, contract stability, security, dependency boundary, raw content model, and pipeline contract tests pass
+- repository verification supports `phase-2-milestone-16` and blocks persistence implementation, Prisma repositories, normalization algorithms, hashing engines, event buses, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business scoring
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/raw-content`
+
+Next milestone dependency:
+
+- Phase 2 Milestone 17 must consume `@opportunity-os/raw-content` for canonical Raw Content contracts. Do not begin Normalization Pipeline work until a scoped Milestone 17 implementation task is approved.
 
 ## Phase 2 Milestone 17 — Normalization Pipeline
 

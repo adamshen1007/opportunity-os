@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 14 and establishes Phase 2 Milestone 15, Reddit Provider Transport, as the next planned milestone.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 16 and establishes Phase 2 Milestone 17, Normalization Pipeline, as the next planned milestone. Do not begin Milestone 17 without an explicitly scoped implementation task.
 
 ## Before You Start
 
@@ -49,9 +49,9 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 15, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
+During Phase 2 Milestone 16, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, and `packages/raw-content`.
 
-Phase 2 Milestone 15 work must stay inside its scoped task. Milestone 15 may add Reddit provider transport architecture only inside `packages/connectors-reddit` and must not add Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, or business logic.
+Phase 2 Milestone 16 work must stay inside its scoped task. Milestone 16 may add Raw Content contracts only inside `packages/raw-content` and must not add persistence implementation, Prisma repositories, normalization algorithms, hashing engines, event buses, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, or business scoring.
 
 ## Phase 0 and Phase 1
 
@@ -380,6 +380,38 @@ Before handing off to the next milestone, confirm:
 - default tests use deterministic fixtures and fake transport only; no live Reddit calls are required
 - no Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend implementation, scheduler, worker, database persistence, or business logic exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-15`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+## Raw Content Pipeline Foundation Governance
+
+Phase 2 Milestone 16 implements Raw Content Pipeline Foundation contracts in `packages/raw-content`. Future normalization, persistence, ingestion, AI, API, and product packages must consume `@opportunity-os/raw-content` instead of redefining or bypassing raw content source metadata, author, community, post, comment, ingestion, provenance, envelope, normalization boundary, fingerprint, deduplication, validation, storage port, raw-content event, safe error, fixture, or Reddit mapping contracts.
+
+Raw Content changes must remain contract-only until a later milestone explicitly scopes implementation behavior. They must not introduce persistence implementation, Prisma repositories, database writes, normalization algorithms, hashing engines, event buses, AI workflows, opportunity generation, REST APIs, frontend implementation, schedulers, workers, business scoring logic, raw provider payload persistence, or raw provider payload exposure.
+
+When raw-content files change, reviewers should confirm:
+
+- public exports route through `packages/raw-content/src/index.ts`
+- dependencies remain limited to approved foundation packages and deterministic test/build tooling
+- source metadata and provenance expose only safe references and safe metadata placeholders
+- storage ports remain interfaces and do not depend on Prisma clients, SQL, database writes, or repository implementations
+- raw-content events remain contract shapes and do not introduce an event bus or production transport
+- Reddit mapping remains boundary-only and does not execute provider calls or persist provider payloads
+- fixtures are deterministic and contain no secrets, credentials, tokens, auth headers, DSNs, database URLs, raw provider payloads, or real provider responses
+- errors and validation failures remain secret-safe and stack-safe by default
+- dependency-boundary, security, export-stability, and contract-stability tests cover the changed surface
+- future package guidance does not bypass `@opportunity-os/raw-content`
+
+## Phase 2 Milestone 16 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `@opportunity-os/raw-content` is implemented, tested, documented, and independently buildable
+- raw content contracts cover source metadata, authors, communities, posts, comments, ingestion metadata, provenance, envelopes, normalization boundaries, fingerprints, deduplication, validation, storage ports, events, safe errors, deterministic fixtures, and Reddit-to-RawContent mapping
+- export stability, contract stability, security, dependency boundary, raw content model, and pipeline contract tests pass
+- repository verification supports `phase-2-milestone-16`
+- no persistence implementation, Prisma repository, normalization algorithm, hashing engine, event bus, AI workflow, opportunity generation, REST API, frontend implementation, scheduler, worker, database persistence, or business scoring exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-16`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+The next milestone must consume `@opportunity-os/raw-content` for canonical Raw Content contracts. Do not begin Phase 2 Milestone 17 until a scoped Normalization Pipeline task is approved.
 
 ## Phase 1 Milestone 2 Readiness
 

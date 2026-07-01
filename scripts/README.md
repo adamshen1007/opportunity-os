@@ -284,6 +284,16 @@ In Milestone 15 mode, implementation files remain limited to approved foundation
 
 The verifier checks that the Reddit connector package, strict TypeScript config, package test config, public export boundary, README boundary documentation, metadata contracts, capability contracts, configuration contracts, validation contracts, data shape contracts, operation contracts, lifecycle contracts, factory contracts, host integration contracts, safe error contracts, deterministic fixture contracts, package-boundary test, export stability test, contract stability test, security test, dependency boundary test, and approved dependency set exist. It rejects unapproved `packages/connectors-reddit` dependencies and scans Reddit connector package source files for prohibited OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend implementation, business logic, and actual connector execution.
 
+Phase 2 Milestone 16 adds the Raw Content Pipeline Foundation boundary in `packages/raw-content/`.
+
+Run the explicit Raw Content Pipeline Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-16
+```
+
+In Milestone 16 mode, implementation files are also permitted in `packages/raw-content/`. The verifier requires the raw-content package, strict TypeScript config, package test config, README boundary documentation, and public export boundary while continuing to block persistence implementation, Prisma repositories, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, and business scoring.
+
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
 For Phase 1 Milestone 2, the verifier also checks shared foundation package dependencies:

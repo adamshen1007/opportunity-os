@@ -68,7 +68,7 @@ Engineering Kit v3.0 establishes this future order:
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
 | Phase 2 M15 - Reddit Provider Transport | Add Reddit provider integration architecture: OAuth contracts, HTTP transport abstraction, API client abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, error mapping, telemetry, and fake transport tests. | `packages/connectors-reddit` |
-| Phase 2 M16 - Raw Content Pipeline | Introduce Raw Content contracts, persistence, ingestion records, provenance, immutable storage, and acquisition events. | `packages/database`, `packages/domain`, `packages/application`, future acquisition modules |
+| Phase 2 M16 - Raw Content Pipeline Foundation | Introduce Raw Content contracts, source metadata, ingestion metadata, provenance, normalization boundaries, deduplication, fingerprinting, validation, storage ports, events, Reddit provider mapping, deterministic tests, and verification. | `packages/raw-content`, `packages/connectors-reddit`, `packages/events`, `packages/domain`, `packages/application`, `packages/database`, `packages/shared` |
 | Phase 2 M17 - Normalization Pipeline | Transform Raw Content into Canonical Content with provenance-preserving normalization contracts and tests. | future intelligence modules |
 | Phase 2 M18 - AI Analysis Pipeline | Add AI workflow orchestration, prompt resolution, provider adapters, extraction contracts, and analysis events. | future AI/intelligence modules |
 | Phase 2 M19 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts. | future intelligence/domain/application modules |
@@ -130,6 +130,30 @@ Not allowed:
 - database persistence workflows
 
 Milestone 15 is complete only when provider transport is implemented, tested, documented, independently buildable, verified by `phase-2-milestone-15`, and free of Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business logic.
+
+## Phase 2 M16 Boundary
+
+Milestone 16 establishes the Raw Content Pipeline Foundation in `packages/raw-content`.
+
+Slice A creates the strict TypeScript package boundary and the `phase-2-milestone-16` repository verification gate. Public exports must route through `packages/raw-content/src/index.ts`.
+
+Allowed:
+
+- Raw Content package boundary
+- raw content contract scaffolding in later scoped slices
+- source, ingestion, provenance, normalization boundary, deduplication, fingerprinting, validation, storage port, event, and Reddit mapping contracts in later scoped slices
+
+Not allowed:
+
+- persistence implementation
+- Prisma repositories
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- business scoring
 
 ## Required Verification Gate
 

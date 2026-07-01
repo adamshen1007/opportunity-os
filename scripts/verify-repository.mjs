@@ -64,6 +64,7 @@ const requiredReadmes = [
   "packages/events/README.md",
   "packages/infrastructure/README.md",
   "packages/intelligence/README.md",
+  "packages/raw-content/README.md",
   "packages/shared/README.md",
   "packages/ui/README.md",
   "prompts/README.md",
@@ -91,10 +92,12 @@ const phaseTenAliases = new Set(["phase-2-milestone-10", "connector-sdk-foundati
 const phaseElevenAliases = new Set(["phase-2-milestone-11", "connector-runtime-foundation"]);
 const phaseTwelveAliases = new Set(["phase-2-milestone-12", "connector-host-foundation"]);
 const phaseThirteenAliases = new Set(["phase-2-milestone-13", "reddit-connector-foundation"]);
-const phaseFourteenAliases = new Set(["review", "phase-2-milestone-14", "reddit-runtime-foundation", "reddit-connector-runtime-implementation"]);
+const phaseFourteenAliases = new Set(["phase-2-milestone-14", "reddit-runtime-foundation", "reddit-connector-runtime-implementation"]);
 const phaseFifteenAliases = new Set(["phase-2-milestone-15", "reddit-provider-transport"]);
+const phaseSixteenAliases = new Set(["review", "phase-2-milestone-16", "raw-content-pipeline-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseFifteen = phaseFifteenAliases.has(phase);
+const isPhaseSixteen = phaseSixteenAliases.has(phase);
+const isPhaseFifteen = phaseFifteenAliases.has(phase) || isPhaseSixteen;
 const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
 const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
 const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
@@ -122,6 +125,7 @@ const allowedPhaseTwelveImplementationRoots = [...allowedPhaseElevenImplementati
 const allowedPhaseThirteenImplementationRoots = [...allowedPhaseTwelveImplementationRoots, "packages/connectors-reddit"];
 const allowedPhaseFourteenImplementationRoots = allowedPhaseThirteenImplementationRoots;
 const allowedPhaseFifteenImplementationRoots = allowedPhaseFourteenImplementationRoots;
+const allowedPhaseSixteenImplementationRoots = [...allowedPhaseFifteenImplementationRoots, "packages/raw-content"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1251,6 +1255,40 @@ const requiredRedditProviderTransportExports = [
   "parseRedditProviderResponse",
   "RedditProviderTransportScope"
 ];
+const requiredRawContentFoundationFiles = [
+  "packages/raw-content/package.json",
+  "packages/raw-content/README.md",
+  "packages/raw-content/tsconfig.json",
+  "packages/raw-content/vitest.config.ts",
+  "packages/raw-content/src/index.ts",
+  "packages/raw-content/src/content/raw-content-envelope.ts",
+  "packages/raw-content/src/deduplication/deduplication.ts",
+  "packages/raw-content/src/deduplication/fingerprint.ts",
+  "packages/raw-content/src/errors/raw-content-error.ts",
+  "packages/raw-content/src/events/raw-content-events.ts",
+  "packages/raw-content/src/fixtures/raw-content-fixtures.ts",
+  "packages/raw-content/src/mapping/reddit-to-raw-content.ts",
+  "packages/raw-content/src/normalization/normalization-boundary.ts",
+  "packages/raw-content/src/storage/raw-content-storage-port.ts",
+  "packages/raw-content/src/validation/raw-content-validation.ts",
+  "packages/raw-content/src/__tests__/dependency-boundary.test.ts",
+  "packages/raw-content/src/__tests__/pipeline-contracts.test.ts",
+  "packages/raw-content/src/__tests__/raw-content-contracts.test.ts",
+  "packages/raw-content/src/__tests__/security.test.ts",
+  "packages/raw-content/src/__tests__/stability.test.ts"
+];
+const requiredRawContentFoundationExports = [
+  "RAW_CONTENT_FOUNDATION_PHASE",
+  "RAW_CONTENT_PACKAGE_NAME",
+  "RawContentPackageBoundary",
+  "RAW_CONTENT_ERROR_CODES",
+  "RawContentError",
+  "RAW_CONTENT_FIXTURE_IDS",
+  "rawContentFixturePostEnvelope",
+  "RAW_CONTENT_VALIDATION_ISSUE_CODES",
+  "RAW_CONTENT_EVENT_NAMES",
+  "REDDIT_RAW_CONTENT_MAPPING_TARGETS"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1385,6 +1423,17 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/connector-host",
       "@opportunity-os/connector-runtime",
       "@opportunity-os/container",
+      "@opportunity-os/events",
+      "@opportunity-os/shared"
+    ]
+  },
+  "packages/raw-content": {
+    packageName: "@opportunity-os/raw-content",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/application",
+      "@opportunity-os/connectors-reddit",
+      "@opportunity-os/database",
+      "@opportunity-os/domain",
       "@opportunity-os/events",
       "@opportunity-os/shared"
     ]
@@ -2498,6 +2547,106 @@ function assertRedditProviderTransportPolicy() {
   }
 }
 
+function assertRawContentFoundationPolicy() {
+  assertRedditProviderTransportPolicy();
+
+  for (const file of requiredRawContentFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Raw Content Pipeline foundation is missing required file: ${file}`);
+    }
+  }
+
+  const rawContentIndexPath = "packages/raw-content/src/index.ts";
+  if (exists(rawContentIndexPath)) {
+    const rawContentIndex = read(rawContentIndexPath);
+    if (!rawContentIndex.includes("Raw Content Pipeline Foundation public export boundary")) {
+      fail(`${rawContentIndexPath} must document the Phase 2 Milestone 16 Raw Content Pipeline Foundation public export boundary`);
+    }
+
+    for (const exportName of requiredRawContentFoundationExports) {
+      if (!rawContentIndex.includes(exportName)) {
+        fail(`${rawContentIndexPath} must export ${exportName} from the Raw Content public boundary`);
+      }
+    }
+  }
+
+  const rawContentReadmePath = "packages/raw-content/README.md";
+  if (exists(rawContentReadmePath)) {
+    const rawContentReadme = read(rawContentReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 2 Milestone 16",
+      "Raw Content contracts only",
+      "No persistence implementation"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!rawContentReadme.includes(statement)) {
+        fail(`${rawContentReadmePath} must document the Phase 2 Milestone 16 Raw Content Pipeline Foundation boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const rawContentPackageJsonPath = "packages/raw-content/package.json";
+  if (exists(rawContentPackageJsonPath)) {
+    const rawContentPackageJson = JSON.parse(read(rawContentPackageJsonPath));
+    const dependencyNames = Object.keys({
+      ...(rawContentPackageJson.dependencies ?? {}),
+      ...(rawContentPackageJson.devDependencies ?? {}),
+      ...(rawContentPackageJson.optionalDependencies ?? {}),
+      ...(rawContentPackageJson.peerDependencies ?? {})
+    });
+    const prohibitedDependencyPatterns = [
+      ["Prisma", /(^@prisma\/client$|^prisma$)/iu],
+      ["AI SDK", /(^openai$|^@anthropic-ai\/sdk$|ai-sdk)/iu],
+      ["API framework", /(^express$|^fastify$|^hono$|^@nestjs)/iu],
+      ["frontend framework", /(^react$|^react-dom$|^next$|^vite$)/iu],
+      ["scheduler or worker", /(^bullmq$|^agenda$|scheduler|worker|queue)/iu]
+    ];
+
+    for (const dependencyName of dependencyNames) {
+      for (const [label, pattern] of prohibitedDependencyPatterns) {
+        if (pattern.test(dependencyName)) {
+          fail(`Raw Content Pipeline foundation must not depend on ${label}; found ${dependencyName} in ${rawContentPackageJsonPath}`);
+        }
+      }
+    }
+  }
+
+  for (const file of listFiles("packages/raw-content")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/raw-content/dist/") ||
+      file.startsWith("packages/raw-content/node_modules/") ||
+      file.startsWith("packages/raw-content/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["persistence implementation", /\bPrismaClient\b|\brepository implementation\b|\bwriteToDatabase\b|\bpersistRawContent\b/iu],
+      ["Prisma repository", /\bPrisma.*Repository\b|\bRepository.*Prisma\b/iu],
+      ["provider payload leakage", /\braw_provider_payload\b|\bprovider response\b|\braw provider payload\b/iu],
+      ["secret leakage", /\b(access_token|refresh_token|client_secret)\s*[:=]\s*["']?[A-Za-z0-9_-]{8,}|\bauthorization:\s*bearer\s+[A-Za-z0-9_-]{8,}/iu],
+      ["stack leakage", /\bstack trace\b|\bstack:\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
+      ["opportunity generation", /\bgenerateOpportunity\b|\bOpportunityEngine\b|\bopportunity generation\b/iu],
+      ["REST API", /\bREST API\b|\bapi route\b|\broute handler\b|\bAPI handler\b/iu],
+      ["frontend", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["scheduler", /\bscheduler\b|\bscheduleRawContent\b/iu],
+      ["worker", /\bworker\b|\bWorkerProcess\b/iu],
+      ["business scoring", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness scoring\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Raw Content Pipeline foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -2534,7 +2683,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseFifteen
+  const allowedImplementationRoots = isPhaseSixteen
+    ? allowedPhaseSixteenImplementationRoots
+    : isPhaseFifteen
     ? allowedPhaseFifteenImplementationRoots
     : isPhaseFourteen
     ? allowedPhaseFourteenImplementationRoots
@@ -2571,7 +2722,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -2631,6 +2782,10 @@ if (isPhaseFourteen) {
 
 if (isPhaseFifteen) {
   assertRedditProviderTransportPolicy();
+}
+
+if (isPhaseSixteen) {
+  assertRawContentFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");
