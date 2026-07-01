@@ -20,6 +20,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - connector SDK package and dependency-boundary checks during Phase 2 Milestone 10
 - connector runtime package and dependency-boundary checks during Phase 2 Milestone 11
 - connector host package and dependency-boundary checks during Phase 2 Milestone 12
+- Reddit connector package and dependency-boundary checks during Phase 2 Milestone 13
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 ## Phase 1 Shared Infrastructure Boundaries
@@ -56,7 +57,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 2 Milestone 12 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 2 Milestone 13 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -245,6 +246,20 @@ In Milestone 12 mode, implementation files are also permitted in:
 
 The verifier checks that the connector host package, strict TypeScript config, package test config, public export boundary, README boundary documentation, contract files, package-boundary tests, export stability tests, contract stability tests, security tests, dependency boundary tests, and approved dependency set exist. It rejects unapproved `packages/connector-host` dependencies and scans host package source files for prohibited Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, APIs, auth implementation, AI workflows, frontend implementation, business logic, provider integration, and actual connector execution.
 
+Phase 2 Milestone 13 adds the Reddit Connector Foundation in `packages/connectors-reddit/`. It keeps OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend, business logic, and actual connector execution blocked.
+
+Run the explicit Reddit Connector Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-13
+```
+
+In Milestone 13 mode, implementation files are also permitted in:
+
+- `packages/connectors-reddit/`
+
+The verifier checks that the Reddit connector package, strict TypeScript config, package test config, public export boundary, README boundary documentation, metadata contracts, capability contracts, configuration contracts, validation contracts, data shape contracts, operation contracts, lifecycle contracts, factory contracts, host integration contracts, safe error contracts, deterministic fixture contracts, package-boundary test, export stability test, contract stability test, security test, dependency boundary test, and approved dependency set exist. It rejects unapproved `packages/connectors-reddit` dependencies and scans Reddit connector package source files for prohibited OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend implementation, business logic, and actual connector execution.
+
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
 For Phase 1 Milestone 2, the verifier also checks shared foundation package dependencies:
@@ -259,6 +274,7 @@ For Phase 1 Milestone 2, the verifier also checks shared foundation package depe
 - `packages/container` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
 - `packages/infrastructure` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
 - `packages/connectors` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
+- `packages/connectors-reddit` may depend only on approved connector foundation packages and deterministic test/build tooling when a scoped milestone requires them.
 - Shared foundation, database foundation, domain foundation, application foundation, container foundation, and infrastructure composition foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, intelligence, acquisition, or business packages.
 
 ## Environment Contract Verification

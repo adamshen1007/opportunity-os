@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 12, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, and connector host foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, and `packages/connector-host`.
+During Phase 2 Milestone 13, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
 
 ## Phase 0 and Phase 1
 
@@ -300,6 +300,37 @@ Before handing off to the next milestone, confirm:
 - repository verification supports `phase-2-milestone-12`
 - no Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-12`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+## Reddit Connector Foundation Governance
+
+Phase 2 Milestone 13 implements Reddit connector contracts in `packages/connectors-reddit`. Future Reddit connector implementation must consume `@opportunity-os/connectors-reddit` instead of redefining or bypassing Reddit metadata, capability, configuration, validation, data shape, operation, lifecycle, factory, host, error, or fixture contracts.
+
+Reddit connector foundation changes must remain contract-only. They must not introduce OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, external network behavior, host startup, runner loops, or actual connector execution.
+
+When Reddit connector files change, reviewers should confirm:
+
+- public exports route through `packages/connectors-reddit/src/index.ts`
+- consumers can import approved contracts from `@opportunity-os/connectors-reddit`
+- dependencies remain limited to `@opportunity-os/connectors`, `@opportunity-os/connector-host`, and deterministic test/build tooling
+- metadata constants, capability values, validation issue codes, data envelope keys, pagination keys, rate-limit keys, factory contract shape, and safe error shape remain stable unless a scoped milestone changes them
+- configuration uses explicit typed input and does not read `process.env`
+- OAuth and credential fields remain future contract fields only and are marked sensitive
+- validation failures, Reddit errors, pagination metadata, rate-limit metadata, fixtures, and host-facing contracts remain secret-safe and stack-safe by default
+- deterministic fixtures do not include real credentials, raw provider payloads, or live provider response data
+- no live Reddit calls, HTTP clients, scraping libraries, schedulers, queues, workers, database persistence, AI workflows, APIs, frontend code, business logic, provider integration, or actual connector execution are introduced
+- future package guidance does not bypass Reddit Connector Foundation contracts
+
+## Phase 2 Milestone 13 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/connectors-reddit` is implemented, tested, documented, and independently buildable
+- metadata, capabilities, config, validation, data shape contracts, factory contracts, host contracts, errors, and fixtures are documented for future consumers
+- export stability, contract stability, security, dependency boundary, package-boundary, metadata, capability, config, validation, data shape, operation, lifecycle, factory, host, error, and fixture tests pass
+- repository verification supports `phase-2-milestone-13`
+- `@opportunity-os/connectors-reddit` contains only Reddit connector contracts and deterministic test fixtures
+- no OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend implementation, business logic, provider integration, or actual connector execution exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-13`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, `docker compose config`, `pnpm --filter @opportunity-os/connectors-reddit test`, and `pnpm --filter @opportunity-os/connectors-reddit build` pass
 
 ## Phase 1 Milestone 2 Readiness
 

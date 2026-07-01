@@ -56,6 +56,7 @@ const requiredReadmes = [
   "packages/container/README.md",
   "packages/connector-host/README.md",
   "packages/connector-runtime/README.md",
+  "packages/connectors-reddit/README.md",
   "packages/connectors/README.md",
   "packages/config/README.md",
   "packages/database/README.md",
@@ -88,19 +89,21 @@ const phaseEightAliases = new Set(["phase-1-milestone-8", "container-foundation"
 const phaseNineAliases = new Set(["phase-1-milestone-9", "infrastructure-composition-foundation", "infrastructure-foundation"]);
 const phaseTenAliases = new Set(["phase-2-milestone-10", "connector-sdk-foundation", "connectors-foundation"]);
 const phaseElevenAliases = new Set(["phase-2-milestone-11", "connector-runtime-foundation"]);
-const phaseTwelveAliases = new Set(["review", "phase-2-milestone-12", "connector-host-foundation"]);
+const phaseTwelveAliases = new Set(["phase-2-milestone-12", "connector-host-foundation"]);
+const phaseThirteenAliases = new Set(["review", "phase-2-milestone-13", "reddit-connector-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseEleven = phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
-const isPhaseTwelve = phaseTwelveAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseEleven = phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseTwelve = phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase);
+const isPhaseThirteen = phaseThirteenAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
@@ -112,6 +115,7 @@ const allowedPhaseNineImplementationRoots = [...allowedPhaseEightImplementationR
 const allowedPhaseTenImplementationRoots = [...allowedPhaseNineImplementationRoots, "packages/connectors"];
 const allowedPhaseElevenImplementationRoots = [...allowedPhaseTenImplementationRoots, "packages/connector-runtime"];
 const allowedPhaseTwelveImplementationRoots = [...allowedPhaseElevenImplementationRoots, "packages/connector-host"];
+const allowedPhaseThirteenImplementationRoots = [...allowedPhaseTwelveImplementationRoots, "packages/connectors-reddit"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1078,6 +1082,98 @@ const requiredConnectorHostFoundationExports = [
   "ConnectorHostTestFixture",
   "ConnectorHostTestHarnessContract"
 ];
+const requiredRedditConnectorFoundationFiles = [
+  "packages/connectors-reddit/package.json",
+  "packages/connectors-reddit/README.md",
+  "packages/connectors-reddit/tsconfig.json",
+  "packages/connectors-reddit/vitest.config.ts",
+  "packages/connectors-reddit/src/index.ts",
+  "packages/connectors-reddit/src/capabilities/index.ts",
+  "packages/connectors-reddit/src/capabilities/reddit-capability.ts",
+  "packages/connectors-reddit/src/configuration/index.ts",
+  "packages/connectors-reddit/src/configuration/reddit-config.ts",
+  "packages/connectors-reddit/src/data/index.ts",
+  "packages/connectors-reddit/src/data/reddit-author.ts",
+  "packages/connectors-reddit/src/data/reddit-comment.ts",
+  "packages/connectors-reddit/src/data/reddit-data-envelope.ts",
+  "packages/connectors-reddit/src/data/reddit-pagination.ts",
+  "packages/connectors-reddit/src/data/reddit-post.ts",
+  "packages/connectors-reddit/src/data/reddit-rate-limit.ts",
+  "packages/connectors-reddit/src/data/reddit-shared.ts",
+  "packages/connectors-reddit/src/data/reddit-subreddit.ts",
+  "packages/connectors-reddit/src/errors/index.ts",
+  "packages/connectors-reddit/src/errors/reddit-error.ts",
+  "packages/connectors-reddit/src/factory/index.ts",
+  "packages/connectors-reddit/src/factory/reddit-factory.ts",
+  "packages/connectors-reddit/src/host/index.ts",
+  "packages/connectors-reddit/src/host/reddit-host.ts",
+  "packages/connectors-reddit/src/lifecycle/index.ts",
+  "packages/connectors-reddit/src/lifecycle/reddit-lifecycle.ts",
+  "packages/connectors-reddit/src/metadata/index.ts",
+  "packages/connectors-reddit/src/metadata/reddit-metadata.ts",
+  "packages/connectors-reddit/src/operations/index.ts",
+  "packages/connectors-reddit/src/operations/reddit-operation.ts",
+  "packages/connectors-reddit/src/testing/index.ts",
+  "packages/connectors-reddit/src/testing/reddit-fixtures.ts",
+  "packages/connectors-reddit/src/validation/index.ts",
+  "packages/connectors-reddit/src/validation/reddit-validation.ts",
+  "packages/connectors-reddit/src/__tests__/capability.test.ts",
+  "packages/connectors-reddit/src/__tests__/config.test.ts",
+  "packages/connectors-reddit/src/__tests__/contract-stability.test.ts",
+  "packages/connectors-reddit/src/__tests__/data-shapes.test.ts",
+  "packages/connectors-reddit/src/__tests__/dependency-boundary.test.ts",
+  "packages/connectors-reddit/src/__tests__/error.test.ts",
+  "packages/connectors-reddit/src/__tests__/exports.test.ts",
+  "packages/connectors-reddit/src/__tests__/fixtures.test.ts",
+  "packages/connectors-reddit/src/__tests__/lifecycle-factory-host.test.ts",
+  "packages/connectors-reddit/src/__tests__/metadata.test.ts",
+  "packages/connectors-reddit/src/__tests__/operation.test.ts",
+  "packages/connectors-reddit/src/__tests__/package-boundary.test.ts",
+  "packages/connectors-reddit/src/__tests__/security.test.ts",
+  "packages/connectors-reddit/src/__tests__/validation.test.ts"
+];
+const requiredRedditConnectorFoundationExports = [
+  "RedditConnectorBoundary",
+  "REDDIT_CONNECTOR_METADATA",
+  "RedditConnectorMetadata",
+  "REDDIT_CONNECTOR_CAPABILITIES",
+  "REDDIT_READ_CONTRACT_AREAS",
+  "RedditConnectorCapability",
+  "REDDIT_CONFIG_FIELD_KEYS",
+  "REDDIT_OAUTH_CONFIG_FIELD_KEYS",
+  "REDDIT_SENSITIVE_CONFIG_FIELD_KEYS",
+  "RedditConnectorConfig",
+  "RedditConnectorConfigInput",
+  "RedditPost",
+  "RedditComment",
+  "RedditSubreddit",
+  "RedditAuthor",
+  "RedditPaginationMetadata",
+  "RedditRateLimitMetadata",
+  "RedditDataEnvelope",
+  "RedditSafeRawMetadataPlaceholder",
+  "REDDIT_OPERATION_NAMES",
+  "RedditOperationContract",
+  "REDDIT_LIFECYCLE_READINESS_STATES",
+  "RedditLifecycleReadiness",
+  "RedditConnectorFactory",
+  "RedditConnectorFactoryInput",
+  "RedditHostIntegrationContract",
+  "REDDIT_CONNECTOR_ERROR_CODES",
+  "RedditConnectorError",
+  "createRedditConnectorError",
+  "sanitizeRedditConnectorErrorMessage",
+  "REDDIT_FAKE_POST",
+  "REDDIT_FAKE_PAGINATION",
+  "REDDIT_FAKE_RATE_LIMIT",
+  "REDDIT_FAKE_HOST_CONTEXT",
+  "REDDIT_FAKE_CONFIG",
+  "RedditFixtureSet",
+  "REDDIT_VALIDATION_ISSUE_CODES",
+  "REDDIT_VALIDATION_TARGETS",
+  "RedditValidationIssue",
+  "RedditValidationResult"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1204,6 +1300,13 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/shared",
       "@opportunity-os/infrastructure"
     ]
+  },
+  "packages/connectors-reddit": {
+    packageName: "@opportunity-os/connectors-reddit",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/connectors",
+      "@opportunity-os/connector-host"
+    ]
   }
 };
 const prohibitedSharedFoundationDependencyPatterns = [
@@ -1324,6 +1427,12 @@ const allowedConnectorHostPackageDependencies = new Set([
   "@opportunity-os/events",
   "@opportunity-os/shared",
   "@opportunity-os/infrastructure",
+  "@types/node",
+  "vitest"
+]);
+const allowedRedditConnectorPackageDependencies = new Set([
+  "@opportunity-os/connectors",
+  "@opportunity-os/connector-host",
   "@types/node",
   "vitest"
 ]);
@@ -2143,7 +2252,7 @@ function assertConnectorHostFoundationPolicy() {
     const prohibitedTerms = [
       ["Reddit connector", /\breddit\b|\bRedditConnector\b/iu],
       ["YouTube connector", /\byoutube\b|\bYouTubeConnector\b/iu],
-      ["OAuth implementation", /\boauth\b|\bOAuth\b/iu],
+      ["OAuth implementation", /\boauth\s+(client|flow|exchange|implementation|provider|callback|redirect|grant)\b|\bOAuth\s+(client|flow|exchange|implementation|provider|callback|redirect|grant)\b/iu],
       ["HTTP client", /\bfetch\s*\(|\baxios\b|\bgot\b|\bundici\b|\bhttp client\b/iu],
       ["scheduler", /\bscheduler\b|\bscheduleConnector\b/iu],
       ["queue", /\bqueue\b|\bQueueWorker\b/iu],
@@ -2159,6 +2268,80 @@ function assertConnectorHostFoundationPolicy() {
     for (const [label, pattern] of prohibitedTerms) {
       if (pattern.test(content)) {
         fail(`Connector Host foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
+function assertRedditConnectorFoundationPolicy() {
+  for (const file of requiredRedditConnectorFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Reddit Connector foundation is missing required file: ${file}`);
+    }
+  }
+
+  const redditConnectorIndexPath = "packages/connectors-reddit/src/index.ts";
+  if (exists(redditConnectorIndexPath)) {
+    const redditConnectorIndex = read(redditConnectorIndexPath);
+    if (!redditConnectorIndex.includes("Reddit Connector Foundation")) {
+      fail(`${redditConnectorIndexPath} must document the Phase 2 Milestone 13 Reddit Connector Foundation public export boundary`);
+    }
+
+    for (const exportName of requiredRedditConnectorFoundationExports) {
+      if (!redditConnectorIndex.includes(exportName)) {
+        fail(`${redditConnectorIndexPath} must export ${exportName} from the Reddit connector foundation public boundary`);
+      }
+    }
+  }
+
+  const redditConnectorPackageJsonPath = "packages/connectors-reddit/package.json";
+  if (exists(redditConnectorPackageJsonPath)) {
+    try {
+      const redditConnectorPackageJson = readJson(redditConnectorPackageJsonPath);
+      for (const dependencyField of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+        const dependencies = redditConnectorPackageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if (!allowedRedditConnectorPackageDependencies.has(dependencyName)) {
+            fail(`${redditConnectorPackageJsonPath} may depend only on approved foundation packages and deterministic test/build tooling; found ${dependencyField}.${dependencyName}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${redditConnectorPackageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+
+  for (const file of listFiles("packages/connectors-reddit")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/connectors-reddit/dist/") ||
+      file.startsWith("packages/connectors-reddit/node_modules/") ||
+      file.startsWith("packages/connectors-reddit/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["OAuth implementation", /\boauth\b|\bOAuth\b/iu],
+      ["live API call", /\blive Reddit API\b|\breddit API call\b|\bapi\.reddit\.com\b|\boauth\.reddit\.com\b/iu],
+      ["HTTP client", /\bfetch\s*\(|\baxios\b|\bgot\b|\bundici\b|\bhttp client\b/iu],
+      ["scraping", /\bscrap(e|ing|er)\b|\bcheerio\b|\bplaywright\b|\bpuppeteer\b/iu],
+      ["scheduler", /\bscheduler\b|\bscheduleConnector\b/iu],
+      ["queue", /\bqueue\b|\bQueueWorker\b/iu],
+      ["worker process", /\bworker\b|\bWorkerProcess\b/iu],
+      ["database persistence", /\bPrismaClient\b|\bsql\b|\bdatabase persistence\b|\brepository implementation\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
+      ["API implementation", /\bREST API\b|\bapi route\b|\broute handler\b|\bAPI handler\b/iu],
+      ["frontend implementation", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["business logic", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness logic\b/iu],
+      ["actual connector execution", /\bexecuteConnector\b|\bConnectorRunner\b|\bconnector execution\b|\bactual connector execution\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Reddit Connector foundation must not introduce ${label}; found prohibited reference in ${file}`);
       }
     }
   }
@@ -2200,7 +2383,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseTwelve
+  const allowedImplementationRoots = isPhaseThirteen
+    ? allowedPhaseThirteenImplementationRoots
+    : isPhaseTwelve
     ? allowedPhaseTwelveImplementationRoots
     : isPhaseEleven
     ? allowedPhaseElevenImplementationRoots
@@ -2231,7 +2416,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -2279,6 +2464,10 @@ if (isPhaseEleven) {
 
 if (isPhaseTwelve) {
   assertConnectorHostFoundationPolicy();
+}
+
+if (isPhaseThirteen) {
+  assertRedditConnectorFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

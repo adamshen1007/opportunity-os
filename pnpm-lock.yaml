@@ -131,6 +131,22 @@ importers:
         specifier: ^4.0.16
         version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
 
+  packages/connectors-reddit:
+    dependencies:
+      '@opportunity-os/connector-host':
+        specifier: workspace:*
+        version: link:../connector-host
+      '@opportunity-os/connectors':
+        specifier: workspace:*
+        version: link:../connectors
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
   packages/container:
     dependencies:
       '@opportunity-os/config':

@@ -495,7 +495,7 @@ Owner:
 
 - `packages/database`
 
-Slice A deliverables:
+Completed deliverables:
 
 - `@opportunity-os/database` TypeScript package
 
@@ -639,7 +639,7 @@ Owner:
 
 - `packages/domain`
 
-Slice A deliverables:
+Completed deliverables:
 
 - `@opportunity-os/domain` TypeScript package
 
@@ -777,7 +777,7 @@ Owner:
 
 - `packages/application`
 
-Slice A deliverables:
+Completed deliverables:
 
 - `@opportunity-os/application` TypeScript package
 
@@ -1566,6 +1566,154 @@ Readiness gate:
 Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/connector-host` for generic connector host contracts. Do not begin Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, APIs, authentication, AI workflows, frontend, business logic, provider integration, or actual connector execution until later approved milestones scope them.
+
+## Phase 2 Milestone 13 — Reddit Connector Foundation
+
+Goal:
+
+Define the Reddit connector package boundary and future Reddit connector contracts without provider authentication, network calls, scraping, execution, persistence, workflows, APIs, frontend, or business behavior.
+
+Owner:
+
+- `packages/connectors-reddit`
+
+Slice A deliverables:
+
+- `@opportunity-os/connectors-reddit` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/connectors-reddit/src/index.ts`
+
+- package boundary documentation
+
+- repository verification support for `phase-2-milestone-13`
+
+- dependency policy for approved connector foundation packages
+
+- package-boundary test
+
+- Reddit connector metadata contracts
+
+- Reddit connector capability declarations
+
+- Reddit connector configuration contracts
+
+- Reddit connector validation contracts
+
+- contract tests for metadata, capabilities, configuration, and validation
+
+- Reddit data shape contracts for posts, comments, subreddits, authors, pagination, and rate-limit metadata
+
+- Reddit data envelope contracts
+
+- contract tests for Reddit data shapes
+
+- Reddit read operation contracts
+
+- declarative Reddit lifecycle readiness contracts
+
+- Reddit factory contracts consuming Connector SDK and Connector Host concepts
+
+- Reddit host integration contracts
+
+- safe Reddit connector error contracts
+
+- deterministic Reddit fixture contracts
+
+- contract tests for operations, lifecycle, factory, host, errors, and fixtures
+
+- export stability tests
+
+- contract stability tests
+
+- security tests
+
+- dependency boundary tests
+
+- repository verification requiring Reddit connector package files, contract files, test files, README, public exports, and approved dependency boundaries
+
+- root workspace lint, build, and test integration through existing workspace package discovery
+
+- Reddit connector package documentation for metadata, capabilities, config, validation, data shape contracts, factory contracts, host contracts, errors, fixtures, non-goals, and final readiness
+
+- PR governance for Reddit connector boundary, security, no-network, no-OAuth, and non-goal review
+
+- final readiness verification
+
+Dependency direction:
+
+- `packages/connectors-reddit` is a Reddit connector foundation package.
+
+- During Phase 2 Milestone 13 it may depend only on `@opportunity-os/connectors`, `@opportunity-os/connector-host`, and deterministic test/build tooling.
+
+- It must not depend on apps, APIs, auth implementations, OAuth packages, HTTP client packages, scraping packages, scheduler packages, queue packages, worker packages, database persistence packages, AI workflows, frontend packages, product workflows, or business packages.
+
+- Future Reddit connector work must consume `@opportunity-os/connectors-reddit` for Reddit-specific contracts and must consume `@opportunity-os/connectors` and `@opportunity-os/connector-host` contracts instead of bypassing the Connector SDK or Connector Host foundations.
+
+Out of scope:
+
+- OAuth implementation
+
+- live Reddit API calls
+
+- HTTP clients
+
+- scraping
+
+- scheduler
+
+- queue
+
+- worker process
+
+- database persistence
+
+- AI workflows
+
+- APIs
+
+- frontend implementation
+
+- business logic
+
+- actual connector execution
+
+Implementation guardrail:
+
+Phase 2 Milestone 13 may define package scaffolding, package boundary documentation, public export routing, metadata contracts, declarative capability contracts, explicit configuration contracts, validation contracts, data shape contracts, operation contracts, lifecycle contracts, factory contracts, host integration contracts, error contracts, fixture contracts, stability tests, security tests, dependency boundary tests, package-boundary tests, dependency policy, and repository verification only. It must not implement authentication behavior, network behavior, provider calls, scraping behavior, scheduler behavior, queue behavior, worker behavior, host startup, runner loops, persistence behavior, workflow behavior, API behavior, frontend behavior, business behavior, or connector execution.
+
+Readiness gate:
+
+- `packages/connectors-reddit` is scaffolded as `@opportunity-os/connectors-reddit`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/connectors-reddit/src/index.ts`
+
+- repository verification permits `packages/connectors-reddit` while continuing to block OAuth, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend, business logic, and actual connector execution
+
+- package dependencies are limited to approved connector foundation packages and deterministic test/build tooling
+
+- package-boundary test passes
+
+- metadata, capability, configuration, and validation contract tests pass
+
+- data shape contract tests pass
+
+- operation, lifecycle, factory, host, error, and fixture contract tests pass
+
+- export stability, contract stability, security, and dependency boundary tests pass
+
+- Reddit connector package boundaries, dependency direction, future consumption guidance, prohibited work, and readiness gate are documented
+
+- no OAuth implementation, live Reddit API call, HTTP client, scraping, scheduler, queue, worker process, database persistence, AI workflow, API, frontend implementation, business logic, or actual connector execution exists
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-13`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, `docker compose config`, `pnpm --filter @opportunity-os/connectors-reddit test`, and `pnpm --filter @opportunity-os/connectors-reddit build` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/connectors-reddit` for Reddit connector contracts. Do not begin OAuth, live Reddit API calls, HTTP clients, provider calls, scraping, scheduler, queue, worker process, host startup, runner loops, database persistence, AI workflows, APIs, frontend, business logic, or actual connector execution until later approved milestones scope them.
 
 # Phase 2 — Data Acquisition Platform
 
