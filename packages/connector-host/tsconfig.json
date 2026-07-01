@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules"],
+  "references": [
+    { "path": "../application" },
+    { "path": "../config" },
+    { "path": "../connector-runtime" },
+    { "path": "../connectors" },
+    { "path": "../container" },
+    { "path": "../errors" },
+    { "path": "../events" },
+    { "path": "../infrastructure" },
+    { "path": "../shared" }
+  ]
+}

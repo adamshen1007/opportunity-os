@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1 and connector foundations introduced in Phase 2. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, and `packages/connector-runtime`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1 and connector foundations introduced in Phase 2. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, and `packages/connector-host`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 connector foundation work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, and connector runtime foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, and `packages/connector-runtime`.
+During Phase 2 connector foundation work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, and connector host foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, and `packages/connector-host`.
 
 ## Phase Workflow
 
@@ -496,3 +496,23 @@ Runtime failures, telemetry, metrics, checkpoints, and aggregation output must r
 Phase 2 Milestone 11 is complete when `@opportunity-os/connector-runtime` is implemented, tested, documented, independently buildable, covered by export stability, contract stability, security, dependency boundary, and package-boundary tests, included in root lint/build/test, and verified by `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-11`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`.
 
 After this gate passes, the next milestone may depend on `@opportunity-os/connector-runtime` for generic connector runtime contracts. It must not begin Reddit connectors, YouTube connectors, OAuth, HTTP clients, schedulers, queues, worker processes, API integration, auth implementation, AI workflows, frontend integration, business logic, or actual connector execution until scoped by an approved milestone.
+
+## Connector Host Foundation
+
+Phase 2 Milestone 12 introduces the Connector Host Foundation in `packages/connector-host`.
+
+`packages/connector-host` owns generic connector host contracts only. It provides the completed Phase 2 Milestone 12 package boundary, strict TypeScript scaffold, public export routing, repository verification for `phase-2-milestone-12`, and approved dependency boundaries.
+
+`packages/connector-host` defines host bootstrap, runner, runtime orchestration, lifecycle orchestration, DI binding, typed config binding, logger binding, event publishing binding, startup validation, graceful shutdown, health aggregation, execution orchestration, result, safe error, and deterministic test harness contracts.
+
+The connector host foundation may depend on `@opportunity-os/config`, `@opportunity-os/connectors`, `@opportunity-os/connector-runtime`, `@opportunity-os/container`, `@opportunity-os/application`, `@opportunity-os/errors`, `@opportunity-os/events`, `@opportunity-os/shared`, and `@opportunity-os/infrastructure`.
+
+Future packages must consume `@opportunity-os/connector-host` instead of redefining host bootstrap, orchestration, lifecycle, binding, startup, shutdown, health, execution, result, error, or test harness contracts.
+
+Startup failures, health failures, execution results, host errors, telemetry bindings, and shutdown failures must remain secret-safe. They must not expose raw payloads, config values, provider responses, stacks, causes, secrets, tokens, auth headers, credentials, provider keys, DSNs, database URLs, or dependency internals.
+
+`packages/connector-host` must not implement Reddit connectors, YouTube connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, authentication, AI workflows, frontend behavior, business logic, provider integration, or actual connector execution.
+
+Phase 2 Milestone 12 is complete when `@opportunity-os/connector-host` is implemented, tested, documented, independently buildable, covered by export stability, contract stability, security, dependency boundary, and package-boundary tests, included in root lint/build/test, and verified by `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-12`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`.
+
+After this gate passes, the next milestone may depend on `@opportunity-os/connector-host` for generic connector host contracts. It must not begin Reddit connectors, YouTube connectors, OAuth, HTTP clients, schedulers, queues, worker processes, API integration, auth implementation, AI workflows, frontend integration, business logic, provider integration, or actual connector execution until scoped by an approved milestone.

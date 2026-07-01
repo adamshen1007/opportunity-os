@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 11, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, and connector runtime foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, and `packages/connector-runtime`.
+During Phase 2 Milestone 12, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, and connector host foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, and `packages/connector-host`.
 
 ## Phase 0 and Phase 1
 
@@ -270,6 +270,36 @@ Before handing off to the next milestone, confirm:
 - repository verification supports `phase-2-milestone-11`
 - no Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-11`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+## Connector Host Foundation Governance
+
+Phase 2 Milestone 12 implements generic connector host contracts in `packages/connector-host`. Future host, worker, API, connector, or orchestration packages must consume `@opportunity-os/connector-host` instead of redefining or bypassing connector host bootstrap, runner, runtime orchestration, lifecycle orchestration, DI binding, config binding, logger binding, event publishing binding, startup validation, graceful shutdown, health aggregation, execution orchestration, result, error, or deterministic test harness contracts.
+
+Connector host changes must remain generic. They must not introduce Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, REST APIs, controllers, authentication implementation, authorization implementation, AI workflows, frontend implementation, business logic, provider integration, external service calls, or actual connector execution.
+
+When connector host files change, reviewers should confirm:
+
+- public exports route through `packages/connector-host/src/index.ts`
+- consumers can import approved contracts from `@opportunity-os/connector-host`
+- dependencies remain limited to approved foundation packages and deterministic test/build tooling
+- bootstrap, runner, runtime orchestration, lifecycle, binding, startup, shutdown, health, execution, result, error, and test harness contracts remain generic
+- config binding receives explicit typed config and does not read `process.env`
+- logger binding does not introduce a singleton, vendor integration, or app integration
+- event publishing binding remains a port/interface and does not introduce event buses, production transport, or database event stores
+- startup failures, health failures, execution results, host errors, telemetry bindings, and shutdown failures remain secret-safe and stack-safe by default
+- deterministic test harness contracts do not execute real connectors or call external providers
+- future package guidance does not bypass Connector Host Foundation contracts
+
+## Phase 2 Milestone 12 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/connector-host` is implemented, tested, documented, and independently buildable
+- bootstrap, runner, runtime orchestration, lifecycle orchestration, DI binding, config binding, logger binding, event publishing binding, startup validation, graceful shutdown, health aggregation, execution orchestration, result, host error, and deterministic test harness contracts are documented for future consumers
+- export stability, contract stability, security, dependency boundary, and package-boundary tests pass
+- repository verification supports `phase-2-milestone-12`
+- no Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-12`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
 ## Phase 1 Milestone 2 Readiness
 

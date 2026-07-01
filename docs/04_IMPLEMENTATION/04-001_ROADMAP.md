@@ -1433,6 +1433,140 @@ Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/connector-runtime` for generic connector runtime contracts. Do not begin Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, APIs, authentication, AI workflows, frontend, business logic, provider behavior, or actual connector execution until later approved milestones scope them.
 
+## Phase 2 Milestone 12 — Connector Host Foundation
+
+Goal:
+
+Define generic connector host contracts without provider connectors, provider integration, host execution, or actual connector execution.
+
+Owner:
+
+- `packages/connector-host`
+
+Deliverables:
+
+- `@opportunity-os/connector-host` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/connector-host/src/index.ts`
+
+- package boundary documentation
+
+- repository verification support for `phase-2-milestone-12`
+
+- dependency policy for approved foundation packages
+
+- connector bootstrap contracts
+
+- connector runner contracts
+
+- runtime orchestration contracts
+
+- connector lifecycle orchestration contracts
+
+- dependency injection integration contracts
+
+- configuration binding contracts
+
+- logger binding contracts
+
+- event publishing binding contracts
+
+- startup validation contracts
+
+- graceful shutdown contracts
+
+- health orchestration contracts
+
+- execution orchestration contracts
+
+- connector host result contracts
+
+- secret-safe connector host error contracts
+
+- deterministic connector host test harness contracts
+
+- export stability tests
+
+- contract stability tests
+
+- security tests
+
+- dependency boundary tests
+
+- root workspace lint, build, and test integration
+
+Dependency direction:
+
+- `packages/connector-host` is a connector host foundation package.
+
+- It may depend only on `@opportunity-os/config`, `@opportunity-os/connectors`, `@opportunity-os/connector-runtime`, `@opportunity-os/container`, `@opportunity-os/application`, `@opportunity-os/errors`, `@opportunity-os/events`, `@opportunity-os/shared`, and `@opportunity-os/infrastructure`.
+
+- It must not depend on apps, APIs, auth implementations, concrete connector implementations, OAuth packages, HTTP client packages, scheduler packages, queue packages, worker packages, AI workflows, frontend packages, product workflows, or business packages.
+
+- Future packages must consume `@opportunity-os/connector-host` instead of redefining host bootstrap, runner, orchestration, lifecycle, binding, startup validation, shutdown, health, execution, result, error, or test harness contracts.
+
+Out of scope:
+
+- Reddit connector
+
+- YouTube connector
+
+- OAuth implementation
+
+- HTTP clients
+
+- scheduler
+
+- queue
+
+- worker process
+
+- APIs
+
+- authentication implementation
+
+- authorization implementation
+
+- AI workflows
+
+- frontend implementation
+
+- business logic
+
+- provider integration
+
+- actual connector execution
+
+Implementation guardrail:
+
+Phase 2 Milestone 12 may define generic connector host contracts, safe result and error shapes, deterministic test harness contracts, documentation, governance, and repository verification only. It must not implement concrete connector behavior, provider behavior, OAuth behavior, HTTP behavior, scheduler behavior, queue behavior, worker behavior, host execution, runtime connector execution, API behavior, AI workflow behavior, frontend behavior, or business behavior.
+
+Readiness gate:
+
+- `packages/connector-host` is implemented as `@opportunity-os/connector-host`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/connector-host/src/index.ts`
+
+- repository verification permits `packages/connector-host` while continuing to block Reddit, YouTube, OAuth, HTTP clients, scheduler, queue, worker process, APIs, auth, AI workflows, frontend, business logic, provider integration, and actual connector execution
+
+- package dependencies are limited to approved foundation packages and deterministic test/build tooling
+
+- package-boundary, export stability, contract stability, security, and dependency boundary tests pass
+
+- host contracts, integration dependencies, future consumption guidance, prohibited work, and readiness gate are documented
+
+- no Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution exists
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-12`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/connector-host` for generic connector host contracts. Do not begin Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, APIs, authentication, AI workflows, frontend, business logic, provider integration, or actual connector execution until later approved milestones scope them.
+
 # Phase 2 — Data Acquisition Platform
 
 ## Goal

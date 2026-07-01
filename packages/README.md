@@ -19,6 +19,7 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/infrastructure` owns Infrastructure Composition Foundation contracts only.
 - `packages/connectors` owns generic Connector SDK Foundation contracts only.
 - `packages/connector-runtime` owns Connector Runtime Foundation contracts only.
+- `packages/connector-host` owns Connector Host Foundation contracts only.
 
 ## Dependency Direction
 
@@ -33,8 +34,9 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/infrastructure` may depend only on `@opportunity-os/config`, `@opportunity-os/shared`, `@opportunity-os/events`, `@opportunity-os/database`, `@opportunity-os/domain`, `@opportunity-os/application`, `@opportunity-os/container`, and deterministic test/build tooling.
 - `packages/connectors` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
 - `packages/connector-runtime` may depend only on `@opportunity-os/connectors`, `@opportunity-os/container`, `@opportunity-os/application`, `@opportunity-os/events`, `@opportunity-os/shared`, `@opportunity-os/infrastructure`, and explicitly justified `@opportunity-os/errors`, `@opportunity-os/types`, or `@opportunity-os/utils`.
+- `packages/connector-host` may depend only on `@opportunity-os/config`, `@opportunity-os/connectors`, `@opportunity-os/connector-runtime`, `@opportunity-os/container`, `@opportunity-os/application`, `@opportunity-os/errors`, `@opportunity-os/events`, `@opportunity-os/shared`, and `@opportunity-os/infrastructure`.
 
-Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone. Domain package dependencies must remain limited to approved shared infrastructure packages. Application package dependencies must remain limited to approved foundation packages. Container package dependencies must remain limited to approved foundation packages. Infrastructure package dependencies must remain limited to approved foundation packages and must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repositories, frontend packages, product workflows, or business packages. Connector SDK package dependencies must remain limited to approved foundation packages and must not introduce concrete connector implementations, OAuth, HTTP clients, APIs, auth implementation, AI workflows, frontend packages, product workflows, or business packages. Connector Runtime package dependencies must remain limited to approved foundation packages and must not introduce provider connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, auth implementation, AI workflows, frontend packages, product workflows, business packages, or actual connector execution.
+Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone. Domain package dependencies must remain limited to approved shared infrastructure packages. Application package dependencies must remain limited to approved foundation packages. Container package dependencies must remain limited to approved foundation packages. Infrastructure package dependencies must remain limited to approved foundation packages and must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repositories, frontend packages, product workflows, or business packages. Connector SDK package dependencies must remain limited to approved foundation packages and must not introduce concrete connector implementations, OAuth, HTTP clients, APIs, auth implementation, AI workflows, frontend packages, product workflows, or business packages. Connector Runtime package dependencies must remain limited to approved foundation packages and must not introduce provider connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, auth implementation, AI workflows, frontend packages, product workflows, business packages, or actual connector execution. Connector Host package dependencies must remain limited to approved foundation packages and must not introduce provider connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, auth implementation, AI workflows, frontend packages, product workflows, business packages, provider integration, or actual connector execution.
 
 ## Non-Goals
 
@@ -52,9 +54,13 @@ Future concrete connectors must not bypass `@opportunity-os/connectors` for gene
 
 Future runtime consumers must not bypass `@opportunity-os/connector-runtime` for connector runtime pipeline, state, retry, timeout, cancellation, checkpoint, rate-limit, metrics, telemetry, aggregation, runtime error, or deterministic test harness contracts.
 
+Future host consumers must not bypass `@opportunity-os/connector-host` for connector host bootstrap, runner, runtime orchestration, lifecycle orchestration, DI bindings, config bindings, logger bindings, event publishing bindings, startup validation, graceful shutdown, health aggregation, execution orchestration, result, error, or deterministic test harness contracts.
+
 Phase 2 Milestone 10 does not include Reddit connector, YouTube connector, OAuth implementation, HTTP clients, APIs, authentication implementation, AI workflows, frontend implementation, business logic, concrete connector implementations, or connector execution.
 
 Phase 2 Milestone 11 does not include Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, or actual connector execution.
+
+Phase 2 Milestone 12 does not include Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution.
 
 The in-memory event bus in `packages/events` is test-only infrastructure. It must not be used as production transport, persistence, queueing, stream processing, connector behavior, workflow behavior, API behavior, or business behavior.
 
@@ -74,6 +80,7 @@ Future package work should:
 - keep Infrastructure Composition Foundation contract tests inside `packages/infrastructure`
 - keep Connector SDK Foundation contract tests inside `packages/connectors`
 - keep Connector Runtime Foundation contract tests inside `packages/connector-runtime`
+- keep Connector Host Foundation contract tests inside `packages/connector-host`
 - add integration tests only when implementation depends on PostgreSQL, Redis, queues, or provider adapters
 
 Do not add tests for application behavior, APIs, connectors, AI workflows, database behavior, or business logic before the corresponding implementation task is approved.

@@ -54,6 +54,7 @@ const requiredReadmes = [
   "packages/ai/README.md",
   "packages/application/README.md",
   "packages/container/README.md",
+  "packages/connector-host/README.md",
   "packages/connector-runtime/README.md",
   "packages/connectors/README.md",
   "packages/config/README.md",
@@ -86,18 +87,20 @@ const phaseSevenAliases = new Set(["phase-1-milestone-7", "application-foundatio
 const phaseEightAliases = new Set(["phase-1-milestone-8", "container-foundation", "composition-foundation"]);
 const phaseNineAliases = new Set(["phase-1-milestone-9", "infrastructure-composition-foundation", "infrastructure-foundation"]);
 const phaseTenAliases = new Set(["phase-2-milestone-10", "connector-sdk-foundation", "connectors-foundation"]);
-const phaseElevenAliases = new Set(["review", "phase-2-milestone-11", "connector-runtime-foundation"]);
+const phaseElevenAliases = new Set(["phase-2-milestone-11", "connector-runtime-foundation"]);
+const phaseTwelveAliases = new Set(["review", "phase-2-milestone-12", "connector-host-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase);
-const isPhaseEleven = phaseElevenAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseEleven = phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase);
+const isPhaseTwelve = phaseTwelveAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
@@ -108,6 +111,7 @@ const allowedPhaseEightImplementationRoots = [...allowedPhaseSevenImplementation
 const allowedPhaseNineImplementationRoots = [...allowedPhaseEightImplementationRoots, "packages/infrastructure"];
 const allowedPhaseTenImplementationRoots = [...allowedPhaseNineImplementationRoots, "packages/connectors"];
 const allowedPhaseElevenImplementationRoots = [...allowedPhaseTenImplementationRoots, "packages/connector-runtime"];
+const allowedPhaseTwelveImplementationRoots = [...allowedPhaseElevenImplementationRoots, "packages/connector-host"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -934,6 +938,146 @@ const requiredConnectorRuntimeFoundationExports = [
   "createConnectorRuntimeError",
   "sanitizeConnectorRuntimeErrorMessage"
 ];
+const requiredConnectorHostFoundationFiles = [
+  "packages/connector-host/package.json",
+  "packages/connector-host/README.md",
+  "packages/connector-host/tsconfig.json",
+  "packages/connector-host/vitest.config.ts",
+  "packages/connector-host/src/index.ts",
+  "packages/connector-host/src/bootstrap/connector-host-bootstrap.ts",
+  "packages/connector-host/src/bootstrap/index.ts",
+  "packages/connector-host/src/runner/connector-runner.ts",
+  "packages/connector-host/src/runner/index.ts",
+  "packages/connector-host/src/orchestration/runtime-orchestration.ts",
+  "packages/connector-host/src/orchestration/index.ts",
+  "packages/connector-host/src/lifecycle/connector-lifecycle-orchestration.ts",
+  "packages/connector-host/src/lifecycle/index.ts",
+  "packages/connector-host/src/bindings/connector-host-bindings.ts",
+  "packages/connector-host/src/bindings/index.ts",
+  "packages/connector-host/src/startup/connector-host-startup-validation.ts",
+  "packages/connector-host/src/startup/index.ts",
+  "packages/connector-host/src/shutdown/connector-host-shutdown.ts",
+  "packages/connector-host/src/shutdown/index.ts",
+  "packages/connector-host/src/health/connector-host-health.ts",
+  "packages/connector-host/src/health/index.ts",
+  "packages/connector-host/src/execution/connector-host-execution.ts",
+  "packages/connector-host/src/execution/index.ts",
+  "packages/connector-host/src/results/connector-host-result.ts",
+  "packages/connector-host/src/results/index.ts",
+  "packages/connector-host/src/errors/connector-host-error.ts",
+  "packages/connector-host/src/errors/index.ts",
+  "packages/connector-host/src/testing/connector-host-test-harness.ts",
+  "packages/connector-host/src/testing/index.ts",
+  "packages/connector-host/src/__tests__/package-boundary.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-bootstrap.test.ts",
+  "packages/connector-host/src/__tests__/connector-runner.test.ts",
+  "packages/connector-host/src/__tests__/runtime-orchestration.test.ts",
+  "packages/connector-host/src/__tests__/connector-lifecycle-orchestration.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-bindings.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-startup-validation.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-shutdown.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-health.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-execution.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-result.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-error.test.ts",
+  "packages/connector-host/src/__tests__/connector-host-test-harness.test.ts",
+  "packages/connector-host/src/__tests__/exports.test.ts",
+  "packages/connector-host/src/__tests__/contract-stability.test.ts",
+  "packages/connector-host/src/__tests__/security.test.ts",
+  "packages/connector-host/src/__tests__/dependency-boundary.test.ts"
+];
+const requiredConnectorHostFoundationExports = [
+  "ConnectorHostBoundary",
+  "CONNECTOR_HOST_BOOTSTRAP_STATUSES",
+  "ConnectorHostBootstrapContract",
+  "ConnectorHostBootstrapInfrastructure",
+  "ConnectorHostBootstrapInput",
+  "ConnectorHostBootstrapOutput",
+  "ConnectorHostBootstrapStatus",
+  "CONNECTOR_HOST_RUNNER_RESULT_STATUSES",
+  "ConnectorHostRunnerContext",
+  "ConnectorHostRunnerContract",
+  "ConnectorHostRunnerFailure",
+  "ConnectorHostRunnerInput",
+  "ConnectorHostRunnerOutput",
+  "ConnectorHostRunnerResult",
+  "ConnectorHostRunnerResultStatus",
+  "ConnectorHostRunnerSuccess",
+  "CONNECTOR_HOST_RUNTIME_ORCHESTRATION_STATUSES",
+  "ConnectorHostRuntimeOrchestrationContract",
+  "ConnectorHostRuntimeOrchestrationInput",
+  "ConnectorHostRuntimeOrchestrationOutput",
+  "ConnectorHostRuntimeOrchestrationStatus",
+  "ConnectorHostRuntimePolicySet",
+  "CONNECTOR_HOST_LIFECYCLE_PHASES",
+  "ConnectorHostLifecycleOrchestrationContract",
+  "ConnectorHostLifecycleOrchestrationInput",
+  "ConnectorHostLifecycleOrchestrationOutput",
+  "ConnectorHostLifecyclePhase",
+  "ConnectorHostBindingContext",
+  "ConnectorHostBindings",
+  "ConnectorHostConfigBinding",
+  "ConnectorHostDependencyBindings",
+  "ConnectorHostEventPublisherBinding",
+  "ConnectorHostLoggerBinding",
+  "CONNECTOR_HOST_STARTUP_CHECK_KINDS",
+  "CONNECTOR_HOST_STARTUP_ISSUE_CODES",
+  "CONNECTOR_HOST_STARTUP_RESULT_STATUSES",
+  "ConnectorHostStartupCheckKind",
+  "ConnectorHostStartupIssueCode",
+  "ConnectorHostStartupResultStatus",
+  "ConnectorHostStartupValidationCheck",
+  "ConnectorHostStartupValidationFailure",
+  "ConnectorHostStartupValidationIssue",
+  "ConnectorHostStartupValidationResult",
+  "ConnectorHostStartupValidationSuccess",
+  "CONNECTOR_HOST_SHUTDOWN_RESULT_STATUSES",
+  "ConnectorHostShutdownFailure",
+  "ConnectorHostShutdownParticipant",
+  "ConnectorHostShutdownPlan",
+  "ConnectorHostShutdownResult",
+  "ConnectorHostShutdownResultStatus",
+  "ConnectorHostShutdownTimeoutMetadata",
+  "CONNECTOR_HOST_HEALTH_STATUSES",
+  "ConnectorHostConnectorHealthSummary",
+  "ConnectorHostHealthAggregate",
+  "ConnectorHostHealthMetadata",
+  "ConnectorHostHealthResult",
+  "ConnectorHostHealthStatus",
+  "ConnectorHostRuntimeHealth",
+  "CONNECTOR_HOST_EXECUTION_ORCHESTRATION_STATUSES",
+  "ConnectorHostExecutionOrchestrationContext",
+  "ConnectorHostExecutionOrchestrationContract",
+  "ConnectorHostExecutionOrchestrationStatus",
+  "ConnectorHostExecutionPolicyInput",
+  "ConnectorHostExecutionRequest",
+  "ConnectorHostExecutionResult",
+  "ConnectorHostExecutionSafeFailure",
+  "ConnectorHostExecutionSuccess",
+  "CONNECTOR_HOST_RESULT_STATUSES",
+  "ConnectorHostResult",
+  "ConnectorHostResultFailure",
+  "ConnectorHostResultMetadata",
+  "ConnectorHostResultPartialSuccess",
+  "ConnectorHostResultStatus",
+  "ConnectorHostResultSuccess",
+  "ConnectorHostShutdownFailureResult",
+  "ConnectorHostValidationFailureResult",
+  "ConnectorHostError",
+  "ConnectorHostErrorOptions",
+  "SafeConnectorHostErrorDetails",
+  "createConnectorHostError",
+  "sanitizeConnectorHostErrorMessage",
+  "ConnectorHostAssertionHelper",
+  "ConnectorHostFakeClock",
+  "ConnectorHostFakeConfig",
+  "ConnectorHostFakeConnectorFixture",
+  "ConnectorHostFakeEventPublisherBinding",
+  "ConnectorHostFakeLoggerBinding",
+  "ConnectorHostFakeRuntimeContext",
+  "ConnectorHostTestFixture",
+  "ConnectorHostTestHarnessContract"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1046,6 +1190,20 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/types",
       "@opportunity-os/utils"
     ]
+  },
+  "packages/connector-host": {
+    packageName: "@opportunity-os/connector-host",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/config",
+      "@opportunity-os/connectors",
+      "@opportunity-os/connector-runtime",
+      "@opportunity-os/container",
+      "@opportunity-os/application",
+      "@opportunity-os/errors",
+      "@opportunity-os/events",
+      "@opportunity-os/shared",
+      "@opportunity-os/infrastructure"
+    ]
   }
 };
 const prohibitedSharedFoundationDependencyPatterns = [
@@ -1153,6 +1311,19 @@ const allowedConnectorRuntimePackageDependencies = new Set([
   "@opportunity-os/errors",
   "@opportunity-os/types",
   "@opportunity-os/utils",
+  "@types/node",
+  "vitest"
+]);
+const allowedConnectorHostPackageDependencies = new Set([
+  "@opportunity-os/config",
+  "@opportunity-os/connectors",
+  "@opportunity-os/connector-runtime",
+  "@opportunity-os/container",
+  "@opportunity-os/application",
+  "@opportunity-os/errors",
+  "@opportunity-os/events",
+  "@opportunity-os/shared",
+  "@opportunity-os/infrastructure",
   "@types/node",
   "vitest"
 ]);
@@ -1907,12 +2078,87 @@ function assertConnectorRuntimeFoundationPolicy() {
       ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
       ["frontend implementation", /\bReact\b|\btsx\b|\bcomponent\b/iu],
       ["business logic", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness logic\b/iu],
+      ["provider integration", /\bprovider integration\b|\bprovider adapter\b|\bprovider client\b|\bprovider call\b/iu],
       ["actual connector execution", /\bexecuteConnector\b|\bConnectorRunner\b|\bconnector execution\b|\bactual connector execution\b/iu]
     ];
 
     for (const [label, pattern] of prohibitedTerms) {
       if (pattern.test(content)) {
         fail(`Connector Runtime foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
+function assertConnectorHostFoundationPolicy() {
+  for (const file of requiredConnectorHostFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Connector Host foundation is missing required file: ${file}`);
+    }
+  }
+
+  const connectorHostIndexPath = "packages/connector-host/src/index.ts";
+  if (exists(connectorHostIndexPath)) {
+    const connectorHostIndex = read(connectorHostIndexPath);
+    if (!connectorHostIndex.includes("Connector Host Foundation")) {
+      fail(`${connectorHostIndexPath} must document the Phase 2 Milestone 12 Connector Host Foundation public export boundary`);
+    }
+
+    for (const exportName of requiredConnectorHostFoundationExports) {
+      if (!connectorHostIndex.includes(exportName)) {
+        fail(`${connectorHostIndexPath} must export ${exportName} from the connector host foundation public boundary`);
+      }
+    }
+  }
+
+  const connectorHostPackageJsonPath = "packages/connector-host/package.json";
+  if (exists(connectorHostPackageJsonPath)) {
+    try {
+      const connectorHostPackageJson = readJson(connectorHostPackageJsonPath);
+      for (const dependencyField of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+        const dependencies = connectorHostPackageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if (!allowedConnectorHostPackageDependencies.has(dependencyName)) {
+            fail(`${connectorHostPackageJsonPath} may depend only on approved foundation packages and deterministic test/build tooling; found ${dependencyField}.${dependencyName}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${connectorHostPackageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+
+  for (const file of listFiles("packages/connector-host")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/connector-host/dist/") ||
+      file.startsWith("packages/connector-host/node_modules/") ||
+      file.startsWith("packages/connector-host/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["Reddit connector", /\breddit\b|\bRedditConnector\b/iu],
+      ["YouTube connector", /\byoutube\b|\bYouTubeConnector\b/iu],
+      ["OAuth implementation", /\boauth\b|\bOAuth\b/iu],
+      ["HTTP client", /\bfetch\s*\(|\baxios\b|\bgot\b|\bundici\b|\bhttp client\b/iu],
+      ["scheduler", /\bscheduler\b|\bscheduleConnector\b/iu],
+      ["queue", /\bqueue\b|\bQueueWorker\b/iu],
+      ["worker process", /\bworker\b|\bworker process\b|\bWorkerProcess\b/iu],
+      ["API implementation", /\bREST API\b|\bapi route\b|\broute handler\b|\bAPI handler\b/iu],
+      ["authentication implementation", /\bauthentication implementation\b|\bauthorization implementation\b|\bauth middleware\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
+      ["frontend implementation", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["business logic", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness logic\b/iu],
+      ["actual connector execution", /\bexecuteConnector\b|\bConnectorRunner\b|\bconnector execution\b|\bactual connector execution\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Connector Host foundation must not introduce ${label}; found prohibited reference in ${file}`);
       }
     }
   }
@@ -1954,7 +2200,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseEleven
+  const allowedImplementationRoots = isPhaseTwelve
+    ? allowedPhaseTwelveImplementationRoots
+    : isPhaseEleven
     ? allowedPhaseElevenImplementationRoots
     : isPhaseTen
     ? allowedPhaseTenImplementationRoots
@@ -1983,7 +2231,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -2027,6 +2275,10 @@ if (isPhaseTen) {
 
 if (isPhaseEleven) {
   assertConnectorRuntimeFoundationPolicy();
+}
+
+if (isPhaseTwelve) {
+  assertConnectorHostFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

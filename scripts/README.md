@@ -19,6 +19,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - infrastructure composition package and dependency-boundary checks during Phase 1 Milestone 9
 - connector SDK package and dependency-boundary checks during Phase 2 Milestone 10
 - connector runtime package and dependency-boundary checks during Phase 2 Milestone 11
+- connector host package and dependency-boundary checks during Phase 2 Milestone 12
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 ## Phase 1 Shared Infrastructure Boundaries
@@ -55,7 +56,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 2 Milestone 11 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 2 Milestone 12 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -229,6 +230,20 @@ In Milestone 11 mode, implementation files are also permitted in:
 - `packages/connector-runtime/`
 
 The verifier checks that the connector runtime package, strict TypeScript config, package test config, public export boundary, README boundary documentation, package-boundary tests, export stability tests, contract stability tests, security tests, dependency boundary tests, and approved dependency set exist. It rejects unapproved `packages/connector-runtime` dependencies and scans runtime package source files for prohibited Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, REST APIs, controllers, auth implementation, AI workflows, frontend implementation, business logic, and actual connector execution.
+
+Phase 2 Milestone 12 adds the Connector Host Foundation in `packages/connector-host/`. It keeps Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, auth implementation, AI workflows, frontend, business logic, provider integration, and actual connector execution blocked.
+
+Run the explicit Connector Host Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-12
+```
+
+In Milestone 12 mode, implementation files are also permitted in:
+
+- `packages/connector-host/`
+
+The verifier checks that the connector host package, strict TypeScript config, package test config, public export boundary, README boundary documentation, contract files, package-boundary tests, export stability tests, contract stability tests, security tests, dependency boundary tests, and approved dependency set exist. It rejects unapproved `packages/connector-host` dependencies and scans host package source files for prohibited Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, APIs, auth implementation, AI workflows, frontend implementation, business logic, provider integration, and actual connector execution.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
