@@ -2,12 +2,36 @@
 
 
 **Document ID:** 00-001
-**Version:** 2.0.0
+**Version:** 3.0.0
 **Status:** Approved (Foundation)
 **Layer:** 0 – Engineering Knowledge Base
 **Owner:** Opportunity OS Architecture Team
 
 ## Opportunity OS Engineering Knowledge Base
+
+## Engineering Kit v3.0 Status
+
+Engineering Kit v3.0 is the canonical reference for future Codex work.
+
+It reflects completed implementation through Phase 2 Milestone 14:
+
+- Phase 0 Repository Foundation
+- Phase 1 M1 Runtime Configuration
+- Phase 1 M2 Shared Foundation
+- Phase 1 M3 Logging Foundation
+- Phase 1 M4 Event Foundation
+- Phase 1 M5 Database Foundation
+- Phase 1 M6 Domain Foundation
+- Phase 1 M7 Application Foundation
+- Phase 1 M8 Dependency Injection & Composition
+- Phase 1 M9 Infrastructure Composition
+- Phase 2 M10 Connector SDK Foundation
+- Phase 2 M11 Connector Runtime Foundation
+- Phase 2 M12 Connector Host Foundation
+- Phase 2 M13 Reddit Connector Foundation
+- Phase 2 M14 Reddit Runtime
+
+Future implementation begins with Phase 2 Milestone 15: Reddit Provider Transport. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
 ## Purpose
 
@@ -165,9 +189,7 @@ docs/
 
 ├── 04_IMPLEMENTATION/
 
-├── 05_OPERATIONS/
-
-└── adr/
+└── 05_BOOTSTRAP/
 
 developer-ai/
 
@@ -256,6 +278,13 @@ Read:
 - CODEX_TASKS.md
 
 before beginning development.
+
+For v3.0 and later Codex work, also read:
+
+- `docs/05_BOOTSTRAP/05-002_REPOSITORY_STRUCTURE.md`
+- `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`
+- `developer-ai/00_CONTEXT/REPOSITORY_OVERVIEW.md`
+- `developer-ai/00_CONTEXT/ARCHITECTURE_MAP.md`
 
 ## Source of Truth Matrix
 

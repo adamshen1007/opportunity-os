@@ -1,445 +1,166 @@
 # 05-005_IMPLEMENTATION_ORDER.md
 
-
 **Document ID:** 05-005
-**Version:** 2.0.0
-**Status:** Approved (Repository Bootstrap)
-**Layer:** 4 – Repository Bootstrap
+**Version:** 3.0.0
+**Status:** Approved (Engineering Kit v3.0)
+**Layer:** 4 - Repository Bootstrap
 **Owner:** Architecture Team
 
 # Implementation Order
 
-## Purpose
+This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 14.
+
+Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
+
+## Build Principles
+
+- Build contracts before implementations.
+- Keep each milestone independently verifiable.
+- Keep package boundaries explicit.
+- Do not skip persistence, event, runtime, or security gates.
+- Do not introduce business logic before its owning milestone.
+- Do not begin the next milestone until the current milestone is committed, pushed, tagged, and verified.
+
+## Completed Milestones
+
+The following milestones are complete in Engineering Kit v3.0:
+
+| Milestone | Status | Owner |
+|-----------|--------|-------|
+| Phase 0 - Repository Foundation | Complete | repository foundation |
+| Phase 1 M1 - Runtime Configuration | Complete | `packages/config` |
+| Phase 1 M2 - Shared Foundation | Complete | `packages/types`, `packages/errors`, `packages/utils`, `packages/shared` |
+| Phase 1 M3 - Logging Foundation | Complete | `packages/shared` |
+| Phase 1 M4 - Event Foundation | Complete | `packages/events` |
+| Phase 1 M5 - Database Foundation | Complete | `packages/database` |
+| Phase 1 M6 - Domain Foundation | Complete | `packages/domain` |
+| Phase 1 M7 - Application Foundation | Complete | `packages/application` |
+| Phase 1 M8 - Dependency Injection & Composition | Complete | `packages/container` |
+| Phase 1 M9 - Infrastructure Composition | Complete | `packages/infrastructure` |
+| Phase 2 M10 - Connector SDK Foundation | Complete | `packages/connectors` |
+| Phase 2 M11 - Connector Runtime Foundation | Complete | `packages/connector-runtime` |
+| Phase 2 M12 - Connector Host Foundation | Complete | `packages/connector-host` |
+| Phase 2 M13 - Reddit Connector Foundation | Complete | `packages/connectors-reddit` |
+| Phase 2 M14 - Reddit Runtime | Complete | `packages/connectors-reddit` |
+
+## Current Platform State
+
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, and deterministic non-network Reddit runtime behavior.
+
+The repository does not yet contain:
+
+- Raw Content persistence workflows
+- live Reddit provider transport
+- OAuth token exchange
+- HTTP clients
+- schedulers
+- workers
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend implementation
+- product business logic
+
+## Future Build Sequence
+
+Engineering Kit v3.0 establishes this future order:
+
+| Milestone | Goal | Primary Owner |
+|-----------|------|---------------|
+| Phase 2 M15 - Reddit Provider Transport | Add Reddit provider integration architecture: OAuth contracts, HTTP transport abstraction, API client abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, error mapping, telemetry, and fake transport tests. | `packages/connectors-reddit` |
+| Phase 2 M16 - Raw Content Pipeline | Introduce Raw Content contracts, persistence, ingestion records, provenance, immutable storage, and acquisition events. | `packages/database`, `packages/domain`, `packages/application`, future acquisition modules |
+| Phase 2 M17 - Normalization Pipeline | Transform Raw Content into Canonical Content with provenance-preserving normalization contracts and tests. | future intelligence modules |
+| Phase 2 M18 - AI Analysis Pipeline | Add AI workflow orchestration, prompt resolution, provider adapters, extraction contracts, and analysis events. | future AI/intelligence modules |
+| Phase 2 M19 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts. | future intelligence/domain/application modules |
+| Phase 2 M20 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
+| Phase 2 M21 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+
+## Phase 2 M15 Boundary
+
+Milestone 15 is the first milestone after the platform foundation sequence.
+
+It may begin real provider integration architecture for Reddit, but it must not implement product workflows.
+
+Allowed:
+
+- OAuth contract implementation
+- Reddit API client abstraction
+- HTTP transport abstraction
+- request builder
+- response parser
+- pagination transport
+- rate-limit parsing
+- retry compatibility
+- timeout compatibility
+- cancellation compatibility
+- authentication lifecycle
+- error mapping
+- telemetry integration
+- deterministic fake transport and test infrastructure
+- documentation and repository verification updates
+
+Not allowed:
+
+- Raw Content persistence
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- business logic
+- database persistence workflows
 
-This document defines the authoritative implementation sequence for Opportunity OS.
+## Required Verification Gate
 
-It specifies:
+Every implementation milestone from M15 onward must pass:
 
-- implementation phases
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase <milestone-phase>
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
 
-- dependency ordering
+For Milestone 15, `<milestone-phase>` must be:
 
-- milestone boundaries
+```sh
+phase-2-milestone-15
+```
 
-- acceptance gates
+## Codex Execution Rules
 
-- handoff criteria
+Every Codex implementation session must:
 
-Unlike the Development Roadmap, this document describes the **exact engineering build order**.
+1. Work on one scoped task or approved slice only.
+2. Read the relevant Engineering Kit and Developer AI documents.
+3. Modify only the files allowed by the task.
+4. Preserve package boundaries.
+5. Add deterministic tests with implementation changes.
+6. Keep safe error and logging behavior secret-safe.
+7. Run the required verification commands.
+8. Stop after the assigned task is complete.
 
-Every implementation task must follow this sequence unless an approved Architecture Decision Record (ADR) explicitly authorizes a deviation.
+Do not begin Phase 2 Milestone 15 until an implementation task explicitly scopes it.
 
-# Guiding Principles
+## Definition of Complete
 
-The implementation sequence is designed to:
+A milestone is complete only when:
 
-- minimize rework
+- implementation is committed
+- tests pass
+- repository verification passes
+- Docker Compose config validates when required
+- documentation matches implementation
+- prohibited work remains absent
+- the milestone is tagged
 
-- maximize incremental validation
+## Revision History
 
-- preserve architectural boundaries
-
-- produce deployable software at every major milestone
-
-- keep Codex implementation sessions small and deterministic
-
-Every phase must leave the repository in a runnable state.
-
-# High-Level Build Sequence
-
-Repository Foundation
-
-│
-
-▼
-
-Shared Infrastructure
-
-│
-
-▼
-
-Persistence Layer
-
-│
-
-▼
-
-Event System
-
-│
-
-▼
-
-Connector Framework
-
-│
-
-▼
-
-Connector Implementations
-
-│
-
-▼
-
-Normalization Engine
-
-│
-
-▼
-
-AI Workflow Platform
-
-│
-
-▼
-
-Business Intelligence Engine
-
-│
-
-▼
-
-REST API
-
-│
-
-▼
-
-Frontend
-
-│
-
-▼
-
-Production Hardening
-
-Each stage depends only on completed lower layers.
-
-
-# Phase 0 — Repository Foundation
-
-## Goal
-
-Establish the engineering environment.
-
-### Deliverables
-
-- Monorepo
-
-- Package manager
-
-- TypeScript configuration
-
-- Linting
-
-- Formatting
-
-- Testing framework
-
-- Docker Compose
-
-- CI pipeline
-
-- Environment validation
-
-- Logging foundation
-
-### Exit Criteria
-
-- Repository builds successfully.
-
-- CI passes.
-
-- Local development environment is reproducible.
-
-# Phase 1 — Shared Infrastructure
-
-## Goal
-
-Implement reusable platform capabilities.
-
-### Deliverables
-
-- Shared configuration
-
-- Error framework
-
-- Validation library
-
-- Logging package
-
-- Metrics package
-
-- Event abstractions
-
-- Common utilities
-
-### Exit Criteria
-
-- Shared packages compile independently.
-
-- No business logic exists yet.
-
-# Phase 2 — Persistence Layer
-
-## Goal
-
-Implement durable storage.
-
-### Deliverables
-
-- Prisma schema
-
-- Initial migrations
-
-- Repository interfaces
-
-- Repository implementations
-
-- Seed framework
-
-### Exit Criteria
-
-- Database initializes from an empty state.
-
-- Repository tests pass.
-
-# Phase 3 — Event System
-
-## Goal
-
-Enable event-driven communication.
-
-### Deliverables
-
-- Event envelope
-
-- Publisher
-
-- Consumer framework
-
-- Event schemas
-
-- Event testing utilities
-
-### Exit Criteria
-
-- Events can be published and consumed reliably.
-
-- Replay tests pass.
-
-
-# Phase 4 — Data Acquisition Framework
-
-## Goal
-
-Acquire customer conversations.
-
-### Build Order
-
-1.  Connector Registry
-
-2.  Connector Contract
-
-3.  Connector Runner
-
-4.  Scheduler
-
-5.  Authentication Manager
-
-6.  Raw Content Repository
-
-7.  Reddit Connector
-
-8.  CSV Import Connector
-
-9.  JSON Import Connector
-
-### Exit Criteria
-
-- Connector execution succeeds.
-
-- Raw Content persists.
-
-- Acquisition events are published.
-
-# Phase 5 — Intelligence Platform
-
-## Goal
-
-Transform Raw Content into Opportunities.
-
-### Build Order
-
-1.  Normalization Engine
-
-2.  Canonical Content Repository
-
-3.  Prompt Resolver
-
-4.  AI Provider Abstraction
-
-5.  AI Workflow Orchestrator
-
-6.  Pain Point Extraction Workflow
-
-7.  Problem Clustering
-
-8.  Trend Engine
-
-9.  Opportunity Generator
-
-10. Competition Analysis
-
-11. Deterministic Scoring Engine
-
-### Exit Criteria
-
-- Opportunities are generated from collected data.
-
-- Every Opportunity includes evidence, provenance, and deterministic scoring.
-
-# Phase 6 — Application Platform
-
-## Goal
-
-Expose system capabilities to users.
-
-### Build Order
-
-1.  Authentication
-
-2.  REST API
-
-3.  Dashboard
-
-4.  Opportunity Explorer
-
-5.  Cluster Explorer
-
-6.  Trend Explorer
-
-7.  Connector Management
-
-8.  Reports
-
-9.  Search
-
-10. Export
-
-### Exit Criteria
-
-- Users can complete the full product workflow from ingestion to report export.
-
-# Phase 7 — Production Readiness
-
-## Goal
-
-Prepare for deployment.
-
-### Deliverables
-
-- Performance optimization
-
-- Accessibility verification
-
-- Security review
-
-- Monitoring
-
-- Alerting
-
-- Backup procedures
-
-- Disaster recovery validation
-
-- Deployment automation
-
-- Documentation review
-
-### Exit Criteria
-
-- Release checklist passes.
-
-- Production deployment succeeds.
-
-- Monitoring and rollback procedures are validated.
-
-# Codex Execution Rules
-
-Every implementation session should:
-
-1.  Work on **one task only**.
-
-2.  Read all referenced specifications before coding.
-
-3.  Avoid architectural changes.
-
-4.  Write tests with the implementation.
-
-5.  Update documentation only if implementation changes architecture.
-
-6.  Stop after completing the assigned task.
-
-Do not begin the next task until the current task has passed review.
-
-# Milestone Gates
-
-| **Milestone** | **Required Outcome**              |
-|---------------|-----------------------------------|
-| M0            | Repository bootstrapped           |
-| M1            | Shared infrastructure operational |
-| M2            | Database operational              |
-| M3            | Event system operational          |
-| M4            | Data acquisition operational      |
-| M5            | Intelligence platform operational |
-| M6            | Application platform operational  |
-| M7            | Production-ready release          |
-
-Each milestone must be independently demonstrable before the next phase begins.
-
-# Definition of Implementation Complete
-
-Opportunity OS Version 1.0 is considered implementation-complete when:
-
-- All Engineering Kit specifications are implemented.
-
-- All acceptance criteria are satisfied.
-
-- All automated tests pass.
-
-- CI/CD pipelines are green.
-
-- Documentation matches implementation.
-
-- The end-to-end workflow—from data acquisition to opportunity discovery and report generation—is fully functional.
-
-# References
-
-Depends on:
-
-- 04-001_ROADMAP.md
-
-- 04-002_CODEX_TASKS.md
-
-- All Architecture documents
-
-- All Specification documents
-
-Referenced by:
-
-- Codex implementation sessions
-
-- Sprint planning
-
-- Release planning
-
-- Repository bootstrap
-
-# Revision History
-
-| **Version** | **Date**                             | **Summary**                                                                                                                              |
-|-------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.0.0       | Initial Repository Bootstrap release | Defined the authoritative engineering build order, implementation phases, milestone gates, and Codex execution rules for Opportunity OS. |
+| Version | Summary |
+|---------|---------|
+| 2.0.0 | Defined the initial repository bootstrap implementation sequence. |
+| 3.0.0 | Rebased the canonical implementation order on completed work through Phase 2 Milestone 14 and defined the Milestone 15 provider transport transition. |

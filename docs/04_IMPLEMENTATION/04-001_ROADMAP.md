@@ -2,7 +2,7 @@
 
 
 **Document ID:** 04-001
-**Version:** 2.0.0
+**Version:** 3.0.0
 **Status:** Approved (Implementation)
 **Layer:** 3 – Implementation
 **Owner:** Engineering Team
@@ -45,43 +45,41 @@ Development follows these principles:
 
 Every completed phase should produce a deployable system.
 
-# Phase Overview
+# Engineering Kit v3.0 Roadmap State
 
-Phase 0
+Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 14.
 
-Repository Foundation
+Completed:
 
-↓
+- Phase 0 Repository Foundation
+- Phase 1 M1 Runtime Configuration
+- Phase 1 M2 Shared Foundation
+- Phase 1 M3 Logging Foundation
+- Phase 1 M4 Event Foundation
+- Phase 1 M5 Database Foundation
+- Phase 1 M6 Domain Foundation
+- Phase 1 M7 Application Foundation
+- Phase 1 M8 Dependency Injection & Composition
+- Phase 1 M9 Infrastructure Composition
+- Phase 2 M10 Connector SDK Foundation
+- Phase 2 M11 Connector Runtime Foundation
+- Phase 2 M12 Connector Host Foundation
+- Phase 2 M13 Reddit Connector Foundation
+- Phase 2 M14 Reddit Runtime
 
-Phase 1
+Future:
 
-Data Acquisition Platform
+- Phase 2 M15 Reddit Provider Transport
+- Phase 2 M16 Raw Content Pipeline
+- Phase 2 M17 Normalization Pipeline
+- Phase 2 M18 AI Analysis Pipeline
+- Phase 2 M19 Opportunity Engine
+- Phase 2 M20 REST API
+- Phase 2 M21 Dashboard
 
-↓
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content persistence, Raw Content precedes normalization, normalization precedes AI analysis, AI analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
 
-Phase 2
-
-Intelligence Platform
-
-↓
-
-Phase 3
-
-Application Platform
-
-↓
-
-Phase 4
-
-MVP Release
-
-↓
-
-Phase 5
-
-Post-MVP Expansion
-
-Each phase builds upon the previous one without requiring architectural redesign.
+Do not begin Phase 2 Milestone 15 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -1817,206 +1815,134 @@ Handoff:
 
 After this gate passes, the next milestone may depend on the deterministic Reddit runtime surface in `@opportunity-os/connectors-reddit`. Do not begin OAuth, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend, business logic, provider integration, event publishing, host startup, runner loops, or external connector execution until later approved milestones scope them.
 
-# Phase 2 — Data Acquisition Platform
+# Future Roadmap After Engineering Kit v3.0
 
-## Goal
+## Phase 2 Milestone 15 — Reddit Provider Transport
 
-Acquire and persist customer data.
+Goal:
 
-Deliverables:
-
-- Connector Registry
-
-- Connector Runner
-
-- Scheduler
-
-- Authentication Manager
-
-- Event Publisher
-
-- Raw Content persistence
-
-- Reddit connector
-
-- CSV importer
-
-- JSON importer
-
-Milestone:
-
-Customer conversations can be collected and stored as immutable Raw Content.
-
-# Phase 2 — Intelligence Platform
-
-## Goal
-
-Transform customer conversations into business intelligence.
+Implement provider integration architecture only.
 
 Deliverables:
 
-- Normalization Service
-
-- Canonical Content generation
-
-- AI Workflow Orchestrator
-
-- Pain Point Extraction
-
-- Problem Clustering
-
-- Trend Engine
-
-- Scoring Engine
-
-- Opportunity Engine
-
-Milestone:
-
-The system generates explainable Opportunities from acquired content.
-
-
-# Phase 3 — Application Platform
-
-## Goal
-
-Expose platform capabilities to users.
-
-Deliverables:
-
-- REST API
-
-- Authentication
-
-- Dashboard
-
-- Opportunity Explorer
-
-- Cluster Explorer
-
-- Trend Explorer
-
-- Connector Management
-
-- Reports
-
-Milestone:
-
-Users can explore Opportunities through a complete web application.
-
-# Phase 4 — MVP Release
-
-## Goal
-
-Prepare for production deployment.
-
-Deliverables:
-
-- performance optimization
-
-- accessibility review
-
-- security review
-
-- observability
-
+- OAuth contract implementation
+- Reddit API client abstraction
+- HTTP transport abstraction
+- request builder
+- response parser
+- pagination transport
+- rate-limit parsing
+- retry, timeout, and cancellation compatibility
+- authentication lifecycle
+- error mapping
+- telemetry integration
+- fake transport test infrastructure
+- repository verification
 - documentation
 
-- deployment automation
+Non-goals:
 
-- monitoring
+- Raw Content persistence
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- business logic
 
-- backup procedures
+## Phase 2 Milestone 16 — Raw Content Pipeline
 
-Milestone:
+Goal:
 
-Opportunity OS Version 1.0 is production-ready.
+Persist acquired customer conversations as immutable Raw Content.
 
-# Phase 5 — Post-MVP Expansion
+Deliverables:
 
-Candidate initiatives:
+- Raw Content domain contracts
+- Raw Content database schema and migrations
+- repository implementations
+- ingestion records
+- provenance metadata
+- acquisition events
+- persistence tests
 
-- Xiaohongshu connector
+## Phase 2 Milestone 17 — Normalization Pipeline
 
-- Douyin connector
+Goal:
 
-- YouTube connector
+Transform Raw Content into Canonical Content.
 
-- GitHub connector
+Deliverables:
 
-- Enterprise connectors
+- normalization contracts
+- Canonical Content model
+- provenance-preserving transformation
+- normalization events
+- deterministic tests
 
-- Alerts
+## Phase 2 Milestone 18 — AI Analysis Pipeline
 
-- Collaboration
+Goal:
 
-- Portfolio management
+Run AI-assisted analysis on Canonical Content.
 
-- Public API
+Deliverables:
 
-- Mobile application
+- prompt resolution
+- AI provider adapter boundaries
+- workflow orchestration
+- extraction contracts
+- analysis events
+- safe telemetry
+- deterministic test harnesses
 
-These initiatives are intentionally outside the MVP scope.
+## Phase 2 Milestone 19 — Opportunity Engine
 
-# Milestones
+Goal:
 
-## M1
+Generate explainable Opportunities from analyzed content.
 
-Repository operational.
+Deliverables:
 
-## M2
+- opportunity domain model
+- clustering
+- trend detection
+- deterministic scoring
+- evidence and provenance links
+- explainability output
 
-Customer data acquisition operational.
+## Phase 2 Milestone 20 — REST API
 
-## M3
+Goal:
 
-Pain Point extraction operational.
+Expose platform capabilities through API routes.
 
-## M4
+Deliverables:
 
-Opportunity generation operational.
+- API application entry point
+- routes and controllers
+- request validation
+- authentication and authorization integration
+- API contract tests
+- OpenAPI documentation
 
-## M5
+## Phase 2 Milestone 21 — Dashboard
 
-Dashboard operational.
+Goal:
 
-## M6
+Expose Opportunity OS workflows through the user dashboard.
 
-Production deployment operational.
+Deliverables:
 
-Each milestone must be independently demonstrable.
+- dashboard application entry point
+- connector management UI
+- opportunity explorer
+- cluster and trend explorer
+- reports
+- Playwright coverage
 
-# Dependencies
-
-Phase dependencies:
-
-Repository
-
-│
-
-▼
-
-Acquisition
-
-│
-
-▼
-
-Intelligence
-
-│
-
-▼
-
-Application
-
-│
-
-▼
-
-Release
-
-No phase should begin before its architectural dependencies are satisfied.
+Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 
 
 # Quality Gates

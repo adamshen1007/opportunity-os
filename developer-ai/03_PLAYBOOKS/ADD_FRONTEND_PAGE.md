@@ -1,7 +1,7 @@
 # developer-ai/03_PLAYBOOKS/ADD_FRONTEND_PAGE.md
 
 
-Version: 2.0.0
+Version: 3.0.0
 
 # Purpose
 
@@ -31,7 +31,7 @@ If it introduces a new top-level section, update the Frontend Specification befo
 
 Create:
 
-frontend/
+apps/dashboard/
 
 └── pages/
 
@@ -48,6 +48,8 @@ frontend/
 ├── types.ts
 
 └── __tests__/
+
+Do not use this playbook until Phase 2 Milestone 21 or a later approved dashboard milestone explicitly creates the frontend application boundary.
 
 ## Step 3 — API Integration
 

@@ -2,7 +2,7 @@
 
 
 **Document ID:** 03-006
-**Version:** 2.0.0
+**Version:** 3.0.0
 **Status:** Approved (Specification)
 **Layer:** 2 – Specification
 **Owner:** Intelligence Platform Team

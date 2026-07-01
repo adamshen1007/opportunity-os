@@ -2,6 +2,8 @@
 
 Opportunity OS is currently an Engineering Kit and repository foundation. The repository is prepared for future implementation, but it intentionally does not contain application code, business logic, connectors, APIs, or AI workflows yet.
 
+Engineering Kit v3.0 is the canonical reference for future Codex work. It reflects completed implementation through Phase 2 Milestone 14: Reddit Runtime. From Phase 2 Milestone 15 onward, the project transitions from platform foundation to real provider and product capability, beginning with Reddit Provider Transport.
+
 ## Start Here
 
 1. Read `docs/00_INDEX/00-001_DOCUMENTATION_INDEX.md`.
@@ -63,6 +65,8 @@ pnpm test
 ```
 
 During Phase 2 connector runtime work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
+
+The next planned milestone is Phase 2 Milestone 15: Reddit Provider Transport. Do not begin it without a scoped implementation task. Milestone 15 may introduce provider transport architecture only; it must not introduce Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, or business logic.
 
 ## Phase Workflow
 

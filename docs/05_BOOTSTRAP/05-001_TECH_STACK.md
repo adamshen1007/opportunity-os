@@ -2,7 +2,7 @@
 
 
 **Document ID:** 05-001
-**Version:** 2.0.0
+**Version:** 3.0.0
 **Status:** Approved (Bootstrap)
 **Layer:** 4 – Repository Bootstrap
 **Owner:** Architecture Team
@@ -39,7 +39,7 @@ Reasons:
 
 - end-to-end type safety
 
-- shared types across backend/frontend
+- shared types across foundation packages and future application entry points
 
 - excellent AI tooling support
 

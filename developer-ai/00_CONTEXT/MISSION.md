@@ -3,7 +3,7 @@
 
 # Opportunity OS AI Engineering Mission
 
-Version: 2.0.0
+Version: 3.0.0
 
 ## Purpose
 
@@ -56,6 +56,10 @@ Opportunity OS consists of three logical platforms:
 These boundaries are permanent.
 
 Never blur responsibilities across platforms.
+
+As of Engineering Kit v3.0, the repository has completed platform foundation work through Phase 2 Milestone 14. Future Codex work starts from the existing foundation packages and deterministic Reddit runtime; it must not recreate package contracts locally or bypass established boundaries.
+
+From Phase 2 Milestone 15 onward, the project begins transitioning from platform foundation to real provider and product capability. That transition must remain staged: provider transport comes before Raw Content persistence, Raw Content comes before normalization, normalization comes before AI analysis, AI analysis comes before opportunity generation, opportunity generation comes before REST APIs, and APIs come before dashboard implementation.
 
 # Success Criteria
 

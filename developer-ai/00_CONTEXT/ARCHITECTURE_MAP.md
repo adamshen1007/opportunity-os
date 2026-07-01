@@ -1,156 +1,138 @@
 # developer-ai/00_CONTEXT/ARCHITECTURE_MAP.md
 
-
 # Architecture Map
 
-Version: 2.0.0
+Version: 3.0.0
 
-## System Overview
+## Logical Platforms
 
-Opportunity OS
+Opportunity OS still has three permanent logical platforms:
 
+```text
 Application Platform
-
-▲
-
-│
-
+        ↑
 Intelligence Platform
-
-▲
-
-│
-
+        ↑
 Data Acquisition Framework
+```
 
-Dependencies always flow upward.
+Dependencies flow upward through contracts. Reverse dependencies and shortcuts are prohibited.
 
-Never create reverse dependencies.
+## Completed Foundation Layers
 
-## Platform Responsibilities
+Engineering Kit v3.0 has completed the platform foundation needed before real provider/product capability begins:
 
-### Data Acquisition
+```text
+Runtime Configuration
+Shared Foundation
+Logging Foundation
+Event Foundation
+Database Foundation
+Domain Foundation
+Application Foundation
+Dependency Injection & Composition
+Infrastructure Composition
+Connector SDK Foundation
+Connector Runtime Foundation
+Connector Host Foundation
+Reddit Connector Foundation
+Reddit Runtime
+```
 
-Responsible for:
+## Current Package Map
 
-- Connectors
+```text
+packages/connectors-reddit
+  ├─ Reddit connector contracts
+  └─ deterministic fake-provider Reddit runtime
 
-- Authentication
+packages/connectors
+  └─ generic Connector SDK contracts
 
-- Scheduling
+packages/connector-runtime
+  └─ generic runtime policy, state, metrics, telemetry, and harness contracts
 
-- Raw Content
+packages/connector-host
+  └─ host bootstrap, lifecycle, binding, health, execution, and test harness contracts
 
-- Events
+packages/infrastructure
+  └─ infrastructure composition contracts
 
-Never responsible for:
+packages/container
+  └─ dependency injection and composition contracts
 
-- AI
+packages/application
+  └─ application-layer contracts
 
-- Scoring
+packages/domain
+  └─ generic domain contracts
 
-- Trends
+packages/database
+  └─ Prisma and database foundation contracts
 
-- Opportunities
+packages/events
+  └─ event contracts
 
-### Intelligence
+packages/shared
+  └─ logging, context, validation, and shared contracts
 
-Responsible for:
+packages/config, packages/types, packages/errors, packages/utils
+  └─ base foundation packages
+```
 
-- Normalization
+## Data Flow Target
 
-- AI Workflows
+Future product flow remains:
 
-- Clustering
-
-- Trends
-
-- Opportunities
-
-- Scoring
-
-Never responsible for:
-
-- Connector execution
-
-- UI
-
-- Authentication
-
-### Application
-
-Responsible for:
-
-- REST API
-
-- Dashboard
-
-- Authentication
-
-- Reports
-
-Never responsible for:
-
-- AI reasoning
-
-- Scoring
-
-- Data acquisition
-
-## Domain Flow
-
+```text
 External Data
-
 ↓
-
 Raw Content
-
 ↓
-
 Canonical Content
-
 ↓
-
 Pain Points
-
 ↓
-
 Clusters
-
 ↓
-
 Trends
-
 ↓
-
 Opportunities
-
 ↓
-
 Reports
+```
 
-No shortcuts are permitted.
+As of v3.0, only the foundation and deterministic Reddit runtime exist. Raw Content, Canonical Content, AI analysis, opportunities, APIs, and dashboard work are future milestones.
 
-## Core Aggregates
+## Milestone 15 Boundary
 
-Connector
+Phase 2 Milestone 15 transitions from platform foundation to real provider capability.
 
-↓
+Allowed next:
 
-RawContent
+- Reddit provider transport architecture
+- OAuth contract implementation
+- API client abstraction
+- HTTP transport abstraction
+- request/response translation
+- rate-limit and pagination parsing
+- retry, timeout, and cancellation compatibility
+- auth lifecycle
+- safe provider errors
+- telemetry contracts
+- fake transport tests
 
-↓
+Still prohibited:
 
-CanonicalContent
+- Raw Content persistence
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- business logic
 
-↓
+## Golden Rule
 
-PainPointCluster
-
-↓
-
-Opportunity
-
-Every aggregate has one owner.
-
-Never violate ownership boundaries.
+If a task requires changing platform boundaries, stop and update the Engineering Kit first.

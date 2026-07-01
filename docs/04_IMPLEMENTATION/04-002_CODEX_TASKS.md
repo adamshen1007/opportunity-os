@@ -1,414 +1,142 @@
 # 04-002_CODEX_TASKS.md
 
-
 **Document ID:** 04-002
-**Version:** 2.0.0
+**Version:** 3.0.0
 **Status:** Approved (Implementation)
-**Layer:** 3 – Implementation
+**Layer:** 3 - Implementation
 **Owner:** Engineering Team
 
 # Codex Task Catalog
 
-## Purpose
+This document defines how Codex implementation tasks must be shaped after Engineering Kit v3.0.
 
-This document defines the implementation task catalog for Opportunity OS.
+The detailed task backlog is generated milestone-by-milestone. This file defines the task format, completed milestone baseline, and future milestone sequence.
 
-The catalog is designed for AI-assisted development.
+## Task Design Principles
 
-Each task is:
+Every Codex task must:
 
-- independently executable
+- be independently executable
+- identify the owning package
+- list allowed files
+- list dependencies
+- reference relevant Engineering Kit documents
+- include acceptance criteria
+- include required tests
+- preserve package boundaries
+- avoid unrelated refactors
+- stop at the assigned scope
 
-- dependency-aware
+## Task Identifier Format
 
-- testable
+Use milestone-aware task IDs:
 
-- traceable to Engineering Kit specifications
-
-The task catalog is the authoritative implementation backlog.
-
-# Task Design Principles
-
-Every task should:
-
-- solve one problem
-
-- modify one logical area of the system
-
-- be completable in a single development session
-
-- include explicit acceptance criteria
-
-- include testing requirements
-
-- reference governing specifications
-
-Tasks should avoid mixing unrelated concerns.
-
-# Task Identifier Format
-
-TASK-\<EPIC\>-\<NUMBER\>
+```text
+TASK-P<phase>-M<milestone>-<number>
+```
 
 Examples:
 
-TASK-INFRA-001
-
-TASK-DATABASE-014
-
-TASK-CONNECTOR-027
-
-TASK-AI-042
-
-TASK-FRONTEND-018
-
-Task IDs are immutable.
-
-# Task Template
-
-Each task contains:
-
-- Task ID
-
-- Epic
-
-- Objective
-
-- Dependencies
-
-- Referenced Documents
-
-- Files to Create
-
-- Files to Modify
-
-- Acceptance Criteria
-
-- Testing Requirements
-
-- Estimated Complexity
-
-# Epic Overview
-
-| **Epic**  | **Description**             |
-|-----------|-----------------------------|
-| INFRA     | Repository & Infrastructure |
-| DATABASE  | Persistence Layer           |
-| CONNECTOR | Data Acquisition Framework  |
-| AI        | Intelligence Platform       |
-| API       | Application API             |
-| FRONTEND  | Web Application             |
-| TEST      | Testing                     |
-| DEVOPS    | Deployment & Operations     |
-| DOCS      | Documentation               |
-
-:::writing{variant="document" id="90153"}
-
-
-# EPIC: INFRA
-
----
-
-## TASK-INFRA-001
-
-### Objective
-
-Initialize the repository structure.
-
-### Dependencies
-
-None.
-
-### References
-
-\- DOCUMENTATION_INDEX.md
-
-\- ARCHITECTURE.md
-
-### Deliverables
-
-Create:
-
-\- backend/
-
-\- frontend/
-
-\- packages/
-
-\- docs/
-
-\- prompts/
-
-\- schemas/
-
-\- infrastructure/
-
-### Acceptance Criteria
-
-\- Repository matches Engineering Kit structure.
-
-\- Local build succeeds.
-
-### Testing
-
-\- Repository validation script passes.
-
-### Complexity
-
-Small
-
----
-
-## TASK-INFRA-002
-
-### Objective
-
-Configure the development environment.
-
-### Dependencies
-
-TASK-INFRA-001
-
-### Deliverables
-
-\- Package manager configuration
-
-\- Environment variable loading
-
-\- Shared configuration
-
-\- Local development scripts
-
-### Acceptance Criteria
-
-Developers can install and start the project with a single documented command.
-
-### Complexity
-
-Medium
-
----
-
-## TASK-INFRA-003
-
-### Objective
-
-Configure continuous integration.
-
-### Dependencies
-
-TASK-INFRA-002
-
-### Deliverables
-
-\- Linting
-
-\- Formatting
-
-\- Unit test execution
-
-\- Build validation
-
-### Acceptance Criteria
-
-Every pull request triggers the complete CI pipeline.
-
-### Complexity
-
-Medium
-
----
-
-# EPIC: DATABASE
-
-## TASK-DATABASE-001
-
-### Objective
-
-Initialize PostgreSQL schema.
-
-### Dependencies
-
-TASK-INFRA-003
-
-### References
-
-DATABASE_SPEC.md
-
-### Deliverables
-
-\- migration framework
-
-\- initial schema
-
-\- seed mechanism
-
-### Acceptance Criteria
-
-Database initializes from an empty state.
-
-### Complexity
-
-Medium
-
----
-
-## TASK-DATABASE-002
-
-### Objective
-
-Implement Connector tables.
-
-### Dependencies
-
-TASK-DATABASE-001
-
-### References
-
-DATABASE_SPEC.md
-
-### Deliverables
-
-\- connectors
-
-\- connector_runs
-
-### Acceptance Criteria
-
-Referential integrity enforced.
-
-### Complexity
-
-Medium
-
-
-# EPIC: CONNECTOR
-
-## TASK-CONNECTOR-001
-
-### Objective
-
-Implement the Connector Registry.
-
-### Dependencies
-
-TASK-DATABASE-002
-
-### References
-
-DATA_ACQUISITION_FRAMEWORK.md
-
-### Deliverables
-
-- registry interface
-
-- registration mechanism
-
-- capability discovery
-
-### Acceptance Criteria
-
-Connectors can register and be resolved at runtime.
-
-### Complexity
-
-Medium
-
-## TASK-CONNECTOR-002
-
-### Objective
-
-Implement the Connector Runner.
-
-### Dependencies
-
-TASK-CONNECTOR-001
-
-### Deliverables
-
-- execution engine
-
-- retry handling
-
-- metrics collection
-
-- event publication hooks
-
-### Acceptance Criteria
-
-A connector can execute and persist Raw Content.
-
-### Complexity
-
-Large
-
-## TASK-CONNECTOR-003
-
-### Objective
-
-Implement the Reddit connector.
-
-### Dependencies
-
-TASK-CONNECTOR-002
-
-### Deliverables
-
-- acquisition logic
-
-- authentication integration
+- `TASK-P2-M15-01`
+- `TASK-P2-M16-04`
+- `TASK-P2-M20-12`
+
+## Required Task Fields
+
+Every generated task must include:
+
+- task ID
+- objective
+- dependencies
+- files to create or modify
+- Engineering Kit references
+- acceptance criteria
+- required tests
+- estimated size
+
+## Completed Baseline
+
+Codex must treat these milestones as complete and must not recreate their foundations:
+
+- Phase 0 Repository Foundation
+- Phase 1 M1 Runtime Configuration
+- Phase 1 M2 Shared Foundation
+- Phase 1 M3 Logging Foundation
+- Phase 1 M4 Event Foundation
+- Phase 1 M5 Database Foundation
+- Phase 1 M6 Domain Foundation
+- Phase 1 M7 Application Foundation
+- Phase 1 M8 Dependency Injection & Composition
+- Phase 1 M9 Infrastructure Composition
+- Phase 2 M10 Connector SDK Foundation
+- Phase 2 M11 Connector Runtime Foundation
+- Phase 2 M12 Connector Host Foundation
+- Phase 2 M13 Reddit Connector Foundation
+- Phase 2 M14 Reddit Runtime
+
+## Future Milestone Sequence
+
+The v3.0 task catalog uses this future sequence:
+
+1. Phase 2 M15 Reddit Provider Transport
+2. Phase 2 M16 Raw Content Pipeline
+3. Phase 2 M17 Normalization Pipeline
+4. Phase 2 M18 AI Analysis Pipeline
+5. Phase 2 M19 Opportunity Engine
+6. Phase 2 M20 REST API
+7. Phase 2 M21 Dashboard
+
+## Milestone 15 Guardrail
+
+Milestone 15 is the first transition from platform foundation into real provider capability.
+
+Allowed in M15:
+
+- OAuth contract implementation
+- Reddit API client abstraction
+- HTTP transport abstraction
+- request builder
+- response parser
+- pagination transport
+- rate-limit parsing
+- retry compatibility
+- timeout compatibility
+- cancellation compatibility
+- authentication lifecycle
+- error mapping
+- telemetry integration
+- fake transport test infrastructure
+- documentation
+- repository verification
+
+Still prohibited in M15:
 
 - Raw Content persistence
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- business logic
 
-### Acceptance Criteria
+## Required Verification
 
-A complete connector run stores valid Raw Content and publishes acquisition events.
+Every implementation task must run the verification commands named by the task. Final milestone gates must run:
 
-### Complexity
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase <milestone-phase>
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
 
-Large
+## Revision History
 
-# Catalog Continuation
-
-Subsequent epics follow the same format.
-
-Estimated catalog size:
-
-| **Epic**  | **Approximate Tasks** |
-|-----------|-----------------------|
-| INFRA     | 20                    |
-| DATABASE  | 35                    |
-| CONNECTOR | 60                    |
-| AI        | 90                    |
-| API       | 45                    |
-| FRONTEND  | 85                    |
-| TEST      | 35                    |
-| DEVOPS    | 30                    |
-| DOCS      | 15                    |
-
-Total estimated implementation tasks:
-
-## 380 ± 40 tasks
-
-# References
-
-Depends on:
-
-- ROADMAP.md
-
-- All Architecture documents
-
-- All Specification documents
-
-Referenced by:
-
-- Codex implementation sessions
-
-- Sprint planning
-
-- Engineering tracking
-
-# Revision History
-
-| **Version** | **Date**                        | **Summary**                                                                                                             |
-|-------------|---------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| 2.0.0       | Initial Engineering Kit release | Defined the task system, epic structure, task template, and initial implementation backlog for AI-assisted development. |
+| Version | Summary |
+|---------|---------|
+| 2.0.0 | Initial Codex task catalog generated from the Engineering Kit. |
+| 3.0.0 | Rebased Codex task rules on completed milestones through Phase 2 M14 and future milestones M15-M21. |

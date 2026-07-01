@@ -2,7 +2,7 @@
 
 
 **Document ID:** 02-001
-**Version:** 2.0.0
+**Version:** 3.0.0
 **Status:** Approved (Architecture)
 **Layer:** 1 – Architecture
 **Owner:** Architecture Team
@@ -94,6 +94,39 @@ Key principles include:
 - Deterministic Business Logic
 
 # High-Level Architecture
+
+## Engineering Kit v3.0 Implementation State
+
+The logical architecture remains organized around the Data Acquisition Framework, Intelligence Platform, and Application Platform. Engineering Kit v3.0 records that the repository has completed platform foundation work through Phase 2 Milestone 14.
+
+Implemented package architecture:
+
+- `packages/config` for runtime configuration
+- `packages/types`, `packages/errors`, `packages/utils`, and `packages/shared` for shared foundations
+- `packages/events` for event contracts
+- `packages/database` for database foundation contracts and Prisma setup
+- `packages/domain` for generic domain contracts
+- `packages/application` for application-layer contracts
+- `packages/container` for dependency injection and composition contracts
+- `packages/infrastructure` for infrastructure composition contracts
+- `packages/connectors` for generic Connector SDK contracts
+- `packages/connector-runtime` for generic connector runtime contracts
+- `packages/connector-host` for connector host contracts
+- `packages/connectors-reddit` for Reddit connector contracts and deterministic non-network Reddit runtime
+
+Not yet implemented:
+
+- live Reddit provider transport
+- Raw Content persistence workflows
+- normalization pipeline
+- AI analysis pipeline
+- opportunity engine
+- REST API
+- dashboard/frontend
+- scheduler or worker process
+- product business logic
+
+Phase 2 Milestone 15 is the next transition point. It may add Reddit provider transport architecture only; it must not add Raw Content persistence, AI workflows, opportunity generation, APIs, frontend, schedulers, workers, or business logic.
 
 Opportunity OS is composed of three logical platforms.
 
