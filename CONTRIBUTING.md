@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 Milestone 8, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, and container foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, and `packages/container`.
+During Phase 1 Milestone 9, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, and infrastructure composition foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, and `packages/infrastructure`.
 
 ## Phase 0 and Phase 1
 
@@ -174,6 +174,39 @@ Before handing off to the next milestone, confirm:
 - repository verification supports `phase-1-milestone-8`
 - no REST APIs, controllers, auth implementation, connector execution, AI workflows, database repositories, frontend implementation, application services, product workflows, or business logic exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-8`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+## Infrastructure Composition Foundation Governance
+
+Phase 1 Milestone 9 implements generic infrastructure composition contracts in `packages/infrastructure`. Future packages must consume `@opportunity-os/infrastructure` instead of redefining or bypassing infrastructure module contracts, package registrations, bootstrap contracts, lifecycle contracts, startup validation contracts, shutdown contracts, health aggregation contracts, dependency graph validation contracts, infrastructure results, infrastructure errors, or foundation package composition metadata.
+
+Infrastructure changes must remain declarative. They must not introduce REST APIs, controllers, authentication implementation, authorization implementation, connector execution, AI workflows, database repository implementations, frontend implementation, product workflows, application services, business logic, app startup, API boot, runtime dependency resolution, lifecycle runners, process signal handling, production event transport, database event stores, database connections, migration execution, command dispatch, product handlers, or scoring.
+
+When infrastructure files change, reviewers should confirm:
+
+- public exports route through `packages/infrastructure/src/index.ts`
+- dependencies remain limited to approved foundation packages and deterministic test/build tooling
+- module contracts and package registrations remain metadata-only
+- bootstrap contracts do not instantiate services or resolve dependencies
+- dependency graph contracts do not execute dependency graphs or runtime resolvers
+- lifecycle, startup, shutdown, and health contracts remain declarative
+- health aggregation does not introduce API health routes
+- config composition receives typed config and does not read `process.env`
+- logging composition does not introduce a singleton, transport, or app integration
+- event composition does not introduce production event transport or database event stores
+- database composition does not introduce Prisma client singletons, connections, migration execution, repository implementations, or database workflows
+- infrastructure errors and failure results remain secret-safe and stack-safe by default
+- future package guidance does not bypass Infrastructure Composition Foundation contracts
+
+## Phase 1 Milestone 9 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/infrastructure` is implemented, tested, documented, and independently buildable
+- module contracts, package registrations, bootstrap contracts, lifecycle contracts, startup validation, shutdown contracts, health aggregation, dependency graph validation, results, errors, and foundation package composition contracts are documented for future consumers
+- export stability, dependency boundary, contract stability, and security tests pass
+- repository verification supports `phase-1-milestone-9`
+- no REST APIs, controllers, auth implementation, connector execution, AI workflows, database repositories, frontend implementation, product workflows, application services, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-9`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
 ## Phase 1 Milestone 2 Readiness
 

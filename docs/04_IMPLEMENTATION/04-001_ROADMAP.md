@@ -1047,6 +1047,114 @@ Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/container` for generic dependency injection and composition contracts. Do not begin REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repository implementations, frontend, application services, product workflows, or business logic until later approved milestones scope them.
 
+## Phase 1 Milestone 9 — Infrastructure Composition Foundation
+
+Goal:
+
+Define infrastructure composition contracts without app startup, product workflows, or business behavior.
+
+Owner:
+
+- `packages/infrastructure`
+
+Deliverables:
+
+- `@opportunity-os/infrastructure` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/infrastructure/src/index.ts`
+
+- package boundary documentation
+
+- repository verification support for `phase-1-milestone-9`
+
+- dependency policy for approved foundation packages
+
+- infrastructure module contracts
+
+- composition module contracts
+
+- package registration module contracts
+
+- infrastructure bootstrap contracts
+
+- lifecycle orchestration contracts
+
+- startup validation contracts
+
+- shutdown orchestration contracts
+
+- health aggregation contracts
+
+- dependency graph validation contracts
+
+- infrastructure result and error contracts
+
+- foundation package composition contracts for config, logging, events, database, domain metadata, and application metadata
+
+- export stability, dependency boundary, contract stability, and security tests
+
+- deterministic tests
+
+Dependency direction:
+
+- `packages/infrastructure` is an infrastructure composition package.
+
+- It may depend only on approved foundation packages: `packages/config`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/errors`, `packages/application`, and `packages/container`.
+
+- It must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repository implementations, frontend packages, product workflows, or business packages.
+
+Out of scope:
+
+- REST APIs
+
+- controllers
+
+- authentication implementation
+
+- authorization implementation
+
+- connector execution
+
+- AI workflows
+
+- database repositories
+
+- frontend implementation
+
+- product workflows
+
+- business logic
+
+Implementation guardrail:
+
+Phase 1 Milestone 9 may define generic infrastructure composition contracts only. It must not implement runtime infrastructure composition, app startup, API boot, lifecycle execution, dependency graph execution, process signal handling, API health routes, connector behavior, workflow behavior, database repository behavior, product use cases, or business behavior.
+
+Readiness gate:
+
+- `packages/infrastructure` is implemented as `@opportunity-os/infrastructure`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/infrastructure/src/index.ts`
+
+- repository verification permits `packages/infrastructure` while continuing to block REST APIs, controllers, auth, connectors, AI workflows, database repositories, frontend, product workflows, and business logic
+
+- package dependencies are limited to approved foundation packages and deterministic test/build tooling
+
+- module, package registration, bootstrap, lifecycle, startup validation, shutdown, health aggregation, dependency graph, result, error, and foundation package composition contracts are documented
+
+- export stability, dependency boundary, contract stability, and security tests pass
+
+- no REST APIs, controllers, auth implementation, connector execution, AI workflows, database repositories, frontend, product workflows, application services, or business logic exists
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-9`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/infrastructure` for generic infrastructure composition contracts. Do not begin REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repository implementations, frontend, product workflows, application services, business logic, app startup, API boot, production event transport, database event stores, command dispatch, product handlers, or scoring until later approved milestones scope them.
+
 # Phase 1 — Data Acquisition Platform
 
 ## Goal

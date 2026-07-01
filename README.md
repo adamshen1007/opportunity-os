@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, and `packages/container`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, and `packages/infrastructure`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, and container foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, and `packages/container`.
+During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, and infrastructure composition foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, and `packages/infrastructure`.
 
 ## Phase Workflow
 
@@ -446,3 +446,19 @@ Container validation and errors are contract-only. `RegistrationValidationResult
 `packages/container` must not implement REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repositories, frontend behavior, application services, product workflows, business logic, runtime service locators, reflection, app startup, API boot, or product workflow composition.
 
 Phase 1 Milestone 8 is complete when `@opportunity-os/container` is implemented, tested, documented, independently buildable, covered by export stability and dependency boundary tests, included in root lint/build/test, and verified by `node scripts/verify-repository.mjs --phase review` and `node scripts/verify-repository.mjs --phase phase-1-milestone-8`.
+
+## Infrastructure Composition Foundation
+
+Phase 1 Milestone 9 introduces the Infrastructure Composition Foundation in `packages/infrastructure`.
+
+`packages/infrastructure` owns infrastructure composition contracts only. It provides module contracts, package registration metadata, composition module contracts, bootstrap contracts, lifecycle phase and ordering contracts, startup validation contracts, graceful shutdown contracts, health aggregation contracts, dependency graph validation contracts, infrastructure result/error contracts, and foundation package composition metadata.
+
+Future packages must consume `@opportunity-os/infrastructure` for infrastructure composition boundaries instead of redefining or bypassing them.
+
+Use infrastructure module and package registration contracts to describe approved foundation package capabilities. Use bootstrap and dependency graph contracts to describe validation results without executing graphs or resolving dependencies. Use lifecycle, startup, shutdown, and health contracts to describe orchestration boundaries without implementing runners, signal handling, API health routes, or live checks. Use foundation package composition contracts to reference `@opportunity-os/config`, `@opportunity-os/shared`, `@opportunity-os/events`, `@opportunity-os/database`, `@opportunity-os/domain`, `@opportunity-os/application`, and `@opportunity-os/container`.
+
+Infrastructure errors and failure contracts must remain secret-safe. They must not expose secrets, tokens, auth headers, credentials, DSNs, database URLs, provider keys, raw config values, stack traces, raw causes, or raw dependency details by default.
+
+`packages/infrastructure` must not implement REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repositories, frontend behavior, product workflows, application services, business logic, app startup, API boot, production event transport, database event stores, database connections, migration execution, command dispatch, product handlers, or scoring.
+
+Phase 1 Milestone 9 is complete when `@opportunity-os/infrastructure` is implemented, tested, documented, independently buildable, covered by export stability, dependency boundary, contract stability, and security tests, included in root lint/build/test, and verified by `node scripts/verify-repository.mjs --phase review` and `node scripts/verify-repository.mjs --phase phase-1-milestone-9`.

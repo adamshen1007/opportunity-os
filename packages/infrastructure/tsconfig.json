@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules"],
+  "references": [
+    { "path": "../application" },
+    { "path": "../config" },
+    { "path": "../container" },
+    { "path": "../database" },
+    { "path": "../domain" },
+    { "path": "../errors" },
+    { "path": "../events" },
+    { "path": "../shared" }
+  ]
+}

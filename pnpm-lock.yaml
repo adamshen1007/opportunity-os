@@ -110,6 +110,40 @@ importers:
         specifier: ^4.0.16
         version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
 
+  packages/infrastructure:
+    dependencies:
+      '@opportunity-os/application':
+        specifier: workspace:*
+        version: link:../application
+      '@opportunity-os/config':
+        specifier: workspace:*
+        version: link:../config
+      '@opportunity-os/container':
+        specifier: workspace:*
+        version: link:../container
+      '@opportunity-os/database':
+        specifier: workspace:*
+        version: link:../database
+      '@opportunity-os/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@opportunity-os/errors':
+        specifier: workspace:*
+        version: link:../errors
+      '@opportunity-os/events':
+        specifier: workspace:*
+        version: link:../events
+      '@opportunity-os/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
   packages/shared:
     dependencies:
       '@opportunity-os/config':

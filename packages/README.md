@@ -16,6 +16,7 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/domain` owns generic Domain Foundation contracts only.
 - `packages/application` owns generic Application Foundation contracts only.
 - `packages/container` owns Dependency Injection and Composition Foundation contracts only.
+- `packages/infrastructure` owns Infrastructure Composition Foundation contracts only.
 
 ## Dependency Direction
 
@@ -27,8 +28,9 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/domain` may depend only on `@opportunity-os/types`, `@opportunity-os/errors`, `@opportunity-os/events`, and optionally `@opportunity-os/utils`.
 - `packages/application` may depend only on approved foundation packages when a scoped milestone requires them.
 - `packages/container` may depend only on `@opportunity-os/config`, `@opportunity-os/errors`, `@opportunity-os/shared`, and deterministic test/build tooling.
+- `packages/infrastructure` may depend only on `@opportunity-os/config`, `@opportunity-os/shared`, `@opportunity-os/events`, `@opportunity-os/database`, `@opportunity-os/domain`, `@opportunity-os/application`, `@opportunity-os/container`, and deterministic test/build tooling.
 
-Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone. Domain package dependencies must remain limited to approved shared infrastructure packages. Application package dependencies must remain limited to approved foundation packages. Container package dependencies must remain limited to approved foundation packages and must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repositories, frontend packages, application services, product workflows, or business packages.
+Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone. Domain package dependencies must remain limited to approved shared infrastructure packages. Application package dependencies must remain limited to approved foundation packages. Container package dependencies must remain limited to approved foundation packages. Infrastructure package dependencies must remain limited to approved foundation packages and must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repositories, frontend packages, product workflows, or business packages.
 
 ## Non-Goals
 
@@ -39,6 +41,8 @@ Future packages must not bypass `@opportunity-os/domain` for domain primitives, 
 Future packages must not bypass `@opportunity-os/application` for command/query contracts, use-case boundaries, application services, DI contracts, request contexts, application errors, event publishing ports, repository ports, transaction boundary ports, results, validation outcomes, or handler execution context contracts.
 
 Future packages must not bypass `@opportunity-os/container` for dependency tokens, service registrations, lifetimes, resolver contracts, scope contracts, module definitions, composition roots, config bindings, logger bindings, registration validation contracts, or container error contracts.
+
+Future packages must not bypass `@opportunity-os/infrastructure` for infrastructure module contracts, package registration modules, bootstrap contracts, lifecycle orchestration contracts, startup validation contracts, shutdown orchestration contracts, health aggregation contracts, or dependency graph validation contracts once those contracts are introduced by approved Milestone 9 slices.
 
 The in-memory event bus in `packages/events` is test-only infrastructure. It must not be used as production transport, persistence, queueing, stream processing, connector behavior, workflow behavior, API behavior, or business behavior.
 
@@ -55,6 +59,7 @@ Future package work should:
 - keep Domain Foundation contract tests inside `packages/domain`
 - keep Application Foundation contract tests inside `packages/application`
 - keep Container Foundation contract tests inside `packages/container`
+- keep Infrastructure Composition Foundation contract tests inside `packages/infrastructure`
 - add integration tests only when implementation depends on PostgreSQL, Redis, queues, or provider adapters
 
 Do not add tests for application behavior, APIs, connectors, AI workflows, database behavior, or business logic before the corresponding implementation task is approved.
