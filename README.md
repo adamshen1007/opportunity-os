@@ -48,7 +48,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, and `packages/infrastructure`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1 and connector SDK foundation work introduced in Phase 2. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, and `packages/connectors`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -62,7 +62,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 shared infrastructure work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, and infrastructure composition foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, and `packages/infrastructure`.
+During Phase 2 connector SDK foundation work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, and connector SDK foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, and `packages/connectors`.
 
 ## Phase Workflow
 
@@ -462,3 +462,19 @@ Infrastructure errors and failure contracts must remain secret-safe. They must n
 `packages/infrastructure` must not implement REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repositories, frontend behavior, product workflows, application services, business logic, app startup, API boot, production event transport, database event stores, database connections, migration execution, command dispatch, product handlers, or scoring.
 
 Phase 1 Milestone 9 is complete when `@opportunity-os/infrastructure` is implemented, tested, documented, independently buildable, covered by export stability, dependency boundary, contract stability, and security tests, included in root lint/build/test, and verified by `node scripts/verify-repository.mjs --phase review` and `node scripts/verify-repository.mjs --phase phase-1-milestone-9`.
+
+## Connector SDK Foundation
+
+Phase 2 Milestone 10 introduces the Connector SDK Foundation in `packages/connectors`.
+
+`packages/connectors` owns generic connector SDK contracts only. Slice A establishes the package boundary, strict TypeScript scaffold, public export routing, repository verification for `phase-2-milestone-10`, and approved dependency boundaries for future connector SDK contracts.
+
+`@opportunity-os/connectors` now documents and exports generic contracts for metadata, capabilities, configuration, context, lifecycle, results, errors, validation, registry, factory, operations, health, rate-limit and quota metadata, and test utilities.
+
+Future concrete connectors must consume `@opportunity-os/connectors` instead of redefining connector SDK contracts locally.
+
+`packages/connectors` must not implement Reddit connectors, YouTube connectors, OAuth, HTTP clients, REST APIs, controllers, authentication, authorization, AI workflows, frontend behavior, business logic, concrete connector implementations, or connector execution.
+
+Phase 2 Milestone 10 is complete when `@opportunity-os/connectors` is implemented, tested, documented, independently buildable, covered by export stability, dependency boundary, contract stability, and security tests, included in root lint/build/test, and verified by `node scripts/verify-repository.mjs --phase review` and `node scripts/verify-repository.mjs --phase phase-2-milestone-10`.
+
+After this gate passes, the next milestone may depend on `@opportunity-os/connectors` for generic connector SDK contracts. It must not begin concrete provider connectors, OAuth, HTTP clients, connector runners, API integration, AI workflows, frontend integration, or business workflows until scoped by an approved milestone.

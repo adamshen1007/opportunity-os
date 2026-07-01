@@ -54,6 +54,7 @@ const requiredReadmes = [
   "packages/ai/README.md",
   "packages/application/README.md",
   "packages/container/README.md",
+  "packages/connectors/README.md",
   "packages/config/README.md",
   "packages/database/README.md",
   "packages/domain/README.md",
@@ -82,16 +83,18 @@ const phaseFiveAliases = new Set(["phase-1-milestone-5", "database-foundation"])
 const phaseSixAliases = new Set(["phase-1-milestone-6", "domain-foundation"]);
 const phaseSevenAliases = new Set(["phase-1-milestone-7", "application-foundation"]);
 const phaseEightAliases = new Set(["phase-1-milestone-8", "container-foundation", "composition-foundation"]);
-const phaseNineAliases = new Set(["review", "phase-1-milestone-9", "infrastructure-composition-foundation", "infrastructure-foundation"]);
+const phaseNineAliases = new Set(["phase-1-milestone-9", "infrastructure-composition-foundation", "infrastructure-foundation"]);
+const phaseTenAliases = new Set(["review", "phase-2-milestone-10", "connector-sdk-foundation", "connectors-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase);
-const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase);
-const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase);
-const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase);
-const isPhaseNine = phaseNineAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase);
+const isPhaseTen = phaseTenAliases.has(phase);
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
@@ -100,6 +103,7 @@ const allowedPhaseSixImplementationRoots = [...allowedPhaseFiveImplementationRoo
 const allowedPhaseSevenImplementationRoots = [...allowedPhaseSixImplementationRoots, "packages/application"];
 const allowedPhaseEightImplementationRoots = [...allowedPhaseSevenImplementationRoots, "packages/container"];
 const allowedPhaseNineImplementationRoots = [...allowedPhaseEightImplementationRoots, "packages/infrastructure"];
+const allowedPhaseTenImplementationRoots = [...allowedPhaseNineImplementationRoots, "packages/connectors"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -675,6 +679,134 @@ const requiredInfrastructureFoundationExports = [
   "infrastructureSuccess",
   "sanitizeInfrastructureErrorMessage"
 ];
+const requiredConnectorSdkFoundationFiles = [
+  "packages/connectors/package.json",
+  "packages/connectors/README.md",
+  "packages/connectors/tsconfig.json",
+  "packages/connectors/vitest.config.ts",
+  "packages/connectors/src/index.ts",
+  "packages/connectors/src/capabilities/index.ts",
+  "packages/connectors/src/capabilities/connector-capability.ts",
+  "packages/connectors/src/configuration/index.ts",
+  "packages/connectors/src/configuration/connector-config.ts",
+  "packages/connectors/src/connector/index.ts",
+  "packages/connectors/src/connector/connector.ts",
+  "packages/connectors/src/context/index.ts",
+  "packages/connectors/src/context/connector-context.ts",
+  "packages/connectors/src/errors/index.ts",
+  "packages/connectors/src/errors/connector-error.ts",
+  "packages/connectors/src/factory/index.ts",
+  "packages/connectors/src/factory/connector-factory.ts",
+  "packages/connectors/src/health/index.ts",
+  "packages/connectors/src/health/connector-health.ts",
+  "packages/connectors/src/limits/index.ts",
+  "packages/connectors/src/limits/connector-limits.ts",
+  "packages/connectors/src/lifecycle/index.ts",
+  "packages/connectors/src/lifecycle/connector-lifecycle.ts",
+  "packages/connectors/src/metadata/index.ts",
+  "packages/connectors/src/metadata/connector-metadata.ts",
+  "packages/connectors/src/operations/index.ts",
+  "packages/connectors/src/operations/connector-operation.ts",
+  "packages/connectors/src/registry/index.ts",
+  "packages/connectors/src/registry/connector-registry.ts",
+  "packages/connectors/src/results/index.ts",
+  "packages/connectors/src/results/connector-result.ts",
+  "packages/connectors/src/testing/index.ts",
+  "packages/connectors/src/testing/connector-testing.ts",
+  "packages/connectors/src/validation/index.ts",
+  "packages/connectors/src/validation/connector-validation.ts",
+  "packages/connectors/src/__tests__/connector-capability.test.ts",
+  "packages/connectors/src/__tests__/connector-config.test.ts",
+  "packages/connectors/src/__tests__/connector-context.test.ts",
+  "packages/connectors/src/__tests__/connector-error.test.ts",
+  "packages/connectors/src/__tests__/connector-factory.test.ts",
+  "packages/connectors/src/__tests__/connector-health.test.ts",
+  "packages/connectors/src/__tests__/connector-interface.test.ts",
+  "packages/connectors/src/__tests__/connector-limits.test.ts",
+  "packages/connectors/src/__tests__/connector-lifecycle.test.ts",
+  "packages/connectors/src/__tests__/connector-metadata.test.ts",
+  "packages/connectors/src/__tests__/connector-operation.test.ts",
+  "packages/connectors/src/__tests__/connector-registry.test.ts",
+  "packages/connectors/src/__tests__/connector-result.test.ts",
+  "packages/connectors/src/__tests__/connector-testing.test.ts",
+  "packages/connectors/src/__tests__/connector-validation.test.ts",
+  "packages/connectors/src/__tests__/contract-stability.test.ts",
+  "packages/connectors/src/__tests__/exports.test.ts",
+  "packages/connectors/src/__tests__/package-boundary.test.ts",
+  "packages/connectors/src/__tests__/security.test.ts"
+];
+const requiredConnectorSdkFoundationExports = [
+  "CONNECTOR_CAPABILITY_KINDS",
+  "CONNECTOR_CATEGORIES",
+  "CONNECTOR_HEALTH_STATUSES",
+  "CONNECTOR_LIFECYCLE_PHASES",
+  "CONNECTOR_STABILITY_STATUSES",
+  "CONNECTOR_VALIDATION_ISSUE_CODES",
+  "Connector",
+  "ConnectorAssertionContext",
+  "ConnectorAssertionHelper",
+  "ConnectorCapability",
+  "ConnectorCapabilityKind",
+  "ConnectorCapabilitySet",
+  "ConnectorCategory",
+  "ConnectorConfig",
+  "ConnectorConfigField",
+  "ConnectorConfigFieldKind",
+  "ConnectorConfigInput",
+  "ConnectorContext",
+  "ConnectorContextExecutionMetadata",
+  "ConnectorError",
+  "ConnectorErrorOptions",
+  "ConnectorFactory",
+  "ConnectorFactoryInput",
+  "ConnectorFactoryResult",
+  "ConnectorFailure",
+  "ConnectorHealthCheckContract",
+  "ConnectorHealthMetadata",
+  "ConnectorHealthResult",
+  "ConnectorHealthStatus",
+  "ConnectorId",
+  "ConnectorLimitMetadata",
+  "ConnectorLifecycle",
+  "ConnectorLifecyclePhase",
+  "ConnectorLifecycleState",
+  "ConnectorLifecycleTransition",
+  "ConnectorMetadata",
+  "ConnectorOperationContract",
+  "ConnectorOperationExecutionMetadata",
+  "ConnectorOperationInput",
+  "ConnectorOperationOutput",
+  "ConnectorPaginationMetadata",
+  "ConnectorProvider",
+  "ConnectorQuotaMetadata",
+  "ConnectorQuotaWindow",
+  "ConnectorRateLimitMetadata",
+  "ConnectorRateLimitWindow",
+  "ConnectorRegistry",
+  "ConnectorRegistryListResult",
+  "ConnectorRegistryLookupResult",
+  "ConnectorRegistryRegistrationResult",
+  "ConnectorResult",
+  "ConnectorResultMetadata",
+  "ConnectorSensitiveConfigField",
+  "ConnectorStabilityStatus",
+  "ConnectorSuccess",
+  "ConnectorValidationFailure",
+  "ConnectorValidationIssue",
+  "ConnectorValidationIssueCode",
+  "ConnectorValidationIssueTarget",
+  "ConnectorValidationResult",
+  "ConnectorValidationSuccess",
+  "ConnectorVersion",
+  "FakeConnectorContext",
+  "FakeConnectorFixture",
+  "FakeConnectorMetadata",
+  "SafeConnectorErrorDetails",
+  "connectorFailure",
+  "connectorSuccess",
+  "createConnectorError",
+  "sanitizeConnectorErrorMessage"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -758,6 +890,21 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/application",
       "@opportunity-os/container"
     ]
+  },
+  "packages/connectors": {
+    packageName: "@opportunity-os/connectors",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/config",
+      "@opportunity-os/types",
+      "@opportunity-os/errors",
+      "@opportunity-os/utils",
+      "@opportunity-os/shared",
+      "@opportunity-os/events",
+      "@opportunity-os/domain",
+      "@opportunity-os/application",
+      "@opportunity-os/container",
+      "@opportunity-os/infrastructure"
+    ]
   }
 };
 const prohibitedSharedFoundationDependencyPatterns = [
@@ -838,6 +985,20 @@ const allowedInfrastructurePackageDependencies = new Set([
   "@opportunity-os/errors",
   "@opportunity-os/application",
   "@opportunity-os/container",
+  "@types/node",
+  "vitest"
+]);
+const allowedConnectorSdkPackageDependencies = new Set([
+  "@opportunity-os/config",
+  "@opportunity-os/types",
+  "@opportunity-os/errors",
+  "@opportunity-os/utils",
+  "@opportunity-os/shared",
+  "@opportunity-os/events",
+  "@opportunity-os/domain",
+  "@opportunity-os/application",
+  "@opportunity-os/container",
+  "@opportunity-os/infrastructure",
   "@types/node",
   "vitest"
 ]);
@@ -1455,6 +1616,79 @@ function assertInfrastructureFoundationPolicy() {
   }
 }
 
+function assertConnectorSdkFoundationPolicy() {
+  for (const file of requiredConnectorSdkFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Connector SDK foundation is missing required file: ${file}`);
+    }
+  }
+
+  const connectorsIndexPath = "packages/connectors/src/index.ts";
+  if (exists(connectorsIndexPath)) {
+    const connectorsIndex = read(connectorsIndexPath);
+    if (!connectorsIndex.includes("Connector SDK Foundation")) {
+      fail(`${connectorsIndexPath} must document the Phase 2 Milestone 10 Connector SDK Foundation public export boundary`);
+    }
+
+    for (const exportName of requiredConnectorSdkFoundationExports) {
+      if (!connectorsIndex.includes(exportName)) {
+        fail(`${connectorsIndexPath} must export ${exportName} from the connector SDK foundation public boundary`);
+      }
+    }
+  }
+
+  const connectorsPackageJsonPath = "packages/connectors/package.json";
+  if (exists(connectorsPackageJsonPath)) {
+    try {
+      const connectorsPackageJson = readJson(connectorsPackageJsonPath);
+      for (const dependencyField of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+        const dependencies = connectorsPackageJson[dependencyField] ?? {};
+        for (const dependencyName of Object.keys(dependencies)) {
+          if (!allowedConnectorSdkPackageDependencies.has(dependencyName)) {
+            fail(`${connectorsPackageJsonPath} may depend only on approved foundation packages and deterministic test/build tooling; found ${dependencyField}.${dependencyName}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`${connectorsPackageJsonPath} must be valid JSON: ${error.message}`);
+    }
+  }
+
+  for (const file of listFiles("packages/connectors")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/connectors/dist/") ||
+      file.startsWith("packages/connectors/node_modules/") ||
+      file.startsWith("packages/connectors/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["Reddit connector", /\breddit\b|\bRedditConnector\b/iu],
+      ["YouTube connector", /\byoutube\b|\bYouTubeConnector\b/iu],
+      ["OAuth implementation", /\boauth\b|\bOAuth\b/iu],
+      ["HTTP client", /\bfetch\s*\(|\baxios\b|\bgot\b|\bundici\b|\bhttp client\b/iu],
+      ["REST API", /\bREST API\b|\bapi route\b|\broute handler\b/iu],
+      ["controller", /\bcontroller\b/iu],
+      ["authentication implementation", /\bauthentication implementation\b|\bauthorization implementation\b|\bauth middleware\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bworkflow runner\b/iu],
+      ["frontend implementation", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["business logic", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness logic\b/iu],
+      ["concrete connector implementation", /\bConcreteConnector\b|\bProviderConnector\b|\bconnector implementation\b/iu],
+      ["connector execution", /\bexecuteConnector\b|\bConnectorRunner\b|\bconnector execution\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Connector SDK foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -1491,7 +1725,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseNine
+  const allowedImplementationRoots = isPhaseTen
+    ? allowedPhaseTenImplementationRoots
+    : isPhaseNine
     ? allowedPhaseNineImplementationRoots
     : isPhaseEight
     ? allowedPhaseEightImplementationRoots
@@ -1516,7 +1752,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -1552,6 +1788,10 @@ if (isPhaseEight) {
 
 if (isPhaseNine) {
   assertInfrastructureFoundationPolicy();
+}
+
+if (isPhaseTen) {
+  assertConnectorSdkFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

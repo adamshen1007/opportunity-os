@@ -1155,7 +1155,143 @@ Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/infrastructure` for generic infrastructure composition contracts. Do not begin REST APIs, controllers, authentication, authorization, connector execution, AI workflows, database repository implementations, frontend, product workflows, application services, business logic, app startup, API boot, production event transport, database event stores, command dispatch, product handlers, or scoring until later approved milestones scope them.
 
-# Phase 1 — Data Acquisition Platform
+## Phase 2 Milestone 10 — Connector SDK Foundation
+
+Goal:
+
+Define connector SDK package boundaries without concrete connectors, provider integration, or connector execution.
+
+Owner:
+
+- `packages/connectors`
+
+Deliverables:
+
+- `@opportunity-os/connectors` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/connectors/src/index.ts`
+
+- package boundary documentation
+
+- repository verification support for `phase-2-milestone-10`
+
+- dependency policy for approved foundation packages
+
+- generic connector interface contracts
+
+- connector lifecycle contracts
+
+- connector execution context contracts
+
+- connector configuration contracts
+
+- connector capability contracts
+
+- connector metadata contracts
+
+- connector result contracts
+
+- connector error contracts
+
+- connector registry contracts
+
+- connector factory contracts
+
+- connector validation contracts
+
+- connector operation contracts
+
+- connector health contracts
+
+- connector rate-limit and quota metadata contracts
+
+- connector test utility contracts
+
+Dependency direction:
+
+- `packages/connectors` is a connector SDK foundation package.
+
+- It may depend only on approved foundation packages and deterministic test/build tooling when a scoped task requires them.
+
+- It must not depend on apps, APIs, controllers, auth implementations, concrete connector implementations, OAuth packages, HTTP client packages, AI workflows, frontend packages, product workflows, or business packages.
+
+Out of scope:
+
+- Reddit connector
+
+- YouTube connector
+
+- OAuth implementation
+
+- HTTP clients
+
+- REST APIs
+
+- controllers
+
+- authentication implementation
+
+- authorization implementation
+
+- AI workflows
+
+- frontend implementation
+
+- business logic
+
+- connector execution
+
+Implementation guardrail:
+
+Phase 2 Milestone 10 may define generic connector SDK contracts only. It must not implement concrete connector behavior, provider behavior, OAuth behavior, HTTP behavior, runtime connector execution, API behavior, AI workflow behavior, frontend behavior, or business behavior.
+
+Verification commands:
+
+- `node scripts/verify-repository.mjs --phase review`
+
+- `node scripts/verify-repository.mjs --phase phase-2-milestone-10`
+
+- `pnpm install --frozen-lockfile`
+
+- `pnpm lint`
+
+- `pnpm build`
+
+- `pnpm test`
+
+- `docker compose config`
+
+Readiness gate:
+
+- `packages/connectors` is scaffolded as `@opportunity-os/connectors`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/connectors/src/index.ts`
+
+- metadata, capability, config, context, lifecycle, results, errors, registry, factory, validation, health, operation, limit, and testing contracts are documented for future consumers
+
+- future concrete connectors are directed to consume `@opportunity-os/connectors`
+
+- repository verification permits `packages/connectors` while continuing to block apps, APIs, auth, AI workflows, frontend, business logic, concrete connector implementations, OAuth, HTTP clients, and connector execution
+
+- package dependencies are limited to approved foundation packages and deterministic test/build tooling
+
+- export stability, dependency boundary, contract stability, and security tests pass
+
+- no Reddit connector or YouTube connector exists
+
+- no OAuth implementation, HTTP clients, APIs, authentication implementation, AI workflows, frontend implementation, business logic, concrete connector implementation, or connector execution exists
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-10`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/connectors` for generic connector SDK contracts. Do not begin Reddit connector, YouTube connector, OAuth, HTTP clients, APIs, authentication, AI workflows, frontend, business logic, provider behavior, or connector execution until later approved milestones scope them.
+
+# Phase 2 — Data Acquisition Platform
 
 ## Goal
 

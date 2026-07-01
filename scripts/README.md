@@ -17,6 +17,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - database foundation file, Prisma schema, dependency, and package-boundary checks during Phase 1 Milestone 5
 - container foundation package and dependency-boundary checks during Phase 1 Milestone 8
 - infrastructure composition package and dependency-boundary checks during Phase 1 Milestone 9
+- connector SDK package and dependency-boundary checks during Phase 2 Milestone 10
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 ## Phase 1 Shared Infrastructure Boundaries
@@ -53,7 +54,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 1 Milestone 9 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 2 Milestone 10 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -189,6 +190,31 @@ In Milestone 9 mode, implementation files are permitted in:
 
 The verifier checks that the infrastructure package, strict TypeScript config, package test config, public export boundary, README boundary documentation, and approved dependency set exist during Slice A. It rejects unapproved `packages/infrastructure` dependencies and scans runtime infrastructure package source files for prohibited REST APIs, controllers, auth implementation, connector execution, AI workflows, database repository implementations, frontend implementation, product workflows, and business logic.
 
+Phase 2 Milestone 10 adds the Connector SDK Foundation in `packages/connectors/`. It keeps apps, APIs, auth implementation, AI workflows, frontend, business logic, concrete connector implementations, OAuth, HTTP clients, Reddit connector, YouTube connector, and connector execution blocked.
+
+Run the explicit Connector SDK Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-10
+```
+
+In Milestone 10 mode, implementation files are permitted in:
+
+- `packages/config/`
+- `packages/types/`
+- `packages/errors/`
+- `packages/utils/`
+- `packages/shared/`
+- `packages/events/`
+- `packages/database/`
+- `packages/domain/`
+- `packages/application/`
+- `packages/container/`
+- `packages/infrastructure/`
+- `packages/connectors/`
+
+The verifier checks that the connector SDK package, strict TypeScript config, package test config, public export boundary, README boundary documentation, approved dependency set, contract tests, export stability tests, dependency boundary tests, security tests, and stability tests exist. It rejects unapproved `packages/connectors` dependencies and scans runtime connector SDK package source files for prohibited concrete connector implementations, Reddit connector, YouTube connector, OAuth, HTTP clients, REST APIs, controllers, auth implementation, AI workflows, frontend implementation, business logic, and connector execution.
+
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
 For Phase 1 Milestone 2, the verifier also checks shared foundation package dependencies:
@@ -202,6 +228,7 @@ For Phase 1 Milestone 2, the verifier also checks shared foundation package depe
 - `packages/application` may depend only on approved foundation packages when a scoped milestone requires them.
 - `packages/container` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
 - `packages/infrastructure` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
+- `packages/connectors` may depend only on approved foundation packages and deterministic test/build tooling when a scoped milestone requires them.
 - Shared foundation, database foundation, domain foundation, application foundation, container foundation, and infrastructure composition foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend, intelligence, acquisition, or business packages.
 
 ## Environment Contract Verification

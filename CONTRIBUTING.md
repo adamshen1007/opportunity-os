@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 1 Milestone 9, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, and infrastructure composition foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, and `packages/infrastructure`.
+During Phase 2 Milestone 10, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, and connector SDK foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, and `packages/connectors`.
 
 ## Phase 0 and Phase 1
 
@@ -207,6 +207,40 @@ Before handing off to the next milestone, confirm:
 - repository verification supports `phase-1-milestone-9`
 - no REST APIs, controllers, auth implementation, connector execution, AI workflows, database repositories, frontend implementation, product workflows, application services, or business logic exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-1-milestone-9`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+## Connector SDK Foundation Governance
+
+Phase 2 Milestone 10 implements generic connector SDK contracts in `packages/connectors`. Future concrete connectors must consume `@opportunity-os/connectors` instead of redefining or bypassing connector metadata, capability, configuration, context, lifecycle, result, error, registry, factory, validation, health, limit, operation, or test utility contracts.
+
+Connector SDK changes must remain generic. They must not introduce Reddit connector, YouTube connector, OAuth implementation, HTTP clients, REST APIs, controllers, authentication implementation, authorization implementation, AI workflows, frontend implementation, business logic, concrete connector implementations, provider calls, external network behavior, or connector execution.
+
+When connector SDK files change, reviewers should confirm:
+
+- public exports route through `packages/connectors/src/index.ts`
+- dependencies remain limited to approved foundation packages and deterministic test/build tooling
+- metadata categories and stability statuses remain stable unless a scoped milestone changes them
+- capability kinds remain declarative
+- config contracts use explicit typed input and do not read `process.env`
+- secret-like config fields are marked sensitive
+- context contracts carry correlation IDs and optional request IDs
+- lifecycle contracts remain descriptive and do not execute connector work
+- result, operation, registry, and factory contracts remain generic
+- validation contracts cover config, metadata, capability, lifecycle, and dependency issues with safe messages
+- connector errors remain secret-safe and stack-safe by default
+- health, rate-limit, and quota contracts remain metadata-only
+- test utilities do not execute real connectors or call external providers
+- future package guidance does not bypass Connector SDK Foundation contracts
+
+## Phase 2 Milestone 10 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/connectors` is implemented, tested, documented, and independently buildable
+- metadata, capability, config, context, lifecycle, results, errors, registry, factory, validation, health, operation, limit, and testing contracts are documented for future consumers
+- export stability, dependency boundary, contract stability, and security tests pass
+- repository verification supports `phase-2-milestone-10`
+- no Reddit connector, YouTube connector, OAuth implementation, HTTP clients, APIs, authentication implementation, AI workflows, frontend implementation, business logic, concrete connector implementation, or connector execution exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-10`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
 ## Phase 1 Milestone 2 Readiness
 
