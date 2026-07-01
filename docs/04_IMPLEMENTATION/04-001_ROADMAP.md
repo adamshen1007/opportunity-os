@@ -1291,6 +1291,148 @@ Handoff:
 
 After this gate passes, the next milestone may depend on `@opportunity-os/connectors` for generic connector SDK contracts. Do not begin Reddit connector, YouTube connector, OAuth, HTTP clients, APIs, authentication, AI workflows, frontend, business logic, provider behavior, or connector execution until later approved milestones scope them.
 
+## Phase 2 Milestone 11 — Connector Runtime Foundation
+
+Goal:
+
+Define generic connector runtime contracts without provider connectors, provider integration, or actual connector execution.
+
+Owner:
+
+- `packages/connector-runtime`
+
+Deliverables:
+
+- `@opportunity-os/connector-runtime` TypeScript package
+
+- strict TypeScript package setup
+
+- public exports through `packages/connector-runtime/src/index.ts`
+
+- package boundary documentation
+
+- repository verification support for `phase-2-milestone-11`
+
+- dependency policy for approved foundation packages
+
+- connector execution pipeline contracts
+
+- execution state machine contracts
+
+- retry policy contracts
+
+- timeout policy contracts
+
+- cancellation contracts
+
+- checkpoint contracts
+
+- execution metrics contracts
+
+- execution telemetry contracts
+
+- rate-limit policy contracts
+
+- execution result aggregation contracts
+
+- runtime error contracts
+
+- deterministic runtime test harness contracts
+
+- export stability, contract stability, security, dependency boundary, and package-boundary tests
+
+Dependency direction:
+
+- `packages/connector-runtime` is a connector runtime foundation package.
+
+- It may depend only on `@opportunity-os/connectors`, `@opportunity-os/container`, `@opportunity-os/application`, `@opportunity-os/errors`, `@opportunity-os/events`, `@opportunity-os/shared`, `@opportunity-os/infrastructure`, and explicitly justified `@opportunity-os/types` or `@opportunity-os/utils`.
+
+- It must not depend on apps, APIs, controllers, auth implementations, concrete connector implementations, OAuth packages, HTTP client packages, scheduler packages, queue packages, worker packages, AI workflows, frontend packages, product workflows, or business packages.
+
+Out of scope:
+
+- Reddit connector
+
+- YouTube connector
+
+- OAuth implementation
+
+- HTTP clients
+
+- scheduler
+
+- queue
+
+- worker process
+
+- REST APIs
+
+- controllers
+
+- authentication implementation
+
+- authorization implementation
+
+- AI workflows
+
+- frontend implementation
+
+- business logic
+
+- actual connector execution
+
+Implementation guardrail:
+
+Phase 2 Milestone 11 may define generic connector runtime contracts only. It must not implement concrete connector behavior, provider behavior, OAuth behavior, HTTP behavior, scheduler behavior, queue behavior, worker behavior, runtime connector execution, API behavior, AI workflow behavior, frontend behavior, or business behavior.
+
+Verification commands:
+
+- `node scripts/verify-repository.mjs --phase review`
+
+- `node scripts/verify-repository.mjs --phase phase-2-milestone-11`
+
+- `pnpm install --frozen-lockfile`
+
+- `pnpm lint`
+
+- `pnpm build`
+
+- `pnpm test`
+
+- `docker compose config`
+
+Readiness gate:
+
+- `packages/connector-runtime` is scaffolded as `@opportunity-os/connector-runtime`
+
+- strict TypeScript is enabled
+
+- public exports route through `packages/connector-runtime/src/index.ts`
+
+- connector runtime contracts are documented for future consumers
+
+- repository verification permits `packages/connector-runtime` while continuing to block Reddit, YouTube, OAuth, HTTP clients, scheduler, queue, worker process, APIs, auth, AI workflows, frontend, business logic, and actual connector execution
+
+- package dependencies are limited to approved foundation packages and deterministic test/build tooling
+
+- package-boundary tests document approved dependencies
+
+- export stability tests confirm approved contracts are importable from `@opportunity-os/connector-runtime`
+
+- contract stability tests lock state values, lifecycle vocabularies, policy decision values, telemetry event names, metric keys, result shapes, and error shapes
+
+- security tests confirm runtime failures, telemetry, metrics, checkpoints, and aggregation output do not leak secrets, tokens, auth headers, credentials, provider keys, DSNs, database URLs, raw config, raw payloads, stack traces, raw causes, or dependency internals
+
+- no Reddit connector or YouTube connector exists
+
+- no OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution exists
+
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-11`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Handoff:
+
+After this gate passes, the next milestone may depend on `@opportunity-os/connector-runtime` for generic connector runtime contracts. Do not begin Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, APIs, authentication, AI workflows, frontend, business logic, provider behavior, or actual connector execution until later approved milestones scope them.
+
 # Phase 2 — Data Acquisition Platform
 
 ## Goal

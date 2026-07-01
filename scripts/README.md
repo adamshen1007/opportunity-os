@@ -18,6 +18,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - container foundation package and dependency-boundary checks during Phase 1 Milestone 8
 - infrastructure composition package and dependency-boundary checks during Phase 1 Milestone 9
 - connector SDK package and dependency-boundary checks during Phase 2 Milestone 10
+- connector runtime package and dependency-boundary checks during Phase 2 Milestone 11
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 ## Phase 1 Shared Infrastructure Boundaries
@@ -54,7 +55,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 2 Milestone 10 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 2 Milestone 11 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -214,6 +215,20 @@ In Milestone 10 mode, implementation files are permitted in:
 - `packages/connectors/`
 
 The verifier checks that the connector SDK package, strict TypeScript config, package test config, public export boundary, README boundary documentation, approved dependency set, contract tests, export stability tests, dependency boundary tests, security tests, and stability tests exist. It rejects unapproved `packages/connectors` dependencies and scans runtime connector SDK package source files for prohibited concrete connector implementations, Reddit connector, YouTube connector, OAuth, HTTP clients, REST APIs, controllers, auth implementation, AI workflows, frontend implementation, business logic, and connector execution.
+
+Phase 2 Milestone 11 adds the Connector Runtime Foundation in `packages/connector-runtime/`. It keeps Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, auth implementation, AI workflows, frontend, business logic, and actual connector execution blocked.
+
+Run the explicit Connector Runtime Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-11
+```
+
+In Milestone 11 mode, implementation files are also permitted in:
+
+- `packages/connector-runtime/`
+
+The verifier checks that the connector runtime package, strict TypeScript config, package test config, public export boundary, README boundary documentation, package-boundary tests, export stability tests, contract stability tests, security tests, dependency boundary tests, and approved dependency set exist. It rejects unapproved `packages/connector-runtime` dependencies and scans runtime package source files for prohibited Reddit connector, YouTube connector, OAuth, HTTP clients, scheduler, queue, worker process, REST APIs, controllers, auth implementation, AI workflows, frontend implementation, business logic, and actual connector execution.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 

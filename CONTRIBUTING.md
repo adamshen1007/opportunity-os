@@ -47,7 +47,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 10, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, and connector SDK foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, and `packages/connectors`.
+During Phase 2 Milestone 11, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, and connector runtime foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, and `packages/connector-runtime`.
 
 ## Phase 0 and Phase 1
 
@@ -241,6 +241,35 @@ Before handing off to the next milestone, confirm:
 - repository verification supports `phase-2-milestone-10`
 - no Reddit connector, YouTube connector, OAuth implementation, HTTP clients, APIs, authentication implementation, AI workflows, frontend implementation, business logic, concrete connector implementation, or connector execution exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-10`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+## Connector Runtime Foundation Governance
+
+Phase 2 Milestone 11 implements generic connector runtime contracts in `packages/connector-runtime`. Future runtime consumers must consume `@opportunity-os/connector-runtime` instead of redefining or bypassing execution pipeline, execution state, retry, timeout, cancellation, checkpoint, rate-limit, metrics, telemetry, aggregation, runtime error, or deterministic test harness contracts.
+
+Connector runtime changes must remain generic. They must not introduce Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, REST APIs, controllers, authentication implementation, authorization implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution.
+
+When connector runtime files change, reviewers should confirm:
+
+- public exports route through `packages/connector-runtime/src/index.ts`
+- consumers can import approved contracts from `@opportunity-os/connector-runtime`
+- dependencies remain limited to approved foundation packages and deterministic test/build tooling
+- execution pipeline and state contracts remain declarative
+- retry, timeout, cancellation, checkpoint, and rate-limit policies remain contracts only
+- telemetry contracts do not emit telemetry or configure vendors
+- metrics, checkpoints, telemetry, aggregation output, and runtime errors remain secret-safe and stack-safe by default
+- deterministic test harness contracts do not execute real connectors or call external providers
+- future package guidance does not bypass Connector Runtime Foundation contracts
+
+## Phase 2 Milestone 11 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/connector-runtime` is implemented, tested, documented, and independently buildable
+- pipeline, state, retry, timeout, cancellation, checkpoint, rate-limit, metrics, telemetry, aggregation, runtime error, and deterministic test harness contracts are documented for future consumers
+- export stability, contract stability, security, dependency boundary, and package-boundary tests pass
+- repository verification supports `phase-2-milestone-11`
+- no Reddit connector, YouTube connector, OAuth implementation, HTTP clients, scheduler, queue, worker process, APIs, authentication implementation, AI workflows, frontend implementation, business logic, provider integration, or actual connector execution exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-11`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
 ## Phase 1 Milestone 2 Readiness
 
