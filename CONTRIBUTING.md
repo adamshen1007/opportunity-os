@@ -49,9 +49,9 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 14, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
+During Phase 2 Milestone 15, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
 
-Do not begin Phase 2 Milestone 15 without a scoped task. Milestone 15 may add Reddit provider transport architecture only and must not add Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, or business logic.
+Phase 2 Milestone 15 work must stay inside its scoped task. Milestone 15 may add Reddit provider transport architecture only inside `packages/connectors-reddit` and must not add Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, or business logic.
 
 ## Phase 0 and Phase 1
 
@@ -367,6 +367,19 @@ Before handing off to the next milestone, confirm:
 - repository verification supports `phase-2-milestone-14`
 - no OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend implementation, business logic, provider integration, event publishing, host startup, runner loop, or external connector execution exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-14`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+## Phase 2 Milestone 15 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `@opportunity-os/connectors-reddit` owns the Reddit Provider Transport surface and remains independently buildable
+- provider exports route through `packages/connectors-reddit/src/provider/index.ts` and `packages/connectors-reddit/src/index.ts`
+- OAuth contracts, API client abstraction, HTTP transport abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, auth lifecycle, error mapping, telemetry, test fixtures, and fake transport are documented
+- request descriptions, parser failures, provider errors, telemetry, rate-limit metadata, and fake transport results remain secret-safe
+- raw provider responses are not persisted or exposed by default
+- default tests use deterministic fixtures and fake transport only; no live Reddit calls are required
+- no Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend implementation, scheduler, worker, database persistence, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-15`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
 ## Phase 1 Milestone 2 Readiness
 

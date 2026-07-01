@@ -136,9 +136,21 @@ importers:
       '@opportunity-os/connector-host':
         specifier: workspace:*
         version: link:../connector-host
+      '@opportunity-os/connector-runtime':
+        specifier: workspace:*
+        version: link:../connector-runtime
       '@opportunity-os/connectors':
         specifier: workspace:*
         version: link:../connectors
+      '@opportunity-os/container':
+        specifier: workspace:*
+        version: link:../container
+      '@opportunity-os/events':
+        specifier: workspace:*
+        version: link:../events
+      '@opportunity-os/shared':
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@types/node':
         specifier: ^26.0.1

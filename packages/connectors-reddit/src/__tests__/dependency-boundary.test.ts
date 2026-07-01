@@ -43,7 +43,11 @@ describe("reddit connector dependency boundaries", () => {
 
     expect(Object.keys(dependencies).sort()).toEqual([
       "@opportunity-os/connector-host",
+      "@opportunity-os/connector-runtime",
       "@opportunity-os/connectors",
+      "@opportunity-os/container",
+      "@opportunity-os/events",
+      "@opportunity-os/shared",
       "@types/node",
       "vitest"
     ]);

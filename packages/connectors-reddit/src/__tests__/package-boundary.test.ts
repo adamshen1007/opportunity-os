@@ -21,7 +21,11 @@ describe("reddit connector package boundaries", () => {
 
     expect(Object.keys(dependencies).sort()).toEqual([
       "@opportunity-os/connector-host",
+      "@opportunity-os/connector-runtime",
       "@opportunity-os/connectors",
+      "@opportunity-os/container",
+      "@opportunity-os/events",
+      "@opportunity-os/shared",
       "@types/node",
       "vitest"
     ]);
@@ -30,8 +34,8 @@ describe("reddit connector package boundaries", () => {
   it("routes public exports through the package root", () => {
     const boundary: RedditConnectorBoundary = {
       packageName: "@opportunity-os/connectors-reddit",
-      milestone: "phase-2-milestone-14",
-      scope: "reddit-connector-runtime"
+      milestone: "phase-2-milestone-15",
+      scope: "reddit-provider-transport-architecture"
     };
 
     expect(boundary.packageName).toBe("@opportunity-os/connectors-reddit");

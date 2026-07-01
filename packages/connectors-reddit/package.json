@@ -30,6 +30,10 @@
   },
   "dependencies": {
     "@opportunity-os/connector-host": "workspace:*",
-    "@opportunity-os/connectors": "workspace:*"
+    "@opportunity-os/connector-runtime": "workspace:*",
+    "@opportunity-os/connectors": "workspace:*",
+    "@opportunity-os/container": "workspace:*",
+    "@opportunity-os/events": "workspace:*",
+    "@opportunity-os/shared": "workspace:*"
   }
 }

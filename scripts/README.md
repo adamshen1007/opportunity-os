@@ -22,9 +22,10 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - connector host package and dependency-boundary checks during Phase 2 Milestone 12
 - Reddit connector package and dependency-boundary checks during Phase 2 Milestone 13
 - deterministic Reddit runtime checks during Phase 2 Milestone 14
+- Reddit provider transport boundary checks during Phase 2 Milestone 15
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 14 boundary. Phase 2 Milestone 15 must add an explicit `phase-2-milestone-15` gate before Reddit Provider Transport implementation begins.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 14 boundary. Phase 2 Milestone 15 now has an explicit `phase-2-milestone-15` gate for Reddit Provider Transport boundary work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 
@@ -271,7 +272,15 @@ node scripts/verify-repository.mjs --phase phase-2-milestone-14
 
 The verifier checks deterministic fake-provider runtime construction, explicit config validation, lifecycle readiness, fixture-backed read operations, result mapping, safe runtime errors, deterministic harness, public exports, security tests, stability tests, dependency boundary tests, and documentation.
 
-Phase 2 Milestone 15 is the next planned boundary. It must add `phase-2-milestone-15` verification before implementing Reddit Provider Transport. Milestone 15 may permit provider transport architecture only and must continue blocking Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, and business logic.
+Phase 2 Milestone 15 adds the Reddit Provider Transport boundary in `packages/connectors-reddit/`.
+
+Run the explicit Reddit Provider Transport boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-15
+```
+
+In Milestone 15 mode, implementation files remain limited to approved foundation packages and `packages/connectors-reddit/`. Provider transport exports must route through `packages/connectors-reddit/src/provider/index.ts` and be re-exported from the package root. The verifier requires provider authentication, HTTP transport abstraction, API client, request builder, response parser, pagination transport, rate-limit parser, runtime compatibility, auth lifecycle, provider error, telemetry, container binding, deterministic fixtures, fake transport, integration tests, security tests, contract stability tests, dependency boundary tests, and provider boundary exports while continuing to block Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business logic.
 
 The verifier checks that the Reddit connector package, strict TypeScript config, package test config, public export boundary, README boundary documentation, metadata contracts, capability contracts, configuration contracts, validation contracts, data shape contracts, operation contracts, lifecycle contracts, factory contracts, host integration contracts, safe error contracts, deterministic fixture contracts, package-boundary test, export stability test, contract stability test, security test, dependency boundary test, and approved dependency set exist. It rejects unapproved `packages/connectors-reddit` dependencies and scans Reddit connector package source files for prohibited OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend implementation, business logic, and actual connector execution.
 

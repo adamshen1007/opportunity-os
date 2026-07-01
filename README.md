@@ -64,9 +64,9 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 connector runtime work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
+During Phase 2 Reddit provider transport work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, and `packages/connectors-reddit`.
 
-The next planned milestone is Phase 2 Milestone 15: Reddit Provider Transport. Do not begin it without a scoped implementation task. Milestone 15 may introduce provider transport architecture only; it must not introduce Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, or business logic.
+Phase 2 Milestone 15: Reddit Provider Transport has an explicit `phase-2-milestone-15` verification gate. Milestone 15 may introduce provider transport architecture only inside `packages/connectors-reddit`; it must not introduce Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, or business logic.
 
 ## Phase Workflow
 
@@ -562,3 +562,25 @@ Future Reddit provider integration must consume `@opportunity-os/connectors-redd
 `packages/connectors-reddit` must continue blocking OAuth, live Reddit API calls, HTTP clients, provider calls, scraping, schedulers, queues, worker processes, database persistence, AI workflows, APIs, frontend behavior, business logic, and external connector execution.
 
 Phase 2 Milestone 14 is complete when `@opportunity-os/connectors-reddit` contains the deterministic fake-provider runtime, fixture-backed read behavior, safe result/error handling, deterministic test harness, runtime stability tests, runtime security tests, dependency boundary tests, and public exports; remains independently buildable and covered by the root workspace pipeline; and passes `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-14`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`.
+
+## Reddit Provider Transport Boundary
+
+Phase 2 Milestone 15 establishes the Reddit Provider Transport boundary in `packages/connectors-reddit`.
+
+Slice A defines provider transport architecture only. Provider transport exports route through `packages/connectors-reddit/src/provider/index.ts`, and approved provider transport contracts are re-exported from `packages/connectors-reddit/src/index.ts` so existing runtime exports remain stable.
+
+Slice B adds provider authentication contracts, HTTP transport abstraction contracts, API client contracts, and deterministic request-building contracts. These contracts model token, credential, refresh, expiration, auth state, transport request/response, timeout, cancellation, safe metadata, explicit client context, and request descriptions without performing token exchange, refresh calls, live Reddit calls, scheduling, persistence, API routes, or business behavior.
+
+Slice C adds safe provider response parsing, pagination transport metadata, and rate-limit metadata mapping. The parser maps safe provider shapes into existing Reddit data contracts, rejects malformed responses with safe validation failures, creates replay-safe cursors and next-page request descriptions, and falls back to safe rate-limit metadata when provider metadata is missing or malformed.
+
+Slice D connects provider contracts to runtime policy compatibility, auth lifecycle states, provider error mapping, telemetry contracts, and DI binding contracts. These additions map retry, timeout, and cancellation metadata into connector-runtime shapes; define auth lifecycle snapshots; serialize provider errors safely; reference shared logging and event concepts; and describe container tokens without implementing runners, timers, signal handling, telemetry vendors, event buses, production transports, runtime containers, app startup, or dependency resolution.
+
+Slice E hardens the provider transport boundary with deterministic fixtures, fake transport support, integration tests, provider security tests, contract stability tests, and dependency boundary tests. Fake transport records request descriptions and returns fixture responses only; it does not perform external calls.
+
+Slice F completes provider transport documentation, PR governance, roadmap readiness, and the final Milestone 15 readiness gate.
+
+The `phase-2-milestone-15` repository verification gate permits provider transport implementation only inside `packages/connectors-reddit` and continues to block Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business logic.
+
+The completed provider transport surface documents OAuth contracts, the Reddit API client abstraction, HTTP transport abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, auth lifecycle, error mapping, telemetry contracts, test fixtures, and fake transport support. Future packages must consume `@opportunity-os/connectors-reddit` rather than redefining Reddit provider transport contracts.
+
+Milestone 15 is ready when `@opportunity-os/connectors-reddit` is implemented, tested, documented, independently buildable, and covered by default non-network tests. No live Reddit calls are required for `pnpm test`; fixture-backed fake transport remains the only default transport behavior.

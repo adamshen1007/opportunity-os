@@ -92,20 +92,22 @@ const phaseElevenAliases = new Set(["phase-2-milestone-11", "connector-runtime-f
 const phaseTwelveAliases = new Set(["phase-2-milestone-12", "connector-host-foundation"]);
 const phaseThirteenAliases = new Set(["phase-2-milestone-13", "reddit-connector-foundation"]);
 const phaseFourteenAliases = new Set(["review", "phase-2-milestone-14", "reddit-runtime-foundation", "reddit-connector-runtime-implementation"]);
+const phaseFifteenAliases = new Set(["phase-2-milestone-15", "reddit-provider-transport"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseEleven = phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseTwelve = phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseThirteen = phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase);
-const isPhaseFourteen = phaseFourteenAliases.has(phase);
+const isPhaseFifteen = phaseFifteenAliases.has(phase);
+const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseFour = phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseFive = phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseSix = phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseSeven = phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseEight = phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseNine = phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseTen = phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseEleven = phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseTwelve = phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseThirteen = phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
+const isPhaseFourteen = phaseFourteenAliases.has(phase) || isPhaseFifteen;
 const allowedPhaseOneImplementationRoots = ["packages/config"];
 const allowedPhaseTwoImplementationRoots = ["packages/config", "packages/types", "packages/errors", "packages/utils", "packages/shared"];
 const allowedPhaseFourImplementationRoots = [...allowedPhaseTwoImplementationRoots, "packages/events"];
@@ -119,6 +121,7 @@ const allowedPhaseElevenImplementationRoots = [...allowedPhaseTenImplementationR
 const allowedPhaseTwelveImplementationRoots = [...allowedPhaseElevenImplementationRoots, "packages/connector-host"];
 const allowedPhaseThirteenImplementationRoots = [...allowedPhaseTwelveImplementationRoots, "packages/connectors-reddit"];
 const allowedPhaseFourteenImplementationRoots = allowedPhaseThirteenImplementationRoots;
+const allowedPhaseFifteenImplementationRoots = allowedPhaseFourteenImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1177,6 +1180,77 @@ const requiredRedditConnectorFoundationExports = [
   "RedditValidationIssue",
   "RedditValidationResult"
 ];
+const requiredRedditProviderTransportFiles = [
+  "packages/connectors-reddit/src/provider/index.ts",
+  "packages/connectors-reddit/src/provider/auth.ts",
+  "packages/connectors-reddit/src/provider/transport.ts",
+  "packages/connectors-reddit/src/provider/api-client.ts",
+  "packages/connectors-reddit/src/provider/request-builder.ts",
+  "packages/connectors-reddit/src/provider/response-parser.ts",
+  "packages/connectors-reddit/src/provider/pagination-transport.ts",
+  "packages/connectors-reddit/src/provider/rate-limit-parser.ts",
+  "packages/connectors-reddit/src/provider/runtime-compatibility.ts",
+  "packages/connectors-reddit/src/provider/auth-lifecycle.ts",
+  "packages/connectors-reddit/src/provider/provider-error.ts",
+  "packages/connectors-reddit/src/provider/telemetry.ts",
+  "packages/connectors-reddit/src/provider/container-bindings.ts",
+  "packages/connectors-reddit/src/provider/fixtures.ts",
+  "packages/connectors-reddit/src/provider/fake-transport.ts",
+  "packages/connectors-reddit/src/__tests__/provider-auth.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-transport-api-client.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-request-builder.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-response-parser.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-pagination-transport.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-rate-limit-parser.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-runtime-compatibility.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-auth-lifecycle.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-error.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-telemetry-container.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-fixtures.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-fake-transport-integration.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-security-hardening.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-contract-stability.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-dependency-boundary.test.ts"
+];
+const requiredRedditProviderTransportExports = [
+  "REDDIT_AUTH_SENSITIVE_FIELD_KEYS",
+  "REDDIT_HTTP_METHODS",
+  "REDDIT_PROVIDER_AUTH_LIFECYCLE_STATES",
+  "REDDIT_PROVIDER_BINDING_CONTRACT",
+  "REDDIT_PROVIDER_ERROR_CODES",
+  "REDDIT_PROVIDER_ENDPOINTS",
+  "REDDIT_PROVIDER_FIXTURE_REQUEST",
+  "REDDIT_PROVIDER_FIXTURE_TRANSPORT_RESPONSE",
+  "REDDIT_PROVIDER_RATE_LIMIT_HEADER_KEYS",
+  "REDDIT_PROVIDER_REDACTED_HEADER_VALUE",
+  "REDDIT_PROVIDER_TELEMETRY_EVENT_NAMES",
+  "REDDIT_PROVIDER_TRANSPORT_SCOPE",
+  "REDDIT_PROVIDER_TRANSPORT_TOKEN",
+  "RedditProviderError",
+  "RedditFakeTransport",
+  "RedditApiClient",
+  "RedditApiClientContext",
+  "RedditAuthState",
+  "RedditProviderAuthLifecycleState",
+  "RedditProviderParseResult",
+  "RedditProviderRateLimitInput",
+  "RedditHttpTransport",
+  "RedditOAuthCredentials",
+  "RedditOAuthToken",
+  "RedditProviderNextPageRequest",
+  "RedditProviderRequestDescription",
+  "RedditProviderTelemetryContract",
+  "createRedditFakeTransport",
+  "createRedditProviderError",
+  "mapRedditTransportFailureToRetryDecision",
+  "mapRedditTimeoutMetadataToRuntimeResult",
+  "mapRedditCancellationToRuntimeResult",
+  "createRedditProviderPaginationMetadata",
+  "createRedditProviderRequestDescription",
+  "parseRedditProviderRateLimitMetadata",
+  "parseRedditProviderResponse",
+  "RedditProviderTransportScope"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1308,7 +1382,11 @@ const sharedFoundationPackageRules = {
     packageName: "@opportunity-os/connectors-reddit",
     allowedWorkspaceDependencies: [
       "@opportunity-os/connectors",
-      "@opportunity-os/connector-host"
+      "@opportunity-os/connector-host",
+      "@opportunity-os/connector-runtime",
+      "@opportunity-os/container",
+      "@opportunity-os/events",
+      "@opportunity-os/shared"
     ]
   }
 };
@@ -1436,6 +1514,10 @@ const allowedConnectorHostPackageDependencies = new Set([
 const allowedRedditConnectorPackageDependencies = new Set([
   "@opportunity-os/connectors",
   "@opportunity-os/connector-host",
+  "@opportunity-os/connector-runtime",
+  "@opportunity-os/container",
+  "@opportunity-os/events",
+  "@opportunity-os/shared",
   "@types/node",
   "vitest"
 ]);
@@ -2370,6 +2452,52 @@ function assertRedditRuntimeFoundationPolicy() {
   }
 }
 
+function assertRedditProviderTransportPolicy() {
+  assertRedditRuntimeFoundationPolicy();
+
+  for (const file of requiredRedditProviderTransportFiles) {
+    if (!exists(file)) {
+      fail(`Reddit Provider Transport boundary is missing required file: ${file}`);
+    }
+  }
+
+  const providerIndexPath = "packages/connectors-reddit/src/provider/index.ts";
+  if (exists(providerIndexPath)) {
+    const providerIndex = read(providerIndexPath);
+    for (const exportName of requiredRedditProviderTransportExports) {
+      if (!providerIndex.includes(exportName)) {
+        fail(`${providerIndexPath} must export ${exportName} from the provider transport boundary`);
+      }
+    }
+  }
+
+  const redditConnectorIndexPath = "packages/connectors-reddit/src/index.ts";
+  if (exists(redditConnectorIndexPath)) {
+    const redditConnectorIndex = read(redditConnectorIndexPath);
+    for (const exportName of requiredRedditProviderTransportExports) {
+      if (!redditConnectorIndex.includes(exportName)) {
+        fail(`${redditConnectorIndexPath} must export ${exportName} from the Reddit connector package root`);
+      }
+    }
+  }
+
+  const redditReadmePath = "packages/connectors-reddit/README.md";
+  if (exists(redditReadmePath)) {
+    const redditReadme = read(redditReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 2 Milestone 15",
+      "provider transport architecture only",
+      "packages/connectors-reddit/src/provider/index.ts"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!redditReadme.includes(statement)) {
+        fail(`${redditReadmePath} must document the Phase 2 Milestone 15 Reddit Provider Transport boundary: missing "${statement}"`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -2406,7 +2534,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseFourteen
+  const allowedImplementationRoots = isPhaseFifteen
+    ? allowedPhaseFifteenImplementationRoots
+    : isPhaseFourteen
     ? allowedPhaseFourteenImplementationRoots
     : isPhaseThirteen
     ? allowedPhaseThirteenImplementationRoots
@@ -2441,7 +2571,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -2497,6 +2627,10 @@ if (isPhaseThirteen) {
 
 if (isPhaseFourteen) {
   assertRedditRuntimeFoundationPolicy();
+}
+
+if (isPhaseFifteen) {
+  assertRedditProviderTransportPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

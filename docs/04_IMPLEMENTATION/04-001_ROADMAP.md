@@ -1823,6 +1823,19 @@ Goal:
 
 Implement provider integration architecture only.
 
+Slice A status:
+
+- `phase-2-milestone-15` repository verification is established
+- provider transport exports route through `packages/connectors-reddit/src/provider/index.ts`
+- provider transport work remains scoped to `packages/connectors-reddit`
+- existing Reddit runtime exports remain stable
+- OAuth token, credential, refresh, expiration, and auth state contracts are defined with sensitive fields marked
+- HTTP transport, API client, and deterministic request-description contracts are defined without concrete network behavior
+- safe response parser, pagination transport metadata, and rate-limit parsing contracts are defined without persistence or execution behavior
+- runtime retry, timeout, cancellation compatibility, auth lifecycle, provider error, telemetry, and container binding contracts are defined without runners, vendors, containers, or startup behavior
+- deterministic provider fixtures, fake transport, integration tests, security tests, contract stability tests, dependency boundaries, and verifier requirements are in place
+- documentation, governance, roadmap readiness, and final verification are complete
+
 Deliverables:
 
 - OAuth contract implementation
@@ -1840,6 +1853,12 @@ Deliverables:
 - repository verification
 - documentation
 
+Dependency direction:
+
+- provider transport work lives only in `packages/connectors-reddit`
+- provider contracts consume the existing Reddit connector, connector runtime, connector host, shared logging, events, and container foundations
+- future packages must consume `@opportunity-os/connectors-reddit` rather than bypassing provider transport contracts
+
 Non-goals:
 
 - Raw Content persistence
@@ -1850,6 +1869,30 @@ Non-goals:
 - scheduler
 - worker
 - business logic
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-15
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Readiness gate:
+
+- Reddit Provider Transport is implemented, tested, documented, and independently buildable
+- OAuth contracts, API client abstraction, HTTP transport abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, auth lifecycle, error mapping, telemetry, test fixtures, and fake transport are documented
+- default tests are deterministic and do not require live Reddit calls
+- provider output remains secret-safe and does not leak raw provider responses
+- Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business logic remain absent
+
+Next milestone dependency:
+
+- Phase 2 Milestone 16 must consume `@opportunity-os/connectors-reddit` and may build Raw Content Pipeline work only after the provider transport boundary is verified.
 
 ## Phase 2 Milestone 16 — Raw Content Pipeline
 

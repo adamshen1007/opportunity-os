@@ -6,6 +6,8 @@ Phase 2 Milestone 13 establishes the package boundary for Reddit connector found
 
 Phase 2 Milestone 14 establishes the Reddit Runtime Foundation boundary. The milestone may introduce a non-network Reddit runtime adapter in future slices, but Slice A updates verification and documentation only. No runtime execution exists in Slice A.
 
+Phase 2 Milestone 15 establishes the Reddit Provider Transport boundary. Slice A defines provider transport architecture only, adds the explicit `phase-2-milestone-15` verification gate, and routes provider transport exports through `packages/connectors-reddit/src/provider/index.ts`.
+
 ## Ownership
 
 This package defines Reddit-specific connector contracts for:
@@ -46,6 +48,55 @@ The only approved runtime direction is a non-network Reddit runtime adapter usin
 
 Slice A does not add runtime source files, provider adapters, connector construction, lifecycle behavior, validation behavior, read behavior, or result mapping.
 
+## Provider Transport Boundary
+
+Phase 2 Milestone 15 permits provider transport architecture only inside `packages/connectors-reddit`.
+
+Provider transport contracts must route through `packages/connectors-reddit/src/provider/index.ts` and must be re-exported by `packages/connectors-reddit/src/index.ts`. Existing metadata, capability, data, fixture, and runtime exports must remain stable.
+
+Slice B defines provider authentication, HTTP transport abstraction, API client, and request-building contracts. Authentication contracts model tokens, credentials, refresh requests, expiration metadata, and auth state with sensitive fields marked explicitly. Transport contracts model method, URL, headers, body, timeout, cancellation, and safe response metadata. API client contracts accept explicit transport, auth context, runtime context, and logger contracts. Request descriptions are deterministic, support posts, comments, subreddits, authors, pagination cursors, and auth header inputs, and serialize without raw token values.
+
+Slice C defines safe provider response parsing, pagination transport, and rate-limit parsing. Parser helpers map safe provider response shapes into existing post, comment, subreddit, author, pagination, rate-limit, and data envelope contracts. Malformed responses return safe validation failures. Pagination helpers create replay-safe cursor metadata and next-page request descriptions. Rate-limit parsing maps provider headers or metadata into existing rate-limit contracts and falls back safely when values are missing or malformed.
+
+Slice D defines runtime policy compatibility, auth lifecycle, provider errors, telemetry, and container binding contracts. Runtime compatibility maps transport failures, timeout metadata, and cancellation metadata into `@opportunity-os/connector-runtime` shapes without retry runners, timers, execution loops, signal handling, or worker cancellation. Auth lifecycle contracts enumerate unauthenticated, configured, token-valid, token-expiring, refresh-required, failed, and revoked states without OAuth exchange or refresh calls. Provider errors use approved safe error patterns. Telemetry contracts reference shared logging and event concepts without vendors, exporters, event buses, or production transports. Container bindings reference `@opportunity-os/container` tokens without runtime containers, app startup, or dependency resolution.
+
+Slice E adds deterministic provider fixtures, fake transport support, integration tests, security tests, contract stability tests, and dependency boundary tests. Fixtures cover safe request objects, safe response objects, parsed Reddit data, pagination, rate limits, auth lifecycle states, and safe error cases. Fake transport records request descriptions for assertions and returns deterministic fixture responses without external calls.
+
+Slice F completes documentation, PR governance, roadmap readiness, and final verification for Reddit Provider Transport.
+
+The completed provider transport foundation documents:
+
+- OAuth token, credential, refresh, expiration, and auth state contracts
+- HTTP transport abstraction
+- Reddit API client abstraction
+- deterministic request builder
+- safe response parser
+- pagination transport
+- rate-limit parsing
+- retry, timeout, and cancellation compatibility
+- authentication lifecycle
+- provider error mapping
+- telemetry contracts
+- deterministic test fixtures
+- fake transport support
+
+Future packages must consume `@opportunity-os/connectors-reddit` for Reddit provider transport contracts instead of redefining request, response, auth, lifecycle, telemetry, or test fixture behavior.
+
+The Milestone 15 verifier continues to block Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business logic. Provider transport tests are fixture-backed and do not require live Reddit calls.
+
+## Phase 2 Milestone 15 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `@opportunity-os/connectors-reddit` is implemented, tested, documented, and independently buildable
+- provider exports route through `packages/connectors-reddit/src/provider/index.ts` and the package root
+- OAuth contracts, API client abstraction, HTTP transport abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, auth lifecycle, error mapping, telemetry, test fixtures, and fake transport are documented
+- fake transport and provider fixtures remain deterministic and contain no real tokens, credentials, raw provider responses, or external network behavior
+- export stability, contract stability, security, integration, fake transport, dependency boundary, and package-boundary tests pass
+- repository verification supports `phase-2-milestone-15`
+- no Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, or business logic exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-15`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
 ## Contracts
 
 Metadata includes connector ID, name, version, provider, category, tags, stability status, and a safe description.
@@ -74,6 +125,7 @@ Changes to this package require Reddit connector boundary review. Reviewers must
 - validation failures, errors, pagination metadata, rate-limit metadata, fixtures, and host-facing contracts remain secret-safe
 - dependency boundaries stay limited to approved connector foundation packages and deterministic test/build tooling
 - future implementation packages consume `@opportunity-os/connectors-reddit` instead of bypassing these contracts
+- provider transport changes complete OAuth secret handling, request/response safety, no raw provider response leakage, no persistence, no scheduler/worker, no API/frontend/business logic, and fake transport test review
 
 ## Readiness Gate
 

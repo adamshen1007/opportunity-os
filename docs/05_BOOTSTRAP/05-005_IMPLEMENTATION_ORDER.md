@@ -81,6 +81,18 @@ Milestone 15 is the first milestone after the platform foundation sequence.
 
 It may begin real provider integration architecture for Reddit, but it must not implement product workflows.
 
+Slice A establishes the `phase-2-milestone-15` verifier gate and provider module export structure. Provider transport exports must route through `packages/connectors-reddit/src/provider/index.ts` and remain re-exported from the package root.
+
+Slice B defines provider authentication, HTTP transport abstraction, API client, and deterministic request-building contracts only. It does not perform token exchange, refresh calls, live provider calls, scheduling, persistence, route handling, or product behavior.
+
+Slice C defines safe response parsing, pagination transport metadata, and rate-limit parsing only. It does not persist provider responses, run pagination loops, schedule work, or execute transport requests.
+
+Slice D defines runtime compatibility, auth lifecycle, provider error, telemetry, and DI binding contracts only. It does not implement retry runners, timers, process signal handling, worker cancellation, telemetry vendors, event buses, runtime containers, application startup, or dependency resolution.
+
+Slice E hardens the provider transport boundary with deterministic fixtures, fake transport tests, integration coverage, security checks, contract stability checks, dependency boundary tests, and repository verification. It does not introduce live-network behavior.
+
+Slice F completes provider transport documentation, governance, roadmap updates, and the final readiness gate. It confirms default tests use fake transport and deterministic fixtures only; no live Reddit calls are required.
+
 Allowed:
 
 - OAuth contract implementation
@@ -99,6 +111,12 @@ Allowed:
 - deterministic fake transport and test infrastructure
 - documentation and repository verification updates
 
+Dependency direction:
+
+- `packages/connectors-reddit` owns Reddit Provider Transport
+- provider transport may reference the approved connector, runtime, host, shared logging, event, and container foundations
+- future packages must consume `@opportunity-os/connectors-reddit`
+
 Not allowed:
 
 - Raw Content persistence
@@ -110,6 +128,8 @@ Not allowed:
 - worker
 - business logic
 - database persistence workflows
+
+Milestone 15 is complete only when provider transport is implemented, tested, documented, independently buildable, verified by `phase-2-milestone-15`, and free of Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business logic.
 
 ## Required Verification Gate
 
