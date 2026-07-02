@@ -23,9 +23,12 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - Reddit connector package and dependency-boundary checks during Phase 2 Milestone 13
 - deterministic Reddit runtime checks during Phase 2 Milestone 14
 - Reddit provider transport boundary checks during Phase 2 Milestone 15
+- Raw Content Pipeline boundary checks during Phase 2 Milestone 16
+- Normalization Pipeline boundary checks during Phase 2 Milestone 17
+- Embedding Foundation boundary checks during Phase 2 Milestone 18
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 14 boundary. Phase 2 Milestone 15 now has an explicit `phase-2-milestone-15` gate for Reddit Provider Transport boundary work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 18 boundary. Phase 2 Milestone 18 also has an explicit `phase-2-milestone-18` gate for Embedding Foundation boundary work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 

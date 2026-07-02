@@ -222,6 +222,28 @@ importers:
         specifier: ^4.0.16
         version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
 
+  packages/embeddings:
+    dependencies:
+      '@opportunity-os/events':
+        specifier: workspace:*
+        version: link:../events
+      '@opportunity-os/normalization':
+        specifier: workspace:*
+        version: link:../normalization
+      '@opportunity-os/raw-content':
+        specifier: workspace:*
+        version: link:../raw-content
+      '@opportunity-os/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
   packages/infrastructure:
     dependencies:
       '@opportunity-os/application':

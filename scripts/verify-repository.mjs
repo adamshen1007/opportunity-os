@@ -61,6 +61,7 @@ const requiredReadmes = [
   "packages/config/README.md",
   "packages/database/README.md",
   "packages/domain/README.md",
+  "packages/embeddings/README.md",
   "packages/events/README.md",
   "packages/infrastructure/README.md",
   "packages/intelligence/README.md",
@@ -96,9 +97,11 @@ const phaseThirteenAliases = new Set(["phase-2-milestone-13", "reddit-connector-
 const phaseFourteenAliases = new Set(["phase-2-milestone-14", "reddit-runtime-foundation", "reddit-connector-runtime-implementation"]);
 const phaseFifteenAliases = new Set(["phase-2-milestone-15", "reddit-provider-transport"]);
 const phaseSixteenAliases = new Set(["phase-2-milestone-16", "raw-content-pipeline-foundation"]);
-const phaseSeventeenAliases = new Set(["review", "phase-2-milestone-17", "normalization-pipeline-foundation"]);
+const phaseSeventeenAliases = new Set(["phase-2-milestone-17", "normalization-pipeline-foundation"]);
+const phaseEighteenAliases = new Set(["review", "phase-2-milestone-18", "embedding-foundation", "embeddings-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseSeventeen = phaseSeventeenAliases.has(phase);
+const isPhaseEighteen = phaseEighteenAliases.has(phase);
+const isPhaseSeventeen = phaseSeventeenAliases.has(phase) || isPhaseEighteen;
 const isPhaseSixteen = phaseSixteenAliases.has(phase) || isPhaseSeventeen;
 const isPhaseFifteen = phaseFifteenAliases.has(phase) || isPhaseSixteen;
 const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
@@ -130,6 +133,7 @@ const allowedPhaseFourteenImplementationRoots = allowedPhaseThirteenImplementati
 const allowedPhaseFifteenImplementationRoots = allowedPhaseFourteenImplementationRoots;
 const allowedPhaseSixteenImplementationRoots = [...allowedPhaseFifteenImplementationRoots, "packages/raw-content"];
 const allowedPhaseSeventeenImplementationRoots = [...allowedPhaseSixteenImplementationRoots, "packages/normalization"];
+const allowedPhaseEighteenImplementationRoots = [...allowedPhaseSeventeenImplementationRoots, "packages/embeddings"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1306,6 +1310,18 @@ const requiredNormalizationFoundationExports = [
   "NORMALIZATION_PACKAGE_NAME",
   "NormalizationPackageBoundary"
 ];
+const requiredEmbeddingFoundationFiles = [
+  "packages/embeddings/package.json",
+  "packages/embeddings/README.md",
+  "packages/embeddings/tsconfig.json",
+  "packages/embeddings/vitest.config.ts",
+  "packages/embeddings/src/index.ts"
+];
+const requiredEmbeddingFoundationExports = [
+  "EMBEDDINGS_FOUNDATION_PHASE",
+  "EMBEDDINGS_PACKAGE_NAME",
+  "EmbeddingsPackageBoundary"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1460,6 +1476,15 @@ const sharedFoundationPackageRules = {
     allowedWorkspaceDependencies: [
       "@opportunity-os/domain",
       "@opportunity-os/events",
+      "@opportunity-os/raw-content",
+      "@opportunity-os/shared"
+    ]
+  },
+  "packages/embeddings": {
+    packageName: "@opportunity-os/embeddings",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/events",
+      "@opportunity-os/normalization",
       "@opportunity-os/raw-content",
       "@opportunity-os/shared"
     ]
@@ -2771,6 +2796,110 @@ function assertNormalizationFoundationPolicy() {
   }
 }
 
+function assertEmbeddingFoundationPolicy() {
+  assertNormalizationFoundationPolicy();
+
+  for (const file of requiredEmbeddingFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Embedding Foundation is missing required file: ${file}`);
+    }
+  }
+
+  const embeddingsIndexPath = "packages/embeddings/src/index.ts";
+  if (exists(embeddingsIndexPath)) {
+    const embeddingsIndex = read(embeddingsIndexPath);
+    if (!embeddingsIndex.includes("Embedding Foundation public export boundary")) {
+      fail(`${embeddingsIndexPath} must document the Phase 2 Milestone 18 Embedding Foundation public export boundary`);
+    }
+
+    for (const exportName of requiredEmbeddingFoundationExports) {
+      if (!embeddingsIndex.includes(exportName)) {
+        fail(`${embeddingsIndexPath} must export ${exportName} from the Embedding Foundation public boundary`);
+      }
+    }
+  }
+
+  const embeddingsReadmePath = "packages/embeddings/README.md";
+  if (exists(embeddingsReadmePath)) {
+    const embeddingsReadme = read(embeddingsReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 2 Milestone 18",
+      "package boundary only",
+      "must not introduce OpenAI API calls"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!embeddingsReadme.includes(statement)) {
+        fail(`${embeddingsReadmePath} must document the Phase 2 Milestone 18 Embedding Foundation boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const embeddingsPackageJsonPath = "packages/embeddings/package.json";
+  if (exists(embeddingsPackageJsonPath)) {
+    const embeddingsPackageJson = JSON.parse(read(embeddingsPackageJsonPath));
+    const dependencyNames = Object.keys({
+      ...(embeddingsPackageJson.dependencies ?? {}),
+      ...(embeddingsPackageJson.devDependencies ?? {}),
+      ...(embeddingsPackageJson.optionalDependencies ?? {}),
+      ...(embeddingsPackageJson.peerDependencies ?? {})
+    });
+    const prohibitedDependencyPatterns = [
+      ["OpenAI API SDK", /(^openai$|^@openai)/iu],
+      ["Gemini API SDK", /(^@google\/generative-ai$|^@google-genai|gemini)/iu],
+      ["Voyage API SDK", /(^voyageai$|voyage)/iu],
+      ["vector database", /(pinecone|weaviate|qdrant|milvus|chroma|pgvector)/iu],
+      ["API framework", /(^express$|^fastify$|^hono$|^@nestjs)/iu],
+      ["frontend framework", /(^react$|^react-dom$|^next$|^vite$)/iu],
+      ["scheduler or worker", /(^bullmq$|^agenda$|scheduler|worker|queue)/iu],
+      ["persistence implementation", /(^@prisma\/client$|^prisma$|typeorm|sequelize|mongoose)/iu]
+    ];
+
+    for (const dependencyName of dependencyNames) {
+      for (const [label, pattern] of prohibitedDependencyPatterns) {
+        if (pattern.test(dependencyName)) {
+          fail(`Embedding Foundation must not depend on ${label}; found ${dependencyName} in ${embeddingsPackageJsonPath}`);
+        }
+      }
+    }
+  }
+
+  for (const file of listFiles("packages/embeddings")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/embeddings/dist/") ||
+      file.startsWith("packages/embeddings/node_modules/") ||
+      file.startsWith("packages/embeddings/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["OpenAI API implementation", /\bOpenAI\b|\bopenai\.(embeddings|responses|chat)\b|\bapi\.openai\.com\b/iu],
+      ["Gemini API implementation", /\bGemini\b|\bgenerative-ai\b|\bgenerateContent\b/iu],
+      ["Voyage API implementation", /\bVoyage\b|\bvoyageai\b/iu],
+      ["vector database", /\bvector database\b|\bPinecone\b|\bWeaviate\b|\bQdrant\b|\bMilvus\b|\bChroma\b|\bpgvector\b/iu],
+      ["AI reasoning", /\bAI reasoning\b|\breasoning model\b|\bLLM reasoning\b/iu],
+      ["prompt execution", /\bprompt execution\b|\brunPrompt\b|\bexecutePrompt\b/iu],
+      ["opportunity generation", /\bgenerateOpportunity\b|\bOpportunityEngine\b|\bopportunity generation\b/iu],
+      ["REST API", /\bREST API\b|\bapi route\b|\broute handler\b|\bAPI handler\b/iu],
+      ["frontend", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["persistence implementation", /\bPrismaClient\b|\brepository implementation\b|\bwriteToDatabase\b|\bpersistEmbedding\b/iu],
+      ["scheduler", /\bscheduler\b|\bscheduleEmbedding\b/iu],
+      ["worker", /\bworker\b|\bWorkerProcess\b/iu],
+      ["business logic", /\bbusiness logic\b|\bbusiness scoring\b|\bscoreOpportunity\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Embedding Foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -2807,7 +2936,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseSeventeen
+  const allowedImplementationRoots = isPhaseEighteen
+    ? allowedPhaseEighteenImplementationRoots
+    : isPhaseSeventeen
     ? allowedPhaseSeventeenImplementationRoots
     : isPhaseSixteen
     ? allowedPhaseSixteenImplementationRoots
@@ -2848,7 +2979,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -2916,6 +3047,10 @@ if (isPhaseSixteen) {
 
 if (isPhaseSeventeen) {
   assertNormalizationFoundationPolicy();
+}
+
+if (isPhaseEighteen) {
+  assertEmbeddingFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

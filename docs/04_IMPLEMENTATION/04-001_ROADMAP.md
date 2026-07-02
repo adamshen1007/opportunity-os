@@ -66,20 +66,21 @@ Completed:
 - Phase 2 M12 Connector Host Foundation
 - Phase 2 M13 Reddit Connector Foundation
 - Phase 2 M14 Reddit Runtime
-
-Future:
-
 - Phase 2 M15 Reddit Provider Transport
 - Phase 2 M16 Raw Content Pipeline
 - Phase 2 M17 Normalization Pipeline
-- Phase 2 M18 AI Analysis Pipeline
-- Phase 2 M19 Opportunity Engine
-- Phase 2 M20 REST API
-- Phase 2 M21 Dashboard
+- Phase 2 M18 Embedding Foundation
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content persistence, Raw Content precedes normalization, normalization precedes AI analysis, AI analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
+Future:
 
-Do not begin Phase 2 Milestone 15 until an implementation task explicitly scopes it.
+- Phase 2 M19 AI Analysis Pipeline
+- Phase 2 M20 Opportunity Engine
+- Phase 2 M21 REST API
+- Phase 2 M22 Dashboard
+
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede AI analysis, AI analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
+
+Do not begin Phase 2 Milestone 19 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2068,13 +2069,90 @@ Readiness gate:
 
 Next milestone dependency:
 
-- Phase 2 Milestone 18 must consume `@opportunity-os/normalization` for canonical normalized text contracts. Do not begin AI Analysis Pipeline work until a scoped Milestone 18 implementation task is approved.
+- Phase 2 Milestone 18 consumes `@opportunity-os/normalization` for canonical normalized text contracts and hands off provider-independent embedding contracts to Phase 2 Milestone 19.
 
-## Phase 2 Milestone 18 — AI Analysis Pipeline
+## Phase 2 Milestone 18 — Embedding Foundation
 
 Goal:
 
-Run AI-assisted analysis on Canonical Content.
+Define provider-independent embedding contracts for normalized content without provider execution.
+
+Owner:
+
+- `packages/embeddings`
+
+Completed deliverables:
+
+- `@opportunity-os/embeddings` package boundary and public export boundary
+- `phase-2-milestone-18` repository verification support
+- embedding primitive contracts
+- provider abstraction contracts
+- embedding request and response contracts
+- chunk embedding contracts connected to normalized content
+- embedding metadata and provenance contracts
+- embedding validation contracts
+- embedding cache contracts
+- embedding result contracts
+- secret-safe embedding error contracts
+- embedding event contracts
+- deterministic synthetic fixtures
+- export stability tests
+- contract stability tests
+- security tests
+- dependency-boundary tests
+- pipeline integration tests
+- package documentation and PR governance
+
+Non-goals:
+
+- OpenAI API calls
+- Gemini API calls
+- Voyage API calls
+- provider SDKs
+- vector databases
+- model execution
+- AI reasoning
+- prompt execution
+- cache implementation or persistence
+- opportunity generation
+- REST APIs
+- frontend implementation
+- schedulers
+- workers
+- business logic
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-18
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Readiness gate:
+
+- `@opportunity-os/embeddings` is implemented, tested, documented, and independently buildable
+- public exports route through `packages/embeddings/src/index.ts`
+- embedding primitives, provider abstractions, requests, responses, chunk embedding contracts, metadata/provenance contracts, validation contracts, cache contracts, result contracts, error contracts, event contracts, and fixtures are available from the package root
+- deterministic fixtures contain synthetic vectors only and no secrets, credentials, tokens, auth headers, DSNs, database URLs, raw provider payloads, real provider responses, or real embeddings
+- security tests confirm safe outputs do not leak secrets, raw provider payloads, stacks, or raw causes
+- dependency-boundary tests continue blocking provider SDKs, vector databases, persistence, APIs, frontend, workers, schedulers, and business scoring
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/embeddings`
+- repository verification supports `phase-2-milestone-18`
+
+Next milestone dependency:
+
+- Phase 2 Milestone 19 must consume `@opportunity-os/embeddings` for provider-independent embedding contracts. Do not begin Phase 2 Milestone 19 until a scoped implementation task is approved.
+
+## Phase 2 Milestone 19 — AI Analysis Pipeline
+
+Goal:
+
+Run AI-assisted analysis on normalized and embedded content.
 
 Deliverables:
 
@@ -2086,7 +2164,7 @@ Deliverables:
 - safe telemetry
 - deterministic test harnesses
 
-## Phase 2 Milestone 19 — Opportunity Engine
+## Phase 2 Milestone 20 — Opportunity Engine
 
 Goal:
 
@@ -2101,7 +2179,7 @@ Deliverables:
 - evidence and provenance links
 - explainability output
 
-## Phase 2 Milestone 20 — REST API
+## Phase 2 Milestone 21 — REST API
 
 Goal:
 
@@ -2116,7 +2194,7 @@ Deliverables:
 - API contract tests
 - OpenAPI documentation
 
-## Phase 2 Milestone 21 — Dashboard
+## Phase 2 Milestone 22 — Dashboard
 
 Goal:
 

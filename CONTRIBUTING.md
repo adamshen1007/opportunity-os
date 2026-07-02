@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 17 and establishes Phase 2 Milestone 18, AI Analysis Pipeline, as the next planned milestone. Do not begin Milestone 18 without an explicitly scoped implementation task.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 18: Embedding Foundation. Phase 2 Milestone 19 has not started and must not begin without an explicitly scoped implementation task.
 
 ## Before You Start
 
@@ -49,9 +49,9 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 17, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, and `packages/normalization`.
+During Phase 2 Milestone 18, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, and `packages/embeddings`.
 
-Phase 2 Milestone 17 work must stay inside its scoped task. Milestone 17 may add Normalization Pipeline Foundation contracts only inside `packages/normalization` and must not add normalization algorithm execution, DOM/browser behavior, network calls, parser-library integrations, embeddings, LLMs, AI analysis, event buses, database persistence, Prisma repositories, opportunity generation, REST APIs, frontend, scheduler, worker, or business scoring.
+Phase 2 Milestone 18 work must stay inside its scoped task. Milestone 18 may add Embedding Foundation contracts only inside `packages/embeddings` and must not add OpenAI API calls, Gemini API calls, Voyage API calls, provider SDKs, vector databases, model execution, AI reasoning, prompt execution, cache persistence, opportunity generation, REST APIs, frontend, scheduler, worker, or business logic.
 
 ## Phase 0 and Phase 1
 
@@ -441,7 +441,37 @@ Before handing off to the next milestone, confirm:
 - no embeddings, LLMs, AI analysis, event bus, database persistence, Prisma repository, REST API, frontend, scheduler, worker, opportunity generation, or business scoring implementation exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-17`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
-The next milestone must consume `@opportunity-os/normalization` for canonical normalized text contracts. Do not begin Phase 2 Milestone 18 until a scoped AI Analysis Pipeline task is approved.
+Phase 2 Milestone 18 consumes `@opportunity-os/normalization` for canonical normalized text contracts.
+
+## Embedding Foundation Governance
+
+Phase 2 Milestone 18 implements Embedding Foundation contracts in `packages/embeddings`. Future AI analysis, indexing, retrieval, search, persistence, API, and product packages must consume `@opportunity-os/embeddings` instead of redefining or bypassing embedding primitives, provider abstractions, request/response contracts, chunk embedding contracts, metadata/provenance contracts, validation contracts, cache contracts, results, events, errors, fixtures, export stability, security, dependency boundary, or pipeline integration contracts.
+
+Embedding changes must remain foundation-only unless a later scoped milestone explicitly authorizes provider execution. They must not introduce OpenAI API calls, Gemini API calls, Voyage API calls, provider SDKs, provider API calls, vector databases, model execution, AI reasoning, prompt execution, cache persistence, opportunity generation, REST APIs, frontend implementation, schedulers, workers, business scoring, or product workflows.
+
+When embedding files change, reviewers should confirm:
+
+- public exports route through `packages/embeddings/src/index.ts`
+- dependencies remain limited to approved foundation packages and deterministic test/build tooling
+- embedding vectors, chunk embedding records, metadata, validation issues, cache ports, results, errors, and events remain safe contract shapes
+- fixtures use deterministic synthetic vectors only and contain no real provider payloads, API keys, tokens, auth headers, credentials, DSNs, database URLs, or provider secrets
+- provider abstractions remain declarative and do not introduce provider SDKs, API calls, model execution, prompt execution, vector database behavior, or cache implementation
+- embedding events remain contract-only and do not introduce an event bus, production transport, persistence workflow, or telemetry vendor
+- security, dependency-boundary, export-stability, contract-stability, fixture, and pipeline integration tests cover the changed surface
+- future package guidance does not bypass `@opportunity-os/embeddings`
+
+## Phase 2 Milestone 18 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/embeddings` is implemented, tested, documented, and independently buildable
+- embedding primitives, provider abstractions, requests, responses, chunk embeddings, metadata, provenance, validation, cache, result, error, event, and fixture contracts are documented for future consumers
+- export stability, dependency boundary, fixture, security, contract stability, and pipeline integration tests pass
+- repository verification supports `phase-2-milestone-18`
+- no OpenAI, Gemini, Voyage, provider SDK, vector database, model execution, AI reasoning, prompt execution, cache persistence, REST API, frontend, scheduler, worker, opportunity generation, or business logic implementation exists
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-18`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+The next milestone must consume `@opportunity-os/embeddings` for provider-independent embedding contracts. Do not begin Phase 2 Milestone 19 until a scoped implementation task is approved.
 
 ## Phase 1 Milestone 2 Readiness
 

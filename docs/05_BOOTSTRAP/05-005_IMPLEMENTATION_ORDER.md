@@ -70,10 +70,11 @@ Engineering Kit v3.0 establishes this future order:
 | Phase 2 M15 - Reddit Provider Transport | Add Reddit provider integration architecture: OAuth contracts, HTTP transport abstraction, API client abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, error mapping, telemetry, and fake transport tests. | `packages/connectors-reddit` |
 | Phase 2 M16 - Raw Content Pipeline Foundation | Introduce Raw Content contracts, source metadata, ingestion metadata, provenance, normalization boundaries, deduplication, fingerprinting, validation, storage ports, events, Reddit provider mapping, deterministic tests, and verification. | `packages/raw-content`, `packages/connectors-reddit`, `packages/events`, `packages/domain`, `packages/application`, `packages/database`, `packages/shared` |
 | Phase 2 M17 - Normalization Pipeline | Transform Raw Content into Canonical Content with provenance-preserving normalization contracts, deterministic fixtures, security tests, dependency-boundary tests, and pipeline integration tests. | `packages/normalization`, `packages/raw-content`, `packages/events`, `packages/domain`, `packages/shared` |
-| Phase 2 M18 - AI Analysis Pipeline | Add AI workflow orchestration, prompt resolution, provider adapters, extraction contracts, and analysis events. | future AI/intelligence modules |
-| Phase 2 M19 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts. | future intelligence/domain/application modules |
-| Phase 2 M20 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
-| Phase 2 M21 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+| Phase 2 M18 - Embedding Foundation | Define provider-independent embedding contracts, provider abstraction contracts, request/response contracts, chunk embedding contracts, metadata/provenance, validation, cache contracts, events, synthetic fixtures, and verification. | `packages/embeddings`, `packages/normalization`, `packages/raw-content`, `packages/shared`, `packages/events` |
+| Phase 2 M19 - AI Analysis Pipeline | Add AI workflow orchestration, prompt resolution, provider adapters, extraction contracts, and analysis events. | future AI/intelligence modules |
+| Phase 2 M20 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts. | future intelligence/domain/application modules |
+| Phase 2 M21 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
+| Phase 2 M22 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
 ## Phase 2 M15 Boundary
 
@@ -194,6 +195,44 @@ Not allowed:
 - worker
 - business scoring
 
+## Phase 2 M18 Boundary
+
+Milestone 18 establishes the Embedding Foundation in `packages/embeddings`.
+
+Public exports must route through `packages/embeddings/src/index.ts`. The package consumes `@opportunity-os/normalization` for canonical text and chunk contracts, `@opportunity-os/raw-content` for source and provenance vocabulary, `@opportunity-os/shared` for context and logging vocabulary, and `@opportunity-os/events` for event contract vocabulary.
+
+Allowed:
+
+- Embedding package boundary
+- embedding primitive contracts
+- provider abstraction contracts
+- embedding request and response contracts
+- chunk embedding contracts
+- embedding metadata and provenance contracts
+- validation contracts
+- cache contracts
+- result, error, and event contracts
+- deterministic synthetic fixtures
+- export stability, contract stability, security, dependency-boundary, and pipeline integration tests
+
+Not allowed:
+
+- OpenAI API calls
+- Gemini API calls
+- Voyage API calls
+- provider SDKs
+- vector databases
+- model execution
+- AI reasoning
+- prompt execution
+- cache implementation or persistence
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- business logic
+
 ## Required Verification Gate
 
 Every implementation milestone from M15 onward must pass:
@@ -220,6 +259,12 @@ For Milestone 17, `<milestone-phase>` must be:
 phase-2-milestone-17
 ```
 
+For Milestone 18, `<milestone-phase>` must be:
+
+```sh
+phase-2-milestone-18
+```
+
 ## Codex Execution Rules
 
 Every Codex implementation session must:
@@ -233,7 +278,7 @@ Every Codex implementation session must:
 7. Run the required verification commands.
 8. Stop after the assigned task is complete.
 
-Do not begin Phase 2 Milestone 18 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 19 until an implementation task explicitly scopes it.
 
 ## Definition of Complete
 
@@ -252,4 +297,5 @@ A milestone is complete only when:
 | Version | Summary |
 |---------|---------|
 | 2.0.0 | Defined the initial repository bootstrap implementation sequence. |
-| 3.0.0 | Rebased the canonical implementation order on completed work through Phase 2 Milestone 17 and defined the Milestone 18 AI analysis handoff. |
+| 3.0.0 | Rebased the canonical implementation order on completed work through Phase 2 Milestone 17 and defined the initial Milestone 18 handoff. |
+| 3.0.1 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 18 Embedding Foundation work and the Milestone 19 AI analysis handoff. |

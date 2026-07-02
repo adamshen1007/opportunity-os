@@ -21,6 +21,9 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/connector-runtime` owns Connector Runtime Foundation contracts only.
 - `packages/connector-host` owns Connector Host Foundation contracts only.
 - `packages/connectors-reddit` owns Reddit connector contracts only.
+- `packages/raw-content` owns Raw Content Pipeline Foundation contracts only.
+- `packages/normalization` owns Normalization Pipeline Foundation contracts only.
+- `packages/embeddings` owns Embedding Foundation contracts only.
 
 ## Dependency Direction
 
@@ -37,8 +40,11 @@ Package boundaries must follow the dependency rules in `docs/05_BOOTSTRAP/05-002
 - `packages/connector-runtime` may depend only on `@opportunity-os/connectors`, `@opportunity-os/container`, `@opportunity-os/application`, `@opportunity-os/events`, `@opportunity-os/shared`, `@opportunity-os/infrastructure`, and explicitly justified `@opportunity-os/errors`, `@opportunity-os/types`, or `@opportunity-os/utils`.
 - `packages/connector-host` may depend only on `@opportunity-os/config`, `@opportunity-os/connectors`, `@opportunity-os/connector-runtime`, `@opportunity-os/container`, `@opportunity-os/application`, `@opportunity-os/errors`, `@opportunity-os/events`, `@opportunity-os/shared`, and `@opportunity-os/infrastructure`.
 - `packages/connectors-reddit` may depend only on `@opportunity-os/connectors`, `@opportunity-os/connector-host`, and deterministic test/build tooling during Phase 2 Milestone 13.
+- `packages/raw-content` may depend only on approved foundation packages and deterministic test/build tooling.
+- `packages/normalization` may depend only on `@opportunity-os/raw-content`, `@opportunity-os/shared`, `@opportunity-os/events`, `@opportunity-os/domain`, and deterministic test/build tooling.
+- `packages/embeddings` may depend only on `@opportunity-os/normalization`, `@opportunity-os/raw-content`, `@opportunity-os/shared`, `@opportunity-os/events`, and deterministic test/build tooling.
 
-Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone. Domain package dependencies must remain limited to approved shared infrastructure packages. Application package dependencies must remain limited to approved foundation packages. Container package dependencies must remain limited to approved foundation packages. Infrastructure package dependencies must remain limited to approved foundation packages and must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repositories, frontend packages, product workflows, or business packages. Connector SDK package dependencies must remain limited to approved foundation packages and must not introduce concrete connector implementations, OAuth, HTTP clients, APIs, auth implementation, AI workflows, frontend packages, product workflows, or business packages. Connector Runtime package dependencies must remain limited to approved foundation packages and must not introduce provider connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, auth implementation, AI workflows, frontend packages, product workflows, business packages, or actual connector execution. Connector Host package dependencies must remain limited to approved foundation packages and must not introduce provider connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, auth implementation, AI workflows, frontend packages, product workflows, business packages, provider integration, or actual connector execution. Reddit connector package dependencies must remain limited to approved connector foundation packages and must not introduce OAuth, live Reddit API calls, HTTP clients, scraping, schedulers, queues, worker processes, database persistence, AI workflows, APIs, frontend packages, business logic, or actual connector execution.
+Shared foundation packages must not depend on apps, APIs, connectors, AI workflows, frontend packages, domain packages, intelligence packages, acquisition packages, application packages, or business packages. Database package dependencies must remain limited to approved persistence infrastructure and shared infrastructure explicitly allowed by a scoped milestone. Domain package dependencies must remain limited to approved shared infrastructure packages. Application package dependencies must remain limited to approved foundation packages. Container package dependencies must remain limited to approved foundation packages. Infrastructure package dependencies must remain limited to approved foundation packages and must not depend on apps, APIs, controllers, auth implementations, connectors, AI workflows, database repositories, frontend packages, product workflows, or business packages. Connector SDK package dependencies must remain limited to approved foundation packages and must not introduce concrete connector implementations, OAuth, HTTP clients, APIs, auth implementation, AI workflows, frontend packages, product workflows, or business packages. Connector Runtime package dependencies must remain limited to approved foundation packages and must not introduce provider connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, auth implementation, AI workflows, frontend packages, product workflows, business packages, or actual connector execution. Connector Host package dependencies must remain limited to approved foundation packages and must not introduce provider connectors, OAuth, HTTP clients, schedulers, queues, worker processes, APIs, auth implementation, AI workflows, frontend packages, product workflows, business packages, provider integration, or actual connector execution. Reddit connector package dependencies must remain limited to approved connector foundation packages and must not introduce OAuth, live Reddit API calls, HTTP clients, scraping, schedulers, queues, worker processes, database persistence, AI workflows, APIs, frontend packages, business logic, or actual connector execution. Raw Content, Normalization, and Embedding package dependencies must remain limited to their approved upstream foundation packages and must not introduce persistence implementation, provider SDKs, vector databases, AI reasoning, prompt execution, APIs, frontend packages, schedulers, workers, or business packages.
 
 ## Non-Goals
 
@@ -68,6 +74,8 @@ Phase 2 Milestone 12 does not include Reddit connector, YouTube connector, OAuth
 
 Phase 2 Milestone 13 does not include OAuth implementation, live Reddit API calls, HTTP clients, scraping, scheduler, queue, worker process, database persistence, AI workflows, APIs, frontend implementation, business logic, or actual connector execution.
 
+Phase 2 Milestone 18 does not include OpenAI API calls, Gemini API calls, Voyage API calls, provider SDKs, vector databases, AI reasoning, prompt execution, cache persistence, REST APIs, frontend implementation, scheduler, worker, opportunity generation, or business logic.
+
 The in-memory event bus in `packages/events` is test-only infrastructure. It must not be used as production transport, persistence, queueing, stream processing, connector behavior, workflow behavior, API behavior, or business behavior.
 
 ## Testing
@@ -88,6 +96,9 @@ Future package work should:
 - keep Connector Runtime Foundation contract tests inside `packages/connector-runtime`
 - keep Connector Host Foundation contract tests inside `packages/connector-host`
 - keep Reddit Connector Foundation contract tests inside `packages/connectors-reddit`
+- keep Raw Content Pipeline Foundation contract tests inside `packages/raw-content`
+- keep Normalization Pipeline Foundation contract tests inside `packages/normalization`
+- keep Embedding Foundation contract tests inside `packages/embeddings`
 - add integration tests only when implementation depends on PostgreSQL, Redis, queues, or provider adapters
 
 Do not add tests for application behavior, APIs, connectors, AI workflows, database behavior, or business logic before the corresponding implementation task is approved.
