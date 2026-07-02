@@ -27,9 +27,10 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - Normalization Pipeline boundary checks during Phase 2 Milestone 17
 - Embedding Foundation boundary checks during Phase 2 Milestone 18
 - LLM Analysis Foundation boundary checks during Phase 2 Milestone 19
+- Structured Analysis Foundation boundary checks during Phase 2 Milestone 20
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 19 boundary. Phase 2 Milestone 19 also has an explicit `phase-2-milestone-19` gate for LLM Analysis Foundation boundary work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 20 boundary. Phase 2 Milestone 20 also has an explicit `phase-2-milestone-20` gate for Structured Analysis Foundation boundary work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 

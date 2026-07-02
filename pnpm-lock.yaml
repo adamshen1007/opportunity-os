@@ -15,6 +15,31 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  packages/analysis:
+    dependencies:
+      '@opportunity-os/embeddings':
+        specifier: workspace:*
+        version: link:../embeddings
+      '@opportunity-os/events':
+        specifier: workspace:*
+        version: link:../events
+      '@opportunity-os/llm-analysis':
+        specifier: workspace:*
+        version: link:../llm-analysis
+      '@opportunity-os/normalization':
+        specifier: workspace:*
+        version: link:../normalization
+      '@opportunity-os/raw-content':
+        specifier: workspace:*
+        version: link:../raw-content
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
   packages/application:
     dependencies:
       '@opportunity-os/domain':

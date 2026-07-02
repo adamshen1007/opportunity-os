@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 19: LLM Analysis Foundation. Phase 2 Milestone 20 has not started and must not begin without an explicitly scoped implementation task.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 20: Structured Analysis Foundation. Phase 2 Milestone 21 has not started and must not begin without an explicitly scoped implementation task.
 
 ## Before You Start
 
@@ -49,9 +49,11 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 19, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, and `packages/llm-analysis`.
+During Phase 2 Milestone 20, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, and `packages/analysis`.
 
 Phase 2 Milestone 19 work must stay inside its scoped task. Milestone 19 may add LLM Analysis Foundation contracts only inside `packages/llm-analysis` and must not add provider SDKs, OpenAI API calls, Anthropic API calls, Gemini API calls, live LLM calls, prompt execution runtime, extraction workflows, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, or business scoring.
+
+Phase 2 Milestone 20 work must stay inside its scoped task. Milestone 20 may add Structured Analysis Foundation contracts only inside `packages/analysis` and must not add provider SDKs, prompt execution, AI reasoning, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, business scoring, provider payloads, API keys, network behavior, or business examples.
 
 ## Phase 0 and Phase 1
 
@@ -504,7 +506,34 @@ Before handing off to the next milestone, confirm:
 - no provider SDKs, OpenAI API calls, Anthropic API calls, Gemini API calls, live LLM calls, prompt runtime, extraction workflows, opportunity generation, REST APIs, frontend implementation, persistence implementation, schedulers, workers, business scoring, real prompts, real embeddings, provider payloads, API keys, or network behavior exists
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-19`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
-The next milestone may consume `@opportunity-os/llm-analysis` for provider-independent analysis contracts. Do not begin Phase 2 Milestone 20 until a scoped implementation task is approved.
+Phase 2 Milestone 20 consumes `@opportunity-os/llm-analysis` for provider-independent analysis contracts.
+
+## Structured Analysis Foundation Governance
+
+Phase 2 Milestone 20 implements Structured Analysis Foundation contracts in `packages/analysis`. Future opportunity generation, API, persistence, workflow, and product packages must consume `@opportunity-os/analysis` instead of redefining or bypassing structured analysis contracts, parser contracts, schema validation contracts, structured output normalization contracts, evidence contracts, confidence contracts, provenance contracts, validation contracts, results, errors, events, fixtures, export stability, security, dependency boundary, or pipeline integration contracts.
+
+Structured Analysis changes must confirm:
+
+- public exports route through `packages/analysis/src/index.ts`
+- dependencies stay limited to approved foundation packages
+- parser, schema, normalization, evidence, confidence, provenance, validation, result, error, and event contracts remain provider-independent
+- deterministic fixtures use synthetic analysis inputs, outputs, evidence, confidence metadata, provenance, and validation examples only
+- security tests confirm no provider payloads, API keys, credentials, tokens, auth headers, DSNs, database URLs, stack traces, raw causes, or prompt internals leak from safe outputs
+- dependency-boundary tests continue blocking provider SDKs, prompt execution runtimes, AI reasoning, persistence, APIs, frontend, schedulers, workers, database implementations, and business packages
+- future package guidance does not bypass Structured Analysis Foundation contracts
+
+## Phase 2 Milestone 20 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/analysis` is implemented, tested, documented, and independently buildable
+- the package contains structured analysis contracts only
+- repository verification supports `phase-2-milestone-20`
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/analysis`
+- no provider SDKs, prompt execution, AI reasoning, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, business scoring, provider payloads, API keys, real network behavior, or business examples exist in `packages/analysis`
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-20`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+The next milestone may consume `@opportunity-os/analysis` for structured, validated analysis outputs. Do not begin Phase 2 Milestone 21 until a scoped implementation task is approved.
 
 ## Phase 1 Milestone 2 Readiness
 

@@ -47,7 +47,7 @@ Every completed phase should produce a deployable system.
 
 # Engineering Kit v3.0 Roadmap State
 
-Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 14.
+Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 20.
 
 Completed:
 
@@ -71,16 +71,17 @@ Completed:
 - Phase 2 M17 Normalization Pipeline
 - Phase 2 M18 Embedding Foundation
 - Phase 2 M19 LLM Analysis Foundation
+- Phase 2 M20 Structured Analysis Foundation
 
 Future:
 
-- Phase 2 M20 Opportunity Engine
-- Phase 2 M21 REST API
-- Phase 2 M22 Dashboard
+- Phase 2 M21 Opportunity Engine
+- Phase 2 M22 REST API
+- Phase 2 M23 Dashboard
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
 
-Do not begin Phase 2 Milestone 20 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 21 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2231,9 +2232,96 @@ Readiness gate:
 
 Next milestone dependency:
 
-- Phase 2 Milestone 20 may consume `@opportunity-os/llm-analysis` for provider-independent analysis contracts. Do not begin Phase 2 Milestone 20 until a scoped implementation task is approved.
+- Phase 2 Milestone 20 consumes `@opportunity-os/llm-analysis` for provider-independent analysis contracts.
 
-## Phase 2 Milestone 20 — Opportunity Engine
+## Phase 2 Milestone 20 — Structured Analysis Foundation
+
+Goal:
+
+Define structured analysis contracts without provider execution, prompt runtime, AI reasoning, extraction workflows, opportunity generation, or business behavior.
+
+Owner:
+
+- `packages/analysis`
+
+Dependencies:
+
+- `@opportunity-os/llm-analysis`
+- `@opportunity-os/embeddings`
+- `@opportunity-os/normalization`
+- `@opportunity-os/raw-content`
+- `@opportunity-os/events`
+
+Deliverables:
+
+- structured analysis primitives
+- analysis input and output contracts
+- parser contracts
+- schema validation contracts
+- structured output normalization contracts
+- evidence contracts
+- confidence contracts
+- analysis provenance contracts
+- analysis validation contracts
+- analysis result contracts
+- secret-safe analysis error contracts
+- analysis event contracts
+- deterministic synthetic fixtures
+- export stability tests
+- contract stability tests
+- security tests
+- dependency-boundary tests
+- pipeline integration tests
+- package documentation and PR governance
+
+Non-goals:
+
+- OpenAI API calls
+- Anthropic API calls
+- Gemini API calls
+- provider SDKs
+- live provider calls
+- prompt execution
+- AI reasoning
+- pain point extraction
+- opportunity generation
+- REST APIs
+- frontend implementation
+- persistence implementation
+- schedulers
+- workers
+- business scoring
+- provider payloads, API keys, real network behavior, or business examples
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-20
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Readiness gate:
+
+- `@opportunity-os/analysis` is implemented, tested, documented, and independently buildable
+- public exports route through `packages/analysis/src/index.ts`
+- structured analysis primitives, inputs, outputs, parser contracts, schema validation contracts, normalization contracts, evidence contracts, confidence contracts, provenance contracts, validation contracts, results, errors, events, and fixtures are available from the package root
+- deterministic fixtures contain synthetic analysis inputs, outputs, evidence, confidence metadata, provenance, and validation examples only
+- fixtures contain no provider payloads, API keys, real network references, credentials, tokens, auth headers, DSNs, database URLs, stack traces, raw causes, or business examples
+- security tests confirm safe outputs do not leak secrets, provider payloads, stacks, raw causes, or prompt internals
+- dependency-boundary tests continue blocking provider SDKs, prompt execution runtimes, AI reasoning, persistence, APIs, frontend, schedulers, workers, database implementations, and business scoring
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/analysis`
+- repository verification supports `phase-2-milestone-20`
+
+Next milestone dependency:
+
+- Phase 2 Milestone 21 may consume `@opportunity-os/analysis` for structured, validated analysis outputs. Do not begin Phase 2 Milestone 21 until a scoped implementation task is approved.
+
+## Phase 2 Milestone 21 — Opportunity Engine
 
 Goal:
 
@@ -2248,7 +2336,7 @@ Deliverables:
 - evidence and provenance links
 - explainability output
 
-## Phase 2 Milestone 21 — REST API
+## Phase 2 Milestone 22 — REST API
 
 Goal:
 
@@ -2263,7 +2351,7 @@ Deliverables:
 - API contract tests
 - OpenAPI documentation
 
-## Phase 2 Milestone 22 — Dashboard
+## Phase 2 Milestone 23 — Dashboard
 
 Goal:
 

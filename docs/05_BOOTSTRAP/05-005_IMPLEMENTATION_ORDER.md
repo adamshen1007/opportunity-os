@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 19.
+This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 20.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -47,10 +47,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 2 M17 - Normalization Pipeline Foundation | Complete | `packages/normalization` |
 | Phase 2 M18 - Embedding Foundation | Complete | `packages/embeddings` |
 | Phase 2 M19 - LLM Analysis Foundation | Complete | `packages/llm-analysis` |
+| Phase 2 M20 - Structured Analysis Foundation | Complete | `packages/analysis` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, and LLM Analysis Foundation contracts.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, and Structured Analysis Foundation contracts.
 
 The repository does not yet contain:
 
@@ -72,9 +73,9 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 2 M20 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts using `@opportunity-os/llm-analysis`. | future intelligence/domain/application modules |
-| Phase 2 M21 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
-| Phase 2 M22 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+| Phase 2 M21 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts using `@opportunity-os/analysis`. | future intelligence/domain/application modules |
+| Phase 2 M22 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
+| Phase 2 M23 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
 ## Phase 2 M15 Boundary
 
@@ -274,6 +275,49 @@ Not allowed:
 - worker
 - business scoring
 
+## Phase 2 M20 Boundary
+
+Milestone 20 establishes the Structured Analysis Foundation in `packages/analysis`.
+
+Public exports must route through `packages/analysis/src/index.ts`. The package consumes `@opportunity-os/llm-analysis` for provider-independent analysis contract vocabulary, `@opportunity-os/embeddings` for embedding references, `@opportunity-os/normalization` for normalized content references, `@opportunity-os/raw-content` for source/provenance vocabulary, and `@opportunity-os/events` for event contract vocabulary.
+
+Allowed:
+
+- Structured Analysis package boundary
+- structured analysis primitives
+- analysis input and output contracts
+- parser contracts
+- schema validation contracts
+- structured output normalization contracts
+- evidence contracts
+- confidence contracts
+- analysis provenance contracts
+- analysis validation contracts
+- analysis result contracts
+- secret-safe analysis error contracts
+- analysis event contracts
+- deterministic synthetic fixtures
+- export stability, contract stability, security, dependency-boundary, and pipeline integration tests
+
+Not allowed:
+
+- OpenAI API calls
+- Anthropic API calls
+- Gemini API calls
+- provider SDKs
+- live provider calls
+- prompt execution
+- AI reasoning
+- pain point extraction
+- opportunity generation
+- REST APIs
+- frontend
+- persistence implementation
+- scheduler
+- worker
+- business scoring
+- provider payloads, API keys, real network behavior, or business examples
+
 ## Required Verification Gate
 
 Every implementation milestone from M15 onward must pass:
@@ -312,6 +356,12 @@ For Milestone 19, `<milestone-phase>` must be:
 phase-2-milestone-19
 ```
 
+For Milestone 20, `<milestone-phase>` must be:
+
+```sh
+phase-2-milestone-20
+```
+
 ## Codex Execution Rules
 
 Every Codex implementation session must:
@@ -325,7 +375,7 @@ Every Codex implementation session must:
 7. Run the required verification commands.
 8. Stop after the assigned task is complete.
 
-Do not begin Phase 2 Milestone 20 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 21 until an implementation task explicitly scopes it.
 
 ## Definition of Complete
 
@@ -346,4 +396,5 @@ A milestone is complete only when:
 | 2.0.0 | Defined the initial repository bootstrap implementation sequence. |
 | 3.0.0 | Rebased the canonical implementation order on completed work through Phase 2 Milestone 17 and defined the initial Milestone 18 handoff. |
 | 3.0.1 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 18 Embedding Foundation work and the Milestone 19 AI analysis handoff. |
-| 3.0.2 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 19 LLM Analysis Foundation work and the Milestone 20 Opportunity Engine handoff. |
+| 3.0.2 | Updated the canonical implementation order after Phase 2 Milestone 19 LLM Analysis Foundation work and defined the initial Milestone 20 handoff. |
+| 3.0.3 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 20 Structured Analysis Foundation work and the Milestone 21 Opportunity Engine handoff. |
