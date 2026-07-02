@@ -350,6 +350,37 @@ importers:
         specifier: ^4.0.16
         version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
 
+  packages/opportunity-engine:
+    dependencies:
+      '@opportunity-os/analysis':
+        specifier: workspace:*
+        version: link:../analysis
+      '@opportunity-os/embeddings':
+        specifier: workspace:*
+        version: link:../embeddings
+      '@opportunity-os/events':
+        specifier: workspace:*
+        version: link:../events
+      '@opportunity-os/llm-analysis':
+        specifier: workspace:*
+        version: link:../llm-analysis
+      '@opportunity-os/normalization':
+        specifier: workspace:*
+        version: link:../normalization
+      '@opportunity-os/raw-content':
+        specifier: workspace:*
+        version: link:../raw-content
+      '@opportunity-os/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
   packages/raw-content:
     dependencies:
       '@opportunity-os/application':

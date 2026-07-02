@@ -47,7 +47,7 @@ Every completed phase should produce a deployable system.
 
 # Engineering Kit v3.0 Roadmap State
 
-Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 20.
+Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 21.
 
 Completed:
 
@@ -72,16 +72,16 @@ Completed:
 - Phase 2 M18 Embedding Foundation
 - Phase 2 M19 LLM Analysis Foundation
 - Phase 2 M20 Structured Analysis Foundation
+- Phase 2 M21 Opportunity Engine Foundation
 
 Future:
 
-- Phase 2 M21 Opportunity Engine
 - Phase 2 M22 REST API
 - Phase 2 M23 Dashboard
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede REST APIs, and REST APIs precede the dashboard.
 
-Do not begin Phase 2 Milestone 21 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 22 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2319,22 +2319,73 @@ Readiness gate:
 
 Next milestone dependency:
 
-- Phase 2 Milestone 21 may consume `@opportunity-os/analysis` for structured, validated analysis outputs. Do not begin Phase 2 Milestone 21 until a scoped implementation task is approved.
+- Phase 2 Milestone 21 consumes `@opportunity-os/analysis` for structured, validated analysis outputs.
 
-## Phase 2 Milestone 21 — Opportunity Engine
+## Phase 2 Milestone 21 — Opportunity Engine Foundation
 
 Goal:
 
-Generate explainable Opportunities from analyzed content.
+Define provider-independent Opportunity Engine contracts from analyzed content.
+
+Owner:
+
+- `packages/opportunity-engine`
+
+Dependencies:
+
+- `@opportunity-os/analysis`
+- `@opportunity-os/llm-analysis`
+- `@opportunity-os/embeddings`
+- `@opportunity-os/normalization`
+- `@opportunity-os/raw-content`
+- `@opportunity-os/events`
+- `@opportunity-os/shared`
 
 Deliverables:
 
-- opportunity domain model
-- clustering
-- trend detection
-- deterministic scoring
+- opportunity package boundary
+- opportunity primitive contracts
+- opportunity source and evidence contracts
+- opportunity hypothesis contracts
+- opportunity score contracts
+- opportunity confidence contracts
+- opportunity ranking contracts
+- opportunity validation contracts
+- opportunity result contracts
+- opportunity event contracts
+- deterministic fixtures
 - evidence and provenance links
-- explainability output
+- export stability tests
+- contract stability tests
+- security tests
+- dependency-boundary tests
+- upstream integration tests
+
+Readiness gate:
+
+- `@opportunity-os/opportunity-engine` builds as a strict TypeScript package
+- public exports route through `packages/opportunity-engine/src/index.ts`
+- repository verification supports `phase-2-milestone-21`
+- implementation files are permitted only in approved foundation packages and `packages/opportunity-engine`
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/opportunity-engine`
+- fixtures are deterministic, synthetic, and free of provider payloads, prompts, secrets, and business examples
+- REST APIs, frontend implementation, persistence implementation, scheduler behavior, workers, live AI calls, prompt runtime behavior, billing, user accounts, production ranking algorithms, scoring implementations, extraction workflows, opportunity generation logic, and business workflows remain blocked
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-21
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Next milestone dependency:
+
+- Phase 2 Milestone 22 may consume `@opportunity-os/opportunity-engine` for provider-independent opportunity contracts. Do not begin Phase 2 Milestone 22 until a scoped implementation task is approved.
 
 ## Phase 2 Milestone 22 — REST API
 

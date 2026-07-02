@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 20: Structured Analysis Foundation. Phase 2 Milestone 21 has not started and must not begin without an explicitly scoped implementation task.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 21: Opportunity Engine Foundation. Phase 2 Milestone 22 has not started and must not begin without an explicitly scoped implementation task.
 
 ## Before You Start
 
@@ -49,11 +49,13 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 20, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, and `packages/analysis`.
+During Phase 2 Milestone 21, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, and `packages/opportunity-engine`.
 
 Phase 2 Milestone 19 work must stay inside its scoped task. Milestone 19 may add LLM Analysis Foundation contracts only inside `packages/llm-analysis` and must not add provider SDKs, OpenAI API calls, Anthropic API calls, Gemini API calls, live LLM calls, prompt execution runtime, extraction workflows, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, or business scoring.
 
 Phase 2 Milestone 20 work must stay inside its scoped task. Milestone 20 may add Structured Analysis Foundation contracts only inside `packages/analysis` and must not add provider SDKs, prompt execution, AI reasoning, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, business scoring, provider payloads, API keys, network behavior, or business examples.
+
+Phase 2 Milestone 21 work must stay inside its scoped task. Milestone 21 may add Opportunity Engine Foundation contracts only inside `packages/opportunity-engine` and must not add REST APIs, frontend, persistence implementation, scheduler, worker, live AI calls, prompt runtime behavior, billing, user accounts, production ranking algorithms, scoring implementations, extraction workflows, opportunity generation logic, or business workflows.
 
 ## Phase 0 and Phase 1
 
@@ -533,7 +535,34 @@ Before handing off to the next milestone, confirm:
 - no provider SDKs, prompt execution, AI reasoning, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, business scoring, provider payloads, API keys, real network behavior, or business examples exist in `packages/analysis`
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-20`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
-The next milestone may consume `@opportunity-os/analysis` for structured, validated analysis outputs. Do not begin Phase 2 Milestone 21 until a scoped implementation task is approved.
+Phase 2 Milestone 21 consumes `@opportunity-os/analysis` for structured, validated analysis outputs.
+
+## Opportunity Engine Foundation Governance
+
+Phase 2 Milestone 21 implements Opportunity Engine Foundation contracts in `packages/opportunity-engine`. Future API, persistence, workflow, product, dashboard, and ranking packages must consume `@opportunity-os/opportunity-engine` instead of redefining or bypassing opportunity primitives, source/evidence contracts, hypothesis contracts, score contracts, confidence contracts, ranking contracts, validation contracts, results, errors, events, fixtures, export stability, security, dependency boundary, or upstream integration contracts.
+
+Opportunity Engine changes must confirm:
+
+- public exports route through `packages/opportunity-engine/src/index.ts`
+- dependencies stay limited to approved foundation packages
+- opportunity primitives, sources, evidence, hypotheses, scores, confidence, ranking, validation, result, error, and event contracts remain provider-independent
+- deterministic fixtures use synthetic IDs, source/evidence references, hypotheses, score metadata, confidence metadata, ranking metadata, validation examples, result examples, and events only
+- security tests confirm no provider payloads, prompts, business examples, API keys, credentials, tokens, auth headers, DSNs, database URLs, stack traces, raw causes, or dependency internals leak from safe outputs
+- dependency-boundary tests continue blocking REST APIs, frontend frameworks, persistence implementations, schedulers, workers, live AI calls, prompt runtimes, billing packages, user account implementations, production ranking algorithms, scoring implementations, extraction workflows, opportunity generation logic, and business packages
+- future package guidance does not bypass Opportunity Engine Foundation contracts
+
+## Phase 2 Milestone 21 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/opportunity-engine` is implemented, tested, documented, and independently buildable
+- the package contains Opportunity Engine Foundation contracts and deterministic synthetic fixtures only
+- repository verification supports `phase-2-milestone-21`
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/opportunity-engine`
+- no REST APIs, frontend implementation, persistence implementation, scheduler, worker, live AI calls, prompt runtime, billing, user accounts, production ranking algorithms, scoring implementations, extraction workflows, opportunity generation logic, business workflows, provider payloads, prompts, secrets, or business examples exist in `packages/opportunity-engine`
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-21`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+The next milestone may consume `@opportunity-os/opportunity-engine` for provider-independent opportunity contracts. Do not begin Phase 2 Milestone 22 until a scoped implementation task is approved.
 
 ## Phase 1 Milestone 2 Readiness
 

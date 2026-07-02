@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 20.
+This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 21.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -48,10 +48,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 2 M18 - Embedding Foundation | Complete | `packages/embeddings` |
 | Phase 2 M19 - LLM Analysis Foundation | Complete | `packages/llm-analysis` |
 | Phase 2 M20 - Structured Analysis Foundation | Complete | `packages/analysis` |
+| Phase 2 M21 - Opportunity Engine Foundation | Complete | `packages/opportunity-engine` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, and Structured Analysis Foundation contracts.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, and Opportunity Engine Foundation contracts.
 
 The repository does not yet contain:
 
@@ -62,7 +63,6 @@ The repository does not yet contain:
 - live AI workflows
 - provider LLM calls
 - prompt execution runtime
-- opportunity generation
 - REST APIs
 - frontend implementation
 - product business logic
@@ -73,7 +73,6 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 2 M21 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts using `@opportunity-os/analysis`. | future intelligence/domain/application modules |
 | Phase 2 M22 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
 | Phase 2 M23 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
@@ -318,6 +317,46 @@ Not allowed:
 - business scoring
 - provider payloads, API keys, real network behavior, or business examples
 
+## Phase 2 M21 Boundary
+
+Milestone 21 establishes the Opportunity Engine Foundation in `packages/opportunity-engine`.
+
+Public exports must route through `packages/opportunity-engine/src/index.ts`. The package consumes `@opportunity-os/analysis` for structured analysis outputs, `@opportunity-os/llm-analysis` for provider-independent analysis vocabulary, `@opportunity-os/embeddings` for embedding references, `@opportunity-os/normalization` for normalized content references, `@opportunity-os/raw-content` for source/provenance vocabulary, `@opportunity-os/events` for event contract vocabulary, and `@opportunity-os/shared` for shared operational vocabulary.
+
+Allowed:
+
+- Opportunity Engine package boundary
+- opportunity primitive contracts
+- opportunity source and evidence contracts
+- opportunity hypothesis contracts
+- opportunity score contracts
+- opportunity confidence contracts
+- opportunity ranking contracts
+- opportunity validation contracts
+- opportunity result contracts
+- opportunity event contracts
+- deterministic fixtures
+- export stability, contract stability, security, dependency-boundary, and upstream integration tests
+
+Not allowed:
+
+- REST APIs
+- frontend
+- persistence implementation
+- scheduler
+- worker
+- live AI calls
+- prompt runtime
+- billing
+- user accounts
+- production ranking algorithm
+- scoring implementation
+- extraction workflow
+- opportunity generation logic
+- business workflows
+
+Milestone 21 is complete when `@opportunity-os/opportunity-engine` is implemented, tested, documented, independently buildable, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, verified by `phase-2-milestone-21`, and free of REST APIs, frontend implementation, persistence implementation, scheduler behavior, workers, live AI calls, prompt runtime behavior, billing, user accounts, production ranking algorithms, scoring implementations, extraction workflows, opportunity generation logic, and business workflows.
+
 ## Required Verification Gate
 
 Every implementation milestone from M15 onward must pass:
@@ -362,6 +401,12 @@ For Milestone 20, `<milestone-phase>` must be:
 phase-2-milestone-20
 ```
 
+For Milestone 21, `<milestone-phase>` must be:
+
+```sh
+phase-2-milestone-21
+```
+
 ## Codex Execution Rules
 
 Every Codex implementation session must:
@@ -375,7 +420,7 @@ Every Codex implementation session must:
 7. Run the required verification commands.
 8. Stop after the assigned task is complete.
 
-Do not begin Phase 2 Milestone 21 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 22 until an implementation task explicitly scopes it.
 
 ## Definition of Complete
 
@@ -398,3 +443,4 @@ A milestone is complete only when:
 | 3.0.1 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 18 Embedding Foundation work and the Milestone 19 AI analysis handoff. |
 | 3.0.2 | Updated the canonical implementation order after Phase 2 Milestone 19 LLM Analysis Foundation work and defined the initial Milestone 20 handoff. |
 | 3.0.3 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 20 Structured Analysis Foundation work and the Milestone 21 Opportunity Engine handoff. |
+| 3.0.4 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 21 Opportunity Engine Foundation work and the Milestone 22 REST API handoff. |
