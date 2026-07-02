@@ -1,8 +1,8 @@
 # Opportunity OS
 
-Opportunity OS is currently an Engineering Kit and staged platform foundation. The repository contains shared foundation packages, connector foundation packages, Reddit provider transport contracts, deterministic Reddit runtime support, and Raw Content Pipeline Foundation contracts. It intentionally does not contain application code, business scoring logic, REST APIs, AI workflows, frontend implementation, schedulers, workers, or persistence implementations.
+Opportunity OS is currently an Engineering Kit and staged platform foundation. The repository contains shared foundation packages, connector foundation packages, Reddit provider transport contracts, deterministic Reddit runtime support, Raw Content Pipeline Foundation contracts, and Normalization Pipeline Foundation contracts. It intentionally does not contain application code, business scoring logic, REST APIs, AI workflows, frontend implementation, schedulers, workers, or persistence implementations.
 
-Engineering Kit v3.0 is the canonical reference for future Codex work. It now reflects completed implementation through Phase 2 Milestone 16: Raw Content Pipeline Foundation. From Phase 2 Milestone 15 onward, the project transitions from platform foundation to real provider and product capability; Milestone 16 completes the contract layer immediately after Reddit Provider Transport. Phase 2 Milestone 17, Normalization Pipeline, has not started.
+Engineering Kit v3.0 is the canonical reference for future Codex work. It now reflects completed implementation through Phase 2 Milestone 17: Normalization Pipeline Foundation. From Phase 2 Milestone 15 onward, the project transitions from platform foundation to real provider and product capability; Milestone 17 completes the provenance-preserving normalization contract layer after Raw Content Pipeline Foundation. Phase 2 Milestone 18, AI Analysis Pipeline, has not started.
 
 ## Start Here
 
@@ -50,7 +50,7 @@ Required before implementation:
 - `docs/` contains product, architecture, specification, implementation, and bootstrap documents.
 - `developer-ai/` contains AI agent context, standards, patterns, playbooks, prompts, and checklists.
 - `apps/` is reserved for future application entry points.
-- `packages/` contains shared infrastructure workspace packages introduced in Phase 1 and connector/raw-content foundations introduced in Phase 2. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, and `packages/raw-content`.
+- `packages/` contains shared infrastructure workspace packages introduced in Phase 1 and connector/raw-content/normalization foundations introduced in Phase 2. Current implemented packages are `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, and `packages/normalization`.
 - `schemas/`, `prompts/`, `examples/`, `infrastructure/`, `docker/`, and `scripts/` are repository support areas.
 - `.github/` contains contribution automation, issue templates, pull request templates, labels, owners, and CI workflows.
 
@@ -64,11 +64,13 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Raw Content Pipeline Foundation work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, and `packages/raw-content`.
+During Phase 2 Normalization Pipeline Foundation work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, and `packages/normalization`.
 
 Phase 2 Milestone 15: Reddit Provider Transport has an explicit `phase-2-milestone-15` verification gate. Milestone 15 may introduce provider transport architecture only inside `packages/connectors-reddit`; it must not introduce Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, or business logic.
 
 Phase 2 Milestone 16: Raw Content Pipeline Foundation has an explicit `phase-2-milestone-16` verification gate. Milestone 16 introduces `@opportunity-os/raw-content` as the owner of Raw Content contracts only; it must not introduce persistence implementation, Prisma repositories, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, or business scoring.
+
+Phase 2 Milestone 17: Normalization Pipeline Foundation has an explicit `phase-2-milestone-17` verification gate. Milestone 17 introduces `@opportunity-os/normalization` as the owner of normalization contracts, canonical text contracts, deterministic cleaning contracts, language and chunking contracts, metadata/provenance preservation contracts, validation/result/event contracts, deterministic fixtures, security tests, export stability tests, dependency-boundary tests, and pipeline integration tests. It must not introduce embeddings, LLMs, AI analysis, opportunity generation, REST APIs, frontend, scheduler, persistence implementation, Prisma repositories, workers, event buses, database implementation, or business scoring.
 
 ## Phase Workflow
 
@@ -373,7 +375,7 @@ Every pull request should:
 
 ## Current Status
 
-Phase 1 Milestone 7 Slice E completes Application Foundation documentation and governance. The repository remains free of business logic, connectors, APIs, REST API routes, controllers, authentication implementation, authorization implementation, AI workflows, frontend implementation, app code, connector execution, Raw Content persistence workflows, database repository implementations, production event store transport, business scoring logic, and product use cases.
+Phase 2 Milestone 17 completes the Normalization Pipeline Foundation in `packages/normalization`. The repository remains free of business logic, REST APIs, controllers, authentication implementation, authorization implementation, AI workflows, frontend implementation, app code, schedulers, workers, Raw Content persistence workflows, database repository implementations, production event store transport, business scoring logic, product use cases, embeddings, LLMs, and AI analysis behavior.
 
 ## Domain Foundation
 
@@ -606,4 +608,26 @@ Security and governance rules:
 
 Milestone 16 is complete when `@opportunity-os/raw-content` is implemented, tested, documented, independently buildable, covered by security, dependency-boundary, export-stability, and contract-stability tests, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, and verified by `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-16`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`.
 
-Phase 2 Milestone 17 must consume `@opportunity-os/raw-content` for canonical raw content contracts. Do not begin Normalization Pipeline work until a scoped Milestone 17 implementation task is approved.
+Phase 2 Milestone 17 consumes `@opportunity-os/raw-content` for canonical Raw Content contracts and hands off canonical normalized text contracts to Phase 2 Milestone 18.
+
+## Normalization Pipeline Foundation
+
+Phase 2 Milestone 17 establishes the Normalization Pipeline Foundation in `packages/normalization`.
+
+`@opportunity-os/normalization` owns canonical text contracts, text segment contracts, normalization input/output contracts, stage vocabulary, deterministic cleaning contracts, language detection contracts, text chunking contracts, metadata preservation contracts, provenance preservation contracts, validation contracts, result contracts, normalization event contracts, deterministic fixtures, security tests, export stability tests, dependency-boundary tests, and pipeline integration tests.
+
+Normalization consumers must import from `@opportunity-os/normalization` instead of redefining canonical text, cleaning, chunking, preservation, validation, result, event, or fixture contracts.
+
+The milestone remains contract-only. It does not implement normalization algorithms, DOM parsing, browser behavior, network calls, parser-library integrations, embeddings, LLMs, AI analysis, event buses, database persistence, Prisma repositories, opportunity generation, REST APIs, frontend behavior, schedulers, workers, or business scoring.
+
+Security and governance rules:
+
+- fixtures must contain deterministic safe data only
+- raw provider payloads must not appear in canonical text, fixtures, validation issues, results, events, logs, or tests
+- secrets, tokens, auth headers, credentials, provider keys, DSNs, database URLs, stack traces, and raw causes must not appear in safe outputs
+- dependency boundaries must continue blocking AI SDKs, persistence, API/frontend frameworks, schedulers, workers, database implementations, and business packages
+- public exports must route through `packages/normalization/src/index.ts`
+
+Milestone 17 is complete when `@opportunity-os/normalization` is implemented, tested, documented, independently buildable, covered by fixture, export-stability, security, dependency-boundary, and pipeline integration tests, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, and verified by `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-17`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`.
+
+Phase 2 Milestone 18 may consume `@opportunity-os/normalization` for canonical normalized text and provenance-preserving normalization outputs. Do not begin AI Analysis Pipeline work until a scoped Milestone 18 implementation task is approved.

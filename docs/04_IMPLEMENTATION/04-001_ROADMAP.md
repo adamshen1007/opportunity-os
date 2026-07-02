@@ -1990,21 +1990,85 @@ Readiness gate:
 
 Next milestone dependency:
 
-- Phase 2 Milestone 17 must consume `@opportunity-os/raw-content` for canonical Raw Content contracts. Do not begin Normalization Pipeline work until a scoped Milestone 17 implementation task is approved.
+- Phase 2 Milestone 17 consumes `@opportunity-os/raw-content` for canonical Raw Content contracts and hands off normalized canonical text contracts to Phase 2 Milestone 18.
 
 ## Phase 2 Milestone 17 — Normalization Pipeline
 
 Goal:
 
-Transform Raw Content into Canonical Content.
+Transform Raw Content into Canonical Content through contract-only, provenance-preserving normalization foundation work.
 
-Deliverables:
+Owner:
 
-- normalization contracts
-- Canonical Content model
-- provenance-preserving transformation
-- normalization events
-- deterministic tests
+- `packages/normalization`
+
+Completed deliverables:
+
+- `@opportunity-os/normalization` package boundary and public export boundary
+- `phase-2-milestone-17` repository verification support
+- canonical text and text segment contracts
+- normalization input, output, operation, and stage vocabulary contracts
+- deterministic cleaning contracts for markdown, HTML, Unicode, whitespace, and URL normalization
+- language detection contracts
+- text chunking contracts
+- metadata preservation contracts
+- provenance preservation contracts
+- normalization validation contracts
+- normalization result contracts
+- normalization event contracts
+- deterministic fixtures
+- export stability tests
+- security tests
+- dependency-boundary tests
+- pipeline integration tests
+- package documentation and PR governance
+
+Non-goals:
+
+- embeddings
+- LLMs
+- AI analysis
+- semantic interpretation
+- normalization algorithm execution
+- DOM or browser behavior
+- network calls
+- parser-library integrations
+- event buses
+- database persistence
+- Prisma repositories
+- opportunity generation
+- REST APIs
+- frontend implementation
+- schedulers
+- workers
+- business scoring
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-17
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Readiness gate:
+
+- `@opportunity-os/normalization` is implemented, tested, documented, and independently buildable
+- public exports route through `packages/normalization/src/index.ts`
+- canonical text, text segments, stage vocabulary, cleaning contracts, language contracts, chunking contracts, preservation contracts, validation contracts, result contracts, event contracts, and fixtures are available from the package root
+- deterministic fixtures contain no secrets, credentials, tokens, auth headers, DSNs, database URLs, raw provider payloads, or real provider responses
+- security tests confirm safe outputs do not leak secrets, raw provider payloads, stacks, or raw causes
+- dependency-boundary tests continue blocking AI, persistence, APIs, frontend, workers, schedulers, and business scoring
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/normalization`
+- repository verification supports `phase-2-milestone-17`
+
+Next milestone dependency:
+
+- Phase 2 Milestone 18 must consume `@opportunity-os/normalization` for canonical normalized text contracts. Do not begin AI Analysis Pipeline work until a scoped Milestone 18 implementation task is approved.
 
 ## Phase 2 Milestone 18 — AI Analysis Pipeline
 

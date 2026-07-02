@@ -69,7 +69,7 @@ Engineering Kit v3.0 establishes this future order:
 |-----------|------|---------------|
 | Phase 2 M15 - Reddit Provider Transport | Add Reddit provider integration architecture: OAuth contracts, HTTP transport abstraction, API client abstraction, request builder, response parser, pagination transport, rate-limit parsing, runtime compatibility, error mapping, telemetry, and fake transport tests. | `packages/connectors-reddit` |
 | Phase 2 M16 - Raw Content Pipeline Foundation | Introduce Raw Content contracts, source metadata, ingestion metadata, provenance, normalization boundaries, deduplication, fingerprinting, validation, storage ports, events, Reddit provider mapping, deterministic tests, and verification. | `packages/raw-content`, `packages/connectors-reddit`, `packages/events`, `packages/domain`, `packages/application`, `packages/database`, `packages/shared` |
-| Phase 2 M17 - Normalization Pipeline | Transform Raw Content into Canonical Content with provenance-preserving normalization contracts and tests. | future intelligence modules |
+| Phase 2 M17 - Normalization Pipeline | Transform Raw Content into Canonical Content with provenance-preserving normalization contracts, deterministic fixtures, security tests, dependency-boundary tests, and pipeline integration tests. | `packages/normalization`, `packages/raw-content`, `packages/events`, `packages/domain`, `packages/shared` |
 | Phase 2 M18 - AI Analysis Pipeline | Add AI workflow orchestration, prompt resolution, provider adapters, extraction contracts, and analysis events. | future AI/intelligence modules |
 | Phase 2 M19 - Opportunity Engine | Implement opportunity generation, clustering, trend detection, deterministic scoring, and explainability contracts. | future intelligence/domain/application modules |
 | Phase 2 M20 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
@@ -155,6 +155,45 @@ Not allowed:
 - worker
 - business scoring
 
+## Phase 2 M17 Boundary
+
+Milestone 17 establishes the Normalization Pipeline Foundation in `packages/normalization`.
+
+Public exports must route through `packages/normalization/src/index.ts`. The package consumes `@opportunity-os/raw-content` for canonical Raw Content contracts and produces canonical text, cleaning, language, chunking, preservation, validation, result, event, and fixture contracts for future consumers.
+
+Allowed:
+
+- Normalization package boundary
+- canonical text and text segment contracts
+- normalization input, output, operation, and stage vocabulary contracts
+- markdown, HTML, Unicode, whitespace, and URL cleaning contracts
+- language detection contracts
+- text chunking contracts
+- metadata and provenance preservation contracts
+- validation, result, and event contracts
+- deterministic fixtures
+- export stability, security, dependency-boundary, and pipeline integration tests
+
+Not allowed:
+
+- embeddings
+- LLMs
+- AI analysis
+- semantic interpretation
+- normalization algorithm execution
+- DOM or browser behavior
+- network calls
+- parser-library integrations
+- event buses
+- database persistence
+- Prisma repositories
+- opportunity generation
+- REST APIs
+- frontend
+- scheduler
+- worker
+- business scoring
+
 ## Required Verification Gate
 
 Every implementation milestone from M15 onward must pass:
@@ -175,6 +214,12 @@ For Milestone 15, `<milestone-phase>` must be:
 phase-2-milestone-15
 ```
 
+For Milestone 17, `<milestone-phase>` must be:
+
+```sh
+phase-2-milestone-17
+```
+
 ## Codex Execution Rules
 
 Every Codex implementation session must:
@@ -188,7 +233,7 @@ Every Codex implementation session must:
 7. Run the required verification commands.
 8. Stop after the assigned task is complete.
 
-Do not begin Phase 2 Milestone 15 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 18 until an implementation task explicitly scopes it.
 
 ## Definition of Complete
 
@@ -207,4 +252,4 @@ A milestone is complete only when:
 | Version | Summary |
 |---------|---------|
 | 2.0.0 | Defined the initial repository bootstrap implementation sequence. |
-| 3.0.0 | Rebased the canonical implementation order on completed work through Phase 2 Milestone 14 and defined the Milestone 15 provider transport transition. |
+| 3.0.0 | Rebased the canonical implementation order on completed work through Phase 2 Milestone 17 and defined the Milestone 18 AI analysis handoff. |

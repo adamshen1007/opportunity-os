@@ -294,6 +294,16 @@ node scripts/verify-repository.mjs --phase phase-2-milestone-16
 
 In Milestone 16 mode, implementation files are also permitted in `packages/raw-content/`. The verifier requires the raw-content package, strict TypeScript config, package test config, README boundary documentation, and public export boundary while continuing to block persistence implementation, Prisma repositories, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, and business scoring.
 
+Phase 2 Milestone 17 adds the Normalization Pipeline Foundation boundary in `packages/normalization/`.
+
+Run the explicit Normalization Pipeline Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-17
+```
+
+In Milestone 17 mode, implementation files are also permitted in `packages/normalization/`. The verifier requires the normalization package, strict TypeScript config, package test config, README boundary documentation, public export boundary, and package-boundary test while continuing to block embeddings, AI analysis, opportunity generation, REST APIs, frontend, scheduler, persistence implementation, Prisma repositories, workers, and business scoring.
+
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
 For Phase 1 Milestone 2, the verifier also checks shared foundation package dependencies:

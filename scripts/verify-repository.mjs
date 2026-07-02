@@ -64,6 +64,7 @@ const requiredReadmes = [
   "packages/events/README.md",
   "packages/infrastructure/README.md",
   "packages/intelligence/README.md",
+  "packages/normalization/README.md",
   "packages/raw-content/README.md",
   "packages/shared/README.md",
   "packages/ui/README.md",
@@ -94,9 +95,11 @@ const phaseTwelveAliases = new Set(["phase-2-milestone-12", "connector-host-foun
 const phaseThirteenAliases = new Set(["phase-2-milestone-13", "reddit-connector-foundation"]);
 const phaseFourteenAliases = new Set(["phase-2-milestone-14", "reddit-runtime-foundation", "reddit-connector-runtime-implementation"]);
 const phaseFifteenAliases = new Set(["phase-2-milestone-15", "reddit-provider-transport"]);
-const phaseSixteenAliases = new Set(["review", "phase-2-milestone-16", "raw-content-pipeline-foundation"]);
+const phaseSixteenAliases = new Set(["phase-2-milestone-16", "raw-content-pipeline-foundation"]);
+const phaseSeventeenAliases = new Set(["review", "phase-2-milestone-17", "normalization-pipeline-foundation"]);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseSixteen = phaseSixteenAliases.has(phase);
+const isPhaseSeventeen = phaseSeventeenAliases.has(phase);
+const isPhaseSixteen = phaseSixteenAliases.has(phase) || isPhaseSeventeen;
 const isPhaseFifteen = phaseFifteenAliases.has(phase) || isPhaseSixteen;
 const isPhaseTwo = phaseTwoAliases.has(phase) || phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
 const isPhaseThree = phaseThreeAliases.has(phase) || phaseFourAliases.has(phase) || phaseFiveAliases.has(phase) || phaseSixAliases.has(phase) || phaseSevenAliases.has(phase) || phaseEightAliases.has(phase) || phaseNineAliases.has(phase) || phaseTenAliases.has(phase) || phaseElevenAliases.has(phase) || phaseTwelveAliases.has(phase) || phaseThirteenAliases.has(phase) || phaseFourteenAliases.has(phase) || isPhaseFifteen;
@@ -126,6 +129,7 @@ const allowedPhaseThirteenImplementationRoots = [...allowedPhaseTwelveImplementa
 const allowedPhaseFourteenImplementationRoots = allowedPhaseThirteenImplementationRoots;
 const allowedPhaseFifteenImplementationRoots = allowedPhaseFourteenImplementationRoots;
 const allowedPhaseSixteenImplementationRoots = [...allowedPhaseFifteenImplementationRoots, "packages/raw-content"];
+const allowedPhaseSeventeenImplementationRoots = [...allowedPhaseSixteenImplementationRoots, "packages/normalization"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1289,6 +1293,19 @@ const requiredRawContentFoundationExports = [
   "RAW_CONTENT_EVENT_NAMES",
   "REDDIT_RAW_CONTENT_MAPPING_TARGETS"
 ];
+const requiredNormalizationFoundationFiles = [
+  "packages/normalization/package.json",
+  "packages/normalization/README.md",
+  "packages/normalization/tsconfig.json",
+  "packages/normalization/vitest.config.ts",
+  "packages/normalization/src/index.ts",
+  "packages/normalization/src/__tests__/package-boundary.test.ts"
+];
+const requiredNormalizationFoundationExports = [
+  "NORMALIZATION_FOUNDATION_PHASE",
+  "NORMALIZATION_PACKAGE_NAME",
+  "NormalizationPackageBoundary"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1435,6 +1452,15 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/database",
       "@opportunity-os/domain",
       "@opportunity-os/events",
+      "@opportunity-os/shared"
+    ]
+  },
+  "packages/normalization": {
+    packageName: "@opportunity-os/normalization",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/domain",
+      "@opportunity-os/events",
+      "@opportunity-os/raw-content",
       "@opportunity-os/shared"
     ]
   }
@@ -2647,6 +2673,104 @@ function assertRawContentFoundationPolicy() {
   }
 }
 
+function assertNormalizationFoundationPolicy() {
+  assertRawContentFoundationPolicy();
+
+  for (const file of requiredNormalizationFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Normalization Pipeline foundation is missing required file: ${file}`);
+    }
+  }
+
+  const normalizationIndexPath = "packages/normalization/src/index.ts";
+  if (exists(normalizationIndexPath)) {
+    const normalizationIndex = read(normalizationIndexPath);
+    if (!normalizationIndex.includes("Normalization Pipeline Foundation public export boundary")) {
+      fail(`${normalizationIndexPath} must document the Phase 2 Milestone 17 Normalization Pipeline Foundation public export boundary`);
+    }
+
+    for (const exportName of requiredNormalizationFoundationExports) {
+      if (!normalizationIndex.includes(exportName)) {
+        fail(`${normalizationIndexPath} must export ${exportName} from the Normalization public boundary`);
+      }
+    }
+  }
+
+  const normalizationReadmePath = "packages/normalization/README.md";
+  if (exists(normalizationReadmePath)) {
+    const normalizationReadme = read(normalizationReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 2 Milestone 17",
+      "normalization package boundary only",
+      "must not introduce embeddings"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!normalizationReadme.includes(statement)) {
+        fail(`${normalizationReadmePath} must document the Phase 2 Milestone 17 Normalization Pipeline Foundation boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const normalizationPackageJsonPath = "packages/normalization/package.json";
+  if (exists(normalizationPackageJsonPath)) {
+    const normalizationPackageJson = JSON.parse(read(normalizationPackageJsonPath));
+    const dependencyNames = Object.keys({
+      ...(normalizationPackageJson.dependencies ?? {}),
+      ...(normalizationPackageJson.devDependencies ?? {}),
+      ...(normalizationPackageJson.optionalDependencies ?? {}),
+      ...(normalizationPackageJson.peerDependencies ?? {})
+    });
+    const prohibitedDependencyPatterns = [
+      ["embedding or AI SDK", /(^openai$|^@anthropic-ai\/sdk$|ai-sdk|embed|embedding)/iu],
+      ["Prisma", /(^@prisma\/client$|^prisma$)/iu],
+      ["API framework", /(^express$|^fastify$|^hono$|^@nestjs)/iu],
+      ["frontend framework", /(^react$|^react-dom$|^next$|^vite$)/iu],
+      ["scheduler or worker", /(^bullmq$|^agenda$|scheduler|worker|queue)/iu]
+    ];
+
+    for (const dependencyName of dependencyNames) {
+      for (const [label, pattern] of prohibitedDependencyPatterns) {
+        if (pattern.test(dependencyName)) {
+          fail(`Normalization Pipeline foundation must not depend on ${label}; found ${dependencyName} in ${normalizationPackageJsonPath}`);
+        }
+      }
+    }
+  }
+
+  for (const file of listFiles("packages/normalization")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/normalization/dist/") ||
+      file.startsWith("packages/normalization/node_modules/") ||
+      file.startsWith("packages/normalization/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["embeddings", /\bembedding(s)?\b|\bembedText\b|\bvectorize\b/iu],
+      ["AI analysis", /\bAIAnalysis\b|\bai analysis\b|\bLLM\b|\bOpenAI\b|\bAnthropic\b/iu],
+      ["opportunity generation", /\bgenerateOpportunity\b|\bOpportunityEngine\b|\bopportunity generation\b/iu],
+      ["REST API", /\bREST API\b|\bapi route\b|\broute handler\b|\bAPI handler\b/iu],
+      ["frontend", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["scheduler", /\bscheduler\b|\bscheduleNormalization\b/iu],
+      ["persistence implementation", /\bPrismaClient\b|\brepository implementation\b|\bwriteToDatabase\b|\bpersistNormalized\b/iu],
+      ["Prisma repository", /\bPrisma.*Repository\b|\bRepository.*Prisma\b/iu],
+      ["worker", /\bworker\b|\bWorkerProcess\b/iu],
+      ["business scoring", /\bscoreOpportunity\b|\bscoring engine\b|\bbusiness scoring\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Normalization Pipeline foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -2683,7 +2807,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseSixteen
+  const allowedImplementationRoots = isPhaseSeventeen
+    ? allowedPhaseSeventeenImplementationRoots
+    : isPhaseSixteen
     ? allowedPhaseSixteenImplementationRoots
     : isPhaseFifteen
     ? allowedPhaseFifteenImplementationRoots
@@ -2722,7 +2848,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -2786,6 +2912,10 @@ if (isPhaseFifteen) {
 
 if (isPhaseSixteen) {
   assertRawContentFoundationPolicy();
+}
+
+if (isPhaseSeventeen) {
+  assertNormalizationFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");
