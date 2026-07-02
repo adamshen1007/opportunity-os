@@ -65,6 +65,7 @@ const requiredReadmes = [
   "packages/events/README.md",
   "packages/infrastructure/README.md",
   "packages/intelligence/README.md",
+  "packages/llm-analysis/README.md",
   "packages/normalization/README.md",
   "packages/raw-content/README.md",
   "packages/shared/README.md",
@@ -98,9 +99,11 @@ const phaseFourteenAliases = new Set(["phase-2-milestone-14", "reddit-runtime-fo
 const phaseFifteenAliases = new Set(["phase-2-milestone-15", "reddit-provider-transport"]);
 const phaseSixteenAliases = new Set(["phase-2-milestone-16", "raw-content-pipeline-foundation"]);
 const phaseSeventeenAliases = new Set(["phase-2-milestone-17", "normalization-pipeline-foundation"]);
-const phaseEighteenAliases = new Set(["review", "phase-2-milestone-18", "embedding-foundation", "embeddings-foundation"]);
+const phaseEighteenAliases = new Set(["phase-2-milestone-18", "embedding-foundation", "embeddings-foundation"]);
+const phaseNineteenAliases = new Set(["review", "phase-2-milestone-19", "llm-analysis-foundation"]);
+const isPhaseNineteen = phaseNineteenAliases.has(phase);
 const isPhaseOne = phaseOneAliases.has(phase);
-const isPhaseEighteen = phaseEighteenAliases.has(phase);
+const isPhaseEighteen = phaseEighteenAliases.has(phase) || isPhaseNineteen;
 const isPhaseSeventeen = phaseSeventeenAliases.has(phase) || isPhaseEighteen;
 const isPhaseSixteen = phaseSixteenAliases.has(phase) || isPhaseSeventeen;
 const isPhaseFifteen = phaseFifteenAliases.has(phase) || isPhaseSixteen;
@@ -134,6 +137,7 @@ const allowedPhaseFifteenImplementationRoots = allowedPhaseFourteenImplementatio
 const allowedPhaseSixteenImplementationRoots = [...allowedPhaseFifteenImplementationRoots, "packages/raw-content"];
 const allowedPhaseSeventeenImplementationRoots = [...allowedPhaseSixteenImplementationRoots, "packages/normalization"];
 const allowedPhaseEighteenImplementationRoots = [...allowedPhaseSeventeenImplementationRoots, "packages/embeddings"];
+const allowedPhaseNineteenImplementationRoots = [...allowedPhaseEighteenImplementationRoots, "packages/llm-analysis"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1322,6 +1326,18 @@ const requiredEmbeddingFoundationExports = [
   "EMBEDDINGS_PACKAGE_NAME",
   "EmbeddingsPackageBoundary"
 ];
+const requiredLlmAnalysisFoundationFiles = [
+  "packages/llm-analysis/package.json",
+  "packages/llm-analysis/README.md",
+  "packages/llm-analysis/tsconfig.json",
+  "packages/llm-analysis/vitest.config.ts",
+  "packages/llm-analysis/src/index.ts"
+];
+const requiredLlmAnalysisFoundationExports = [
+  "LLM_ANALYSIS_FOUNDATION_PHASE",
+  "LLM_ANALYSIS_PACKAGE_NAME",
+  "LlmAnalysisPackageBoundary"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1483,6 +1499,16 @@ const sharedFoundationPackageRules = {
   "packages/embeddings": {
     packageName: "@opportunity-os/embeddings",
     allowedWorkspaceDependencies: [
+      "@opportunity-os/events",
+      "@opportunity-os/normalization",
+      "@opportunity-os/raw-content",
+      "@opportunity-os/shared"
+    ]
+  },
+  "packages/llm-analysis": {
+    packageName: "@opportunity-os/llm-analysis",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/embeddings",
       "@opportunity-os/events",
       "@opportunity-os/normalization",
       "@opportunity-os/raw-content",
@@ -2900,6 +2926,109 @@ function assertEmbeddingFoundationPolicy() {
   }
 }
 
+function assertLlmAnalysisFoundationPolicy() {
+  assertEmbeddingFoundationPolicy();
+
+  for (const file of requiredLlmAnalysisFoundationFiles) {
+    if (!exists(file)) {
+      fail(`LLM Analysis Foundation is missing required file: ${file}`);
+    }
+  }
+
+  const llmAnalysisIndexPath = "packages/llm-analysis/src/index.ts";
+  if (exists(llmAnalysisIndexPath)) {
+    const llmAnalysisIndex = read(llmAnalysisIndexPath);
+    if (!llmAnalysisIndex.includes("LLM Analysis Foundation public export boundary")) {
+      fail(`${llmAnalysisIndexPath} must document the Phase 2 Milestone 19 LLM Analysis Foundation public export boundary`);
+    }
+
+    for (const exportName of requiredLlmAnalysisFoundationExports) {
+      if (!llmAnalysisIndex.includes(exportName)) {
+        fail(`${llmAnalysisIndexPath} must export ${exportName} from the LLM Analysis Foundation public boundary`);
+      }
+    }
+  }
+
+  const llmAnalysisReadmePath = "packages/llm-analysis/README.md";
+  if (exists(llmAnalysisReadmePath)) {
+    const llmAnalysisReadme = read(llmAnalysisReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 2 Milestone 19",
+      "package boundary only",
+      "must not introduce provider SDKs"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!llmAnalysisReadme.includes(statement)) {
+        fail(`${llmAnalysisReadmePath} must document the Phase 2 Milestone 19 LLM Analysis Foundation boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const llmAnalysisPackageJsonPath = "packages/llm-analysis/package.json";
+  if (exists(llmAnalysisPackageJsonPath)) {
+    const llmAnalysisPackageJson = JSON.parse(read(llmAnalysisPackageJsonPath));
+    const dependencyNames = Object.keys({
+      ...(llmAnalysisPackageJson.dependencies ?? {}),
+      ...(llmAnalysisPackageJson.devDependencies ?? {}),
+      ...(llmAnalysisPackageJson.optionalDependencies ?? {}),
+      ...(llmAnalysisPackageJson.peerDependencies ?? {})
+    });
+    const prohibitedDependencyPatterns = [
+      ["provider SDK", /(^openai$|^@openai|^@anthropic-ai\/sdk$|^@google\/generative-ai$|^@google-genai|gemini)/iu],
+      ["API framework", /(^express$|^fastify$|^hono$|^@nestjs)/iu],
+      ["frontend framework", /(^react$|^react-dom$|^next$|^vite$)/iu],
+      ["scheduler or worker", /(^bullmq$|^agenda$|scheduler|worker|queue)/iu],
+      ["persistence implementation", /(^@prisma\/client$|^prisma$|typeorm|sequelize|mongoose)/iu],
+      ["opportunity engine", /(opportunity-engine|opportunity-generation|scoring)/iu]
+    ];
+
+    for (const dependencyName of dependencyNames) {
+      for (const [label, pattern] of prohibitedDependencyPatterns) {
+        if (pattern.test(dependencyName)) {
+          fail(`LLM Analysis Foundation must not depend on ${label}; found ${dependencyName} in ${llmAnalysisPackageJsonPath}`);
+        }
+      }
+    }
+  }
+
+  for (const file of listFiles("packages/llm-analysis")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("packages/llm-analysis/dist/") ||
+      file.startsWith("packages/llm-analysis/node_modules/") ||
+      file.startsWith("packages/llm-analysis/.turbo/") ||
+      file.includes("/__tests__/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["OpenAI API implementation", /\bOpenAI\b|\bopenai\.(responses|chat|completions|embeddings)\b|\bapi\.openai\.com\b/iu],
+      ["Anthropic API implementation", /\bAnthropic\b|\bclaude\b|\bapi\.anthropic\.com\b/iu],
+      ["Gemini API implementation", /\bGemini\b|\bgenerative-ai\b|\bgenerateContent\b/iu],
+      ["provider SDK", /\bprovider SDK\b|\bOpenAIClient\b|\bAnthropicClient\b|\bGeminiClient\b/iu],
+      ["live LLM call", /\blive LLM call\b|\bcallLlm\b|\bcallLLM\b|\binvokeModel\b|\bgenerateText\b/iu],
+      ["prompt runtime", /\bprompt runtime\b|\brunPrompt\b|\bexecutePrompt\b|\brenderPrompt\b/iu],
+      ["extraction workflow", /\bextraction workflow\b|\bpain point extraction\b|\bextractPainPoint\b/iu],
+      ["opportunity generation", /\bgenerateOpportunity\b|\bOpportunityEngine\b|\bopportunity generation\b/iu],
+      ["REST API", /\bREST API\b|\bapi route\b|\broute handler\b|\bAPI handler\b/iu],
+      ["frontend", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["persistence implementation", /\bPrismaClient\b|\brepository implementation\b|\bwriteToDatabase\b|\bpersistAnalysis\b/iu],
+      ["scheduler", /\bscheduler\b|\bscheduleAnalysis\b/iu],
+      ["worker", /\bworker\b|\bWorkerProcess\b/iu],
+      ["business scoring", /\bbusiness scoring\b|\bscoreOpportunity\b|\bscoring engine\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`LLM Analysis Foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -2936,7 +3065,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseEighteen
+  const allowedImplementationRoots = isPhaseNineteen
+    ? allowedPhaseNineteenImplementationRoots
+    : isPhaseEighteen
     ? allowedPhaseEighteenImplementationRoots
     : isPhaseSeventeen
     ? allowedPhaseSeventeenImplementationRoots
@@ -2979,7 +3110,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -3051,6 +3182,10 @@ if (isPhaseSeventeen) {
 
 if (isPhaseEighteen) {
   assertEmbeddingFoundationPolicy();
+}
+
+if (isPhaseNineteen) {
+  assertLlmAnalysisFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

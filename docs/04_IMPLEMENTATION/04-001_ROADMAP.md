@@ -70,17 +70,17 @@ Completed:
 - Phase 2 M16 Raw Content Pipeline
 - Phase 2 M17 Normalization Pipeline
 - Phase 2 M18 Embedding Foundation
+- Phase 2 M19 LLM Analysis Foundation
 
 Future:
 
-- Phase 2 M19 AI Analysis Pipeline
 - Phase 2 M20 Opportunity Engine
 - Phase 2 M21 REST API
 - Phase 2 M22 Dashboard
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede AI analysis, AI analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes opportunity generation, opportunity generation precedes REST APIs, and REST APIs precede the dashboard.
 
-Do not begin Phase 2 Milestone 19 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 20 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2146,23 +2146,92 @@ Readiness gate:
 
 Next milestone dependency:
 
-- Phase 2 Milestone 19 must consume `@opportunity-os/embeddings` for provider-independent embedding contracts. Do not begin Phase 2 Milestone 19 until a scoped implementation task is approved.
+- Phase 2 Milestone 19 consumes `@opportunity-os/embeddings` for provider-independent embedding contracts.
 
-## Phase 2 Milestone 19 — AI Analysis Pipeline
+## Phase 2 Milestone 19 — LLM Analysis Foundation
 
 Goal:
 
-Run AI-assisted analysis on normalized and embedded content.
+Define provider-independent LLM analysis contracts without provider execution, prompt runtime, extraction workflows, or business behavior.
+
+Owner:
+
+- `packages/llm-analysis`
+
+Dependencies:
+
+- `@opportunity-os/normalization`
+- `@opportunity-os/embeddings`
+- `@opportunity-os/raw-content`
+- `@opportunity-os/shared`
+- `@opportunity-os/events`
 
 Deliverables:
 
-- prompt resolution
-- AI provider adapter boundaries
-- workflow orchestration
-- extraction contracts
-- analysis events
-- safe telemetry
-- deterministic test harnesses
+- LLM provider abstraction contracts
+- prompt contract types
+- prompt template contracts
+- prompt input and output contracts
+- structured output contracts
+- analysis request and response contracts
+- analysis validation contracts
+- safety and redaction contracts
+- analysis result contracts
+- secret-safe analysis error contracts
+- analysis event contracts
+- deterministic synthetic fixtures
+- export stability tests
+- contract stability tests
+- security tests
+- dependency-boundary tests
+- pipeline integration tests
+- package documentation and PR governance
+
+Non-goals:
+
+- provider SDKs
+- OpenAI API calls
+- Anthropic API calls
+- Gemini API calls
+- live LLM calls
+- prompt execution runtime
+- extraction workflows
+- pain point extraction
+- opportunity generation
+- REST APIs
+- frontend implementation
+- persistence implementation
+- schedulers
+- workers
+- business scoring
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-19
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Readiness gate:
+
+- `@opportunity-os/llm-analysis` is implemented, tested, documented, and independently buildable
+- public exports route through `packages/llm-analysis/src/index.ts`
+- provider abstractions, prompts, prompt templates, prompt input/output contracts, structured output contracts, analysis request/response contracts, validation contracts, safety/redaction contracts, result contracts, error contracts, event contracts, and fixtures are available from the package root
+- deterministic fixtures contain synthetic prompts, synthetic normalized content references, synthetic embedding references, and synthetic structured outputs only
+- fixtures contain no provider payloads, API keys, real prompts, real embeddings, network references, credentials, tokens, auth headers, DSNs, database URLs, stack traces, or raw causes
+- security tests confirm safe outputs do not leak secrets, provider payloads, stacks, or raw causes
+- dependency-boundary tests continue blocking provider SDKs, provider APIs, persistence, APIs, frontend, schedulers, workers, and business scoring
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/llm-analysis`
+- repository verification supports `phase-2-milestone-19`
+
+Next milestone dependency:
+
+- Phase 2 Milestone 20 may consume `@opportunity-os/llm-analysis` for provider-independent analysis contracts. Do not begin Phase 2 Milestone 20 until a scoped implementation task is approved.
 
 ## Phase 2 Milestone 20 — Opportunity Engine
 

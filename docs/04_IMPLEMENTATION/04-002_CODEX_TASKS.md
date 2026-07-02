@@ -73,18 +73,19 @@ Codex must treat these milestones as complete and must not recreate their founda
 - Phase 2 M12 Connector Host Foundation
 - Phase 2 M13 Reddit Connector Foundation
 - Phase 2 M14 Reddit Runtime
+- Phase 2 M15 Reddit Provider Transport
+- Phase 2 M16 Raw Content Pipeline
+- Phase 2 M17 Normalization Pipeline
+- Phase 2 M18 Embedding Foundation
+- Phase 2 M19 LLM Analysis Foundation
 
 ## Future Milestone Sequence
 
 The v3.0 task catalog uses this future sequence:
 
-1. Phase 2 M15 Reddit Provider Transport
-2. Phase 2 M16 Raw Content Pipeline
-3. Phase 2 M17 Normalization Pipeline
-4. Phase 2 M18 AI Analysis Pipeline
-5. Phase 2 M19 Opportunity Engine
-6. Phase 2 M20 REST API
-7. Phase 2 M21 Dashboard
+1. Phase 2 M20 Opportunity Engine
+2. Phase 2 M21 REST API
+3. Phase 2 M22 Dashboard
 
 ## Milestone 15 Guardrail
 
