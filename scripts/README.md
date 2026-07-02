@@ -29,9 +29,11 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - LLM Analysis Foundation boundary checks during Phase 2 Milestone 19
 - Structured Analysis Foundation boundary checks during Phase 2 Milestone 20
 - Opportunity Engine Foundation boundary checks during Phase 2 Milestone 21
+- Opportunity Pipeline Foundation boundary checks during Phase 2 Milestone 22
+- Candidate Opportunity Engine boundary checks during Phase 2 Milestone 23
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 22 boundary. Phase 2 Milestone 22 also has an explicit `phase-2-milestone-22` gate for Opportunity Pipeline Foundation work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 23 boundary. Phase 2 Milestone 23 also has an explicit `phase-2-milestone-23` gate for Candidate Opportunity Engine work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 
@@ -319,6 +321,16 @@ node scripts/verify-repository.mjs --phase phase-2-milestone-22
 ```
 
 In Milestone 22 mode, implementation files are also permitted in `packages/opportunity-pipeline/`. The verifier requires the opportunity-pipeline package, strict TypeScript config, package test config, README documentation, public export boundary, pipeline primitives, stage contracts, metadata contracts, provenance contracts, evidence aggregation contracts, hypothesis assembly contracts, candidate opportunity contracts, validation contracts, result contracts, error contracts, event contracts, deterministic fixtures, export stability tests, contract stability tests, dependency-boundary tests, security tests, upstream integration tests, and root pipeline integration while continuing to block business scoring algorithms, ranking algorithms, recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, provider SDKs, workflow engines, aggregation algorithms, generation logic, execution behavior, and business workflows.
+
+Phase 2 Milestone 23 adds the Candidate Opportunity Engine foundation in `packages/opportunity-candidates/`.
+
+Run the explicit Candidate Opportunity Engine boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-23
+```
+
+In Milestone 23 mode, implementation files are also permitted in `packages/opportunity-candidates/`. Slice A requires the opportunity-candidates package, strict TypeScript config, package test config, README documentation, and public export boundary while continuing to block production ranking algorithms, recommendation engines, business scoring, REST APIs, frontend, persistence implementation, schedulers, workers, provider SDKs, and business workflows.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 

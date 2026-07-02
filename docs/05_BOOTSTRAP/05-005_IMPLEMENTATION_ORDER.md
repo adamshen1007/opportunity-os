@@ -53,7 +53,7 @@ The following milestones are complete in Engineering Kit v3.0:
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, and Opportunity Pipeline Foundation contracts.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, and the Candidate Opportunity Engine package boundary.
 
 The repository does not yet contain:
 
@@ -74,8 +74,9 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 2 M23 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
-| Phase 2 M24 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+| Phase 2 M23 - Candidate Opportunity Engine | Define candidate opportunity package boundary, candidate contracts, lifecycle, validation, evidence completeness, confidence aggregation, metadata, provenance, results, errors, events, and fixtures. | `packages/opportunity-candidates` |
+| Phase 2 M24 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
+| Phase 2 M25 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
 ## Phase 2 M15 Boundary
 
@@ -452,7 +453,38 @@ pnpm test
 docker compose config
 ```
 
-Do not begin Phase 2 Milestone 23 until an implementation task explicitly scopes it.
+## Phase 2 M23 Boundary
+
+Milestone 23 adds the Candidate Opportunity Engine foundation in `packages/opportunity-candidates`.
+
+Milestone 23 establishes the `phase-2-milestone-23` verifier gate, strict TypeScript package scaffold, package README, package test config, public export boundary, candidate opportunity contracts, lifecycle contracts, validation contracts, evidence completeness contracts, confidence aggregation contracts, metadata contracts, provenance contracts, event contracts, error contracts, result contracts, deterministic fixtures, export stability tests, contract stability tests, security tests, dependency-boundary tests, upstream integration tests, and workspace pipeline integration.
+
+Milestone 23 must not introduce:
+
+- production ranking algorithms
+- recommendation engines
+- business scoring
+- REST APIs
+- frontend implementation
+- persistence implementation
+- schedulers
+- workers
+- provider SDKs
+- business workflows
+
+Required final verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-23
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Do not begin REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, production ranking algorithms, recommendation engines, business scoring, or business workflows until a later scoped implementation task approves them.
 
 ## Definition of Complete
 
@@ -477,4 +509,6 @@ A milestone is complete only when:
 | 3.0.3 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 20 Structured Analysis Foundation work and the Milestone 21 Opportunity Engine handoff. |
 | 3.0.4 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 21 Opportunity Engine Foundation work. |
 | 3.0.5 | Updated the canonical implementation order to make Phase 2 Milestone 22 the Opportunity Pipeline Foundation and move REST API work behind the pipeline boundary. |
-| 3.0.6 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 22 Opportunity Pipeline Foundation work and the Milestone 23 REST API handoff. |
+| 3.0.6 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 22 Opportunity Pipeline Foundation work. |
+| 3.0.7 | Updated the canonical implementation order to make Phase 2 Milestone 23 the Candidate Opportunity Engine and move REST API work behind the candidate boundary. |
+| 3.0.8 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 23 Candidate Opportunity Engine Foundation work. |

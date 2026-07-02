@@ -77,12 +77,13 @@ Completed:
 
 Future:
 
-- Phase 2 M23 REST API
-- Phase 2 M24 Dashboard
+- Phase 2 M23 Candidate Opportunity Engine
+- Phase 2 M24 REST API
+- Phase 2 M25 Dashboard
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede REST APIs, and REST APIs precede the dashboard.
 
-Do not begin Phase 2 Milestone 23 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 24 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2454,9 +2455,80 @@ docker compose config
 
 Next milestone dependency:
 
-- Phase 2 Milestone 23 may consume `@opportunity-os/opportunity-pipeline` for provider-independent pipeline contracts. Do not begin Phase 2 Milestone 23 until a scoped implementation task is approved.
+- Phase 2 Milestone 23 consumes `@opportunity-os/opportunity-pipeline` for provider-independent pipeline contracts. Do not begin REST API work until a scoped implementation task is approved.
 
-## Phase 2 Milestone 23 — REST API
+## Phase 2 Milestone 23 — Candidate Opportunity Engine
+
+Goal:
+
+Define provider-independent candidate opportunity contracts.
+
+Owner:
+
+- `packages/opportunity-candidates`
+
+Dependencies:
+
+- `@opportunity-os/opportunity-pipeline`
+- `@opportunity-os/opportunity-engine`
+- `@opportunity-os/analysis`
+- `@opportunity-os/llm-analysis`
+- `@opportunity-os/embeddings`
+
+Deliverables:
+
+- candidate opportunity package boundary
+- strict TypeScript package scaffold
+- package README
+- package test config
+- public export boundary
+- repository verification support for `phase-2-milestone-23`
+- candidate opportunity contracts
+- candidate lifecycle contracts
+- candidate validation contracts
+- evidence completeness contracts
+- confidence aggregation contracts
+- candidate metadata contracts
+- candidate provenance contracts
+- candidate event contracts
+- candidate error contracts
+- candidate result contracts
+- deterministic fixtures
+- export stability tests
+- contract stability tests
+- security tests
+- dependency-boundary tests
+- upstream integration tests
+- root workspace pipeline integration
+
+Readiness gate:
+
+- `@opportunity-os/opportunity-candidates` builds as a strict TypeScript package
+- public exports route through `packages/opportunity-candidates/src/index.ts`
+- repository verification supports `phase-2-milestone-23`
+- implementation files are permitted only in approved foundation packages and `packages/opportunity-candidates`
+- deterministic fixtures are synthetic and free of provider payloads, prompts, secrets, and production business examples
+- export stability, contract stability, dependency-boundary, security, fixture, and upstream integration tests pass
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/opportunity-candidates`
+- production ranking algorithms, recommendation engines, business scoring, REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, and business workflows remain blocked
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-23
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Next milestone dependency:
+
+- Phase 2 Milestone 24 may consume `@opportunity-os/opportunity-candidates` for provider-independent candidate opportunity contracts. Do not begin REST API work until a scoped implementation task is approved.
+
+## Phase 2 Milestone 24 — REST API
 
 Goal:
 
@@ -2471,7 +2543,7 @@ Deliverables:
 - API contract tests
 - OpenAPI documentation
 
-## Phase 2 Milestone 24 — Dashboard
+## Phase 2 Milestone 25 — Dashboard
 
 Goal:
 
