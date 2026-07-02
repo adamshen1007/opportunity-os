@@ -47,7 +47,7 @@ Every completed phase should produce a deployable system.
 
 # Engineering Kit v3.0 Roadmap State
 
-Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 21.
+Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 22.
 
 Completed:
 
@@ -73,15 +73,16 @@ Completed:
 - Phase 2 M19 LLM Analysis Foundation
 - Phase 2 M20 Structured Analysis Foundation
 - Phase 2 M21 Opportunity Engine Foundation
+- Phase 2 M22 Opportunity Pipeline Foundation
 
 Future:
 
-- Phase 2 M22 REST API
-- Phase 2 M23 Dashboard
+- Phase 2 M23 REST API
+- Phase 2 M24 Dashboard
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede REST APIs, and REST APIs precede the dashboard.
 
-Do not begin Phase 2 Milestone 22 until an implementation task explicitly scopes it.
+Do not begin Phase 2 Milestone 23 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2385,9 +2386,77 @@ docker compose config
 
 Next milestone dependency:
 
-- Phase 2 Milestone 22 may consume `@opportunity-os/opportunity-engine` for provider-independent opportunity contracts. Do not begin Phase 2 Milestone 22 until a scoped implementation task is approved.
+- Phase 2 Milestone 22 consumes `@opportunity-os/opportunity-engine` for provider-independent opportunity contracts.
 
-## Phase 2 Milestone 22 — REST API
+## Phase 2 Milestone 22 — Opportunity Pipeline Foundation
+
+Goal:
+
+Define provider-independent opportunity pipeline contracts from opportunity, analysis, embedding, normalization, raw-content, and event foundations.
+
+Owner:
+
+- `packages/opportunity-pipeline`
+
+Dependencies:
+
+- `@opportunity-os/opportunity-engine`
+- `@opportunity-os/analysis`
+- `@opportunity-os/llm-analysis`
+- `@opportunity-os/embeddings`
+- `@opportunity-os/normalization`
+- `@opportunity-os/raw-content`
+- `@opportunity-os/events`
+
+Deliverables:
+
+- opportunity pipeline package boundary
+- evidence aggregation contracts
+- hypothesis assembly contracts
+- candidate opportunity contracts
+- opportunity validation pipeline contracts
+- pipeline stage contracts
+- pipeline metadata contracts
+- pipeline provenance contracts
+- pipeline result contracts
+- pipeline error contracts
+- pipeline event contracts
+- deterministic synthetic fixtures
+- export stability tests
+- contract stability tests
+- security tests
+- dependency-boundary tests
+- upstream integration tests
+
+Readiness gate:
+
+- `@opportunity-os/opportunity-pipeline` builds as a strict TypeScript package
+- public exports route through `packages/opportunity-pipeline/src/index.ts`
+- repository verification supports `phase-2-milestone-22`
+- implementation files are permitted only in approved foundation packages and `packages/opportunity-pipeline`
+- pipeline primitives, stage contracts, metadata, provenance, evidence aggregation contracts, hypothesis assembly contracts, candidate opportunity contracts, validation contracts, result contracts, error contracts, event contracts, and deterministic fixture contracts are available from the package root
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/opportunity-pipeline`
+- fixtures are deterministic, synthetic, and free of provider payloads, prompts, secrets, and production business examples
+- export stability, contract stability, dependency-boundary, security, fixture, and upstream integration tests pass
+- business scoring algorithms, ranking algorithms, recommendation engines, REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, workflow engines, aggregation algorithms, generation logic, execution behavior, and business workflows remain blocked
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-22
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Next milestone dependency:
+
+- Phase 2 Milestone 23 may consume `@opportunity-os/opportunity-pipeline` for provider-independent pipeline contracts. Do not begin Phase 2 Milestone 23 until a scoped implementation task is approved.
+
+## Phase 2 Milestone 23 — REST API
 
 Goal:
 
@@ -2402,7 +2471,7 @@ Deliverables:
 - API contract tests
 - OpenAPI documentation
 
-## Phase 2 Milestone 23 — Dashboard
+## Phase 2 Milestone 24 — Dashboard
 
 Goal:
 

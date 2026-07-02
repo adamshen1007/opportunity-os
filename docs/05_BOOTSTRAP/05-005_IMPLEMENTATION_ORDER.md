@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 21.
+This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 22.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -49,10 +49,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 2 M19 - LLM Analysis Foundation | Complete | `packages/llm-analysis` |
 | Phase 2 M20 - Structured Analysis Foundation | Complete | `packages/analysis` |
 | Phase 2 M21 - Opportunity Engine Foundation | Complete | `packages/opportunity-engine` |
+| Phase 2 M22 - Opportunity Pipeline Foundation | Complete | `packages/opportunity-pipeline` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, and Opportunity Engine Foundation contracts.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, and Opportunity Pipeline Foundation contracts.
 
 The repository does not yet contain:
 
@@ -73,8 +74,8 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 2 M22 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
-| Phase 2 M23 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+| Phase 2 M23 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
+| Phase 2 M24 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
 ## Phase 2 M15 Boundary
 
@@ -420,7 +421,38 @@ Every Codex implementation session must:
 7. Run the required verification commands.
 8. Stop after the assigned task is complete.
 
-Do not begin Phase 2 Milestone 22 until an implementation task explicitly scopes it.
+## Phase 2 M22 Boundary
+
+Milestone 22 adds the Opportunity Pipeline Foundation in `packages/opportunity-pipeline`.
+
+Milestone 22 establishes the `phase-2-milestone-22` verifier gate, strict TypeScript package scaffold, package README, package test config, public export boundary, pipeline primitives, stage contracts, metadata contracts, provenance contracts, evidence aggregation contracts, hypothesis assembly contracts, candidate opportunity contracts, validation contracts, result contracts, error contracts, event contracts, deterministic fixtures, export stability tests, contract stability tests, security tests, dependency-boundary tests, upstream integration tests, and workspace pipeline integration.
+
+Milestone 22 must not introduce:
+
+- business scoring algorithms
+- ranking algorithms
+- recommendation engines
+- REST APIs
+- frontend implementation
+- persistence implementation
+- schedulers
+- workers
+- provider SDKs
+- business workflows
+
+Required final verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-22
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Do not begin Phase 2 Milestone 23 until an implementation task explicitly scopes it.
 
 ## Definition of Complete
 
@@ -443,4 +475,6 @@ A milestone is complete only when:
 | 3.0.1 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 18 Embedding Foundation work and the Milestone 19 AI analysis handoff. |
 | 3.0.2 | Updated the canonical implementation order after Phase 2 Milestone 19 LLM Analysis Foundation work and defined the initial Milestone 20 handoff. |
 | 3.0.3 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 20 Structured Analysis Foundation work and the Milestone 21 Opportunity Engine handoff. |
-| 3.0.4 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 21 Opportunity Engine Foundation work and the Milestone 22 REST API handoff. |
+| 3.0.4 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 21 Opportunity Engine Foundation work. |
+| 3.0.5 | Updated the canonical implementation order to make Phase 2 Milestone 22 the Opportunity Pipeline Foundation and move REST API work behind the pipeline boundary. |
+| 3.0.6 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 22 Opportunity Pipeline Foundation work and the Milestone 23 REST API handoff. |

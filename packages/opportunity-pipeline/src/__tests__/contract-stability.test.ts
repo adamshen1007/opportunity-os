@@ -1,0 +1,94 @@
+import { describe, expect, it } from "vitest";
+import {
+  OPPORTUNITY_PIPELINE_ERROR_CODES,
+  OPPORTUNITY_PIPELINE_EVENT_NAMES,
+  OPPORTUNITY_PIPELINE_PROVENANCE_BOUNDARIES,
+  OPPORTUNITY_PIPELINE_RESULT_STATUSES,
+  OPPORTUNITY_PIPELINE_STAGE_KINDS,
+  OPPORTUNITY_PIPELINE_STAGE_STATUSES,
+  OPPORTUNITY_PIPELINE_STATUSES,
+  OPPORTUNITY_PIPELINE_VALIDATION_ISSUE_CODES,
+  PIPELINE_CANDIDATE_OPPORTUNITY_STATUSES,
+  PIPELINE_EVIDENCE_AGGREGATION_STATUSES,
+  PIPELINE_HYPOTHESIS_ASSEMBLY_STATUSES
+} from "../index.js";
+
+describe("Opportunity Pipeline contract stability", () => {
+  it("locks pipeline model vocabulary", () => {
+    expect(Object.values(OPPORTUNITY_PIPELINE_STATUSES)).toEqual([
+      "draft",
+      "ready",
+      "completed",
+      "failed",
+      "archived"
+    ]);
+    expect(Object.values(OPPORTUNITY_PIPELINE_STAGE_KINDS)).toEqual([
+      "evidence-aggregation",
+      "hypothesis-assembly",
+      "candidate-opportunity",
+      "validation",
+      "result-assembly"
+    ]);
+    expect(Object.values(OPPORTUNITY_PIPELINE_STAGE_STATUSES)).toEqual([
+      "pending",
+      "ready",
+      "completed",
+      "skipped",
+      "failed"
+    ]);
+  });
+
+  it("locks assembly, validation, result, event, and provenance vocabulary", () => {
+    expect(Object.values(PIPELINE_EVIDENCE_AGGREGATION_STATUSES)).toEqual([
+      "pending",
+      "assembled",
+      "invalid"
+    ]);
+    expect(Object.values(PIPELINE_HYPOTHESIS_ASSEMBLY_STATUSES)).toEqual([
+      "pending",
+      "assembled",
+      "invalid"
+    ]);
+    expect(Object.values(PIPELINE_CANDIDATE_OPPORTUNITY_STATUSES)).toEqual([
+      "proposed",
+      "validated",
+      "rejected"
+    ]);
+    expect(Object.values(OPPORTUNITY_PIPELINE_VALIDATION_ISSUE_CODES)).toEqual([
+      "pipeline.missing_evidence",
+      "pipeline.missing_hypothesis",
+      "pipeline.unsupported_provenance",
+      "pipeline.invalid_candidate",
+      "pipeline.unsafe_metadata"
+    ]);
+    expect(Object.values(OPPORTUNITY_PIPELINE_RESULT_STATUSES)).toEqual([
+      "success",
+      "validation-failure",
+      "partial",
+      "failed"
+    ]);
+    expect(Object.values(OPPORTUNITY_PIPELINE_ERROR_CODES)).toEqual([
+      "pipeline.validation_failed",
+      "pipeline.unsafe_input",
+      "pipeline.invalid_assembly",
+      "pipeline.internal_failure"
+    ]);
+    expect(Object.values(OPPORTUNITY_PIPELINE_EVENT_NAMES)).toEqual([
+      "opportunity_pipeline.evidence_aggregated",
+      "opportunity_pipeline.hypothesis_assembled",
+      "opportunity_pipeline.candidate_prepared",
+      "opportunity_pipeline.validated",
+      "opportunity_pipeline.completed",
+      "opportunity_pipeline.failed"
+    ]);
+    expect(Object.values(OPPORTUNITY_PIPELINE_PROVENANCE_BOUNDARIES)).toEqual([
+      "raw-content",
+      "normalization",
+      "embedding",
+      "llm-analysis",
+      "structured-analysis",
+      "opportunity-engine",
+      "opportunity-pipeline"
+    ]);
+  });
+});

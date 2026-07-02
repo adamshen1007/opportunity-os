@@ -31,7 +31,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - Opportunity Engine Foundation boundary checks during Phase 2 Milestone 21
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 21 boundary. Phase 2 Milestone 21 also has an explicit `phase-2-milestone-21` gate for Opportunity Engine Foundation boundary work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 22 boundary. Phase 2 Milestone 22 also has an explicit `phase-2-milestone-22` gate for Opportunity Pipeline Foundation work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 
@@ -309,6 +309,16 @@ node scripts/verify-repository.mjs --phase phase-2-milestone-17
 ```
 
 In Milestone 17 mode, implementation files are also permitted in `packages/normalization/`. The verifier requires the normalization package, strict TypeScript config, package test config, README boundary documentation, public export boundary, and package-boundary test while continuing to block embeddings, AI analysis, opportunity generation, REST APIs, frontend, scheduler, persistence implementation, Prisma repositories, workers, and business scoring.
+
+Phase 2 Milestone 22 adds the Opportunity Pipeline Foundation in `packages/opportunity-pipeline/`.
+
+Run the explicit Opportunity Pipeline Foundation boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-22
+```
+
+In Milestone 22 mode, implementation files are also permitted in `packages/opportunity-pipeline/`. The verifier requires the opportunity-pipeline package, strict TypeScript config, package test config, README documentation, public export boundary, pipeline primitives, stage contracts, metadata contracts, provenance contracts, evidence aggregation contracts, hypothesis assembly contracts, candidate opportunity contracts, validation contracts, result contracts, error contracts, event contracts, deterministic fixtures, export stability tests, contract stability tests, dependency-boundary tests, security tests, upstream integration tests, and root pipeline integration while continuing to block business scoring algorithms, ranking algorithms, recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, provider SDKs, workflow engines, aggregation algorithms, generation logic, execution behavior, and business workflows.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 
