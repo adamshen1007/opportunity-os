@@ -34,7 +34,7 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - Opportunity Generation Workflow boundary checks during Phase 2 Milestone 24
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 24 boundary. Phase 2 Milestone 24 also has an explicit `phase-2-milestone-24` gate for Opportunity Generation Workflow work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 3 Milestone 25 boundary. Phase 3 Milestone 25 also has an explicit `phase-3-milestone-25` gate for Opportunity Ranking Engine work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 
@@ -342,6 +342,16 @@ node scripts/verify-repository.mjs --phase phase-2-milestone-24
 ```
 
 In Milestone 24 mode, implementation files are also permitted in `packages/opportunity-generation/`. Slice A requires the opportunity-generation package, strict TypeScript config, package test config, README documentation, and public export boundary while continuing to block production ranking, recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, live AI providers, and business workflows.
+
+Phase 3 Milestone 25 adds the Opportunity Ranking Engine in `packages/opportunity-ranking/`.
+
+Run the explicit Opportunity Ranking Engine boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-3-milestone-25
+```
+
+In Milestone 25 mode, implementation files are also permitted in `packages/opportunity-ranking/`. Slice A requires the opportunity-ranking package, strict TypeScript config, package test config, README documentation, and public export boundary while continuing to block recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, ML behavior, and LLM calls.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 

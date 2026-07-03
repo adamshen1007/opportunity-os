@@ -465,6 +465,37 @@ importers:
         specifier: ^4.0.16
         version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
 
+  packages/opportunity-ranking:
+    dependencies:
+      '@opportunity-os/analysis':
+        specifier: workspace:*
+        version: link:../analysis
+      '@opportunity-os/events':
+        specifier: workspace:*
+        version: link:../events
+      '@opportunity-os/opportunity-candidates':
+        specifier: workspace:*
+        version: link:../opportunity-candidates
+      '@opportunity-os/opportunity-engine':
+        specifier: workspace:*
+        version: link:../opportunity-engine
+      '@opportunity-os/opportunity-generation':
+        specifier: workspace:*
+        version: link:../opportunity-generation
+      '@opportunity-os/opportunity-pipeline':
+        specifier: workspace:*
+        version: link:../opportunity-pipeline
+      '@opportunity-os/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
   packages/raw-content:
     dependencies:
       '@opportunity-os/application':

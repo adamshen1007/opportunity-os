@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 24.
+This document is the authoritative build sequence for Opportunity OS after completion of Phase 3 Milestone 25.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -52,10 +52,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 2 M22 - Opportunity Pipeline Foundation | Complete | `packages/opportunity-pipeline` |
 | Phase 2 M23 - Candidate Opportunity Engine | Complete | `packages/opportunity-candidates` |
 | Phase 2 M24 - Opportunity Generation Workflow | Complete | `packages/opportunity-generation` |
+| Phase 3 M25 - Opportunity Ranking Engine | Complete | `packages/opportunity-ranking` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, and Opportunity Generation Workflow Foundation contracts.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, and the Opportunity Ranking Engine.
 
 The repository does not yet contain:
 
@@ -68,7 +69,8 @@ The repository does not yet contain:
 - prompt execution runtime
 - REST APIs
 - frontend implementation
-- product business logic
+- recommendation engines
+- unsupported product business logic
 
 ## Future Build Sequence
 
@@ -76,8 +78,8 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 2 M25 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
-| Phase 2 M26 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+| Phase 3 M26 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
+| Phase 3 M27 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
 ## Phase 2 M15 Boundary
 
@@ -524,6 +526,47 @@ docker compose config
 
 Do not begin REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, production ranking, recommendation engines, billing, user accounts, live AI providers, or business workflows until a later scoped implementation task approves them.
 
+## Phase 3 M25 Boundary
+
+Milestone 25 begins the Product Behavior phase and establishes the Opportunity Ranking Engine in `packages/opportunity-ranking`.
+
+Milestone 25 establishes the `phase-3-milestone-25` verifier gate, strict TypeScript package scaffold, package README, package test config, public export boundary, deterministic ranking primitives, ranking inputs and outputs, ranking signals, ranking factors, ranking weights, score calculation, ranking pipeline behavior, stable tie breaking, explanation model, ranking validation, ranking results, ranking errors, ranking events, deterministic synthetic ranking fixtures, export stability tests, contract stability tests, ranking behavior tests, ranking quality tests, security tests, dependency-boundary tests, upstream integration tests, workspace integration, documentation, governance, and final readiness gate.
+
+Every ranking decision must remain deterministic, testable, explainable, and reconstructable from explicit inputs, signals, factors, and weights.
+
+Milestone 25 must not introduce:
+
+- recommendation engines
+- REST APIs
+- frontend implementation
+- persistence implementation
+- schedulers
+- workers
+- billing
+- user accounts
+- provider SDKs
+- ML behavior
+- LLM calls
+- hidden heuristics
+- prompts
+- provider payloads
+- secrets
+- production business examples
+
+Required final verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-25
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Do not begin REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, recommendation engines, billing, user accounts, ML behavior, or LLM calls until a later scoped implementation task approves them.
+
 ## Definition of Complete
 
 A milestone is complete only when:
@@ -552,3 +595,5 @@ A milestone is complete only when:
 | 3.0.8 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 23 Candidate Opportunity Engine Foundation work. |
 | 3.0.9 | Updated the canonical implementation order to make Phase 2 Milestone 24 the Opportunity Generation Workflow and move REST API work behind the generation boundary. |
 | 3.0.10 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 24 Opportunity Generation Workflow Foundation work. |
+| 3.0.11 | Updated the canonical implementation order to make Phase 3 Milestone 25 the Opportunity Ranking Engine and begin the Product Behavior phase. |
+| 3.0.12 | Updated the canonical implementation order to reflect completed Phase 3 Milestone 25 Opportunity Ranking Engine work and define the REST API handoff. |

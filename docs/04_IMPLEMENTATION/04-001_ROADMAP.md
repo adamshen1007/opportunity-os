@@ -47,7 +47,7 @@ Every completed phase should produce a deployable system.
 
 # Engineering Kit v3.0 Roadmap State
 
-Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 24.
+Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 3 Milestone 25.
 
 Completed:
 
@@ -76,15 +76,16 @@ Completed:
 - Phase 2 M22 Opportunity Pipeline Foundation
 - Phase 2 M23 Candidate Opportunity Engine
 - Phase 2 M24 Opportunity Generation Workflow
+- Phase 3 M25 Opportunity Ranking Engine
 
 Future:
 
-- Phase 2 M25 REST API
-- Phase 2 M26 Dashboard
+- Phase 3 M26 REST API
+- Phase 3 M27 Dashboard
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, and REST APIs precede the dashboard.
 
-Do not begin implementation beyond Phase 2 Milestone 24 until an implementation task explicitly scopes it.
+Do not begin implementation beyond Phase 3 Milestone 25 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2599,9 +2600,82 @@ docker compose config
 
 Next milestone dependency:
 
-- Phase 2 Milestone 25 may consume `@opportunity-os/opportunity-generation` for deterministic candidate-to-opportunity generation workflow contracts. Do not begin REST API work until a later scoped implementation task is approved.
+- Phase 3 Milestone 25 may consume `@opportunity-os/opportunity-generation` for deterministic candidate-to-opportunity generation workflow contracts. Do not begin REST API work until a later scoped implementation task is approved.
 
-## Phase 2 Milestone 25 — REST API
+## Phase 3 Milestone 25 — Opportunity Ranking Engine
+
+Goal:
+
+Convert validated Opportunity Candidates into ranked Opportunities using deterministic ranking logic.
+
+Owner:
+
+- `packages/opportunity-ranking`
+
+Dependencies:
+
+- `@opportunity-os/opportunity-generation`
+- `@opportunity-os/opportunity-candidates`
+- `@opportunity-os/opportunity-pipeline`
+- `@opportunity-os/opportunity-engine`
+- `@opportunity-os/analysis`
+- `@opportunity-os/shared`
+- `@opportunity-os/events`
+
+Completed deliverables:
+
+- opportunity ranking package boundary
+- strict TypeScript package scaffold
+- package README
+- package test config
+- public export boundary
+- repository verification support for `phase-3-milestone-25`
+- deterministic ranking primitives
+- ranking inputs and outputs
+- ranking signals, factors, and weights
+- deterministic score calculation
+- ranking pipeline behavior
+- stable tie breaking
+- explanation model
+- ranking validation, results, errors, and events
+- deterministic synthetic ranking fixtures
+- export stability tests
+- contract stability tests
+- ranking behavior and quality tests
+- security tests
+- dependency-boundary tests
+- upstream integration tests
+- workspace integration through root `pnpm lint`, `pnpm build`, and `pnpm test`
+- documentation, governance, roadmap, and PR checklist updates
+
+Readiness gate:
+
+- `@opportunity-os/opportunity-ranking` builds as a strict TypeScript package
+- public exports route through `packages/opportunity-ranking/src/index.ts`
+- repository verification supports `phase-3-milestone-25`
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/opportunity-ranking`
+- deterministic fixtures, export-stability, contract-stability, ranking behavior, ranking quality, dependency-boundary, security, and upstream integration tests cover the package surface
+- every ranking decision is explainable from explicit inputs, signals, factors, and weights
+- implementation files are permitted only in approved packages and `packages/opportunity-ranking`
+- recommendation engines, REST APIs, frontend implementation, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, ML behavior, LLM calls, hidden heuristics, prompts, provider payloads, secrets, and production business examples remain blocked
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-25
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Next milestone dependency:
+
+- Phase 3 Milestone 26 may consume `@opportunity-os/opportunity-ranking` for deterministic, testable, explainable ranked opportunity behavior. Do not begin REST API work until a later scoped implementation task is approved.
+
+## Phase 3 Milestone 26 — REST API
 
 Goal:
 
@@ -2616,7 +2690,7 @@ Deliverables:
 - API contract tests
 - OpenAPI documentation
 
-## Phase 2 Milestone 26 — Dashboard
+## Phase 3 Milestone 27 — Dashboard
 
 Goal:
 
@@ -2731,3 +2805,4 @@ Referenced by:
 | **Version** | **Date**                        | **Summary**                                                                                                                              |
 |-------------|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0       | Initial Engineering Kit release | Defined the phased implementation roadmap, milestones, dependencies, quality gates, and success criteria for Opportunity OS Version 1.0. |
+| 3.0.1       | 2026-07-03                      | Updated the roadmap to reflect completed Phase 3 Milestone 25 Opportunity Ranking Engine work and the Phase 3 Milestone 26 REST API handoff. |

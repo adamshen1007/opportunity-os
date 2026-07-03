@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 24: Opportunity Generation Workflow Foundation. Later milestones must consume the completed foundation contracts instead of bypassing them.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 3 Milestone 25: Opportunity Ranking Engine. Later milestones must consume the completed foundation and ranking contracts instead of bypassing them.
 
 ## Before You Start
 
@@ -49,7 +49,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 24, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, and `packages/opportunity-generation`.
+During Phase 3 Milestone 25, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, Opportunity Ranking Engine policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, and `packages/opportunity-ranking`.
 
 Phase 2 Milestone 19 work must stay inside its scoped task. Milestone 19 may add LLM Analysis Foundation contracts only inside `packages/llm-analysis` and must not add provider SDKs, OpenAI API calls, Anthropic API calls, Gemini API calls, live LLM calls, prompt execution runtime, extraction workflows, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, or business scoring.
 
@@ -62,6 +62,24 @@ Phase 2 Milestone 22 work must stay inside its scoped task. Milestone 22 may add
 Phase 2 Milestone 23 work must stay inside its scoped task. Milestone 23 may add Candidate Opportunity Engine contracts only inside `packages/opportunity-candidates` and must not add production ranking algorithms, recommendation engines, business scoring, REST APIs, frontend, persistence implementation, schedulers, workers, provider SDKs, or business workflows.
 
 Phase 2 Milestone 24 work must stay inside its scoped task. Milestone 24 may add Opportunity Generation Workflow contracts only inside `packages/opportunity-generation` and must not add production ranking, recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, live AI providers, or business workflows.
+
+Phase 3 Milestone 25 work must stay inside its scoped task. Milestone 25 may add deterministic Opportunity Ranking Engine product behavior only inside `packages/opportunity-ranking`. Ranking behavior must remain deterministic, testable, explainable, provider-independent, and backed by synthetic fixtures. It must not add recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, ML behavior, LLM calls, hidden heuristics, prompts, provider payloads, secrets, or production business examples.
+
+## Opportunity Ranking Governance
+
+Phase 3 Milestone 25 implements deterministic ranking in `packages/opportunity-ranking`. Future packages must consume `@opportunity-os/opportunity-ranking` instead of redefining ranking primitives, signals, factors, weights, score calculation, ranking pipeline behavior, tie breaking, explanations, validation, result, error, event, fixture, or stability contracts.
+
+When opportunity ranking files change, reviewers should confirm:
+
+- public exports route through `packages/opportunity-ranking/src/index.ts`
+- dependencies remain limited to approved upstream foundation and opportunity packages
+- ranking decisions are reconstructable from explicit inputs, signals, factors, and weights
+- score calculation remains deterministic and explainable
+- tie breaking remains stable and documented
+- fixtures remain synthetic and contain no provider payloads, prompts, secrets, or production business examples
+- errors and outputs remain secret-safe and stack-safe by default
+- export stability, contract stability, ranking quality, security, dependency-boundary, and upstream integration tests cover the changed surface
+- no recommendation engine, REST API, frontend, persistence implementation, scheduler, worker, billing, user account, provider SDK, ML behavior, LLM call, or hidden heuristic was introduced
 
 ## Phase 0 and Phase 1
 
