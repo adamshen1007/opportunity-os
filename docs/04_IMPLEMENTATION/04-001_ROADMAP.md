@@ -77,15 +77,15 @@ Completed:
 - Phase 2 M23 Candidate Opportunity Engine
 - Phase 2 M24 Opportunity Generation Workflow
 - Phase 3 M25 Opportunity Ranking Engine
+- Phase 3 M26 REST API
 
 Future:
 
-- Phase 3 M26 REST API
 - Phase 3 M27 Dashboard
 
 From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, and REST APIs precede the dashboard.
 
-Do not begin implementation beyond Phase 3 Milestone 25 until an implementation task explicitly scopes it.
+Do not begin implementation beyond Phase 3 Milestone 26 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2673,7 +2673,7 @@ docker compose config
 
 Next milestone dependency:
 
-- Phase 3 Milestone 26 may consume `@opportunity-os/opportunity-ranking` for deterministic, testable, explainable ranked opportunity behavior. Do not begin REST API work until a later scoped implementation task is approved.
+- Phase 3 Milestone 26 consumes `@opportunity-os/opportunity-ranking` for deterministic, testable, explainable ranked opportunity behavior through the `apps/api` REST API application boundary.
 
 ## Phase 3 Milestone 26 — REST API
 
@@ -2681,14 +2681,72 @@ Goal:
 
 Expose platform capabilities through API routes.
 
-Deliverables:
+Owner:
 
+- `apps/api`
+
+Dependencies:
+
+- `@opportunity-os/opportunity-ranking`
+- `@opportunity-os/opportunity-generation`
+- `@opportunity-os/opportunity-candidates`
+- `@opportunity-os/opportunity-pipeline`
+- `@opportunity-os/opportunity-engine`
+
+Completed deliverables:
+
+- `apps/api` strict TypeScript application scaffold
+- explicit API bootstrap exports
+- `phase-3-milestone-26` repository verification gate
 - API application entry point
-- routes and controllers
+- routing contracts and deterministic route definitions
+- OpenAPI contracts
+- health endpoint
+- opportunity DTOs and opportunity routes
+- ranking DTOs and ranking routes
+- pagination and filtering
 - request validation
-- authentication and authorization integration
+- error mapping
+- authentication and authorization contracts
+- request context contracts
+- application-facing opportunity and ranking ports
+- API versioning
+- deterministic synthetic fixtures
+- API integration tests
+- API security tests
+- contract stability tests
+- dependency-boundary tests
+- workspace integration through root `pnpm lint`, `pnpm build`, and `pnpm test`
 - API contract tests
-- OpenAPI documentation
+- documentation, governance, roadmap, and PR checklist updates
+
+Readiness gate:
+
+- `apps/api` builds as a strict TypeScript application package
+- public exports route through `apps/api/src/index.ts`
+- repository verification supports `phase-3-milestone-26`
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/api`
+- deterministic fixtures, API integration tests, API security tests, contract stability tests, dependency-boundary tests, endpoint tests, and infrastructure tests cover the API surface
+- health, opportunity, and ranking endpoints use explicit ports and deterministic request/response envelopes
+- authentication and authorization remain contract-based; no production authentication provider is introduced
+- implementation files are permitted only in approved packages and `apps/api`
+- frontend implementation, billing, user management, analytics, notifications, production authentication providers, persistence changes, schedulers, workers, provider SDKs, and unrelated product workflows remain blocked
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-26
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Next milestone dependency:
+
+- Phase 3 Milestone 27 may consume `apps/api` as the completed REST API boundary for dashboard integration. Do not begin dashboard implementation until a scoped implementation task is approved.
 
 ## Phase 3 Milestone 27 — Dashboard
 
@@ -2806,3 +2864,4 @@ Referenced by:
 |-------------|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | 2.0.0       | Initial Engineering Kit release | Defined the phased implementation roadmap, milestones, dependencies, quality gates, and success criteria for Opportunity OS Version 1.0. |
 | 3.0.1       | 2026-07-03                      | Updated the roadmap to reflect completed Phase 3 Milestone 25 Opportunity Ranking Engine work and the Phase 3 Milestone 26 REST API handoff. |
+| 3.0.2       | 2026-07-03                      | Updated the roadmap to reflect completed Phase 3 Milestone 26 REST API work and the Phase 3 Milestone 27 dashboard handoff. |

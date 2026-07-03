@@ -1,0 +1,38 @@
+{
+  "name": "@opportunity-os/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "REST API application boundary for Opportunity OS.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run src --passWithNoTests"
+  },
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": "11.7.0"
+  },
+  "dependencies": {
+    "@opportunity-os/opportunity-candidates": "workspace:*",
+    "@opportunity-os/opportunity-engine": "workspace:*",
+    "@opportunity-os/opportunity-generation": "workspace:*",
+    "@opportunity-os/opportunity-pipeline": "workspace:*",
+    "@opportunity-os/opportunity-ranking": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "vitest": "^4.0.16"
+  }
+}

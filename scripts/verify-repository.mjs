@@ -112,8 +112,10 @@ const phaseTwentyOneAliases = new Set(["phase-2-milestone-21", "opportunity-engi
 const phaseTwentyTwoAliases = new Set(["phase-2-milestone-22", "opportunity-pipeline-foundation"]);
 const phaseTwentyThreeAliases = new Set(["phase-2-milestone-23", "candidate-opportunity-engine", "opportunity-candidates-foundation"]);
 const phaseTwentyFourAliases = new Set(["phase-2-milestone-24", "opportunity-generation-workflow", "opportunity-generation-foundation"]);
-const phaseTwentyFiveAliases = new Set(["review", "phase-3-milestone-25", "opportunity-ranking-engine", "opportunity-ranking-foundation"]);
-const isPhaseTwentyFive = phaseTwentyFiveAliases.has(phase);
+const phaseTwentyFiveAliases = new Set(["phase-3-milestone-25", "opportunity-ranking-engine", "opportunity-ranking-foundation"]);
+const phaseTwentySixAliases = new Set(["review", "phase-3-milestone-26", "rest-api", "api-foundation"]);
+const isPhaseTwentySix = phaseTwentySixAliases.has(phase);
+const isPhaseTwentyFive = phaseTwentyFiveAliases.has(phase) || isPhaseTwentySix;
 const isPhaseTwentyFour = phaseTwentyFourAliases.has(phase) || isPhaseTwentyFive;
 const isPhaseTwentyThree = phaseTwentyThreeAliases.has(phase) || isPhaseTwentyFour;
 const isPhaseTwentyTwo = phaseTwentyTwoAliases.has(phase) || isPhaseTwentyThree;
@@ -162,6 +164,7 @@ const allowedPhaseTwentyTwoImplementationRoots = [...allowedPhaseTwentyOneImplem
 const allowedPhaseTwentyThreeImplementationRoots = [...allowedPhaseTwentyTwoImplementationRoots, "packages/opportunity-candidates"];
 const allowedPhaseTwentyFourImplementationRoots = [...allowedPhaseTwentyThreeImplementationRoots, "packages/opportunity-generation"];
 const allowedPhaseTwentyFiveImplementationRoots = [...allowedPhaseTwentyFourImplementationRoots, "packages/opportunity-ranking"];
+const allowedPhaseTwentySixImplementationRoots = [...allowedPhaseTwentyFiveImplementationRoots, "apps/api"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1433,6 +1436,29 @@ const requiredOpportunityRankingFoundationExports = [
   "OPPORTUNITY_RANKING_FOUNDATION_PHASE",
   "OPPORTUNITY_RANKING_PACKAGE_NAME",
   "OpportunityRankingPackageBoundary"
+];
+const requiredRestApiFoundationFiles = [
+  "apps/api/package.json",
+  "apps/api/README.md",
+  "apps/api/tsconfig.json",
+  "apps/api/src/index.ts",
+  "apps/api/src/app.ts",
+  "apps/api/src/bootstrap/index.ts",
+  "apps/api/src/testing/api-fixtures.ts",
+  "apps/api/src/testing/index.ts",
+  "apps/api/src/__tests__/api-boundary.test.ts",
+  "apps/api/src/__tests__/api-contract-stability.test.ts",
+  "apps/api/src/__tests__/api-integration.test.ts",
+  "apps/api/src/__tests__/api-security.test.ts"
+];
+const requiredRestApiFoundationExports = [
+  "ApiApplication",
+  "ApiBootstrapInput",
+  "createApiApplication",
+  "syntheticApiOpportunity",
+  "syntheticApiRanking",
+  "syntheticApiOpportunityPort",
+  "syntheticApiRankingPort"
 ];
 const sharedFoundationPackageRules = {
   "packages/config": {
@@ -3836,6 +3862,120 @@ function assertOpportunityRankingFoundationPolicy() {
   }
 }
 
+function assertRestApiFoundationPolicy() {
+  assertOpportunityRankingFoundationPolicy();
+
+  for (const file of requiredRestApiFoundationFiles) {
+    if (!exists(file)) {
+      fail(`REST API foundation is missing required file: ${file}`);
+    }
+  }
+
+  const apiIndexPath = "apps/api/src/index.ts";
+  if (exists(apiIndexPath)) {
+    const apiIndex = read(apiIndexPath);
+    if (!apiIndex.includes("Phase 3 Milestone 26 REST API public export boundary")) {
+      fail(`${apiIndexPath} must document the Phase 3 Milestone 26 REST API public export boundary`);
+    }
+
+    for (const exportName of requiredRestApiFoundationExports) {
+      if (!apiIndex.includes(exportName)) {
+        fail(`${apiIndexPath} must export ${exportName} from the REST API public boundary`);
+      }
+    }
+  }
+
+  const apiReadmePath = "apps/api/README.md";
+  if (exists(apiReadmePath)) {
+    const apiReadme = read(apiReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 3 Milestone 26",
+      "REST API",
+      "API bootstrap",
+      "routing",
+      "OpenAPI contracts",
+      "opportunity endpoints",
+      "ranking endpoints",
+      "authentication and authorization contracts",
+      "production authentication providers",
+      "persistence changes",
+      "provider SDKs"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!apiReadme.includes(statement)) {
+        fail(`${apiReadmePath} must document the Phase 3 Milestone 26 REST API boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const apiPackageJsonPath = "apps/api/package.json";
+  if (exists(apiPackageJsonPath)) {
+    const apiPackageJson = JSON.parse(read(apiPackageJsonPath));
+    const allowedWorkspaceDependencies = new Set([
+      "@opportunity-os/opportunity-ranking",
+      "@opportunity-os/opportunity-generation",
+      "@opportunity-os/opportunity-candidates",
+      "@opportunity-os/opportunity-pipeline",
+      "@opportunity-os/opportunity-engine"
+    ]);
+    const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+    const prohibitedDependencyPatterns = [
+      ["frontend", /(^react$|^react-dom$|^next$|^vite$|frontend|ui)/iu],
+      ["billing", /(^stripe$|billing)/iu],
+      ["user management", /(user-management|user-account|accounts|clerk|auth0|descope)/iu],
+      ["analytics", /(analytics|segment|posthog|amplitude|mixpanel)/iu],
+      ["notifications", /(notification|novu|sendgrid|resend|twilio)/iu],
+      ["production authentication provider", /(clerk|auth0|descope|passport|next-auth|auth-provider)/iu],
+      ["persistence implementation", /(^@prisma\/client$|^prisma$|typeorm|sequelize|mongoose)/iu],
+      ["scheduler or worker", /(^bullmq$|^agenda$|scheduler|worker|queue)/iu],
+      ["provider SDK", /(^openai$|^@openai|^@anthropic-ai\/sdk$|^@google\/generative-ai$|^@google-genai|gemini)/iu]
+    ];
+
+    for (const dependencyField of dependencyFields) {
+      const dependencies = apiPackageJson[dependencyField] ?? {};
+      for (const dependencyName of Object.keys(dependencies)) {
+        if (dependencyName.startsWith("@opportunity-os/") && !allowedWorkspaceDependencies.has(dependencyName)) {
+          fail(`${apiPackageJsonPath} may depend only on approved Opportunity OS API upstream packages; found ${dependencyField}.${dependencyName}`);
+        }
+
+        for (const [label, pattern] of prohibitedDependencyPatterns) {
+          if (pattern.test(dependencyName)) {
+            fail(`REST API foundation must not depend on ${label}; found ${dependencyField}.${dependencyName} in ${apiPackageJsonPath}`);
+          }
+        }
+      }
+    }
+  }
+
+  for (const file of listFiles("apps/api")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (file.startsWith("apps/api/dist/") || file.startsWith("apps/api/node_modules/") || file.startsWith("apps/api/.turbo/")) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["frontend", /\bReact\b|\btsx\b|\bcomponent\b|\buse client\b/iu],
+      ["billing", /\bbilling\b|\bStripe\b/iu],
+      ["user management", /\buser management\b|\bUserAccount\b|\buser account\b/iu],
+      ["analytics", /\banalytics\b|\bSegment\b|\bPostHog\b|\bAmplitude\b|\bMixpanel\b/iu],
+      ["notifications", /\bnotification\b|\bSendGrid\b|\bResend\b|\bTwilio\b/iu],
+      ["production authentication provider", /\bClerk\b|\bAuth0\b|\bDescope\b|\bproduction auth provider\b/iu],
+      ["persistence changes", /\bPrismaClient\b|\bmigration\b|\bwriteToDatabase\b|\bpersist\w+/iu],
+      ["scheduler", /\bscheduler\b|\bschedule\w+/iu],
+      ["worker", /\bworker\b|\bWorkerProcess\b/iu],
+      ["provider SDK", /\bOpenAIClient\b|\bAnthropicClient\b|\bGeminiClient\b|\bprovider SDK\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`REST API foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -3872,7 +4012,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseTwentyFive
+  const allowedImplementationRoots = isPhaseTwentySix
+    ? allowedPhaseTwentySixImplementationRoots
+    : isPhaseTwentyFive
     ? allowedPhaseTwentyFiveImplementationRoots
     : isPhaseTwentyFour
     ? allowedPhaseTwentyFourImplementationRoots
@@ -3929,7 +4071,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -4029,6 +4171,10 @@ if (isPhaseTwentyFour) {
 
 if (isPhaseTwentyFive) {
   assertOpportunityRankingFoundationPolicy();
+}
+
+if (isPhaseTwentySix) {
+  assertRestApiFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

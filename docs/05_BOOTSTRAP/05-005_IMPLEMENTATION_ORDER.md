@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS after completion of Phase 3 Milestone 25.
+This document is the authoritative build sequence for Opportunity OS after completion of Phase 3 Milestone 26.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -53,10 +53,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 2 M23 - Candidate Opportunity Engine | Complete | `packages/opportunity-candidates` |
 | Phase 2 M24 - Opportunity Generation Workflow | Complete | `packages/opportunity-generation` |
 | Phase 3 M25 - Opportunity Ranking Engine | Complete | `packages/opportunity-ranking` |
+| Phase 3 M26 - REST API | Complete | `apps/api` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, and the Opportunity Ranking Engine.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, and the REST API application boundary in `apps/api`.
 
 The repository does not yet contain:
 
@@ -67,7 +68,6 @@ The repository does not yet contain:
 - live AI workflows
 - provider LLM calls
 - prompt execution runtime
-- REST APIs
 - frontend implementation
 - recommendation engines
 - unsupported product business logic
@@ -78,7 +78,6 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 3 M26 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
 | Phase 3 M27 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
 ## Phase 2 M15 Boundary
@@ -565,7 +564,63 @@ pnpm test
 docker compose config
 ```
 
-Do not begin REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, recommendation engines, billing, user accounts, ML behavior, or LLM calls until a later scoped implementation task approves them.
+Do not begin frontend implementation, persistence implementation, schedulers, workers, provider SDKs, recommendation engines, billing, user accounts, ML behavior, or LLM calls until a later scoped implementation task approves them.
+
+## Phase 3 M26 Boundary
+
+Milestone 26 establishes the REST API application boundary in `apps/api`.
+
+Milestone 26 establishes the `phase-3-milestone-26` verifier gate, strict TypeScript application scaffold, package README, explicit bootstrap exports, package metadata, package ownership, routing, OpenAPI contracts, health endpoint, opportunity endpoints, ranking endpoints, pagination, filtering, request validation, error mapping, authentication and authorization contracts, request context contracts, API versioning, deterministic fixtures, API integration tests, API security tests, contract stability tests, dependency-boundary tests, workspace integration, documentation, governance, and final readiness gate.
+
+Milestone 26 may introduce:
+
+- API bootstrap
+- routing
+- OpenAPI contracts
+- health endpoint
+- opportunity endpoints
+- ranking endpoints
+- pagination and filtering
+- request validation
+- error mapping
+- authentication and authorization contracts
+- API versioning
+- API documentation
+- deterministic synthetic fixtures
+- API integration tests
+- API security tests
+- contract stability tests
+- dependency-boundary tests
+
+Milestone 26 must not introduce:
+
+- frontend implementation
+- billing
+- user management
+- analytics
+- notifications
+- production authentication providers
+- persistence changes
+- schedulers
+- workers
+- provider SDKs
+- unrelated product workflows
+
+Required final verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-26
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Milestone 26 is complete only when `apps/api` is implemented, tested, documented, independently buildable, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, verified by `phase-3-milestone-26`, and free of frontend implementation, billing, user management, analytics, notifications, production authentication providers, persistence changes, schedulers, workers, provider SDKs, and unrelated product workflows.
+
+Do not begin Phase 3 Milestone 27 dashboard implementation until Milestone 26 is committed, pushed, tagged, verified, and a later scoped implementation task approves dashboard work.
 
 ## Definition of Complete
 
@@ -597,3 +652,4 @@ A milestone is complete only when:
 | 3.0.10 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 24 Opportunity Generation Workflow Foundation work. |
 | 3.0.11 | Updated the canonical implementation order to make Phase 3 Milestone 25 the Opportunity Ranking Engine and begin the Product Behavior phase. |
 | 3.0.12 | Updated the canonical implementation order to reflect completed Phase 3 Milestone 25 Opportunity Ranking Engine work and define the REST API handoff. |
+| 3.0.13 | Updated the canonical implementation order to reflect completed Phase 3 Milestone 26 REST API work and define the Dashboard handoff. |

@@ -32,9 +32,11 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - Opportunity Pipeline Foundation boundary checks during Phase 2 Milestone 22
 - Candidate Opportunity Engine boundary checks during Phase 2 Milestone 23
 - Opportunity Generation Workflow boundary checks during Phase 2 Milestone 24
+- Opportunity Ranking Engine boundary checks during Phase 3 Milestone 25
+- REST API foundation checks during Phase 3 Milestone 26
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 3 Milestone 25 boundary. Phase 3 Milestone 25 also has an explicit `phase-3-milestone-25` gate for Opportunity Ranking Engine work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 3 Milestone 26 boundary. Phase 3 Milestone 26 also has an explicit `phase-3-milestone-26` gate for REST API foundation work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 
