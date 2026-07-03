@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 22.
+This document is the authoritative build sequence for Opportunity OS after completion of Phase 2 Milestone 24.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -50,10 +50,12 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 2 M20 - Structured Analysis Foundation | Complete | `packages/analysis` |
 | Phase 2 M21 - Opportunity Engine Foundation | Complete | `packages/opportunity-engine` |
 | Phase 2 M22 - Opportunity Pipeline Foundation | Complete | `packages/opportunity-pipeline` |
+| Phase 2 M23 - Candidate Opportunity Engine | Complete | `packages/opportunity-candidates` |
+| Phase 2 M24 - Opportunity Generation Workflow | Complete | `packages/opportunity-generation` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, and the Candidate Opportunity Engine package boundary.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, and Opportunity Generation Workflow Foundation contracts.
 
 The repository does not yet contain:
 
@@ -74,9 +76,8 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 2 M23 - Candidate Opportunity Engine | Define candidate opportunity package boundary, candidate contracts, lifecycle, validation, evidence completeness, confidence aggregation, metadata, provenance, results, errors, events, and fixtures. | `packages/opportunity-candidates` |
-| Phase 2 M24 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
-| Phase 2 M25 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+| Phase 2 M25 - REST API | Implement API routes, controllers, request validation, authentication/authorization integration, and API contract tests. | future app/API modules |
+| Phase 2 M26 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
 
 ## Phase 2 M15 Boundary
 
@@ -486,6 +487,43 @@ docker compose config
 
 Do not begin REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, production ranking algorithms, recommendation engines, business scoring, or business workflows until a later scoped implementation task approves them.
 
+## Phase 2 M24 Boundary
+
+Milestone 24 establishes the Opportunity Generation Workflow foundation in `packages/opportunity-generation`.
+
+Milestone 24 establishes the `phase-2-milestone-24` verifier gate, strict TypeScript package scaffold, package README, package test config, public export boundary, candidate-to-opportunity generation workflow contracts, deterministic generation service contracts, input/output contracts, evidence-to-hypothesis assembly behavior contracts, candidate validation behavior contracts, confidence aggregation behavior contracts, generated opportunity result contracts, generation errors, generation events, deterministic fixtures, export stability tests, contract stability tests, security tests, dependency-boundary tests, upstream integration tests, deterministic service tests, and workspace pipeline integration.
+
+Milestone 24 must not introduce:
+
+- production ranking
+- recommendation engines
+- REST APIs
+- frontend implementation
+- persistence implementation
+- schedulers
+- workers
+- billing
+- user accounts
+- provider SDKs
+- live AI providers
+- prompt execution
+- provider payloads
+- business workflows
+
+Required final verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-24
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Do not begin REST APIs, frontend implementation, persistence implementation, schedulers, workers, provider SDKs, production ranking, recommendation engines, billing, user accounts, live AI providers, or business workflows until a later scoped implementation task approves them.
+
 ## Definition of Complete
 
 A milestone is complete only when:
@@ -512,3 +550,5 @@ A milestone is complete only when:
 | 3.0.6 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 22 Opportunity Pipeline Foundation work. |
 | 3.0.7 | Updated the canonical implementation order to make Phase 2 Milestone 23 the Candidate Opportunity Engine and move REST API work behind the candidate boundary. |
 | 3.0.8 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 23 Candidate Opportunity Engine Foundation work. |
+| 3.0.9 | Updated the canonical implementation order to make Phase 2 Milestone 24 the Opportunity Generation Workflow and move REST API work behind the generation boundary. |
+| 3.0.10 | Updated the canonical implementation order to reflect completed Phase 2 Milestone 24 Opportunity Generation Workflow Foundation work. |

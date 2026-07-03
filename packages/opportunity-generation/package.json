@@ -1,0 +1,39 @@
+{
+  "name": "@opportunity-os/opportunity-generation",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Opportunity Generation Workflow foundation contracts for Opportunity OS.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run src --passWithNoTests"
+  },
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": "11.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "vitest": "^4.0.16"
+  },
+  "dependencies": {
+    "@opportunity-os/analysis": "workspace:*",
+    "@opportunity-os/events": "workspace:*",
+    "@opportunity-os/opportunity-candidates": "workspace:*",
+    "@opportunity-os/opportunity-engine": "workspace:*",
+    "@opportunity-os/opportunity-pipeline": "workspace:*",
+    "@opportunity-os/shared": "workspace:*"
+  }
+}

@@ -31,9 +31,10 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - Opportunity Engine Foundation boundary checks during Phase 2 Milestone 21
 - Opportunity Pipeline Foundation boundary checks during Phase 2 Milestone 22
 - Candidate Opportunity Engine boundary checks during Phase 2 Milestone 23
+- Opportunity Generation Workflow boundary checks during Phase 2 Milestone 24
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 23 boundary. Phase 2 Milestone 23 also has an explicit `phase-2-milestone-23` gate for Candidate Opportunity Engine work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 2 Milestone 24 boundary. Phase 2 Milestone 24 also has an explicit `phase-2-milestone-24` gate for Opportunity Generation Workflow work.
 
 ## Phase 1 Shared Infrastructure Boundaries
 
@@ -69,7 +70,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 2 Milestone 14 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 2 Milestone 24 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`
@@ -331,6 +332,16 @@ node scripts/verify-repository.mjs --phase phase-2-milestone-23
 ```
 
 In Milestone 23 mode, implementation files are also permitted in `packages/opportunity-candidates/`. Slice A requires the opportunity-candidates package, strict TypeScript config, package test config, README documentation, and public export boundary while continuing to block production ranking algorithms, recommendation engines, business scoring, REST APIs, frontend, persistence implementation, schedulers, workers, provider SDKs, and business workflows.
+
+Phase 2 Milestone 24 adds the Opportunity Generation Workflow foundation in `packages/opportunity-generation/`.
+
+Run the explicit Opportunity Generation Workflow boundary check with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-2-milestone-24
+```
+
+In Milestone 24 mode, implementation files are also permitted in `packages/opportunity-generation/`. Slice A requires the opportunity-generation package, strict TypeScript config, package test config, README documentation, and public export boundary while continuing to block production ranking, recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, live AI providers, and business workflows.
 
 If `packages/config/package.json` exists, the verifier also rejects dependencies from `packages/config` to apps, APIs, connectors, AI workflows, database, domain, intelligence, or business packages.
 

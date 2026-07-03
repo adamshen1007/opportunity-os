@@ -47,7 +47,7 @@ Every completed phase should produce a deployable system.
 
 # Engineering Kit v3.0 Roadmap State
 
-Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 22.
+Engineering Kit v3.0 supersedes the initial high-level phase sketch with the milestone sequence completed through Phase 2 Milestone 24.
 
 Completed:
 
@@ -74,16 +74,17 @@ Completed:
 - Phase 2 M20 Structured Analysis Foundation
 - Phase 2 M21 Opportunity Engine Foundation
 - Phase 2 M22 Opportunity Pipeline Foundation
+- Phase 2 M23 Candidate Opportunity Engine
+- Phase 2 M24 Opportunity Generation Workflow
 
 Future:
 
-- Phase 2 M23 Candidate Opportunity Engine
-- Phase 2 M24 REST API
-- Phase 2 M25 Dashboard
+- Phase 2 M25 REST API
+- Phase 2 M26 Dashboard
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede REST APIs, and REST APIs precede the dashboard.
 
-Do not begin Phase 2 Milestone 24 until an implementation task explicitly scopes it.
+Do not begin implementation beyond Phase 2 Milestone 24 until an implementation task explicitly scopes it.
 
 # Phase 0 — Repository Foundation
 
@@ -2528,7 +2529,79 @@ Next milestone dependency:
 
 - Phase 2 Milestone 24 may consume `@opportunity-os/opportunity-candidates` for provider-independent candidate opportunity contracts. Do not begin REST API work until a scoped implementation task is approved.
 
-## Phase 2 Milestone 24 — REST API
+## Phase 2 Milestone 24 — Opportunity Generation Workflow
+
+Goal:
+
+Define deterministic candidate-to-opportunity generation workflow contracts.
+
+Owner:
+
+- `packages/opportunity-generation`
+
+Dependencies:
+
+- `@opportunity-os/opportunity-candidates`
+- `@opportunity-os/opportunity-pipeline`
+- `@opportunity-os/opportunity-engine`
+- `@opportunity-os/analysis`
+- `@opportunity-os/events`
+- `@opportunity-os/shared`
+
+Deliverables:
+
+- opportunity generation package boundary
+- strict TypeScript package scaffold
+- package README
+- package test config
+- public export boundary
+- repository verification support for `phase-2-milestone-24`
+- candidate-to-opportunity generation workflow contracts
+- deterministic opportunity generation service contracts
+- opportunity generation input/output contracts
+- evidence-to-hypothesis assembly behavior contracts
+- candidate validation behavior contracts
+- confidence aggregation behavior contracts
+- generated opportunity result contracts
+- generation error contracts
+- generation event contracts
+- deterministic fixtures
+- export stability tests
+- contract stability tests
+- dependency-boundary tests
+- security tests
+- upstream integration tests
+- deterministic service tests
+- root workspace pipeline integration
+
+Readiness gate:
+
+- `@opportunity-os/opportunity-generation` builds as a strict TypeScript package
+- public exports route through `packages/opportunity-generation/src/index.ts`
+- repository verification supports `phase-2-milestone-24`
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/opportunity-generation`
+- deterministic fixture, export-stability, contract-stability, dependency-boundary, security, upstream integration, and service tests cover the package surface
+- generated opportunity contracts preserve upstream candidate, opportunity pipeline, opportunity engine, analysis, event, and shared metadata references
+- implementation files are permitted only in approved foundation packages and `packages/opportunity-generation`
+- production ranking, recommendation engines, business scoring, REST APIs, frontend implementation, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, live AI providers, prompt execution, provider payloads, and business workflows remain blocked
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-2-milestone-24
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Next milestone dependency:
+
+- Phase 2 Milestone 25 may consume `@opportunity-os/opportunity-generation` for deterministic candidate-to-opportunity generation workflow contracts. Do not begin REST API work until a later scoped implementation task is approved.
+
+## Phase 2 Milestone 25 — REST API
 
 Goal:
 
@@ -2543,7 +2616,7 @@ Deliverables:
 - API contract tests
 - OpenAPI documentation
 
-## Phase 2 Milestone 25 — Dashboard
+## Phase 2 Milestone 26 — Dashboard
 
 Goal:
 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules"],
+  "references": [
+    { "path": "../analysis" },
+    { "path": "../events" },
+    { "path": "../opportunity-candidates" },
+    { "path": "../opportunity-engine" },
+    { "path": "../opportunity-pipeline" },
+    { "path": "../shared" }
+  ]
+}

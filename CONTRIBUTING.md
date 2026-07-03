@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 23: Candidate Opportunity Engine Foundation. Later milestones must consume the completed foundation contracts instead of bypassing them.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 2 Milestone 24: Opportunity Generation Workflow Foundation. Later milestones must consume the completed foundation contracts instead of bypassing them.
 
 ## Before You Start
 
@@ -49,7 +49,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 2 Milestone 23, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, and `packages/opportunity-candidates`.
+During Phase 2 Milestone 24, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, and package-level tests for `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, and `packages/opportunity-generation`.
 
 Phase 2 Milestone 19 work must stay inside its scoped task. Milestone 19 may add LLM Analysis Foundation contracts only inside `packages/llm-analysis` and must not add provider SDKs, OpenAI API calls, Anthropic API calls, Gemini API calls, live LLM calls, prompt execution runtime, extraction workflows, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, or business scoring.
 
@@ -60,6 +60,8 @@ Phase 2 Milestone 21 work must stay inside its scoped task. Milestone 21 may add
 Phase 2 Milestone 22 work must stay inside its scoped task. Milestone 22 may add Opportunity Pipeline Foundation contracts only inside `packages/opportunity-pipeline` and must not add business scoring algorithms, ranking algorithms, recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, provider SDKs, workflow engines, aggregation algorithms, generation logic, execution behavior, or business workflows.
 
 Phase 2 Milestone 23 work must stay inside its scoped task. Milestone 23 may add Candidate Opportunity Engine contracts only inside `packages/opportunity-candidates` and must not add production ranking algorithms, recommendation engines, business scoring, REST APIs, frontend, persistence implementation, schedulers, workers, provider SDKs, or business workflows.
+
+Phase 2 Milestone 24 work must stay inside its scoped task. Milestone 24 may add Opportunity Generation Workflow contracts only inside `packages/opportunity-generation` and must not add production ranking, recommendation engines, REST APIs, frontend, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, live AI providers, or business workflows.
 
 ## Phase 0 and Phase 1
 
@@ -618,6 +620,32 @@ Before handing off to the next milestone, confirm:
 - deterministic fixture, export-stability, contract-stability, dependency-boundary, security, and upstream integration tests cover the package surface
 - no production ranking algorithm, recommendation engine, business scoring, REST API, frontend implementation, persistence implementation, scheduler, worker, provider SDK, or business workflow exists in `packages/opportunity-candidates`
 - `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-23`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
+
+Phase 2 Milestone 24 consumes `@opportunity-os/opportunity-candidates` for provider-independent candidate opportunity contracts.
+
+## Opportunity Generation Workflow Governance
+
+Phase 2 Milestone 24 introduces the Opportunity Generation Workflow in `packages/opportunity-generation`. Future API, persistence, workflow, product, dashboard, scoring, ranking, and recommendation packages must consume `@opportunity-os/opportunity-generation` instead of redefining or bypassing candidate-to-opportunity generation contracts.
+
+Opportunity Generation Workflow changes must confirm:
+
+- public exports route through `packages/opportunity-generation/src/index.ts`
+- dependencies stay limited to approved upstream foundation packages
+- generation primitives, input/output contracts, deterministic service contracts, evidence-to-hypothesis assembly, candidate validation behavior, confidence aggregation, results, safe errors, events, deterministic fixtures, stability tests, security tests, dependency-boundary tests, upstream integration tests, and deterministic service tests remain provider-independent
+- fixtures remain synthetic and contain no prompts, provider payloads, secrets, or production business examples
+- no production ranking algorithms, recommendation engines, business scoring, REST APIs, frontend implementation, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, live AI providers, prompt execution, or business workflows are introduced
+
+## Phase 2 Milestone 24 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `packages/opportunity-generation` is implemented, tested, documented, and independently buildable
+- public exports route through `packages/opportunity-generation/src/index.ts`
+- repository verification supports `phase-2-milestone-24`
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/opportunity-generation`
+- deterministic fixture, export-stability, contract-stability, dependency-boundary, security, upstream integration, and deterministic service tests cover the package surface
+- no production ranking algorithm, recommendation engine, business scoring, REST API, frontend implementation, persistence implementation, scheduler, worker, billing, user account, provider SDK, live AI provider, prompt execution, or business workflow exists in `packages/opportunity-generation`
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-24`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config` pass
 
 ## Phase 1 Milestone 2 Readiness
 
