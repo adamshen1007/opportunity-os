@@ -1,0 +1,67 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: private-beta-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DEPLOYMENT_ENVIRONMENT: private-beta
+  NODE_ENV: production
+
+jobs:
+  private-beta-readiness:
+    name: private-beta deployment readiness
+    runs-on: ubuntu-latest
+    environment: private-beta
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify private-beta policy
+        run: node scripts/verify-repository.mjs --phase phase-3-milestone-29
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+      - name: Validate Docker Compose
+        run: docker compose config
+
+      - name: Record deployment workflow contract
+        run: |
+          echo "deployment workflow: private-beta"
+          echo "production config: config/private-beta.env.example"
+          echo "secrets management: GitHub private-beta environment secrets"
+          echo "health monitoring: API health endpoint and Docker Compose health checks"
+          echo "operational logging: structured secret-safe logs"
+          echo "monitoring strategy: health, logs, error rate, latency, resource pressure"
+          echo "backup strategy: PostgreSQL snapshot and restore runbook"

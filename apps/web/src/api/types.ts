@@ -127,3 +127,26 @@ export interface DashboardApiCreateFeedbackRequestBody {
   readonly ratings?: readonly DashboardApiFeedbackRatingDto[];
   readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
 }
+
+export type DashboardApiBugReportSeverity = "low" | "medium" | "high";
+
+export type DashboardApiBugReportStatus = "open" | "acknowledged" | "closed";
+
+export interface DashboardApiBugReportDto {
+  readonly bugReportId: string;
+  readonly sessionId: string;
+  readonly title: string;
+  readonly safeDescription: string;
+  readonly severity: DashboardApiBugReportSeverity;
+  readonly status: DashboardApiBugReportStatus;
+  readonly createdAt: string;
+  readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
+}
+
+export interface DashboardApiCreateBugReportRequestBody {
+  readonly sessionId: string;
+  readonly title: string;
+  readonly safeDescription: string;
+  readonly severity: DashboardApiBugReportSeverity;
+  readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
+}

@@ -73,6 +73,30 @@ pnpm --filter @opportunity-os/database migrate:deploy
 
 Do not create connector persistence, Raw Content workflow, event store, AI workflow, API, frontend, application service, or business tables in Database Foundation slices unless a later approved task explicitly scopes those tables.
 
+## Private Beta Persistence
+
+Phase 3 Milestone 29 introduces the minimal persistence schema for invite-only Private Beta access and the Slice D beta workflow.
+
+Approved models:
+
+- `PrivateBetaInvite`
+- `PrivateBetaSession`
+- `PrivateBetaFeedback`
+- `PrivateBetaBugReport`
+
+Approved tables:
+
+- `private_beta_invites`
+- `private_beta_sessions`
+- `private_beta_feedback`
+- `private_beta_bug_reports`
+
+The schema stores `inviteCodeHash` only. Raw invite codes must never be persisted.
+
+Beta feedback stores reason categories, ratings, and safe metadata. Bug reports store a safe description and severity. The schema must not store raw invite codes, secrets, raw provider payloads, stack traces, or unsafe internal details.
+
+This slice does not add billing, multi-tenancy, production identity provider tables, enterprise auth tables, user-account product systems, CRM integrations, notifications, or business workflow persistence.
+
 ## Configuration Boundary
 
 Database runtime configuration is created from explicit typed input:

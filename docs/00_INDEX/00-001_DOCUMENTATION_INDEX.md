@@ -13,7 +13,7 @@
 
 Engineering Kit v3.0 is the canonical reference for future Codex work.
 
-It reflects completed implementation through Phase 2 Milestone 14:
+It reflects completed implementation through Phase 3 Milestone 28 and active Phase 3 Milestone 29 Private Beta deployment readiness work:
 
 - Phase 0 Repository Foundation
 - Phase 1 M1 Runtime Configuration
@@ -30,8 +30,22 @@ It reflects completed implementation through Phase 2 Milestone 14:
 - Phase 2 M12 Connector Host Foundation
 - Phase 2 M13 Reddit Connector Foundation
 - Phase 2 M14 Reddit Runtime
+- Phase 2 M15 Reddit Provider Transport
+- Phase 2 M16 Raw Content Pipeline
+- Phase 2 M17 Normalization Pipeline
+- Phase 2 M18 Embedding Foundation
+- Phase 2 M19 LLM Analysis Foundation
+- Phase 2 M20 Structured Analysis Foundation
+- Phase 2 M21 Opportunity Engine Foundation
+- Phase 2 M22 Opportunity Pipeline Foundation
+- Phase 2 M23 Candidate Opportunity Engine
+- Phase 2 M24 Opportunity Generation Workflow
+- Phase 3 M25 Opportunity Ranking Engine
+- Phase 3 M26 REST API
+- Phase 3 M27 Dashboard MVP
+- Phase 3 M28 Product Validation Loop
 
-Future implementation begins with Phase 2 Milestone 15: Reddit Provider Transport. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
+Current implementation is Phase 3 Milestone 29: Private Beta. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
 ## Purpose
 
@@ -146,6 +160,16 @@ Documents:
 - 04-001_ROADMAP.md
 
 - 04-002_CODEX_TASKS.md
+
+- 04-003_DESIGN_PARTNER_WALKTHROUGH.md
+
+- 04-004_PRIVATE_BETA_DEPLOYMENT.md
+
+- 04-005_PRIVATE_BETA_OPERATIONS.md
+
+- 04-006_PRIVATE_BETA_RUNBOOK.md
+
+- 04-007_PRIVATE_BETA_CHECKLIST.md
 
 - Development playbooks
 

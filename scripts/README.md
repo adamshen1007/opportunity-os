@@ -36,9 +36,12 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - REST API foundation checks during Phase 3 Milestone 26
 - Dashboard MVP foundation checks during Phase 3 Milestone 27
 - Product Validation Loop foundation checks during Phase 3 Milestone 28
+- Private Beta deployment and operations readiness checks during Phase 3 Milestone 29
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
-Engineering Kit v3.0 treats the active `review` phase as the Phase 3 Milestone 28 boundary. Phase 3 Milestone 26 still has an explicit `phase-3-milestone-26` gate for REST API foundation work, Phase 3 Milestone 27 has an explicit `phase-3-milestone-27` gate for Dashboard MVP foundation work, and Phase 3 Milestone 28 has an explicit `phase-3-milestone-28` gate for Product Validation Loop foundation work.
+Engineering Kit v3.0 treats the active `review` phase as the Phase 3 Milestone 29 boundary. Phase 3 Milestone 26 still has an explicit `phase-3-milestone-26` gate for REST API foundation work, Phase 3 Milestone 27 has an explicit `phase-3-milestone-27` gate for Dashboard MVP foundation work, Phase 3 Milestone 28 has an explicit `phase-3-milestone-28` gate for Product Validation Loop foundation work, and Phase 3 Milestone 29 has an explicit `phase-3-milestone-29` gate for Private Beta deployment readiness, operations readiness, invite-only authentication, and persistence work.
+
+The Phase 3 Milestone 29 gate requires deployment workflow configuration, placeholder-only production config, operations documentation, config binding documentation, rollback guidance, monitoring guidance, operational runbook, beta checklist, invite contracts, invite validation, session management, `PrivateBetaInvite`, `PrivateBetaSession`, `PrivateBetaFeedback`, and `PrivateBetaBugReport` persistence schema, protected dashboard/onboarding/save-dismiss/bug-reporting/invite workflow files, and secret-safe tests while continuing to block billing, multi-tenancy, production identity providers, enterprise auth, and unrelated product systems.
 
 ## Phase 1 Shared Infrastructure Boundaries
 
@@ -74,7 +77,7 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
-The `review` phase now uses the active Phase 2 Milestone 24 boundary. Phase 1 Milestone 3 additionally verifies:
+The `review` phase now uses the active Phase 3 Milestone 29 boundary. Phase 1 Milestone 3 additionally verifies:
 
 - required logging implementation files exist under `packages/shared/src/logging/`
 - logging contracts are exported through `packages/shared/src/logging/index.ts`

@@ -4,7 +4,9 @@
 
 Milestone 27 creates the first customer-facing application. The app uses Next.js App Router, React 19, strict TypeScript, and the REST API application boundary created in Phase 3 Milestone 26.
 
-Milestone 28 layers deterministic product validation on top of the Dashboard MVP. The dashboard exposes save, dismiss, usefulness rating, evidence quality rating, ranking quality rating, feedback reason categories, validation summary, search/filter improvements, demo-ready states, and browser-tested design-partner flows. It uses synthetic fixtures and the web API integration layer; it does not add production persistence or external services.
+Milestone 28 layers deterministic product validation on top of the Dashboard MVP. The dashboard exposes save, dismiss, usefulness rating, evidence quality rating, ranking quality rating, feedback reason categories, validation summary, search/filter improvements, demo-ready states, and browser-tested design-partner flows. It uses synthetic fixtures and the web API integration layer; it does not add production storage behavior or external services.
+
+Phase 3 Milestone 29 adds Private Beta deployment readiness around the dashboard. Slice D adds deterministic protected dashboard state, onboarding state, invite workflow display, feedback views, save/dismiss state, and bug reporting UI inside `apps/web`.
 
 ## Ownership
 
@@ -60,7 +62,7 @@ Milestone 27 establishes the Dashboard MVP:
 
 ## Integration Boundary
 
-The dashboard consumes the REST API created in `apps/api` through the web API integration layer. UI code should not duplicate route strings or bypass the API layer. Tests use deterministic fixtures and do not require a production API server, auth provider, database, scheduler, worker, billing system, analytics system, or notification service.
+The dashboard consumes the REST API created in `apps/api` through the web API integration layer. UI code should not duplicate route strings or bypass the API layer. Tests use deterministic fixtures and do not require a production API server, auth provider, storage service, runtime job, commercial account system, measurement platform, or external outreach service.
 
 Product Validation Loop feedback must consume `apps/web/src/api/feedback.ts` and the generated API route contract. Dashboard components must not create private feedback route strings, persist feedback to local production stores, or display secrets, raw provider payloads, prompts, stacks, or unsafe internals.
 
@@ -74,6 +76,12 @@ Use `docs/04_IMPLEMENTATION/04-003_DESIGN_PARTNER_WALKTHROUGH.md` for facilitate
 4. Rate usefulness, evidence quality, and ranking quality.
 5. Select safe feedback reason categories.
 6. Capture notes outside the repository without committing private participant data.
+
+## Private Beta Boundary
+
+Private Beta dashboard work must continue to consume `apps/api` and the web API integration layer. Slice D adds protected dashboard state, invite-only entry display, onboarding states, feedback views, save/dismiss state, and bug reporting UI.
+
+Slice D remains deterministic and fixture-backed. It must not add production identity provider wiring, commercial account systems, external outreach systems, tenant systems, runtime jobs, or unrelated backend behavior.
 
 ## Verification
 
@@ -92,4 +100,4 @@ Playwright is configured for deterministic dashboard coverage across desktop and
 
 ## Non-goals
 
-Milestone 27 and Milestone 28 dashboard work must not introduce authentication implementation, billing, analytics, notifications, user accounts, production deployment, persistence changes, recommendation engines, mobile apps, schedulers, workers, provider SDKs, complex admin consoles, CRM integrations, email integrations, or unrelated backend changes.
+Milestone 27, Milestone 28, and Milestone 29 dashboard work must not introduce production identity provider wiring, commercial account systems, measurement platforms, production account management, deployment behavior beyond the documented readiness gate, storage changes outside approved beta schema work, recommendation engines, mobile apps, runtime jobs, provider SDKs, complex admin consoles, external outreach systems, tenant systems, or unrelated backend changes.

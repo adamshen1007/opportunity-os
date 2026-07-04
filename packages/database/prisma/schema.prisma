@@ -5,3 +5,65 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model PrivateBetaInvite {
+  id             String               @id
+  email          String               @unique
+  inviteCodeHash String               @unique
+  status         String
+  createdAt      DateTime             @default(now())
+  expiresAt      DateTime?
+  acceptedAt     DateTime?
+  revokedAt      DateTime?
+  sessions       PrivateBetaSession[]
+
+  @@map("private_beta_invites")
+}
+
+model PrivateBetaSession {
+  id          String            @id
+  inviteId    String
+  principalId String
+  status      String
+  createdAt   DateTime          @default(now())
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  invite      PrivateBetaInvite @relation(fields: [inviteId], references: [id])
+  feedback    PrivateBetaFeedback[]
+  bugReports  PrivateBetaBugReport[]
+
+  @@index([inviteId])
+  @@index([principalId])
+  @@map("private_beta_sessions")
+}
+
+model PrivateBetaFeedback {
+  id               String              @id
+  sessionId        String?
+  opportunityId    String
+  status           String
+  reasonCategories Json
+  ratings          Json
+  safeMetadata     Json?
+  createdAt        DateTime            @default(now())
+  session          PrivateBetaSession? @relation(fields: [sessionId], references: [id])
+
+  @@index([sessionId])
+  @@index([opportunityId])
+  @@map("private_beta_feedback")
+}
+
+model PrivateBetaBugReport {
+  id              String              @id
+  sessionId       String?
+  title           String
+  safeDescription String
+  severity        String
+  status          String
+  safeMetadata    Json?
+  createdAt       DateTime            @default(now())
+  session         PrivateBetaSession? @relation(fields: [sessionId], references: [id])
+
+  @@index([sessionId])
+  @@map("private_beta_bug_reports")
+}

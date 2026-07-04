@@ -79,14 +79,15 @@ Completed:
 - Phase 3 M25 Opportunity Ranking Engine
 - Phase 3 M26 REST API
 - Phase 3 M27 Dashboard MVP
+- Phase 3 M28 Product Validation Loop
 
 Current:
 
-- Phase 3 M28 Product Validation Loop
+- Phase 3 M29 Private Beta
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, and the dashboard precedes the Product Validation Loop.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, the dashboard precedes the Product Validation Loop, and the Product Validation Loop precedes Private Beta deployment readiness.
 
-Do not begin implementation beyond completed Phase 3 Milestone 28 Product Validation Loop work until a later implementation task explicitly scopes the next milestone.
+Do not begin implementation beyond the scoped Phase 3 Milestone 29 Private Beta task until a later implementation task explicitly scopes the next slice.
 
 # Phase 0 — Repository Foundation
 
@@ -2905,7 +2906,119 @@ Readiness:
 
 Next milestone dependency:
 
-- Phase 3 Milestone 29 may consume the completed Product Validation Loop outcomes only after a scoped implementation plan is approved. Do not begin Phase 3 Milestone 29 from Milestone 28 readiness work.
+- Phase 3 Milestone 29 consumes completed Product Validation Loop outcomes and begins Private Beta deployment readiness. Slice A may establish deployment architecture, deployment configuration, repository verification, and governance only.
+
+## Phase 3 Milestone 29 — Private Beta
+
+Goal:
+
+Prepare Opportunity OS for hosted Private Beta use by the first 10-20 design partners.
+
+Owners:
+
+- `apps/api`
+- `apps/web`
+- `.github/workflows/deploy.yml`
+- deployment and operations documentation
+
+Dependencies:
+
+- Phase 3 Milestone 28 Product Validation Loop
+- `apps/api`
+- `apps/web`
+- `@opportunity-os/opportunity-ranking`
+- `@opportunity-os/opportunity-generation`
+
+Slice A deliverables:
+
+- `phase-3-milestone-29` repository verification gate
+- Private Beta boundaries
+- deployment architecture
+- deployment readiness configuration
+- `docs/04_IMPLEMENTATION/04-004_PRIVATE_BETA_DEPLOYMENT.md`
+- governance updates for Private Beta changes
+
+Slice B deliverables:
+
+- deployment workflow hardening
+- production config template in `config/private-beta.env.example`
+- secrets management policy
+- health monitoring policy
+- operational logging policy
+- monitoring strategy
+- backup strategy
+- `docs/04_IMPLEMENTATION/04-005_PRIVATE_BETA_OPERATIONS.md`
+- repository verification updates for the operations baseline
+
+Slice C deliverables:
+
+- invite contracts
+- invite validation
+- session management
+- minimal persistence schema for `PrivateBetaInvite` and `PrivateBetaSession`
+- secret-safe invite-only API tests
+- repository verification updates for invite-only authentication and persistence
+
+Slice D deliverables:
+
+- protected dashboard state
+- onboarding state
+- feedback persistence schema for `PrivateBetaFeedback`
+- save/dismiss persistence path
+- bug reporting schema and API route
+- invite workflow UI coverage
+- deterministic API and dashboard tests
+
+Slice E deliverables:
+
+- config binding documentation
+- clear deployment instructions
+- rollback guidance
+- monitoring guidance
+- beta operations documentation
+- operational runbook in `docs/04_IMPLEMENTATION/04-006_PRIVATE_BETA_RUNBOOK.md`
+- beta checklist in `docs/04_IMPLEMENTATION/04-007_PRIVATE_BETA_CHECKLIST.md`
+
+Allowed in later scoped Private Beta slices:
+
+- production deployment
+- production configuration
+- monitoring
+- health monitoring
+- logging
+- backup strategy
+
+Non-goals:
+
+- payments
+- subscriptions
+- enterprise features
+- notifications
+- CRM integrations
+- multi-tenancy
+
+Slice E verification commands:
+
+```sh
+pnpm build
+```
+
+Readiness:
+
+- repository verification supports `phase-3-milestone-29`
+- Private Beta deployment readiness is documented
+- deployment architecture and deployment readiness configuration exist
+- production config, secrets management, health monitoring, operational logging, monitoring strategy, and backup strategy are documented
+- config binding, deployment instructions, rollback guidance, monitoring guidance, beta checklist, and operational runbook are documented
+- invite-only authentication and session management are deterministic and secret-safe
+- persistence is limited to Private Beta invites, sessions, feedback, and bug reports
+- protected dashboard, onboarding, save/dismiss, bug reporting, and invite workflow behavior is deterministic
+- `apps/api` and `apps/web` remain the API and dashboard boundaries
+- payments, subscriptions, enterprise features, notifications, CRM integrations, multi-tenancy, and unscoped product systems remain absent
+
+Next milestone dependency:
+
+- Later Private Beta slices may add scoped monitoring integrations and deployment execution only after the current Private Beta slice is committed, pushed, tagged, and verified.
 
 Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  API_BUG_REPORT_SEVERITIES,
+  API_BUG_REPORT_STATUSES,
+  API_CREATE_BUG_REPORT_ROUTE,
   API_CREATE_FEEDBACK_ROUTE,
   API_ERROR_CODES,
   API_FEEDBACK_RATING_TARGETS,
@@ -7,15 +10,21 @@ import {
   API_FEEDBACK_STATUSES,
   API_GET_FEEDBACK_ROUTE,
   API_LIST_FEEDBACK_ROUTE,
+  createSyntheticApiBugReportStore,
   createInMemoryFeedbackStore,
   createSyntheticApiFeedbackStore,
   createSyntheticApiRequest,
+  handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
   handleGetFeedbackRequest,
   handleListFeedbackRequest,
+  syntheticApiBugReport,
+  syntheticApiBugReportRequestBody,
   syntheticApiFeedback,
   syntheticApiFeedbackRequestBody,
   syntheticApiOpportunity,
+  syntheticApiSession,
+  validateCreateBugReportBody,
   validateCreateFeedbackBody
 } from "../index.js";
 
@@ -111,5 +120,61 @@ describe("Feedback API behavior", () => {
       expect(JSON.stringify(response.error)).not.toContain("cause");
     }
   });
-});
 
+  it("creates deterministic beta bug reports without external services", async () => {
+    const store = createSyntheticApiBugReportStore();
+    const response = await handleCreateBugReportRequest(
+      createSyntheticApiRequest({
+        context: { method: "POST", path: "/v1/feedback/bug-reports" },
+        body: syntheticApiBugReportRequestBody
+      }),
+      store
+    );
+    const reports = await store.listBugReports();
+
+    expect(API_CREATE_BUG_REPORT_ROUTE.operationId).toBe("createPrivateBetaBugReport");
+    expect(API_CREATE_BUG_REPORT_ROUTE.path).toBe("/feedback/bug-reports");
+    expect(response.ok).toBe(true);
+    if (response.ok) {
+      expect(response.data.bugReportId).toBe("bug-report-synthetic-created-1");
+      expect(response.data.sessionId).toBe(syntheticApiSession.sessionId);
+      expect(response.data.severity).toBe(API_BUG_REPORT_SEVERITIES.medium);
+      expect(response.data.status).toBe(API_BUG_REPORT_STATUSES.open);
+    }
+    expect(reports).toHaveLength(2);
+    expect(reports[0]?.bugReportId).toBe(syntheticApiBugReport.bugReportId);
+  });
+
+  it("validates beta bug reports with safe details", async () => {
+    const unsafeDescription = "raw token secret stack provider payload";
+    const validation = validateCreateBugReportBody({
+      sessionId: "",
+      title: "",
+      safeDescription: unsafeDescription,
+      severity: "critical" as never
+    });
+    const response = await handleCreateBugReportRequest(
+      createSyntheticApiRequest({
+        context: { method: "POST", path: "/v1/feedback/bug-reports" },
+        body: {
+          sessionId: "",
+          title: "",
+          safeDescription: unsafeDescription,
+          severity: "critical" as never
+        }
+      }),
+      createSyntheticApiBugReportStore()
+    );
+
+    expect(validation.valid).toBe(false);
+    expect(response.ok).toBe(false);
+    if (!response.ok) {
+      expect(response.error.details).toEqual([
+        "sessionId:missing-required-field",
+        "title:missing-required-field",
+        "severity:unsupported-value"
+      ]);
+      expect(JSON.stringify(response.error)).not.toMatch(/token|secret|stack|provider payload/iu);
+    }
+  });
+});

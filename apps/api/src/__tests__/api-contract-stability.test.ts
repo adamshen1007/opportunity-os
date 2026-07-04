@@ -3,6 +3,11 @@ import {
   API_AUTH_FAILURE_REASONS,
   API_AUTH_STATES,
   API_AUTHORIZATION_DECISIONS,
+  API_ACCEPT_INVITE_ROUTE,
+  API_BUG_REPORT_SEVERITIES,
+  API_BUG_REPORT_STATUSES,
+  API_CREATE_BUG_REPORT_ROUTE,
+  API_CREATE_INVITE_ROUTE,
   API_ERROR_CODES,
   API_CREATE_FEEDBACK_ROUTE,
   API_FEEDBACK_RATING_TARGETS,
@@ -10,6 +15,7 @@ import {
   API_FEEDBACK_REASON_CATEGORIES,
   API_FEEDBACK_STATUSES,
   API_GET_FEEDBACK_ROUTE,
+  API_GET_SESSION_ROUTE,
   API_GET_OPPORTUNITY_ROUTE,
   API_GET_RANKING_ROUTE,
   API_HEALTH_ROUTE,
@@ -20,10 +26,16 @@ import {
   API_OPPORTUNITY_STATUSES,
   API_RANK_OPPORTUNITIES_ROUTE,
   API_RESPONSE_ENVELOPE_KEYS,
+  API_INVITE_ACCEPTANCE_FAILURE_REASONS,
+  API_INVITE_STATUSES,
+  API_SESSION_STATUSES,
   API_VALIDATION_ISSUE_CODES,
   API_VERSIONS,
   syntheticApiOpportunity,
+  syntheticApiBugReport,
   syntheticApiFeedback,
+  syntheticApiInvite,
+  syntheticApiSession,
   syntheticApiRanking
 } from "../index.js";
 
@@ -35,18 +47,26 @@ describe("API contract stability", () => {
       API_GET_OPPORTUNITY_ROUTE.operationId,
       API_RANK_OPPORTUNITIES_ROUTE.operationId,
       API_GET_RANKING_ROUTE.operationId,
+      API_CREATE_INVITE_ROUTE.operationId,
+      API_ACCEPT_INVITE_ROUTE.operationId,
+      API_GET_SESSION_ROUTE.operationId,
       API_CREATE_FEEDBACK_ROUTE.operationId,
       API_LIST_FEEDBACK_ROUTE.operationId,
-      API_GET_FEEDBACK_ROUTE.operationId
+      API_GET_FEEDBACK_ROUTE.operationId,
+      API_CREATE_BUG_REPORT_ROUTE.operationId
     ]).toEqual([
       "getHealth",
       "listOpportunities",
       "getOpportunity",
       "rankOpportunities",
       "getRanking",
+      "createPrivateBetaInvite",
+      "acceptPrivateBetaInvite",
+      "getPrivateBetaSession",
       "createFeedback",
       "listFeedback",
-      "getFeedback"
+      "getFeedback",
+      "createPrivateBetaBugReport"
     ]);
   });
 
@@ -59,6 +79,13 @@ describe("API contract stability", () => {
       "invalid_credentials",
       "missing_credentials",
       "unsupported_credentials"
+    ]);
+    expect(Object.values(API_INVITE_STATUSES)).toEqual(["pending", "accepted", "revoked", "expired"]);
+    expect(Object.values(API_SESSION_STATUSES)).toEqual(["active", "expired", "revoked"]);
+    expect(Object.values(API_INVITE_ACCEPTANCE_FAILURE_REASONS)).toEqual([
+      "invite_not_found",
+      "invite_expired",
+      "invite_not_pending"
     ]);
     expect(Object.values(API_OPPORTUNITY_STATUSES)).toEqual(["candidate", "generated", "ranked", "validated"]);
     expect(Object.values(API_FEEDBACK_STATUSES)).toEqual(["saved", "dismissed", "rated", "reason-provided"]);
@@ -78,6 +105,8 @@ describe("API contract stability", () => {
       "ranking-quality"
     ]);
     expect(API_FEEDBACK_RATING_VALUES).toEqual([1, 2, 3, 4, 5]);
+    expect(Object.values(API_BUG_REPORT_SEVERITIES)).toEqual(["low", "medium", "high"]);
+    expect(Object.values(API_BUG_REPORT_STATUSES)).toEqual(["open", "acknowledged", "closed"]);
   });
 
   it("locks envelope, error, validation, and fixture shapes", () => {
@@ -121,6 +150,32 @@ describe("API contract stability", () => {
       "ratings",
       "reasonCategories",
       "safeMetadata",
+      "status"
+    ]);
+    expect(Object.keys(syntheticApiBugReport).sort()).toEqual([
+      "bugReportId",
+      "createdAt",
+      "safeDescription",
+      "safeMetadata",
+      "sessionId",
+      "severity",
+      "status",
+      "title"
+    ]);
+    expect(Object.keys(syntheticApiInvite).sort()).toEqual([
+      "createdAt",
+      "email",
+      "expiresAt",
+      "inviteCode",
+      "inviteId",
+      "safeMetadata",
+      "status"
+    ]);
+    expect(Object.keys(syntheticApiSession).sort()).toEqual([
+      "createdAt",
+      "expiresAt",
+      "principal",
+      "sessionId",
       "status"
     ]);
   });

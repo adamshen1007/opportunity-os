@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 3 Milestone 28: Product Validation Loop. Later milestones must consume the completed foundation, ranking contracts, API application boundary, dashboard application boundary, deterministic feedback API behavior, dashboard validation experience, and design-partner walkthrough instead of bypassing them.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 3 Milestone 28: Product Validation Loop and active Phase 3 Milestone 29 Private Beta deployment, operations, invite-only authentication, persistence, beta workflow, and operational readiness work. Later milestones must consume the completed foundation, ranking contracts, API application boundary, dashboard application boundary, deterministic feedback API behavior, dashboard validation experience, design-partner walkthrough, and Private Beta policy instead of bypassing them.
 
 ## Before You Start
 
@@ -49,7 +49,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 3 Milestone 28, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, Opportunity Ranking Engine policy, REST API foundation policy, Dashboard MVP policy, Product Validation Loop policy, and package-level tests for `apps/api`, `apps/web`, `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, and `packages/opportunity-ranking`.
+During Phase 3 Milestone 29, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, Opportunity Ranking Engine policy, REST API foundation policy, Dashboard MVP policy, Product Validation Loop policy, Private Beta deployment readiness policy, and package-level tests for `apps/api`, `apps/web`, `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, and `packages/opportunity-ranking`.
 
 Phase 2 Milestone 19 work must stay inside its scoped task. Milestone 19 may add LLM Analysis Foundation contracts only inside `packages/llm-analysis` and must not add provider SDKs, OpenAI API calls, Anthropic API calls, Gemini API calls, live LLM calls, prompt execution runtime, extraction workflows, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, or business scoring.
 
@@ -70,6 +70,37 @@ Phase 3 Milestone 26 work must stay inside its scoped task. Milestone 26 may add
 Phase 3 Milestone 27 work must stay inside its scoped task. Milestone 27 may add Dashboard MVP implementation only inside `apps/web`. It establishes the Next.js App Router application scaffold, strict TypeScript configuration, route map, dashboard shell, navigation, Opportunity List page, Opportunity Detail page, Ranking View, Evidence View, Search UI, Filter UI, Pagination UI, loading/empty/error states, typed API integration layer, generated route contract, deterministic frontend fixtures, package metadata, README, unit/component tests, security tests, dependency-boundary tests, route stability tests, Playwright browser coverage, and `phase-3-milestone-27` repository verification. It must not add authentication implementation, billing, analytics, notifications, user accounts, production deployment, persistence changes, recommendation engines, mobile apps, schedulers, workers, provider SDKs, or unrelated backend changes.
 
 Phase 3 Milestone 28 work must stay inside its scoped task. Milestone 28 adds Product Validation Loop boundaries, deterministic feedback API behavior, dashboard feedback interactions, demo-ready validation states, cross-app quality gates, and design-partner walkthrough documentation inside `apps/api`, `apps/web`, documentation, and repository verification. It establishes the `phase-3-milestone-28` repository verification gate and feedback vocabulary for save opportunity, dismiss opportunity, usefulness rating, evidence quality rating, ranking quality rating, and feedback reason categories. It must not add production persistence, billing, analytics platforms, notifications, email, CRM integrations, schedulers, workers, mobile apps, a complex admin console, or unrelated product systems.
+
+Phase 3 Milestone 29 work must stay inside its scoped task. Slice A adds Private Beta deployment readiness boundaries, deployment architecture, deployment configuration, and the `phase-3-milestone-29` repository verification gate. Slice B adds deployment workflow hardening, production config, secrets management, health monitoring, operational logging, monitoring strategy, and backup strategy. Slice C adds invite-only authentication contracts, invite validation, session management, and minimal invite/session persistence schema. Slice D adds deterministic protected dashboard workflow, onboarding, feedback persistence schema, save/dismiss persistence path, bug reporting, and invite workflow UI/API coverage. Slice E adds config binding, deployment instructions, rollback guidance, monitoring guidance, beta operations documentation, the operational runbook, and the beta checklist. It must not add billing, multi-tenancy, production identity providers, enterprise auth, payments, subscriptions, enterprise features, notifications, CRM integrations, email, business logic changes, or unscoped product systems.
+
+## Private Beta Governance
+
+Phase 3 Milestone 29 prepares Opportunity OS for the first 10-20 design partners. Slice A is deployment readiness only: it documents the Private Beta boundary, adds `.github/workflows/deploy.yml` as the deployment readiness workflow, and keeps repository policy aligned with `docs/04_IMPLEMENTATION/04-004_PRIVATE_BETA_DEPLOYMENT.md`. Slice B adds the operations baseline in `docs/04_IMPLEMENTATION/04-005_PRIVATE_BETA_OPERATIONS.md` and the placeholder-only production config template in `config/private-beta.env.example`. Slice C adds invite-only authentication and persistence with `PrivateBetaInvite` and `PrivateBetaSession`. Slice D adds beta feedback and bug report persistence with `PrivateBetaFeedback` and `PrivateBetaBugReport`, plus deterministic API/web workflow coverage. Slice E adds `docs/04_IMPLEMENTATION/04-006_PRIVATE_BETA_RUNBOOK.md` and `docs/04_IMPLEMENTATION/04-007_PRIVATE_BETA_CHECKLIST.md`.
+
+When Private Beta files change, reviewers should confirm:
+
+- deployment work is covered by `node scripts/verify-repository.mjs --phase phase-3-milestone-29`
+- `.github/workflows/deploy.yml` remains a readiness gate until a later scoped task attaches a hosting provider and protected secrets
+- production config remains placeholder-only
+- secrets management, health monitoring, operational logging, monitoring strategy, and backup strategy remain documented and secret-safe
+- invite-only authentication uses safe invite DTOs, validation, session management, and hashed invite-code persistence
+- beta feedback and bug report persistence stores only safe validation fields and safe metadata
+- protected dashboard, onboarding, save/dismiss, bug reporting, and invite workflow UI remains deterministic
+- config binding, deployment instructions, rollback guidance, monitoring guidance, beta checklist, and operational runbook are current
+- `apps/api` and `apps/web` remain the API and dashboard boundaries
+- production secrets are referenced only through documented environment channels and are never committed
+- no billing, multi-tenancy, production identity provider, enterprise auth, payments, subscriptions, enterprise features, notifications, CRM integration, business logic changes, or unrelated product system was introduced
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-3-milestone-29`, `pnpm lint`, and `pnpm build` pass for Slice A
+
+## Phase 3 Milestone 29 Readiness
+
+Before advancing beyond Private Beta Slice A, confirm:
+
+- Private Beta boundaries are documented in `README.md`, `CONTRIBUTING.md`, `apps/api/README.md`, `apps/web/README.md`, the roadmap, implementation order, scripts README, and `docs/04_IMPLEMENTATION/04-004_PRIVATE_BETA_DEPLOYMENT.md`
+- deployment architecture and deployment readiness configuration exist
+- repository verification supports `phase-3-milestone-29`
+- payments, subscriptions, enterprise features, notifications, CRM integrations, multi-tenancy, and unscoped product systems remain absent
+- the Slice A verification commands pass
 
 ## Product Validation Loop Governance
 

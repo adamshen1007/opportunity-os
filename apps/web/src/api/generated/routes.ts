@@ -33,6 +33,11 @@ export const generatedApiRoutes = {
     method: "GET",
     path: "/feedback/:feedbackId",
     operationId: "getFeedback"
+  },
+  createPrivateBetaBugReport: {
+    method: "POST",
+    path: "/feedback/bug-reports",
+    operationId: "createPrivateBetaBugReport"
   }
 } as const;
 

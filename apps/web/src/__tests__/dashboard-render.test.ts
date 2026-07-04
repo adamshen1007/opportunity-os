@@ -2,7 +2,12 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { dashboardFeedbackRatingLabels, dashboardFeedbackReasonLabels } from "../features/feedback/feedback-labels";
 import { renderDashboardElement } from "../testing/component-render";
-import { dashboardFeedbackFixtures } from "../testing";
+import {
+  dashboardBetaInviteWorkflowFixture,
+  dashboardBetaSessionFixture,
+  dashboardBugReportFixture,
+  dashboardFeedbackFixtures
+} from "../testing";
 
 describe("Dashboard component test infrastructure", () => {
   it("renders simple dashboard elements to inspectable static output", () => {
@@ -25,5 +30,17 @@ describe("Dashboard component test infrastructure", () => {
     expect(dashboardFeedbackReasonLabels["weak-evidence"]).toBe("Weak evidence");
     expect(dashboardFeedbackReasonLabels["poor-ranking"]).toBe("Poor ranking");
     expect(dashboardFeedbackFixtures[0]?.ratings).toHaveLength(3);
+  });
+
+  it("keeps deterministic private beta workflow fixtures available", () => {
+    expect(dashboardBetaSessionFixture.status).toBe("active");
+    expect(dashboardBetaSessionFixture.onboardingSteps.map((step) => step.status)).toEqual([
+      "complete",
+      "current",
+      "pending"
+    ]);
+    expect(dashboardBetaInviteWorkflowFixture.safeMessage).toContain("Invite accepted");
+    expect(dashboardBugReportFixture.status).toBe("open");
+    expect(dashboardBugReportFixture.title).toBe("Synthetic dashboard issue");
   });
 });

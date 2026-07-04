@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  API_CREATE_BUG_REPORT_ROUTE,
   API_CREATE_FEEDBACK_ROUTE,
   API_GET_OPPORTUNITY_ROUTE,
   API_GET_FEEDBACK_ROUTE,
@@ -8,10 +9,12 @@ import {
   API_LIST_FEEDBACK_ROUTE,
   API_LIST_OPPORTUNITIES_ROUTE,
   API_RANK_OPPORTUNITIES_ROUTE,
+  createSyntheticApiBugReportStore,
   createSyntheticApiFeedbackStore,
   createApiApplication,
   createApiOpenApiDocument,
   createSyntheticApiRequest,
+  handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
   handleApiHealthRequest,
   handleGetFeedbackRequest,
@@ -20,6 +23,7 @@ import {
   handleListFeedbackRequest,
   handleListOpportunitiesRequest,
   handleRankOpportunitiesRequest,
+  syntheticApiBugReportRequestBody,
   syntheticApiFeedback,
   syntheticApiFeedbackRequestBody,
   syntheticApiOpportunity,
@@ -38,7 +42,8 @@ describe("API integration contracts", () => {
       API_GET_RANKING_ROUTE,
       API_CREATE_FEEDBACK_ROUTE,
       API_LIST_FEEDBACK_ROUTE,
-      API_GET_FEEDBACK_ROUTE
+      API_GET_FEEDBACK_ROUTE,
+      API_CREATE_BUG_REPORT_ROUTE
     ];
     const app = createApiApplication({
       serviceName: "opportunity-api",
@@ -57,6 +62,7 @@ describe("API integration contracts", () => {
     expect(document.paths["/v1/rankings"]?.post?.operationId).toBe("rankOpportunities");
     expect(document.paths["/v1/feedback"]?.post?.operationId).toBe("createFeedback");
     expect(document.paths["/v1/feedback"]?.get?.operationId).toBe("listFeedback");
+    expect(document.paths["/v1/feedback/bug-reports"]?.post?.operationId).toBe("createPrivateBetaBugReport");
   });
 
   it("serves health, opportunity, and ranking requests through explicit ports", async () => {
@@ -114,5 +120,22 @@ describe("API integration contracts", () => {
     expect(listed.ok).toBe(true);
     expect(read.ok).toBe(true);
     expect(listed.data.totalCount).toBe(2);
+  });
+
+  it("serves beta bug report requests through the in-memory validation store", async () => {
+    const bugReportStore = createSyntheticApiBugReportStore();
+    const created = await handleCreateBugReportRequest(
+      createSyntheticApiRequest({
+        context: { method: "POST", path: "/v1/feedback/bug-reports" },
+        body: syntheticApiBugReportRequestBody
+      }),
+      bugReportStore
+    );
+
+    expect(created.ok).toBe(true);
+    if (created.ok) {
+      expect(created.data.status).toBe("open");
+      expect(created.data.title).toBe("Synthetic dashboard issue");
+    }
   });
 });

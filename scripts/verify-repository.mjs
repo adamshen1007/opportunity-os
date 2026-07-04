@@ -115,8 +115,10 @@ const phaseTwentyFourAliases = new Set(["phase-2-milestone-24", "opportunity-gen
 const phaseTwentyFiveAliases = new Set(["phase-3-milestone-25", "opportunity-ranking-engine", "opportunity-ranking-foundation"]);
 const phaseTwentySixAliases = new Set(["phase-3-milestone-26", "rest-api", "api-foundation"]);
 const phaseTwentySevenAliases = new Set(["phase-3-milestone-27", "dashboard-mvp", "web-dashboard"]);
-const phaseTwentyEightAliases = new Set(["review", "phase-3-milestone-28", "product-validation-loop", "product-validation-foundation"]);
-const isPhaseTwentyEight = phaseTwentyEightAliases.has(phase);
+const phaseTwentyEightAliases = new Set(["phase-3-milestone-28", "product-validation-loop", "product-validation-foundation"]);
+const phaseTwentyNineAliases = new Set(["review", "phase-3-milestone-29", "private-beta", "private-beta-foundation"]);
+const isPhaseTwentyNine = phaseTwentyNineAliases.has(phase);
+const isPhaseTwentyEight = phaseTwentyEightAliases.has(phase) || isPhaseTwentyNine;
 const isPhaseTwentySeven = phaseTwentySevenAliases.has(phase) || isPhaseTwentyEight;
 const isPhaseTwentySix = phaseTwentySixAliases.has(phase) || isPhaseTwentySeven;
 const isPhaseTwentyFive = phaseTwentyFiveAliases.has(phase) || isPhaseTwentySix || isPhaseTwentySeven;
@@ -171,6 +173,7 @@ const allowedPhaseTwentyFiveImplementationRoots = [...allowedPhaseTwentyFourImpl
 const allowedPhaseTwentySixImplementationRoots = [...allowedPhaseTwentyFiveImplementationRoots, "apps/api"];
 const allowedPhaseTwentySevenImplementationRoots = [...allowedPhaseTwentySixImplementationRoots, "apps/web"];
 const allowedPhaseTwentyEightImplementationRoots = allowedPhaseTwentySevenImplementationRoots;
+const allowedPhaseTwentyNineImplementationRoots = allowedPhaseTwentyEightImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1486,6 +1489,37 @@ const requiredProductValidationFoundationFiles = [
   "apps/api/src/feedback/feedback-reason-category.ts",
   "apps/api/src/feedback/feedback-rating.ts",
   "apps/api/src/feedback/feedback-status.ts"
+];
+const requiredPrivateBetaFoundationFiles = [
+  ".github/workflows/deploy.yml",
+  "config/private-beta.env.example",
+  "apps/api/src/auth/invite-dto.ts",
+  "apps/api/src/auth/invite-status.ts",
+  "apps/api/src/auth/invite-store.ts",
+  "apps/api/src/auth/invite-validation.ts",
+  "apps/api/src/auth/session-status.ts",
+  "apps/api/src/feedback/bug-report-dto.ts",
+  "apps/api/src/feedback/bug-report-severity.ts",
+  "apps/api/src/feedback/bug-report-status.ts",
+  "apps/api/src/feedback/bug-report-validation.ts",
+  "apps/api/src/feedback/in-memory-bug-report-store.ts",
+  "apps/api/src/routes/auth/accept-invite-route.ts",
+  "apps/api/src/routes/auth/create-invite-route.ts",
+  "apps/api/src/routes/auth/get-session-route.ts",
+  "apps/api/src/routes/auth/index.ts",
+  "apps/api/src/routes/feedback/create-bug-report-route.ts",
+  "apps/api/src/__tests__/private-beta-auth.test.ts",
+  "apps/api/src/__tests__/private-beta-flow-security.test.ts",
+  "apps/web/src/features/beta/beta-access-panel.tsx",
+  "apps/web/src/features/beta/bug-report-panel.tsx",
+  "apps/web/src/features/beta/index.ts",
+  "apps/web/src/testing/fixtures/beta.ts",
+  "packages/database/prisma/migrations/20260704000000_private_beta_invites_sessions/migration.sql",
+  "packages/database/prisma/migrations/20260704010000_private_beta_feedback_bug_reports/migration.sql",
+  "docs/04_IMPLEMENTATION/04-004_PRIVATE_BETA_DEPLOYMENT.md",
+  "docs/04_IMPLEMENTATION/04-005_PRIVATE_BETA_OPERATIONS.md",
+  "docs/04_IMPLEMENTATION/04-006_PRIVATE_BETA_RUNBOOK.md",
+  "docs/04_IMPLEMENTATION/04-007_PRIVATE_BETA_CHECKLIST.md"
 ];
 const sharedFoundationPackageRules = {
   "packages/config": {
@@ -3928,8 +3962,8 @@ function assertRestApiFoundationPolicy() {
       "opportunity endpoints",
       "ranking endpoints",
       "authentication and authorization contracts",
-      "production authentication providers",
-      "persistence changes",
+      "production identity providers",
+      "storage schema",
       "provider SDKs"
     ];
 
@@ -4028,17 +4062,16 @@ function assertDashboardFoundationPolicy() {
       "routing",
       "layout",
       "navigation",
-      "authentication implementation",
-      "billing",
-      "analytics",
-      "notifications",
-      "user accounts",
-      "production deployment",
-      "persistence changes",
+      "production identity provider wiring",
+      "commercial account systems",
+      "measurement platforms",
+      "external outreach systems",
+      "production account management",
+      "deployment behavior",
+      "storage changes",
       "recommendation engines",
       "mobile apps",
-      "schedulers",
-      "workers",
+      "runtime jobs",
       "provider SDKs"
     ];
 
@@ -4220,6 +4253,186 @@ function assertProductValidationFoundationPolicy() {
   }
 }
 
+function assertPrivateBetaFoundationPolicy() {
+  assertProductValidationFoundationPolicy();
+
+  for (const file of requiredPrivateBetaFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Private Beta foundation is missing required file: ${file}`);
+    }
+  }
+
+  const deployWorkflowPath = ".github/workflows/deploy.yml";
+  if (exists(deployWorkflowPath)) {
+    const deployWorkflow = read(deployWorkflowPath);
+    for (const statement of [
+      "phase-3-milestone-29",
+      "private-beta",
+      "node scripts/verify-repository.mjs --phase phase-3-milestone-29",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test",
+      "docker compose config",
+      "production config",
+      "secrets management",
+      "health monitoring",
+      "operational logging",
+      "monitoring strategy",
+      "backup strategy"
+    ]) {
+      if (!deployWorkflow.includes(statement)) {
+        fail(`${deployWorkflowPath} must define the Private Beta deployment readiness gate: missing "${statement}"`);
+      }
+    }
+  }
+
+  const privateBetaDocs = [
+    ["README.md", ["Phase 3 Milestone 29", "Private Beta", "deployment readiness"]],
+    ["CONTRIBUTING.md", ["Phase 3 Milestone 29", "Private Beta", "deployment readiness"]],
+    ["apps/api/README.md", ["Phase 3 Milestone 29", "Private Beta", "invite-only"]],
+    ["apps/web/README.md", ["Phase 3 Milestone 29", "Private Beta", "protected dashboard"]],
+    [
+      "docs/04_IMPLEMENTATION/04-001_ROADMAP.md",
+      ["Phase 3 Milestone 29", "Private Beta", "deployment readiness"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-004_PRIVATE_BETA_DEPLOYMENT.md",
+      ["Phase 3 Milestone 29", "Private Beta", "deployment architecture"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-005_PRIVATE_BETA_OPERATIONS.md",
+      ["Phase 3 Milestone 29", "Private Beta", "production config", "config binding", "backup strategy", "Rollback Guidance"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-006_PRIVATE_BETA_RUNBOOK.md",
+      ["Phase 3 Milestone 29", "Private Beta", "Config Binding", "Deployment Procedure", "Rollback Guidance", "Monitoring Guidance"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-007_PRIVATE_BETA_CHECKLIST.md",
+      ["Phase 3 Milestone 29", "Private Beta", "Repository Gate", "Configuration Gate", "Rollback Gate", "Launch Decision"]
+    ],
+    [
+      "docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md",
+      ["Phase 3 Milestone 29", "Private Beta", "deployment readiness", "Slice E"]
+    ],
+    ["config/README.md", ["Private Beta", "production config", "config binding", "config/private-beta.env.example"]],
+    ["infrastructure/README.md", ["Private Beta", "deployment workflow", "backup strategy", "rollback guidance"]],
+    ["packages/database/README.md", ["Private Beta", "PrivateBetaInvite", "PrivateBetaSession"]],
+    ["scripts/README.md", ["Phase 3 Milestone 29", "Private Beta", "deployment readiness", "operational runbook", "beta checklist"]]
+  ];
+
+  for (const [file, requiredStatements] of privateBetaDocs) {
+    if (!exists(file)) {
+      fail(`Private Beta documentation is missing required file: ${file}`);
+      continue;
+    }
+
+    const content = read(file);
+    for (const statement of requiredStatements) {
+      if (!content.includes(statement)) {
+        fail(`${file} must document the Phase 3 Milestone 29 Private Beta boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const prohibitedTerms = [
+    ["payments", /\bpayments?\b|\bStripe\b|\bcheckout\b/iu],
+    ["subscriptions", /\bsubscriptions?\b|\bsubscription plan\b/iu],
+    ["enterprise features", /\benterprise features?\b|\bSAML\b|\bSCIM\b|\benterprise SSO\b/iu],
+    ["notifications", /\bnotification\b|\bSendGrid\b|\bResend\b|\bTwilio\b|\bpush notification\b/iu],
+    ["CRM", /\bCRM\b|\bSalesforce\b|\bHubSpot\b/iu],
+    ["multi-tenancy", /\bmulti-tenan(?:cy|t)\b|\btenant isolation\b|\bTenantId\b/iu]
+  ];
+
+  for (const appRoot of ["apps/api", "apps/web"]) {
+    for (const file of listFiles(appRoot)) {
+      if (isReadmePlaceholder(file)) continue;
+      if (
+        file.startsWith(`${appRoot}/dist/`) ||
+        file.startsWith(`${appRoot}/node_modules/`) ||
+        file.startsWith(`${appRoot}/.turbo/`) ||
+        file.startsWith(`${appRoot}/.next/`) ||
+        file.startsWith(`${appRoot}/test-results/`) ||
+        file.startsWith(`${appRoot}/playwright-report/`)
+      ) {
+        continue;
+      }
+
+      const content = read(file);
+      for (const [label, pattern] of prohibitedTerms) {
+        if (pattern.test(content)) {
+          fail(`Private Beta foundation must not introduce ${label}; found prohibited reference in ${file}`);
+        }
+      }
+    }
+  }
+
+  const schemaPath = "packages/database/prisma/schema.prisma";
+  if (exists(schemaPath)) {
+    const schema = read(schemaPath);
+    for (const statement of [
+      "model PrivateBetaInvite",
+      "model PrivateBetaSession",
+      "model PrivateBetaFeedback",
+      "model PrivateBetaBugReport",
+      "@@map(\"private_beta_invites\")",
+      "@@map(\"private_beta_sessions\")",
+      "@@map(\"private_beta_feedback\")",
+      "@@map(\"private_beta_bug_reports\")",
+      "inviteCodeHash String"
+    ]) {
+      if (!schema.includes(statement)) {
+        fail(`${schemaPath} must define the Private Beta invite-only persistence schema: missing "${statement}"`);
+      }
+    }
+    for (const prohibitedStatement of ["model UserAccount", "model Subscription", "model Tenant", "inviteCode String"]) {
+      if (schema.includes(prohibitedStatement)) {
+        fail(`${schemaPath} must not define prohibited Private Beta persistence shape: ${prohibitedStatement}`);
+      }
+    }
+  }
+
+  const migrationPath = "packages/database/prisma/migrations/20260704000000_private_beta_invites_sessions/migration.sql";
+  if (exists(migrationPath)) {
+    const migration = read(migrationPath);
+    for (const statement of [
+      'CREATE TABLE "private_beta_invites"',
+      'CREATE TABLE "private_beta_sessions"',
+      '"inviteCodeHash"'
+    ]) {
+      if (!migration.includes(statement)) {
+        fail(`${migrationPath} must define invite-only authentication persistence: missing "${statement}"`);
+      }
+    }
+    for (const prohibitedPattern of [/\btenant\b/iu, /\bbilling\b/iu, /\bsubscription\b/iu, /"inviteCode"/u]) {
+      if (prohibitedPattern.test(migration)) {
+        fail(`${migrationPath} must not introduce billing, subscription, multi-tenant, or raw invite-code persistence`);
+      }
+    }
+  }
+
+  const betaFeedbackMigrationPath = "packages/database/prisma/migrations/20260704010000_private_beta_feedback_bug_reports/migration.sql";
+  if (exists(betaFeedbackMigrationPath)) {
+    const migration = read(betaFeedbackMigrationPath);
+    for (const statement of [
+      'CREATE TABLE "private_beta_feedback"',
+      'CREATE TABLE "private_beta_bug_reports"',
+      '"reasonCategories" JSONB',
+      '"ratings" JSONB',
+      '"safeDescription" TEXT'
+    ]) {
+      if (!migration.includes(statement)) {
+        fail(`${betaFeedbackMigrationPath} must define beta feedback and bug report persistence: missing "${statement}"`);
+      }
+    }
+    for (const prohibitedPattern of [/\btenant\b/iu, /\bbilling\b/iu, /\bsubscription\b/iu]) {
+      if (prohibitedPattern.test(migration)) {
+        fail(`${betaFeedbackMigrationPath} must not introduce prohibited Private Beta persistence scope`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4256,7 +4469,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseTwentyEight
+  const allowedImplementationRoots = isPhaseTwentyNine
+    ? allowedPhaseTwentyNineImplementationRoots
+    : isPhaseTwentyEight
     ? allowedPhaseTwentyEightImplementationRoots
     : isPhaseTwentySeven
     ? allowedPhaseTwentySevenImplementationRoots
@@ -4319,7 +4534,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseTwentyEight ? "3 Milestone 28" : isPhaseTwentySeven ? "3 Milestone 27" : isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentyEight ? allowedPhaseTwentyEightImplementationRoots : isPhaseTwentySeven ? allowedPhaseTwentySevenImplementationRoots : isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseTwentyNine ? "3 Milestone 29" : isPhaseTwentyEight ? "3 Milestone 28" : isPhaseTwentySeven ? "3 Milestone 27" : isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentyNine ? allowedPhaseTwentyNineImplementationRoots : isPhaseTwentyEight ? allowedPhaseTwentyEightImplementationRoots : isPhaseTwentySeven ? allowedPhaseTwentySevenImplementationRoots : isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -4429,8 +4644,12 @@ if (isPhaseTwentySeven) {
   assertDashboardFoundationPolicy();
 }
 
-if (isPhaseTwentyEight) {
+if (isPhaseTwentyEight && !isPhaseTwentyNine) {
   assertProductValidationFoundationPolicy();
+}
+
+if (isPhaseTwentyNine) {
+  assertPrivateBetaFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

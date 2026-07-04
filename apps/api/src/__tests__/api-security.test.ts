@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   API_ERROR_CODES,
+  createSyntheticApiBugReportStore,
+  createSyntheticApiInviteStore,
   createApiError,
   createSyntheticApiFeedbackStore,
   createSyntheticApiRequest,
+  handleAcceptInviteRequest,
+  handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
   handleGetOpportunityRequest,
   handleGetFeedbackRequest,
@@ -80,6 +84,45 @@ describe("API security contracts", () => {
     for (const unsafe of unsafeSamples) {
       expect(serialized).not.toContain(unsafe);
     }
+  });
+
+  it("keeps invite validation and session failures safe", async () => {
+    const invalidInvite = await handleAcceptInviteRequest(
+      createSyntheticApiRequest({
+        body: {
+          inviteCode: "token=unsafe-value"
+        }
+      }),
+      createSyntheticApiInviteStore()
+    );
+
+    expect(invalidInvite.ok).toBe(false);
+    const serialized = JSON.stringify(invalidInvite);
+    for (const unsafe of unsafeSamples) {
+      expect(serialized).not.toContain(unsafe);
+    }
+  });
+
+  it("keeps beta bug report validation failures safe", async () => {
+    const invalidReport = await handleCreateBugReportRequest(
+      createSyntheticApiRequest({
+        context: { method: "POST", path: "/v1/feedback/bug-reports" },
+        body: {
+          sessionId: "",
+          title: "",
+          safeDescription: "token=unsafe-value password=unsafe-value stack trace",
+          severity: "api_key=unsafe-value" as never
+        }
+      }),
+      createSyntheticApiBugReportStore()
+    );
+
+    expect(invalidReport.ok).toBe(false);
+    const serialized = JSON.stringify(invalidReport);
+    for (const unsafe of unsafeSamples) {
+      expect(serialized).not.toContain(unsafe);
+    }
+    expect(serialized).not.toContain("stack trace");
   });
 
   it("creates explicit API errors without stack output", () => {

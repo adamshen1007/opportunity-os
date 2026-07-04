@@ -16,7 +16,15 @@ const prohibitedModelNames = [
   "Business",
   "Opportunity",
   "Account",
-  "Customer"
+  "Customer",
+  "Tenant"
+];
+
+const allowedPrivateBetaModelNames = [
+  "PrivateBetaBugReport",
+  "PrivateBetaFeedback",
+  "PrivateBetaInvite",
+  "PrivateBetaSession"
 ];
 
 describe("database schema policy", () => {
@@ -35,9 +43,17 @@ describe("database schema policy", () => {
     }
   });
 
-  it("does not define any tables in the foundation slice", () => {
+  it("defines only approved Private Beta persistence models", () => {
     const schema = fs.readFileSync(schemaPath, "utf8");
+    const modelNames = [...schema.matchAll(/\bmodel\s+([A-Z][A-Za-z0-9_]*)\s*\{/gu)].map((match) => match[1]);
 
-    expect(schema).not.toMatch(/\bmodel\s+[A-Z][A-Za-z0-9_]*\s*\{/u);
+    expect(modelNames.toSorted()).toEqual(allowedPrivateBetaModelNames.toSorted());
+    expect(schema).toContain("@@map(\"private_beta_invites\")");
+    expect(schema).toContain("@@map(\"private_beta_sessions\")");
+    expect(schema).toContain("@@map(\"private_beta_feedback\")");
+    expect(schema).toContain("@@map(\"private_beta_bug_reports\")");
+    expect(schema).toContain("inviteCodeHash String");
+    expect(schema).toContain("safeDescription String");
+    expect(schema).not.toContain("inviteCode String");
   });
 });

@@ -27,6 +27,7 @@ a {
 
 button,
 input,
+textarea,
 select {
   font: inherit;
 }
@@ -165,6 +166,7 @@ select {
 }
 
 .field input,
+.field textarea,
 .field select {
   width: 100%;
   min-height: 42px;
@@ -173,6 +175,17 @@ select {
   border-radius: 8px;
   color: #17202a;
   background: #ffffff;
+}
+
+.field input:disabled,
+.field textarea:disabled,
+.field select:disabled {
+  pointer-events: none;
+}
+
+.field textarea {
+  min-height: 92px;
+  resize: vertical;
 }
 
 .button {
@@ -187,6 +200,7 @@ select {
 
 .button:disabled,
 .field input:disabled,
+.field textarea:disabled,
 .field select:disabled {
   cursor: not-allowed;
   opacity: 0.72;
@@ -408,6 +422,70 @@ select {
   gap: 16px;
 }
 
+.beta-access,
+.bug-report-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.bug-report-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.bug-report-panel .button {
+  position: relative;
+  z-index: 2;
+}
+
+.beta-session-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.beta-session-grid div {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.beta-session-grid dt {
+  color: #627181;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.beta-session-grid dd {
+  margin: 0;
+  color: #17202a;
+  font-weight: 800;
+}
+
+.beta-onboarding {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.beta-onboarding li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
 .feedback-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -555,6 +633,11 @@ select {
   line-height: 1.5;
 }
 
+.evidence-item,
+.evidence-item * {
+  pointer-events: none;
+}
+
 .provenance-list {
   display: grid;
   gap: 8px;
@@ -634,6 +717,7 @@ select {
   .toolbar,
   .detail-layout,
   .metadata-grid,
+  .beta-session-grid,
   .ranking-summary,
   .validation-session-grid {
     grid-template-columns: 1fr;
@@ -641,6 +725,11 @@ select {
 
   .sidebar {
     min-height: auto;
+  }
+
+  .dashboard-grid {
+    display: flex;
+    flex-direction: column;
   }
 
   .workspace {

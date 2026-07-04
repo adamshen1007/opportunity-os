@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS through Phase 3 Milestone 28 Product Validation Loop work.
+This document is the authoritative build sequence for Opportunity OS through Phase 3 Milestone 29 Private Beta work.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -55,10 +55,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 3 M25 - Opportunity Ranking Engine | Complete | `packages/opportunity-ranking` |
 | Phase 3 M26 - REST API | Complete | `apps/api` |
 | Phase 3 M27 - Dashboard MVP | Complete | `apps/web` |
+| Phase 3 M28 - Product Validation Loop | Complete | `apps/api`, `apps/web` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, and completed Product Validation Loop behavior for deterministic design-partner validation.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, and Phase 3 Milestone 29 Private Beta deployment readiness.
 
 The repository does not yet contain:
 
@@ -71,6 +72,11 @@ The repository does not yet contain:
 - prompt execution runtime
 - recommendation engines
 - unsupported product business logic
+- payments
+- subscriptions
+- enterprise features
+- CRM integrations
+- multi-tenancy
 
 ## Future Build Sequence
 
@@ -78,7 +84,7 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 3 M28 - Product Validation Loop | Complete | `apps/api`, `apps/web` |
+| Phase 3 M29 - Private Beta | Active | `apps/api`, `apps/web`, deployment documentation |
 
 ## Phase 2 M15 Boundary
 
@@ -620,7 +626,7 @@ docker compose config
 
 Milestone 26 is complete only when `apps/api` is implemented, tested, documented, independently buildable, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, verified by `phase-3-milestone-26`, and free of frontend implementation, billing, user management, analytics, notifications, production authentication providers, persistence changes, schedulers, workers, provider SDKs, and unrelated product workflows.
 
-Do not begin work beyond Phase 3 Milestone 28 Product Validation Loop until a later scoped implementation task approves the next milestone.
+Do not begin work beyond the scoped Phase 3 Milestone 29 Private Beta slice until a later scoped implementation task approves the next slice.
 
 ## Phase 3 M27 Boundary
 
@@ -695,9 +701,9 @@ pnpm --filter @opportunity-os/web test:e2e
 docker compose config
 ```
 
-## Phase 3 M28 Boundary
+## Phase 3 Milestone 28 Boundary
 
-Milestone 28 prepares Opportunity OS for design-partner validation through deterministic product validation.
+Phase 3 Milestone 28 prepares Opportunity OS for design-partner validation through deterministic product validation.
 
 Milestone 28 establishes the `phase-3-milestone-28` verifier gate and Product Validation Loop policy with deterministic feedback API behavior, dashboard feedback interactions, and design-partner walkthrough documentation for save opportunity, dismiss opportunity, usefulness rating, evidence quality rating, ranking quality rating, and feedback reason categories.
 
@@ -739,6 +745,91 @@ docker compose config
 ```
 
 Milestone 28 is complete only when repository verification supports `phase-3-milestone-28`, Product Validation Loop documentation states deterministic product validation only, API feedback behavior is exported through `apps/api`, dashboard feedback interactions consume the web API boundary, cross-app alignment tests pass, design-partner walkthrough documentation is current, final verification commands pass, and prohibited implementation remains absent.
+
+## Phase 3 Milestone 29 Boundary
+
+Phase 3 Milestone 29 prepares Opportunity OS for Private Beta launch with the first 10-20 design partners.
+
+Slice A establishes the `phase-3-milestone-29` verifier gate, Private Beta boundaries, deployment architecture, deployment readiness configuration, and governance. Slice B adds deployment and operations policy for production config, secrets management, health monitoring, operational logging, monitoring strategy, and backup strategy. Slice C adds invite-only authentication contracts, invite validation, session management contracts, and minimal invite/session persistence schema. Slice D adds the deterministic protected dashboard workflow, onboarding, feedback persistence schema, save/dismiss persistence path, bug reporting, and invite workflow UI/API coverage. It does not implement billing, multi-tenancy, production identity providers, enterprise auth, monitoring vendor integration, backup execution, or production traffic routing.
+
+Milestone 29 Slice A introduces:
+
+- Private Beta boundary documentation
+- deployment architecture
+- `.github/workflows/deploy.yml` deployment readiness configuration
+- `docs/04_IMPLEMENTATION/04-004_PRIVATE_BETA_DEPLOYMENT.md`
+- repository verification support for `phase-3-milestone-29`
+- governance updates for Private Beta changes
+
+Milestone 29 Slice B introduces:
+
+- deployment workflow hardening
+- production config template in `config/private-beta.env.example`
+- secrets management policy
+- health monitoring policy
+- operational logging policy
+- monitoring strategy
+- backup strategy
+- `docs/04_IMPLEMENTATION/04-005_PRIVATE_BETA_OPERATIONS.md`
+- repository verification updates for the operations baseline
+
+Milestone 29 Slice C introduces:
+
+- invite contracts
+- invite validation
+- session management
+- minimal persistence schema for `PrivateBetaInvite` and `PrivateBetaSession`
+- secret-safe invite-only API tests
+- repository verification updates for invite-only authentication and persistence
+
+Milestone 29 Slice D introduces:
+
+- protected dashboard state
+- onboarding state
+- feedback persistence schema for `PrivateBetaFeedback`
+- save/dismiss persistence path
+- bug reporting schema and API route
+- invite workflow UI coverage
+- deterministic API and dashboard tests
+
+Milestone 29 Slice E introduces:
+
+- config binding documentation
+- clear deployment instructions
+- rollback guidance
+- monitoring guidance
+- beta operations documentation
+- operational runbook in `docs/04_IMPLEMENTATION/04-006_PRIVATE_BETA_RUNBOOK.md`
+- beta checklist in `docs/04_IMPLEMENTATION/04-007_PRIVATE_BETA_CHECKLIST.md`
+
+Later scoped Private Beta slices may introduce:
+
+- production deployment
+- production configuration
+- monitoring
+- health monitoring
+- logging
+- backup strategy
+
+Milestone 29 must not introduce:
+
+- payments
+- subscriptions
+- enterprise features
+- notifications
+- CRM integrations
+- multi-tenancy
+- billing
+- production identity provider
+- enterprise auth
+
+Required Slice E verification:
+
+```sh
+pnpm build
+```
+
+Milestone 29 Slice E is complete only when repository verification supports `phase-3-milestone-29`, Private Beta deployment readiness is documented, deployment architecture and deployment readiness configuration exist, production config, config binding, secrets management, health monitoring, operational logging, monitoring strategy, backup strategy, rollback guidance, beta checklist, and operational runbook are documented, invite-only authentication and session management are implemented with safe tests, persistence is limited to Private Beta invites, sessions, feedback, and bug reports, protected dashboard/onboarding/save/dismiss/bug-reporting/invite workflow behavior is deterministic, `apps/api` and `apps/web` remain the API and dashboard boundaries, and prohibited implementation remains absent.
 
 ## Definition of Complete
 

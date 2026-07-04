@@ -16,4 +16,35 @@ describe("foundation baseline migration", () => {
     expect(migration).not.toMatch(/\bConnector\b/u);
     expect(migration).not.toMatch(/\bEventStore\b/u);
   });
+
+  it("keeps Private Beta persistence limited to invites and sessions", () => {
+    const migration = fs.readFileSync(
+      path.join(import.meta.dirname, "../../prisma/migrations/20260704000000_private_beta_invites_sessions/migration.sql"),
+      "utf8"
+    );
+
+    expect(migration).toMatch(/\bCREATE\s+TABLE\s+"private_beta_invites"/iu);
+    expect(migration).toMatch(/\bCREATE\s+TABLE\s+"private_beta_sessions"/iu);
+    expect(migration).toContain('"inviteCodeHash"');
+    expect(migration).not.toContain('"inviteCode"');
+    expect(migration).not.toMatch(/\btenant\b/iu);
+    expect(migration).not.toMatch(/\bbilling\b/iu);
+    expect(migration).not.toMatch(/\bsubscription\b/iu);
+  });
+
+  it("keeps beta feedback persistence limited to validation feedback and bug reports", () => {
+    const migration = fs.readFileSync(
+      path.join(import.meta.dirname, "../../prisma/migrations/20260704010000_private_beta_feedback_bug_reports/migration.sql"),
+      "utf8"
+    );
+
+    expect(migration).toMatch(/\bCREATE\s+TABLE\s+"private_beta_feedback"/iu);
+    expect(migration).toMatch(/\bCREATE\s+TABLE\s+"private_beta_bug_reports"/iu);
+    expect(migration).toContain('"reasonCategories" JSONB');
+    expect(migration).toContain('"ratings" JSONB');
+    expect(migration).toContain('"safeDescription" TEXT');
+    expect(migration).not.toMatch(/\btenant\b/iu);
+    expect(migration).not.toMatch(/\bbilling\b/iu);
+    expect(migration).not.toMatch(/\bsubscription\b/iu);
+  });
 });

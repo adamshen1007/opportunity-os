@@ -34,6 +34,7 @@ describe("Dashboard route stability", () => {
   it("keeps generated API route keys stable for the dashboard client", () => {
     expect(Object.keys(generatedApiRoutes).sort()).toEqual([
       "createFeedback",
+      "createPrivateBetaBugReport",
       "getFeedback",
       "getOpportunity",
       "getRanking",

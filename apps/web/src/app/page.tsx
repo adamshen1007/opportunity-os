@@ -2,6 +2,7 @@ import { AppShell } from "../components/layout";
 import { EmptyState, ErrorState, LoadingState } from "../components/states";
 import { safeDashboardErrorMessage } from "../components/states/state-copy";
 import { Panel } from "../components/ui";
+import { BetaAccessPanel, BugReportPanel } from "../features/beta";
 import { DashboardToolbar } from "../features/dashboard/dashboard-toolbar";
 import { EvidenceView } from "../features/evidence/evidence-view";
 import { ValidationSessionSummary } from "../features/feedback";
@@ -9,6 +10,8 @@ import { OpportunityList } from "../features/opportunities/opportunity-list";
 import { RankingView } from "../features/rankings/ranking-view";
 import {
   dashboardEvidenceFixtures,
+  dashboardBetaInviteWorkflowFixture,
+  dashboardBetaSessionFixture,
   dashboardFeedbackFixtures,
   dashboardOpportunityFixtures,
   dashboardRankingFixtures
@@ -24,6 +27,7 @@ export default function DashboardHomePage() {
     >
       <DashboardToolbar />
       <section className="dashboard-grid" aria-label="Dashboard summary">
+        <BetaAccessPanel session={dashboardBetaSessionFixture} invite={dashboardBetaInviteWorkflowFixture} />
         <ValidationSessionSummary opportunities={dashboardOpportunityFixtures} feedback={dashboardFeedbackFixtures} />
         <Panel title="Opportunity List">
           <OpportunityList opportunities={dashboardOpportunityFixtures} />
@@ -33,6 +37,7 @@ export default function DashboardHomePage() {
         ) : (
           <EmptyState title="No ranking available" message="Run ranking from the API before reviewing ranked output." />
         )}
+        <BugReportPanel sessionId={dashboardBetaSessionFixture.sessionId} />
         <EvidenceView evidence={dashboardEvidenceFixtures} />
         <Panel title="State Components">
           <div className="state-stack">

@@ -2,6 +2,8 @@ import { generatedApiRoutes } from "./generated/routes";
 import type { DashboardApiResult } from "./client";
 import type { DashboardApiRequester } from "./opportunities";
 import type {
+  DashboardApiBugReportDto,
+  DashboardApiCreateBugReportRequestBody,
   DashboardApiCreateFeedbackRequestBody,
   DashboardApiFeedbackCollectionDto,
   DashboardApiFeedbackDto
@@ -36,5 +38,16 @@ export function getFeedback(
   return client.request<DashboardApiFeedbackDto>({
     method: "GET",
     path: generatedApiRoutes.getFeedback.path.replace(":feedbackId", encodeURIComponent(feedbackId))
+  });
+}
+
+export function createPrivateBetaBugReport(
+  client: DashboardApiRequester,
+  body: DashboardApiCreateBugReportRequestBody
+): Promise<DashboardApiResult<DashboardApiBugReportDto>> {
+  return client.request<DashboardApiBugReportDto, DashboardApiCreateBugReportRequestBody>({
+    method: "POST",
+    path: generatedApiRoutes.createPrivateBetaBugReport.path,
+    body
   });
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createDashboardApiClient,
   createFeedback,
+  createPrivateBetaBugReport,
   generatedApiRoutes,
   getFeedback,
   getOpportunity,
@@ -10,7 +11,13 @@ import {
   listOpportunities,
   rankOpportunities
 } from "../api";
-import { dashboardFeedbackFixtures, dashboardOpportunityFixtures, dashboardRankingFixtures } from "../testing";
+import {
+  dashboardBugReportFixture,
+  dashboardBugReportRequestFixture,
+  dashboardFeedbackFixtures,
+  dashboardOpportunityFixtures,
+  dashboardRankingFixtures
+} from "../testing";
 
 const syntheticApiOpportunity = dashboardOpportunityFixtures[0]!;
 const syntheticApiRanking = dashboardRankingFixtures[0]!;
@@ -172,6 +179,26 @@ describe("Dashboard API client contracts", () => {
       reasonCategories: ["weak-evidence"],
       ratings: syntheticApiFeedback.ratings
     });
+  });
+
+  it("creates beta bug reports through the typed API layer", async () => {
+    const calls: string[] = [];
+    let requestBody = "";
+    const client = createDashboardApiClient({
+      baseUrl: "https://api.test",
+      correlationId: "correlation-bug-report-001",
+      fetch: async (input, init) => {
+        calls.push(String(input));
+        requestBody = String(init?.body);
+        return createJsonResponse(createApiSuccessResponse(dashboardBugReportFixture, { correlationId: "correlation-bug-report-001" }));
+      }
+    });
+
+    const created = await createPrivateBetaBugReport(client, dashboardBugReportRequestFixture);
+
+    expect(created.ok).toBe(true);
+    expect(calls).toEqual([`https://api.test${generatedApiRoutes.createPrivateBetaBugReport.path}`]);
+    expect(JSON.parse(requestBody)).toEqual(dashboardBugReportRequestFixture);
   });
 
   it("maps API errors without exposing secrets, stacks, raw payloads, or internal details", async () => {

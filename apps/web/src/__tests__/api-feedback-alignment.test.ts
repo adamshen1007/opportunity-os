@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  API_CREATE_BUG_REPORT_ROUTE,
   API_CREATE_FEEDBACK_ROUTE,
   API_FEEDBACK_RATING_TARGETS,
   API_FEEDBACK_RATING_VALUES,
@@ -79,6 +80,11 @@ describe("API and dashboard feedback alignment", () => {
       method: API_GET_FEEDBACK_ROUTE.method,
       path: API_GET_FEEDBACK_ROUTE.path,
       operationId: API_GET_FEEDBACK_ROUTE.operationId
+    });
+    expect(generatedApiRoutes.createPrivateBetaBugReport).toEqual({
+      method: API_CREATE_BUG_REPORT_ROUTE.method,
+      path: API_CREATE_BUG_REPORT_ROUTE.path,
+      operationId: API_CREATE_BUG_REPORT_ROUTE.operationId
     });
   });
 

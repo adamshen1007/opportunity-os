@@ -83,6 +83,22 @@ Reasons:
 
 - production-ready routing
 
+# Deployment
+
+Phase 3 Milestone 29 Private Beta deployment readiness is owned by `.github/workflows/deploy.yml` and `docs/04_IMPLEMENTATION/04-004_PRIVATE_BETA_DEPLOYMENT.md`.
+
+The Slice A deployment configuration is a readiness gate:
+
+- it uses Node.js 24 from `.node-version`
+- it uses `pnpm@11.7.0`
+- it runs `node scripts/verify-repository.mjs --phase phase-3-milestone-29`
+- it runs lint, build, test, and Docker Compose config validation
+- it targets the GitHub `private-beta` environment
+
+A later scoped Private Beta task may attach a hosting provider, protected secrets, monitoring, backup execution, and release promotion.
+
+Private Beta work must not introduce payments, subscriptions, enterprise features, notifications, CRM integrations, or multi-tenancy.
+
 # Database
 
 Primary:

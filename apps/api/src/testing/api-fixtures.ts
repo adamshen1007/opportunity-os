@@ -2,10 +2,25 @@ import type { ApiRequest, ApiRequestContext } from "../http/index.js";
 import type { ApiOpportunityQueryPort, ApiRankingCommandPort } from "../ports/index.js";
 import type { ApiOpportunityDto, ApiRankingDto } from "../resources/index.js";
 import {
+  API_INVITE_STATUSES,
+  API_SESSION_STATUSES,
+  createInMemoryInviteStore,
+  type ApiCreateInviteRequestBody,
+  type ApiInviteRecord,
+  type ApiInviteStore,
+  type ApiSessionDto
+} from "../auth/index.js";
+import {
+  API_BUG_REPORT_SEVERITIES,
+  API_BUG_REPORT_STATUSES,
   API_FEEDBACK_RATING_TARGETS,
   API_FEEDBACK_REASON_CATEGORIES,
   API_FEEDBACK_STATUSES,
+  createInMemoryBugReportStore,
   createInMemoryFeedbackStore,
+  type ApiBugReportDto,
+  type ApiBugReportStore,
+  type ApiCreateBugReportRequestBody,
   type ApiCreateFeedbackRequestBody,
   type ApiFeedbackDto,
   type ApiFeedbackStore
@@ -102,6 +117,64 @@ export const syntheticApiFeedbackRequestBody: ApiCreateFeedbackRequestBody = {
   ratings: syntheticApiFeedback.ratings
 };
 
+export const syntheticApiBugReport: ApiBugReportDto = {
+  bugReportId: "bug-report-synthetic-1",
+  sessionId: "session-synthetic-1",
+  title: "Synthetic dashboard issue",
+  safeDescription: "Synthetic beta report with safe reproduction notes.",
+  severity: API_BUG_REPORT_SEVERITIES.medium,
+  status: API_BUG_REPORT_STATUSES.open,
+  createdAt: "2026-07-04T00:00:00.000Z",
+  safeMetadata: {
+    fixture: true
+  }
+};
+
+export const syntheticApiBugReportRequestBody: ApiCreateBugReportRequestBody = {
+  sessionId: syntheticApiBugReport.sessionId,
+  title: syntheticApiBugReport.title,
+  safeDescription: syntheticApiBugReport.safeDescription,
+  severity: syntheticApiBugReport.severity,
+  safeMetadata: {
+    fixture: true
+  }
+};
+
+export const syntheticPrivateBetaInviteCode = "synthetic-private-beta-code";
+
+export const syntheticApiInvite: ApiInviteRecord = {
+  inviteId: "invite-synthetic-1",
+  inviteCode: syntheticPrivateBetaInviteCode,
+  email: "design.partner@example.com",
+  status: API_INVITE_STATUSES.pending,
+  createdAt: "2026-07-04T00:00:00.000Z",
+  expiresAt: "2026-07-11T00:00:00.000Z",
+  safeMetadata: {
+    fixture: true
+  }
+};
+
+export const syntheticApiSession: ApiSessionDto = {
+  sessionId: "session-synthetic-1",
+  status: API_SESSION_STATUSES.active,
+  principal: {
+    principalId: syntheticApiInvite.email,
+    displayName: "Design Partner",
+    permissions: ["private-beta:access"]
+  },
+  createdAt: "2026-07-04T00:00:00.000Z",
+  expiresAt: "2026-07-04T08:00:00.000Z"
+};
+
+export const syntheticApiCreateInviteRequestBody: ApiCreateInviteRequestBody = {
+  email: syntheticApiInvite.email,
+  inviteCode: syntheticPrivateBetaInviteCode,
+  expiresAt: syntheticApiInvite.expiresAt,
+  safeMetadata: {
+    fixture: true
+  }
+};
+
 export const syntheticApiOpportunityPort: ApiOpportunityQueryPort = {
   async listOpportunities(input) {
     return {
@@ -139,6 +212,24 @@ export function createSyntheticApiFeedbackStore(): ApiFeedbackStore {
     initialFeedback: [syntheticApiFeedback],
     clock: () => "2026-07-04T00:00:00.000Z",
     idFactory: () => "feedback-synthetic-created-1"
+  });
+}
+
+export function createSyntheticApiBugReportStore(): ApiBugReportStore {
+  return createInMemoryBugReportStore({
+    initialBugReports: [syntheticApiBugReport],
+    clock: () => "2026-07-04T00:00:00.000Z",
+    idFactory: () => "bug-report-synthetic-created-1"
+  });
+}
+
+export function createSyntheticApiInviteStore(): ApiInviteStore {
+  return createInMemoryInviteStore({
+    initialInvites: [syntheticApiInvite],
+    initialSessions: [syntheticApiSession],
+    clock: () => "2026-07-04T00:00:00.000Z",
+    inviteIdFactory: () => "invite-synthetic-created-1",
+    sessionIdFactory: () => "session-synthetic-created-1"
   });
 }
 
