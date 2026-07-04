@@ -78,14 +78,15 @@ Completed:
 - Phase 2 M24 Opportunity Generation Workflow
 - Phase 3 M25 Opportunity Ranking Engine
 - Phase 3 M26 REST API
+- Phase 3 M27 Dashboard MVP
 
 Future:
 
-- Phase 3 M27 Dashboard
+- Next scoped milestone after Dashboard MVP closeout
 
 From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, and REST APIs precede the dashboard.
 
-Do not begin implementation beyond Phase 3 Milestone 26 until an implementation task explicitly scopes it.
+Do not begin implementation beyond the completed Phase 3 Milestone 27 Dashboard MVP until a later implementation task explicitly scopes the next milestone.
 
 # Phase 0 — Repository Foundation
 
@@ -2748,20 +2749,88 @@ Next milestone dependency:
 
 - Phase 3 Milestone 27 may consume `apps/api` as the completed REST API boundary for dashboard integration. Do not begin dashboard implementation until a scoped implementation task is approved.
 
-## Phase 3 Milestone 27 — Dashboard
+## Phase 3 Milestone 27 — Dashboard MVP
 
 Goal:
 
 Expose Opportunity OS workflows through the user dashboard.
 
+Owner:
+
+- `apps/web`
+
+Dependencies:
+
+- `apps/api`
+
 Deliverables:
 
-- dashboard application entry point
-- connector management UI
-- opportunity explorer
-- cluster and trend explorer
-- reports
-- Playwright coverage
+- application routing
+- Next.js App Router dashboard app scaffold
+- strict TypeScript configuration
+- `@opportunity-os/web` package metadata
+- independent web app build script
+- dashboard shell layout
+- sidebar and topbar navigation
+- Opportunity List page
+- Opportunity Detail page
+- Ranking View
+- Evidence View
+- Search UI
+- Filter UI
+- Pagination UI
+- loading states
+- error states
+- empty states
+- typed API integration layer
+- OpenAPI client generation configuration
+- generated route contract
+- deterministic frontend fixtures
+- unit and component test infrastructure
+- dashboard security tests
+- dependency-boundary tests
+- route and contract stability tests
+- Playwright desktop and mobile browser coverage
+- dashboard ownership documentation
+- `phase-3-milestone-27` repository verification gate
+
+Non-goals:
+
+- authentication implementation
+- billing
+- analytics
+- notifications
+- user accounts
+- production deployment
+- persistence changes
+- recommendation engine
+- mobile app
+- schedulers
+- workers
+- provider SDKs
+- unrelated backend changes
+
+Verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-27
+pnpm --filter @opportunity-os/web build
+pnpm --filter @opportunity-os/web test
+pnpm --filter @opportunity-os/web test:e2e
+pnpm lint
+pnpm build
+pnpm test
+docker compose config
+```
+
+Readiness:
+
+- `apps/web` is implemented, tested, documented, and independently buildable
+- root `pnpm lint`, `pnpm build`, and `pnpm test` include `@opportunity-os/web`
+- repository verification supports `phase-3-milestone-27`
+- dashboard routes, UI states, API integration, security tests, route stability tests, dependency-boundary tests, and Playwright coverage pass
+- authentication implementation, billing, analytics, notifications, user accounts, production deployment, persistence changes, recommendation engines, mobile apps, schedulers, workers, provider SDKs, and unrelated backend changes remain absent
 
 Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 
@@ -2865,3 +2934,5 @@ Referenced by:
 | 2.0.0       | Initial Engineering Kit release | Defined the phased implementation roadmap, milestones, dependencies, quality gates, and success criteria for Opportunity OS Version 1.0. |
 | 3.0.1       | 2026-07-03                      | Updated the roadmap to reflect completed Phase 3 Milestone 25 Opportunity Ranking Engine work and the Phase 3 Milestone 26 REST API handoff. |
 | 3.0.2       | 2026-07-03                      | Updated the roadmap to reflect completed Phase 3 Milestone 26 REST API work and the Phase 3 Milestone 27 dashboard handoff. |
+| 3.0.3       | 2026-07-03                      | Added the Phase 3 Milestone 27 Dashboard MVP foundation boundary and verification gate. |
+| 3.0.4       | 2026-07-03                      | Completed the Phase 3 Milestone 27 Dashboard MVP roadmap, governance, browser coverage, and readiness gate. |

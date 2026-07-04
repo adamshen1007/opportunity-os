@@ -113,9 +113,11 @@ const phaseTwentyTwoAliases = new Set(["phase-2-milestone-22", "opportunity-pipe
 const phaseTwentyThreeAliases = new Set(["phase-2-milestone-23", "candidate-opportunity-engine", "opportunity-candidates-foundation"]);
 const phaseTwentyFourAliases = new Set(["phase-2-milestone-24", "opportunity-generation-workflow", "opportunity-generation-foundation"]);
 const phaseTwentyFiveAliases = new Set(["phase-3-milestone-25", "opportunity-ranking-engine", "opportunity-ranking-foundation"]);
-const phaseTwentySixAliases = new Set(["review", "phase-3-milestone-26", "rest-api", "api-foundation"]);
-const isPhaseTwentySix = phaseTwentySixAliases.has(phase);
-const isPhaseTwentyFive = phaseTwentyFiveAliases.has(phase) || isPhaseTwentySix;
+const phaseTwentySixAliases = new Set(["phase-3-milestone-26", "rest-api", "api-foundation"]);
+const phaseTwentySevenAliases = new Set(["review", "phase-3-milestone-27", "dashboard-mvp", "web-dashboard"]);
+const isPhaseTwentySeven = phaseTwentySevenAliases.has(phase);
+const isPhaseTwentySix = phaseTwentySixAliases.has(phase) || isPhaseTwentySeven;
+const isPhaseTwentyFive = phaseTwentyFiveAliases.has(phase) || isPhaseTwentySix || isPhaseTwentySeven;
 const isPhaseTwentyFour = phaseTwentyFourAliases.has(phase) || isPhaseTwentyFive;
 const isPhaseTwentyThree = phaseTwentyThreeAliases.has(phase) || isPhaseTwentyFour;
 const isPhaseTwentyTwo = phaseTwentyTwoAliases.has(phase) || isPhaseTwentyThree;
@@ -165,6 +167,7 @@ const allowedPhaseTwentyThreeImplementationRoots = [...allowedPhaseTwentyTwoImpl
 const allowedPhaseTwentyFourImplementationRoots = [...allowedPhaseTwentyThreeImplementationRoots, "packages/opportunity-generation"];
 const allowedPhaseTwentyFiveImplementationRoots = [...allowedPhaseTwentyFourImplementationRoots, "packages/opportunity-ranking"];
 const allowedPhaseTwentySixImplementationRoots = [...allowedPhaseTwentyFiveImplementationRoots, "apps/api"];
+const allowedPhaseTwentySevenImplementationRoots = [...allowedPhaseTwentySixImplementationRoots, "apps/web"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1460,6 +1463,21 @@ const requiredRestApiFoundationExports = [
   "syntheticApiOpportunityPort",
   "syntheticApiRankingPort"
 ];
+const requiredDashboardFoundationFiles = [
+  "apps/web/package.json",
+  "apps/web/README.md",
+  "apps/web/tsconfig.json",
+  "apps/web/next.config.ts",
+  "apps/web/next-env.d.ts",
+  "apps/web/src/app/layout.tsx",
+  "apps/web/src/app/page.tsx",
+  "apps/web/src/app/globals.css",
+  "apps/web/playwright.config.ts",
+  "apps/web/e2e/dashboard.spec.ts",
+  "apps/web/src/__tests__/dashboard-security.test.ts",
+  "apps/web/src/__tests__/dashboard-boundary.test.ts",
+  "apps/web/src/__tests__/dashboard-route-stability.test.ts"
+];
 const sharedFoundationPackageRules = {
   "packages/config": {
     packageName: "@opportunity-os/config",
@@ -1856,10 +1874,14 @@ function readTrimmed(relativePath) {
 
 const ignoredTraversalDirectories = new Set([
   ".git",
+  ".next",
   ".pnpm-store",
   ".turbo",
+  "coverage",
   "dist",
   "node_modules",
+  "playwright-report",
+  "test-results",
   "youtube-ai-creator-watchlist"
 ]);
 
@@ -3976,6 +3998,137 @@ function assertRestApiFoundationPolicy() {
   }
 }
 
+function assertDashboardFoundationPolicy() {
+  assertRestApiFoundationPolicy();
+
+  for (const file of requiredDashboardFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Dashboard MVP foundation is missing required file: ${file}`);
+    }
+  }
+
+  const webReadmePath = "apps/web/README.md";
+  if (exists(webReadmePath)) {
+    const webReadme = read(webReadmePath);
+    const requiredBoundaryStatements = [
+      "Phase 3 Milestone 27",
+      "Dashboard MVP",
+      "Next.js App Router",
+      "apps/api",
+      "application bootstrap",
+      "routing",
+      "layout",
+      "navigation",
+      "authentication implementation",
+      "billing",
+      "analytics",
+      "notifications",
+      "user accounts",
+      "production deployment",
+      "persistence changes",
+      "recommendation engines",
+      "mobile apps",
+      "schedulers",
+      "workers",
+      "provider SDKs"
+    ];
+
+    for (const statement of requiredBoundaryStatements) {
+      if (!webReadme.includes(statement)) {
+        fail(`${webReadmePath} must document the Phase 3 Milestone 27 Dashboard MVP boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const webPackageJsonPath = "apps/web/package.json";
+  if (exists(webPackageJsonPath)) {
+    const webPackageJson = JSON.parse(read(webPackageJsonPath));
+    if (webPackageJson.name !== "@opportunity-os/web") {
+      fail(`${webPackageJsonPath} name must be "@opportunity-os/web"`);
+    }
+
+    const allowedWorkspaceDependencies = new Set(["@opportunity-os/api"]);
+    const allowedFrontendDependencies = new Set([
+      "next",
+      "react",
+      "react-dom",
+      "@playwright/test",
+      "@types/node",
+      "@types/react",
+      "@types/react-dom",
+      "typescript",
+      "vitest"
+    ]);
+    const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+    const prohibitedDependencyPatterns = [
+      ["authentication provider", /(clerk|auth0|descope|next-auth|passport|auth-provider)/iu],
+      ["billing", /(^stripe$|billing)/iu],
+      ["analytics", /(analytics|segment|posthog|amplitude|mixpanel)/iu],
+      ["notifications", /(notification|novu|sendgrid|resend|twilio)/iu],
+      ["persistence implementation", /(^@prisma\/client$|^prisma$|typeorm|sequelize|mongoose)/iu],
+      ["scheduler or worker", /(^bullmq$|^agenda$|scheduler|worker|queue)/iu],
+      ["provider SDK", /(^openai$|^@openai|^@anthropic-ai\/sdk$|^@google\/generative-ai$|^@google-genai|gemini)/iu],
+      ["mobile app", /(react-native|expo|capacitor|cordova)/iu]
+    ];
+
+    for (const dependencyField of dependencyFields) {
+      const dependencies = webPackageJson[dependencyField] ?? {};
+      for (const dependencyName of Object.keys(dependencies)) {
+        if (dependencyName.startsWith("@opportunity-os/") && !allowedWorkspaceDependencies.has(dependencyName)) {
+          fail(`${webPackageJsonPath} may depend only on approved Opportunity OS Dashboard MVP upstream packages; found ${dependencyField}.${dependencyName}`);
+        }
+
+        if (!dependencyName.startsWith("@opportunity-os/") && !allowedFrontendDependencies.has(dependencyName)) {
+          fail(`${webPackageJsonPath} has an unapproved Dashboard MVP dependency: ${dependencyField}.${dependencyName}`);
+        }
+
+        for (const [label, pattern] of prohibitedDependencyPatterns) {
+          if (pattern.test(dependencyName)) {
+            fail(`Dashboard MVP foundation must not depend on ${label}; found ${dependencyField}.${dependencyName} in ${webPackageJsonPath}`);
+          }
+        }
+      }
+    }
+  }
+
+  for (const file of listFiles("apps/web")) {
+    if (isReadmePlaceholder(file)) continue;
+    if (
+      file.startsWith("apps/web/.next/") ||
+      file.startsWith("apps/web/dist/") ||
+      file.startsWith("apps/web/node_modules/") ||
+      file.startsWith("apps/web/.turbo/") ||
+      file.startsWith("apps/web/test-results/") ||
+      file.startsWith("apps/web/playwright-report/")
+    ) {
+      continue;
+    }
+
+    const content = read(file);
+    const prohibitedTerms = [
+      ["authentication implementation", /\bClerk\b|\bAuth0\b|\bDescope\b|\bnext-auth\b|\bsignIn\b|\bsignOut\b/iu],
+      ["billing", /\bbilling\b|\bStripe\b/iu],
+      ["analytics", /\banalytics\b|\bSegment\b|\bPostHog\b|\bAmplitude\b|\bMixpanel\b/iu],
+      ["notifications", /\bnotification\b|\bSendGrid\b|\bResend\b|\bTwilio\b/iu],
+      ["user accounts", /\buser accounts?\b|\bUserAccount\b|\buser management\b/iu],
+      ["production deployment", /\bproduction deployment\b|\bvercel deploy\b|\bdeployment target\b/iu],
+      ["persistence changes", /\bPrismaClient\b|\bmigration\b|\bwriteToDatabase\b|\bpersist\w+/iu],
+      ["recommendation engine", /\brecommendation engine\b|\brecommendOpportunity\b/iu],
+      ["mobile app", /\bReact Native\b|\bExpo\b|\bmobile app\b/iu],
+      ["scheduler", /\bscheduler\b|\bschedule\w+/iu],
+      ["worker", /\bworker\b|\bWorkerProcess\b/iu],
+      ["provider SDK", /\bOpenAIClient\b|\bAnthropicClient\b|\bGeminiClient\b|\bprovider SDK\b/iu],
+      ["unrelated backend changes", /\bAPI handler\b|\broute handler\b|\bcontroller\b|\bdatabase repository\b/iu]
+    ];
+
+    for (const [label, pattern] of prohibitedTerms) {
+      if (pattern.test(content)) {
+        fail(`Dashboard MVP foundation must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4012,7 +4165,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseTwentySix
+  const allowedImplementationRoots = isPhaseTwentySeven
+    ? allowedPhaseTwentySevenImplementationRoots
+    : isPhaseTwentySix
     ? allowedPhaseTwentySixImplementationRoots
     : isPhaseTwentyFive
     ? allowedPhaseTwentyFiveImplementationRoots
@@ -4071,7 +4226,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseTwentySeven ? "3 Milestone 27" : isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentySeven ? allowedPhaseTwentySevenImplementationRoots : isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -4175,6 +4330,10 @@ if (isPhaseTwentyFive) {
 
 if (isPhaseTwentySix) {
   assertRestApiFoundationPolicy();
+}
+
+if (isPhaseTwentySeven) {
+  assertDashboardFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

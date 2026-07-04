@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS after completion of Phase 3 Milestone 26.
+This document is the authoritative build sequence for Opportunity OS during Phase 3 Milestone 27 Dashboard MVP work.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -54,10 +54,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 2 M24 - Opportunity Generation Workflow | Complete | `packages/opportunity-generation` |
 | Phase 3 M25 - Opportunity Ranking Engine | Complete | `packages/opportunity-ranking` |
 | Phase 3 M26 - REST API | Complete | `apps/api` |
+| Phase 3 M27 - Dashboard MVP | Complete | `apps/web` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, and the REST API application boundary in `apps/api`.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, and the Dashboard MVP in `apps/web`.
 
 The repository does not yet contain:
 
@@ -68,7 +69,6 @@ The repository does not yet contain:
 - live AI workflows
 - provider LLM calls
 - prompt execution runtime
-- frontend implementation
 - recommendation engines
 - unsupported product business logic
 
@@ -78,7 +78,7 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 3 M27 - Dashboard | Implement frontend dashboard, connector management, opportunity explorer, reports, and browser tests. | future app/frontend modules |
+| Next scoped milestone | To be defined after Phase 3 Milestone 27 is closed and committed. | TBD |
 
 ## Phase 2 M15 Boundary
 
@@ -620,7 +620,80 @@ docker compose config
 
 Milestone 26 is complete only when `apps/api` is implemented, tested, documented, independently buildable, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, verified by `phase-3-milestone-26`, and free of frontend implementation, billing, user management, analytics, notifications, production authentication providers, persistence changes, schedulers, workers, provider SDKs, and unrelated product workflows.
 
-Do not begin Phase 3 Milestone 27 dashboard implementation until Milestone 26 is committed, pushed, tagged, verified, and a later scoped implementation task approves dashboard work.
+Do not begin work beyond the completed Phase 3 Milestone 27 Dashboard MVP until a later scoped implementation task approves the next milestone.
+
+## Phase 3 M27 Boundary
+
+Milestone 27 creates the first customer-facing Opportunity OS application in `apps/web`.
+
+Milestone 27 establishes the `phase-3-milestone-27` verifier gate, Next.js App Router scaffold, strict TypeScript configuration, `@opportunity-os/web` package metadata, independent build script, dashboard shell, route map, navigation, opportunity views, ranking view, evidence view, search, filters, pagination, UI states, API integration, deterministic fixtures, dashboard tests, Playwright coverage, and dashboard ownership documentation.
+
+Milestone 27 may introduce:
+
+- Next.js App Router application bootstrap
+- routing
+- layout
+- navigation
+- Opportunity List page
+- Opportunity Detail page
+- Ranking View
+- Evidence View
+- Search UI
+- Filter UI
+- Pagination UI
+- loading states
+- error states
+- empty states
+- API integration layer for `apps/api`
+- OpenAPI client generation
+- deterministic frontend fixtures
+- Playwright coverage
+
+Milestone 27 must not introduce:
+
+- authentication implementation
+- billing
+- analytics
+- notifications
+- user accounts
+- production deployment
+- persistence changes
+- recommendation engine
+- mobile app
+- schedulers
+- workers
+- provider SDKs
+- unrelated backend changes
+
+Required Milestone 27 verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-27
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm --filter @opportunity-os/web build
+pnpm --filter @opportunity-os/web test
+pnpm --filter @opportunity-os/web test:e2e
+pnpm build
+pnpm test
+docker compose config
+```
+
+Milestone 27 is complete only when `apps/web` is implemented, tested, documented, independently buildable, covered by unit/component tests and Playwright browser tests, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, verified by `phase-3-milestone-27`, and free of prohibited implementation.
+
+Final readiness commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-27
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+pnpm --filter @opportunity-os/web test:e2e
+docker compose config
+```
 
 ## Definition of Complete
 
@@ -653,3 +726,5 @@ A milestone is complete only when:
 | 3.0.11 | Updated the canonical implementation order to make Phase 3 Milestone 25 the Opportunity Ranking Engine and begin the Product Behavior phase. |
 | 3.0.12 | Updated the canonical implementation order to reflect completed Phase 3 Milestone 25 Opportunity Ranking Engine work and define the REST API handoff. |
 | 3.0.13 | Updated the canonical implementation order to reflect completed Phase 3 Milestone 26 REST API work and define the Dashboard handoff. |
+| 3.0.14 | Added the Phase 3 Milestone 27 Dashboard MVP foundation boundary and verification gate. |
+| 3.0.15 | Completed the Phase 3 Milestone 27 Dashboard MVP implementation order, readiness commands, and final governance gate. |

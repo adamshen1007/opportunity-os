@@ -1,0 +1,54 @@
+import { expect, test } from "@playwright/test";
+
+test("dashboard loads with navigation and state coverage", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { exact: true, level: 1, name: "Dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity dashboard" })).toBeVisible();
+  const navigation = page.getByRole("navigation", { name: "Dashboard navigation" });
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByRole("link", { name: /Opportunities/u })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: /Rankings/u })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: /Evidence/u })).toBeVisible();
+
+  await expect(page.getByText("Loading opportunities")).toBeVisible();
+  await expect(page.getByText("No matching opportunities")).toBeVisible();
+  await expect(page.getByText("Unable to load view")).toBeVisible();
+});
+
+test("opportunity list supports search filters pagination and detail navigation", async ({ page }) => {
+  await page.goto("/opportunities");
+
+  await expect(page.getByRole("heading", { name: "Opportunities" })).toBeVisible();
+  await expect(page.getByPlaceholder("Search opportunities")).toBeVisible();
+  await expect(page.getByLabel("Status")).toBeVisible();
+  await expect(page.getByLabel("Source")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Apply" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "First" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Previous" })).toBeVisible();
+  await expect(page.getByText("Page 1 of 1")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Next" })).toBeVisible();
+
+  await page.getByRole("link", { name: "Prioritize repeated manual review workflows" }).click();
+  await expect(page).toHaveURL(/\/opportunities\/synthetic-opportunity-001$/u);
+  await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity detail" })).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Opportunity Detail" })).toBeVisible();
+  await expect(page.getByText("Explanation", { exact: true })).toBeVisible();
+  await expect(page.getByText("Evidence View")).toBeVisible();
+  await expect(page.getByText("Source").first()).toBeVisible();
+});
+
+test("ranking and evidence views expose safe fixture content", async ({ page }) => {
+  await page.goto("/rankings");
+
+  await expect(page.getByRole("heading", { exact: true, level: 2, name: "Ranking View" })).toBeVisible();
+  await expect(page.getByText("synthetic-ranking-001")).toBeVisible();
+  await expect(page.getByText("Score 87")).toBeVisible();
+  await expect(page.getByText("Confidence 81%")).toBeVisible();
+
+  await page.goto("/evidence");
+  await expect(page.getByRole("heading", { exact: true, level: 2, name: "Evidence View" })).toBeVisible();
+  await expect(page.getByText("Synthetic Reddit contract fixture")).toBeVisible();
+  await expect(page.getByText("Collected").first()).toBeVisible();
+  await expect(page.getByText("Prepared").first()).toBeVisible();
+});
