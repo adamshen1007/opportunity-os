@@ -9,3 +9,12 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-005_PRIVATE_BETA_OPERATIONS.md` defines the Phase 3 Milestone 29 Private Beta operations baseline.
 - `04-006_PRIVATE_BETA_RUNBOOK.md` defines the Phase 3 Milestone 29 Private Beta operational runbook, rollback guidance, monitoring guidance, and config binding.
 - `04-007_PRIVATE_BETA_CHECKLIST.md` defines the Phase 3 Milestone 29 Private Beta launch checklist.
+- `04-008_BETA_OPERATIONS_VERIFICATION.md` defines the Phase 3 Milestone 30 deployment, smoke, rollback, monitoring, health, and log verification procedures.
+- `04-009_BETA_OPERATOR_HANDBOOK.md` defines the Phase 3 Milestone 30 operator handbook.
+- `04-010_BETA_USER_HANDBOOK.md` defines the Phase 3 Milestone 30 beta user handbook, invite documentation, and onboarding workflow.
+- `04-011_BETA_SUPPORT_GUIDE.md` defines the Phase 3 Milestone 30 support documentation, bug triage workflow, feature request workflow, and feedback review workflow.
+- `04-012_BETA_OPERATIONAL_WORKFLOWS.md` defines the Phase 3 Milestone 30 bug triage, feature request, and feedback review workflows.
+- `04-013_PRODUCTION_READINESS_CHECKLIST.md` defines the Phase 3 Milestone 30 production readiness checklist.
+- `04-014_RELEASE_CHECKLIST.md` defines the Phase 3 Milestone 30 release checklist.
+- `04-015_LAUNCH_CHECKLIST.md` defines the Phase 3 Milestone 30 launch checklist.
+- `04-016_BETA_TROUBLESHOOTING_GUIDE.md` defines the Phase 3 Milestone 30 troubleshooting guide.

@@ -116,8 +116,10 @@ const phaseTwentyFiveAliases = new Set(["phase-3-milestone-25", "opportunity-ran
 const phaseTwentySixAliases = new Set(["phase-3-milestone-26", "rest-api", "api-foundation"]);
 const phaseTwentySevenAliases = new Set(["phase-3-milestone-27", "dashboard-mvp", "web-dashboard"]);
 const phaseTwentyEightAliases = new Set(["phase-3-milestone-28", "product-validation-loop", "product-validation-foundation"]);
-const phaseTwentyNineAliases = new Set(["review", "phase-3-milestone-29", "private-beta", "private-beta-foundation"]);
-const isPhaseTwentyNine = phaseTwentyNineAliases.has(phase);
+const phaseTwentyNineAliases = new Set(["phase-3-milestone-29", "private-beta", "private-beta-foundation"]);
+const phaseThirtyAliases = new Set(["review", "phase-3-milestone-30", "beta-operations", "beta-operations-foundation"]);
+const isPhaseThirty = phaseThirtyAliases.has(phase);
+const isPhaseTwentyNine = phaseTwentyNineAliases.has(phase) || isPhaseThirty;
 const isPhaseTwentyEight = phaseTwentyEightAliases.has(phase) || isPhaseTwentyNine;
 const isPhaseTwentySeven = phaseTwentySevenAliases.has(phase) || isPhaseTwentyEight;
 const isPhaseTwentySix = phaseTwentySixAliases.has(phase) || isPhaseTwentySeven;
@@ -174,6 +176,7 @@ const allowedPhaseTwentySixImplementationRoots = [...allowedPhaseTwentyFiveImple
 const allowedPhaseTwentySevenImplementationRoots = [...allowedPhaseTwentySixImplementationRoots, "apps/web"];
 const allowedPhaseTwentyEightImplementationRoots = allowedPhaseTwentySevenImplementationRoots;
 const allowedPhaseTwentyNineImplementationRoots = allowedPhaseTwentyEightImplementationRoots;
+const allowedPhaseThirtyImplementationRoots = allowedPhaseTwentyNineImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1933,6 +1936,10 @@ function listMarkdownFiles(dir) {
   if (!fs.existsSync(absoluteDir)) return [];
   const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
   return entries.flatMap((entry) => {
+    if (entry.isSymbolicLink()) {
+      return [];
+    }
+
     if (ignoredTraversalDirectories.has(entry.name)) {
       return [];
     }
@@ -1948,6 +1955,10 @@ function listFiles(dir) {
   if (!fs.existsSync(absoluteDir)) return [];
   const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
   return entries.flatMap((entry) => {
+    if (entry.isSymbolicLink()) {
+      return [];
+    }
+
     if (ignoredTraversalDirectories.has(entry.name)) {
       return [];
     }
@@ -4433,6 +4444,126 @@ function assertPrivateBetaFoundationPolicy() {
   }
 }
 
+function assertBetaOperationsFoundationPolicy() {
+  assertPrivateBetaFoundationPolicy();
+
+  const betaOperationsDocs = [
+    ["README.md", ["Phase 3 Milestone 30", "Beta Operations", "operations-only"]],
+    [
+      "CONTRIBUTING.md",
+      ["Phase 3 Milestone 30", "Beta Operations", "operations-only", "Beta Operations review"]
+    ],
+    [
+      ".github/pull_request_template.md",
+      ["Beta Operations review", "Phase 3 Milestone 30", "operations-only"]
+    ],
+    [
+      "docs/00_INDEX/00-001_DOCUMENTATION_INDEX.md",
+      ["Phase 3 Milestone 30", "Beta Operations", "04-016_BETA_TROUBLESHOOTING_GUIDE.md"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-001_ROADMAP.md",
+      ["Phase 3 Milestone 30", "Beta Operations", "operations-only", "Slice E"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/README.md",
+      ["04-008_BETA_OPERATIONS_VERIFICATION.md", "04-016_BETA_TROUBLESHOOTING_GUIDE.md"]
+    ],
+    [
+      "docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md",
+      ["Phase 3 Milestone 30", "Beta Operations", "operations-only", "Slice E"]
+    ],
+    ["scripts/README.md", ["Phase 3 Milestone 30", "Beta Operations", "phase-3-milestone-30"]],
+    [
+      "docs/04_IMPLEMENTATION/04-008_BETA_OPERATIONS_VERIFICATION.md",
+      ["deployment verification", "smoke", "rollback", "monitoring", "health", "log verification"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-009_BETA_OPERATOR_HANDBOOK.md",
+      ["operator", "daily beta operating loop", "launch"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-010_BETA_USER_HANDBOOK.md",
+      ["beta user", "Invite", "Onboarding"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-011_BETA_SUPPORT_GUIDE.md",
+      ["support", "Bug Triage", "Feature Request", "Feedback Review"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-012_BETA_OPERATIONAL_WORKFLOWS.md",
+      ["Bug Triage", "Feature Request", "Feedback Review"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-013_PRODUCTION_READINESS_CHECKLIST.md",
+      ["Production Readiness", "Repository Readiness", "Security Readiness"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-014_RELEASE_CHECKLIST.md",
+      ["Release Checklist", "Release Notes", "Promotion"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-015_LAUNCH_CHECKLIST.md",
+      ["Launch Checklist", "Before Inviting Design Partners", "After Launch"]
+    ],
+    [
+      "docs/04_IMPLEMENTATION/04-016_BETA_TROUBLESHOOTING_GUIDE.md",
+      ["Troubleshooting", "Invite Problems", "Operations Problems"]
+    ]
+  ];
+
+  for (const [file, requiredStatements] of betaOperationsDocs) {
+    if (!exists(file)) {
+      fail(`Beta Operations documentation is missing required file: ${file}`);
+      continue;
+    }
+
+    const content = read(file);
+    for (const statement of requiredStatements) {
+      if (!content.includes(statement)) {
+        fail(`${file} must document the Phase 3 Milestone 30 Beta Operations boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const prohibitedTerms = [
+    ["new backend features", /\bnew backend features?\b|\bbackend feature\b|\bnew service implementation\b/iu],
+    ["AI features", /\bAI feature\b|\bAI workflow\b|\bprovider LLM call\b|\bprompt execution\b|\bmodel execution\b/iu],
+    ["payments", /\bpayments?\b|\bStripe\b|\bcheckout\b/iu],
+    ["CRM", /\bCRM\b|\bSalesforce\b|\bHubSpot\b/iu],
+    ["notifications", /\bnotification\b|\bSendGrid\b|\bResend\b|\bTwilio\b|\bpush notification\b/iu],
+    ["analytics platform", /\banalytics platform\b|\bSegment\b|\bPostHog\b|\bAmplitude\b|\bMixpanel\b/iu],
+    ["mobile app", /\bReact Native\b|\bExpo\b|\bmobile app\b/iu],
+    ["scheduler", /\bscheduler\b|\bschedule\w+|\bcron\b/iu],
+    ["worker", /\bworker\b|\bWorkerProcess\b|\bqueue consumer\b/iu]
+  ];
+
+  for (const implementationRoot of ["apps/api/src", "apps/web/src"]) {
+    for (const file of listFiles(implementationRoot)) {
+      if (isReadmePlaceholder(file)) continue;
+      if (
+        file.includes("/__tests__/") ||
+        file.includes("/testing/") ||
+        file.includes("/dist/") ||
+        file.includes("/node_modules/") ||
+        file.includes("/.turbo/") ||
+        file.includes("/.next/") ||
+        file.includes("/test-results/") ||
+        file.includes("/playwright-report/")
+      ) {
+        continue;
+      }
+
+      const content = read(file);
+      for (const [label, pattern] of prohibitedTerms) {
+        if (pattern.test(content)) {
+          fail(`Beta Operations must not introduce ${label}; found prohibited reference in ${file}`);
+        }
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4469,7 +4600,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseTwentyNine
+  const allowedImplementationRoots = isPhaseThirty
+    ? allowedPhaseThirtyImplementationRoots
+    : isPhaseTwentyNine
     ? allowedPhaseTwentyNineImplementationRoots
     : isPhaseTwentyEight
     ? allowedPhaseTwentyEightImplementationRoots
@@ -4534,7 +4667,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseTwentyNine ? "3 Milestone 29" : isPhaseTwentyEight ? "3 Milestone 28" : isPhaseTwentySeven ? "3 Milestone 27" : isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentyNine ? allowedPhaseTwentyNineImplementationRoots : isPhaseTwentyEight ? allowedPhaseTwentyEightImplementationRoots : isPhaseTwentySeven ? allowedPhaseTwentySevenImplementationRoots : isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseThirty ? "3 Milestone 30" : isPhaseTwentyNine ? "3 Milestone 29" : isPhaseTwentyEight ? "3 Milestone 28" : isPhaseTwentySeven ? "3 Milestone 27" : isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseThirty ? allowedPhaseThirtyImplementationRoots : isPhaseTwentyNine ? allowedPhaseTwentyNineImplementationRoots : isPhaseTwentyEight ? allowedPhaseTwentyEightImplementationRoots : isPhaseTwentySeven ? allowedPhaseTwentySevenImplementationRoots : isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -4648,8 +4781,12 @@ if (isPhaseTwentyEight && !isPhaseTwentyNine) {
   assertProductValidationFoundationPolicy();
 }
 
-if (isPhaseTwentyNine) {
+if (isPhaseTwentyNine && !isPhaseThirty) {
   assertPrivateBetaFoundationPolicy();
+}
+
+if (isPhaseThirty) {
+  assertBetaOperationsFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

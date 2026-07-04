@@ -80,14 +80,15 @@ Completed:
 - Phase 3 M26 REST API
 - Phase 3 M27 Dashboard MVP
 - Phase 3 M28 Product Validation Loop
+- Phase 3 M29 Private Beta
 
 Current:
 
-- Phase 3 M29 Private Beta
+- Phase 3 M30 Beta Operations
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, the dashboard precedes the Product Validation Loop, and the Product Validation Loop precedes Private Beta deployment readiness.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, the dashboard precedes the Product Validation Loop, the Product Validation Loop precedes Private Beta deployment readiness, and Private Beta deployment readiness precedes Beta Operations.
 
-Do not begin implementation beyond the scoped Phase 3 Milestone 29 Private Beta task until a later implementation task explicitly scopes the next slice.
+Do not begin implementation beyond the scoped Phase 3 Milestone 30 Beta Operations task until a later implementation task explicitly scopes the next slice.
 
 # Phase 0 — Repository Foundation
 
@@ -3020,6 +3021,127 @@ Next milestone dependency:
 
 - Later Private Beta slices may add scoped monitoring integrations and deployment execution only after the current Private Beta slice is committed, pushed, tagged, and verified.
 
+## Phase 3 Milestone 30 — Beta Operations
+
+Goal:
+
+Prepare Opportunity OS for real-world usage by the first 10-20 design partners through operational verification, documentation, and launch discipline.
+
+Milestone 30 is operations-only. It does not add new product capabilities.
+
+Slice A deliverables:
+
+- Phase 3 Milestone 30 Beta Operations boundary documentation
+- repository verifier support for `phase-3-milestone-30`
+- active `review` gate updated to the Beta Operations boundary
+- governance that keeps the milestone limited to operational readiness
+
+Slice B deliverables:
+
+- deployment verification procedure
+- deployment smoke testing procedure
+- rollback verification procedure
+- monitoring verification procedure
+- health verification procedure
+- log verification procedure
+- `docs/04_IMPLEMENTATION/04-008_BETA_OPERATIONS_VERIFICATION.md`
+
+Slice C deliverables:
+
+- operator handbook
+- beta handbook
+- invite documentation
+- onboarding workflow
+- support documentation
+- `docs/04_IMPLEMENTATION/04-009_BETA_OPERATOR_HANDBOOK.md`
+- `docs/04_IMPLEMENTATION/04-010_BETA_USER_HANDBOOK.md`
+- `docs/04_IMPLEMENTATION/04-011_BETA_SUPPORT_GUIDE.md`
+
+Slice D deliverables:
+
+- bug triage workflow
+- feature request workflow
+- feedback review workflow
+- production readiness checklist
+- release checklist
+- launch checklist
+- troubleshooting guide
+- `docs/04_IMPLEMENTATION/04-012_BETA_OPERATIONAL_WORKFLOWS.md`
+- `docs/04_IMPLEMENTATION/04-013_PRODUCTION_READINESS_CHECKLIST.md`
+- `docs/04_IMPLEMENTATION/04-014_RELEASE_CHECKLIST.md`
+- `docs/04_IMPLEMENTATION/04-015_LAUNCH_CHECKLIST.md`
+- `docs/04_IMPLEMENTATION/04-016_BETA_TROUBLESHOOTING_GUIDE.md`
+
+Slice E deliverables:
+
+- PR governance for Beta Operations review
+- documentation index synchronization
+- implementation order synchronization
+- consistency verification in `scripts/verify-repository.mjs`
+- `.github/pull_request_template.md` Beta Operations review checklist
+- `node scripts/verify-repository.mjs --phase review`
+
+Non-goals:
+
+- new backend features
+- new AI features
+- new APIs
+- new dashboard features
+- new persistence features
+- new authentication features
+- payments
+- CRM integrations
+- notifications
+- analytics platforms
+- mobile apps
+- schedulers
+- workers
+
+Slice A verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-30
+pnpm lint
+pnpm build
+```
+
+Slice B verification command:
+
+```sh
+pnpm build
+```
+
+Slice C verification command:
+
+```sh
+pnpm build
+```
+
+Slice D verification command:
+
+```sh
+pnpm build
+```
+
+Slice E verification command:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+```
+
+Readiness:
+
+- repository verification supports `phase-3-milestone-30`
+- the active review gate enforces Beta Operations policy
+- Beta Operations is documented as operations-only
+- deployment verification, smoke testing, rollback verification, monitoring verification, health verification, and log verification are documented
+- operator handbook, beta handbook, invite documentation, onboarding workflow, and support documentation are documented
+- bug triage, feature request, feedback review, production readiness, release, launch, and troubleshooting workflows are documented
+- PR governance, documentation index, implementation order, and consistency verification are synchronized
+- Private Beta deployment readiness remains intact
+- new backend features, AI features, payments, CRM integrations, notifications, analytics platforms, mobile apps, schedulers, workers, and unscoped product systems remain absent
+
 Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 
 
@@ -3124,3 +3246,7 @@ Referenced by:
 | 3.0.2       | 2026-07-03                      | Updated the roadmap to reflect completed Phase 3 Milestone 26 REST API work and the Phase 3 Milestone 27 dashboard handoff. |
 | 3.0.3       | 2026-07-03                      | Added the Phase 3 Milestone 27 Dashboard MVP foundation boundary and verification gate. |
 | 3.0.4       | 2026-07-03                      | Completed the Phase 3 Milestone 27 Dashboard MVP roadmap, governance, browser coverage, and readiness gate. |
+| 3.0.5       | 2026-07-04                      | Added the Phase 3 Milestone 30 Beta Operations boundary and verification gate. |
+| 3.0.6       | 2026-07-04                      | Added Phase 3 Milestone 30 operator, beta user, invite, onboarding, and support documentation. |
+| 3.0.7       | 2026-07-04                      | Added Phase 3 Milestone 30 bug triage, feature request, feedback review, readiness, release, launch, and troubleshooting documentation. |
+| 3.0.8       | 2026-07-04                      | Added Phase 3 Milestone 30 PR governance and documentation consistency verification. |

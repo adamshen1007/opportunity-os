@@ -13,7 +13,7 @@
 
 Engineering Kit v3.0 is the canonical reference for future Codex work.
 
-It reflects completed implementation through Phase 3 Milestone 28 and active Phase 3 Milestone 29 Private Beta deployment readiness work:
+It reflects completed implementation through Phase 3 Milestone 29 and active Phase 3 Milestone 30 Beta Operations work:
 
 - Phase 0 Repository Foundation
 - Phase 1 M1 Runtime Configuration
@@ -44,8 +44,9 @@ It reflects completed implementation through Phase 3 Milestone 28 and active Pha
 - Phase 3 M26 REST API
 - Phase 3 M27 Dashboard MVP
 - Phase 3 M28 Product Validation Loop
+- Phase 3 M29 Private Beta
 
-Current implementation is Phase 3 Milestone 29: Private Beta. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
+Current implementation is Phase 3 Milestone 30: Beta Operations. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
 ## Purpose
 
@@ -170,6 +171,24 @@ Documents:
 - 04-006_PRIVATE_BETA_RUNBOOK.md
 
 - 04-007_PRIVATE_BETA_CHECKLIST.md
+
+- 04-008_BETA_OPERATIONS_VERIFICATION.md
+
+- 04-009_BETA_OPERATOR_HANDBOOK.md
+
+- 04-010_BETA_USER_HANDBOOK.md
+
+- 04-011_BETA_SUPPORT_GUIDE.md
+
+- 04-012_BETA_OPERATIONAL_WORKFLOWS.md
+
+- 04-013_PRODUCTION_READINESS_CHECKLIST.md
+
+- 04-014_RELEASE_CHECKLIST.md
+
+- 04-015_LAUNCH_CHECKLIST.md
+
+- 04-016_BETA_TROUBLESHOOTING_GUIDE.md
 
 - Development playbooks
 

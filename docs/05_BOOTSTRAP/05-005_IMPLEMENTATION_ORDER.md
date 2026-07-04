@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS through Phase 3 Milestone 29 Private Beta work.
+This document is the authoritative build sequence for Opportunity OS through Phase 3 Milestone 30 Beta Operations work.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -56,10 +56,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 3 M26 - REST API | Complete | `apps/api` |
 | Phase 3 M27 - Dashboard MVP | Complete | `apps/web` |
 | Phase 3 M28 - Product Validation Loop | Complete | `apps/api`, `apps/web` |
+| Phase 3 M29 - Private Beta | Complete | `apps/api`, `apps/web`, deployment documentation |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, and Phase 3 Milestone 29 Private Beta deployment readiness.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, completed Phase 3 Milestone 29 Private Beta deployment readiness, and active Phase 3 Milestone 30 Beta Operations policy.
 
 The repository does not yet contain:
 
@@ -84,7 +85,7 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 3 M29 - Private Beta | Active | `apps/api`, `apps/web`, deployment documentation |
+| Phase 3 M30 - Beta Operations | Active | operations documentation, repository verification |
 
 ## Phase 2 M15 Boundary
 
@@ -830,6 +831,99 @@ pnpm build
 ```
 
 Milestone 29 Slice E is complete only when repository verification supports `phase-3-milestone-29`, Private Beta deployment readiness is documented, deployment architecture and deployment readiness configuration exist, production config, config binding, secrets management, health monitoring, operational logging, monitoring strategy, backup strategy, rollback guidance, beta checklist, and operational runbook are documented, invite-only authentication and session management are implemented with safe tests, persistence is limited to Private Beta invites, sessions, feedback, and bug reports, protected dashboard/onboarding/save/dismiss/bug-reporting/invite workflow behavior is deterministic, `apps/api` and `apps/web` remain the API and dashboard boundaries, and prohibited implementation remains absent.
+
+## Phase 3 Milestone 30 Boundary
+
+Phase 3 Milestone 30 prepares Opportunity OS for Beta Operations with the first 10-20 design partners.
+
+Milestone 30 is operations-only. It may improve operational documentation, verification policy, launch discipline, and support workflows, but it must not add new product behavior.
+
+Slice A establishes:
+
+- Beta Operations boundary documentation
+- `phase-3-milestone-30` repository verification support
+- active `review` gate alignment with Beta Operations
+- governance that continues blocking unscoped feature work
+
+Slice B establishes:
+
+- deployment verification procedure
+- deployment smoke testing procedure
+- rollback verification procedure
+- monitoring verification procedure
+- health verification procedure
+- log verification procedure
+- `docs/04_IMPLEMENTATION/04-008_BETA_OPERATIONS_VERIFICATION.md`
+
+Slice C establishes:
+
+- operator handbook
+- beta handbook
+- invite documentation
+- onboarding workflow
+- support documentation
+- `docs/04_IMPLEMENTATION/04-009_BETA_OPERATOR_HANDBOOK.md`
+- `docs/04_IMPLEMENTATION/04-010_BETA_USER_HANDBOOK.md`
+- `docs/04_IMPLEMENTATION/04-011_BETA_SUPPORT_GUIDE.md`
+
+Slice D establishes:
+
+- bug triage workflow
+- feature request workflow
+- feedback review workflow
+- production readiness checklist
+- release checklist
+- launch checklist
+- troubleshooting guide
+- `docs/04_IMPLEMENTATION/04-012_BETA_OPERATIONAL_WORKFLOWS.md`
+- `docs/04_IMPLEMENTATION/04-013_PRODUCTION_READINESS_CHECKLIST.md`
+- `docs/04_IMPLEMENTATION/04-014_RELEASE_CHECKLIST.md`
+- `docs/04_IMPLEMENTATION/04-015_LAUNCH_CHECKLIST.md`
+- `docs/04_IMPLEMENTATION/04-016_BETA_TROUBLESHOOTING_GUIDE.md`
+
+Slice E establishes:
+
+- PR governance for Beta Operations review
+- documentation index synchronization
+- implementation order synchronization
+- consistency verification in `scripts/verify-repository.mjs`
+- `.github/pull_request_template.md` Beta Operations review checklist
+- `node scripts/verify-repository.mjs --phase review`
+
+Milestone 30 must not introduce:
+
+- new backend features
+- AI features
+- payments
+- CRM integrations
+- notifications
+- analytics platforms
+- mobile apps
+- schedulers
+- workers
+- new APIs
+- new dashboard features
+- new persistence features
+- new authentication features
+
+Verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-30
+pnpm lint
+pnpm build
+```
+
+Milestone 30 Slice A is complete only when repository verification supports `phase-3-milestone-30`, the active review gate enforces Beta Operations policy, Beta Operations is documented as operations-only, Private Beta readiness remains intact, and prohibited implementation remains absent.
+
+Milestone 30 Slice B is complete only when deployment verification, deployment smoke testing, rollback verification, monitoring verification, health verification, and log verification are documented in `docs/04_IMPLEMENTATION/04-008_BETA_OPERATIONS_VERIFICATION.md`, `pnpm build` passes, and prohibited implementation remains absent.
+
+Milestone 30 Slice C is complete only when the operator handbook, beta handbook, invite documentation, onboarding workflow, and support documentation are documented in `docs/04_IMPLEMENTATION/04-009_BETA_OPERATOR_HANDBOOK.md`, `docs/04_IMPLEMENTATION/04-010_BETA_USER_HANDBOOK.md`, and `docs/04_IMPLEMENTATION/04-011_BETA_SUPPORT_GUIDE.md`, `pnpm build` passes, and prohibited implementation remains absent.
+
+Milestone 30 Slice D is complete only when bug triage, feature request, feedback review, production readiness, release, launch, and troubleshooting workflows are documented in `docs/04_IMPLEMENTATION/04-012_BETA_OPERATIONAL_WORKFLOWS.md`, `docs/04_IMPLEMENTATION/04-013_PRODUCTION_READINESS_CHECKLIST.md`, `docs/04_IMPLEMENTATION/04-014_RELEASE_CHECKLIST.md`, `docs/04_IMPLEMENTATION/04-015_LAUNCH_CHECKLIST.md`, and `docs/04_IMPLEMENTATION/04-016_BETA_TROUBLESHOOTING_GUIDE.md`, `pnpm build` passes, and prohibited implementation remains absent.
+
+Milestone 30 Slice E is complete only when PR governance, documentation index, implementation order, and consistency verification are synchronized, `.github/pull_request_template.md` includes Beta Operations review, `node scripts/verify-repository.mjs --phase review` passes, and prohibited implementation remains absent.
 
 ## Definition of Complete
 
