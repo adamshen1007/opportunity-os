@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "../../../components/layout";
 import { OpportunityDetail } from "../../../features/opportunities/opportunity-detail";
 import { getEvidenceForOpportunity, getOpportunityById } from "../../../features/opportunities/opportunity-utils";
+import { dashboardFeedbackFixtures } from "../../../testing";
 
 export interface OpportunityDetailPageProps {
   readonly params: Promise<{
@@ -19,7 +20,11 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
 
   return (
     <AppShell title="Opportunity detail" subtitle="Inspect confidence, ranking explanation, provenance, and evidence.">
-      <OpportunityDetail opportunity={opportunity} evidence={getEvidenceForOpportunity(opportunity)} />
+      <OpportunityDetail
+        opportunity={opportunity}
+        evidence={getEvidenceForOpportunity(opportunity)}
+        feedback={dashboardFeedbackFixtures.find((item) => item.opportunityId === opportunity.opportunityId)}
+      />
     </AppShell>
   );
 }

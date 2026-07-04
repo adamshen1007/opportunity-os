@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS during Phase 3 Milestone 27 Dashboard MVP work.
+This document is the authoritative build sequence for Opportunity OS through Phase 3 Milestone 28 Product Validation Loop work.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -58,7 +58,7 @@ The following milestones are complete in Engineering Kit v3.0:
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, and the Dashboard MVP in `apps/web`.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, and completed Product Validation Loop behavior for deterministic design-partner validation.
 
 The repository does not yet contain:
 
@@ -78,7 +78,7 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Next scoped milestone | To be defined after Phase 3 Milestone 27 is closed and committed. | TBD |
+| Phase 3 M28 - Product Validation Loop | Complete | `apps/api`, `apps/web` |
 
 ## Phase 2 M15 Boundary
 
@@ -620,7 +620,7 @@ docker compose config
 
 Milestone 26 is complete only when `apps/api` is implemented, tested, documented, independently buildable, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, verified by `phase-3-milestone-26`, and free of frontend implementation, billing, user management, analytics, notifications, production authentication providers, persistence changes, schedulers, workers, provider SDKs, and unrelated product workflows.
 
-Do not begin work beyond the completed Phase 3 Milestone 27 Dashboard MVP until a later scoped implementation task approves the next milestone.
+Do not begin work beyond Phase 3 Milestone 28 Product Validation Loop until a later scoped implementation task approves the next milestone.
 
 ## Phase 3 M27 Boundary
 
@@ -694,6 +694,51 @@ pnpm test
 pnpm --filter @opportunity-os/web test:e2e
 docker compose config
 ```
+
+## Phase 3 M28 Boundary
+
+Milestone 28 prepares Opportunity OS for design-partner validation through deterministic product validation.
+
+Milestone 28 establishes the `phase-3-milestone-28` verifier gate and Product Validation Loop policy with deterministic feedback API behavior, dashboard feedback interactions, and design-partner walkthrough documentation for save opportunity, dismiss opportunity, usefulness rating, evidence quality rating, ranking quality rating, and feedback reason categories.
+
+Milestone 28 introduces:
+
+- deterministic product validation boundaries
+- feedback vocabulary
+- feedback API DTOs, validation, safe errors, in-memory store behavior, route handlers, and fixtures
+- dashboard feedback interactions, validation summary, search/filter improvements, and demo-ready states
+- API/web alignment tests and cross-app quality gates
+- deterministic feedback fixtures
+- design-partner walkthrough documentation
+
+Milestone 28 must not introduce:
+
+- production persistence
+- billing
+- analytics platforms
+- notifications
+- email
+- CRM integrations
+- schedulers
+- workers
+- mobile apps
+- complex admin console
+- unrelated product systems
+
+Required Milestone 28 final verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-28
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+pnpm --filter @opportunity-os/web test:e2e
+docker compose config
+```
+
+Milestone 28 is complete only when repository verification supports `phase-3-milestone-28`, Product Validation Loop documentation states deterministic product validation only, API feedback behavior is exported through `apps/api`, dashboard feedback interactions consume the web API boundary, cross-app alignment tests pass, design-partner walkthrough documentation is current, final verification commands pass, and prohibited implementation remains absent.
 
 ## Definition of Complete
 

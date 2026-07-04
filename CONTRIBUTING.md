@@ -2,7 +2,7 @@
 
 Opportunity OS is documentation-first. Implementation work must start from the Engineering Kit and preserve its architecture, naming, dependency, testing, and security rules.
 
-Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 3 Milestone 27: Dashboard MVP. Later milestones must consume the completed foundation, ranking contracts, API application boundary, and dashboard application boundary instead of bypassing them.
+Engineering Kit v3.0 is the canonical baseline for future Codex work. It reflects completed work through Phase 3 Milestone 28: Product Validation Loop. Later milestones must consume the completed foundation, ranking contracts, API application boundary, dashboard application boundary, deterministic feedback API behavior, dashboard validation experience, and design-partner walkthrough instead of bypassing them.
 
 ## Before You Start
 
@@ -49,7 +49,7 @@ pnpm build
 pnpm test
 ```
 
-During Phase 3 Milestone 27, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, Opportunity Ranking Engine policy, REST API foundation policy, Dashboard MVP policy, and package-level tests for `apps/api`, `apps/web`, `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, and `packages/opportunity-ranking`.
+During Phase 3 Milestone 28, these commands validate repository structure, documentation integrity, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, Opportunity Ranking Engine policy, REST API foundation policy, Dashboard MVP policy, Product Validation Loop policy, and package-level tests for `apps/api`, `apps/web`, `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, and `packages/opportunity-ranking`.
 
 Phase 2 Milestone 19 work must stay inside its scoped task. Milestone 19 may add LLM Analysis Foundation contracts only inside `packages/llm-analysis` and must not add provider SDKs, OpenAI API calls, Anthropic API calls, Gemini API calls, live LLM calls, prompt execution runtime, extraction workflows, pain point extraction, opportunity generation, REST APIs, frontend, persistence implementation, scheduler, worker, or business scoring.
 
@@ -68,6 +68,33 @@ Phase 3 Milestone 25 work must stay inside its scoped task. Milestone 25 may add
 Phase 3 Milestone 26 work must stay inside its scoped task. Milestone 26 may add REST API implementation only inside `apps/api`. It establishes the strict TypeScript API application boundary, explicit bootstrap, routing, OpenAPI contracts, health endpoint, opportunity endpoints, ranking endpoints, pagination, filtering, request validation, error mapping, authentication and authorization contracts, request context contracts, API versioning, deterministic fixtures, integration tests, security tests, contract stability tests, dependency-boundary tests, package metadata, README, and repository verification. It must not add frontend implementation, billing, user management, analytics, notifications, production authentication providers, persistence changes, schedulers, workers, provider SDKs, or unrelated product workflows.
 
 Phase 3 Milestone 27 work must stay inside its scoped task. Milestone 27 may add Dashboard MVP implementation only inside `apps/web`. It establishes the Next.js App Router application scaffold, strict TypeScript configuration, route map, dashboard shell, navigation, Opportunity List page, Opportunity Detail page, Ranking View, Evidence View, Search UI, Filter UI, Pagination UI, loading/empty/error states, typed API integration layer, generated route contract, deterministic frontend fixtures, package metadata, README, unit/component tests, security tests, dependency-boundary tests, route stability tests, Playwright browser coverage, and `phase-3-milestone-27` repository verification. It must not add authentication implementation, billing, analytics, notifications, user accounts, production deployment, persistence changes, recommendation engines, mobile apps, schedulers, workers, provider SDKs, or unrelated backend changes.
+
+Phase 3 Milestone 28 work must stay inside its scoped task. Milestone 28 adds Product Validation Loop boundaries, deterministic feedback API behavior, dashboard feedback interactions, demo-ready validation states, cross-app quality gates, and design-partner walkthrough documentation inside `apps/api`, `apps/web`, documentation, and repository verification. It establishes the `phase-3-milestone-28` repository verification gate and feedback vocabulary for save opportunity, dismiss opportunity, usefulness rating, evidence quality rating, ranking quality rating, and feedback reason categories. It must not add production persistence, billing, analytics platforms, notifications, email, CRM integrations, schedulers, workers, mobile apps, a complex admin console, or unrelated product systems.
+
+## Product Validation Loop Governance
+
+Phase 3 Milestone 28 prepares Opportunity OS for design-partner validation. It is deterministic product validation only: feedback contracts, route behavior, dashboard interactions, and demo states must be explicit, testable, fixture-friendly, and safe to run without production services.
+
+When Product Validation Loop files change, reviewers should confirm:
+
+- feedback vocabulary stays deterministic and safe for design-partner walkthroughs
+- API feedback exports route through `apps/api/src/index.ts`
+- dashboard feedback work consumes the API boundary instead of bypassing it
+- design-partner walkthroughs use `docs/04_IMPLEMENTATION/04-003_DESIGN_PARTNER_WALKTHROUGH.md`
+- feedback values do not contain secrets, raw provider payloads, prompts, stacks, or unsafe internals
+- no production persistence, billing, analytics platforms, notifications, email, CRM integration, scheduler, worker, mobile app, complex admin console, or unrelated product system was introduced
+- `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-3-milestone-28`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, `pnpm --filter @opportunity-os/web test:e2e`, and `docker compose config` pass for the final readiness gate
+
+## Phase 3 Milestone 28 Readiness
+
+Before handing off to the next milestone, confirm:
+
+- `apps/api` exposes deterministic feedback DTOs, validation, in-memory store behavior, route handlers, fixtures, integration tests, and security tests
+- `apps/web` exposes deterministic save, dismiss, usefulness rating, evidence quality rating, ranking quality rating, reason category, feedback panel, validation summary, search/filter, fixture, unit, alignment, security, dependency-boundary, and Playwright coverage
+- cross-app tests confirm dashboard feedback routes and vocabulary stay aligned with the API boundary
+- design-partner walkthrough documentation is current and references only deterministic demo behavior
+- no production persistence, billing, analytics platforms, notifications, email, CRM integration, scheduler, worker, mobile app, complex admin console, or unrelated product system exists
+- the final readiness commands pass
 
 ## Dashboard MVP Governance
 

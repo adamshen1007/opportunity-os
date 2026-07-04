@@ -1,18 +1,27 @@
 import { describe, expect, it } from "vitest";
 import {
+  API_CREATE_FEEDBACK_ROUTE,
   API_GET_OPPORTUNITY_ROUTE,
+  API_GET_FEEDBACK_ROUTE,
   API_GET_RANKING_ROUTE,
   API_HEALTH_ROUTE,
+  API_LIST_FEEDBACK_ROUTE,
   API_LIST_OPPORTUNITIES_ROUTE,
   API_RANK_OPPORTUNITIES_ROUTE,
+  createSyntheticApiFeedbackStore,
   createApiApplication,
   createApiOpenApiDocument,
   createSyntheticApiRequest,
+  handleCreateFeedbackRequest,
   handleApiHealthRequest,
+  handleGetFeedbackRequest,
   handleGetOpportunityRequest,
   handleGetRankingRequest,
+  handleListFeedbackRequest,
   handleListOpportunitiesRequest,
   handleRankOpportunitiesRequest,
+  syntheticApiFeedback,
+  syntheticApiFeedbackRequestBody,
   syntheticApiOpportunity,
   syntheticApiOpportunityPort,
   syntheticApiRanking,
@@ -26,7 +35,10 @@ describe("API integration contracts", () => {
       API_LIST_OPPORTUNITIES_ROUTE,
       API_GET_OPPORTUNITY_ROUTE,
       API_RANK_OPPORTUNITIES_ROUTE,
-      API_GET_RANKING_ROUTE
+      API_GET_RANKING_ROUTE,
+      API_CREATE_FEEDBACK_ROUTE,
+      API_LIST_FEEDBACK_ROUTE,
+      API_GET_FEEDBACK_ROUTE
     ];
     const app = createApiApplication({
       serviceName: "opportunity-api",
@@ -43,6 +55,8 @@ describe("API integration contracts", () => {
     expect(document.paths["/v1/health"]?.get?.operationId).toBe("getHealth");
     expect(document.paths["/v1/opportunities"]?.get?.operationId).toBe("listOpportunities");
     expect(document.paths["/v1/rankings"]?.post?.operationId).toBe("rankOpportunities");
+    expect(document.paths["/v1/feedback"]?.post?.operationId).toBe("createFeedback");
+    expect(document.paths["/v1/feedback"]?.get?.operationId).toBe("listFeedback");
   });
 
   it("serves health, opportunity, and ranking requests through explicit ports", async () => {
@@ -76,5 +90,29 @@ describe("API integration contracts", () => {
     expect(opportunity.ok).toBe(true);
     expect(ranking.ok).toBe(true);
     expect(rankingRead.ok).toBe(true);
+  });
+
+  it("serves feedback requests through the in-memory validation store", async () => {
+    const feedbackStore = createSyntheticApiFeedbackStore();
+    const created = await handleCreateFeedbackRequest(
+      createSyntheticApiRequest({
+        context: { method: "POST", path: "/v1/feedback" },
+        body: syntheticApiFeedbackRequestBody
+      }),
+      feedbackStore
+    );
+    const listed = await handleListFeedbackRequest(
+      createSyntheticApiRequest({ query: { opportunityId: syntheticApiOpportunity.opportunityId } }),
+      feedbackStore
+    );
+    const read = await handleGetFeedbackRequest(
+      createSyntheticApiRequest({ params: { feedbackId: syntheticApiFeedback.feedbackId } }),
+      feedbackStore
+    );
+
+    expect(created.ok).toBe(true);
+    expect(listed.ok).toBe(true);
+    expect(read.ok).toBe(true);
+    expect(listed.data.totalCount).toBe(2);
   });
 });

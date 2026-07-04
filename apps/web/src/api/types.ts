@@ -83,3 +83,47 @@ export interface DashboardApiRankingDto {
   readonly rankedOpportunities: readonly DashboardApiRankedOpportunityDto[];
   readonly generatedAt: string;
 }
+
+export type DashboardApiFeedbackStatus = "saved" | "dismissed" | "rated" | "reason-provided";
+
+export type DashboardApiFeedbackReasonCategory =
+  | "irrelevant"
+  | "duplicate"
+  | "low-confidence"
+  | "weak-evidence"
+  | "poor-ranking"
+  | "already-solved"
+  | "not-actionable"
+  | "other";
+
+export type DashboardApiFeedbackRatingTarget = "usefulness" | "evidence-quality" | "ranking-quality";
+
+export type DashboardApiFeedbackRatingValue = 1 | 2 | 3 | 4 | 5;
+
+export interface DashboardApiFeedbackRatingDto {
+  readonly target: DashboardApiFeedbackRatingTarget;
+  readonly value: DashboardApiFeedbackRatingValue;
+}
+
+export interface DashboardApiFeedbackDto {
+  readonly feedbackId: string;
+  readonly opportunityId: string;
+  readonly status: DashboardApiFeedbackStatus;
+  readonly reasonCategories: readonly DashboardApiFeedbackReasonCategory[];
+  readonly ratings: readonly DashboardApiFeedbackRatingDto[];
+  readonly createdAt: string;
+  readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
+}
+
+export interface DashboardApiFeedbackCollectionDto {
+  readonly feedback: readonly DashboardApiFeedbackDto[];
+  readonly totalCount: number;
+}
+
+export interface DashboardApiCreateFeedbackRequestBody {
+  readonly opportunityId: string;
+  readonly status: DashboardApiFeedbackStatus;
+  readonly reasonCategories?: readonly DashboardApiFeedbackReasonCategory[];
+  readonly ratings?: readonly DashboardApiFeedbackRatingDto[];
+  readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
+}

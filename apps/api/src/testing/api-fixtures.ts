@@ -1,6 +1,15 @@
 import type { ApiRequest, ApiRequestContext } from "../http/index.js";
 import type { ApiOpportunityQueryPort, ApiRankingCommandPort } from "../ports/index.js";
 import type { ApiOpportunityDto, ApiRankingDto } from "../resources/index.js";
+import {
+  API_FEEDBACK_RATING_TARGETS,
+  API_FEEDBACK_REASON_CATEGORIES,
+  API_FEEDBACK_STATUSES,
+  createInMemoryFeedbackStore,
+  type ApiCreateFeedbackRequestBody,
+  type ApiFeedbackDto,
+  type ApiFeedbackStore
+} from "../feedback/index.js";
 
 export const syntheticApiRequestContext: ApiRequestContext = {
   correlationId: "correlation-synthetic-1",
@@ -61,6 +70,38 @@ export const syntheticApiRanking: ApiRankingDto = {
   ]
 };
 
+export const syntheticApiFeedback: ApiFeedbackDto = {
+  feedbackId: "feedback-synthetic-1",
+  opportunityId: syntheticApiOpportunity.opportunityId,
+  status: API_FEEDBACK_STATUSES.rated,
+  reasonCategories: [API_FEEDBACK_REASON_CATEGORIES.weakEvidence],
+  ratings: [
+    {
+      target: API_FEEDBACK_RATING_TARGETS.usefulness,
+      value: 4
+    },
+    {
+      target: API_FEEDBACK_RATING_TARGETS.evidenceQuality,
+      value: 3
+    },
+    {
+      target: API_FEEDBACK_RATING_TARGETS.rankingQuality,
+      value: 5
+    }
+  ],
+  createdAt: "2026-07-04T00:00:00.000Z",
+  safeMetadata: {
+    fixture: true
+  }
+};
+
+export const syntheticApiFeedbackRequestBody: ApiCreateFeedbackRequestBody = {
+  opportunityId: syntheticApiOpportunity.opportunityId,
+  status: API_FEEDBACK_STATUSES.rated,
+  reasonCategories: [API_FEEDBACK_REASON_CATEGORIES.weakEvidence],
+  ratings: syntheticApiFeedback.ratings
+};
+
 export const syntheticApiOpportunityPort: ApiOpportunityQueryPort = {
   async listOpportunities(input) {
     return {
@@ -92,6 +133,14 @@ export const syntheticApiRankingPort: ApiRankingCommandPort = {
     return input.rankingId === syntheticApiRanking.rankingId ? syntheticApiRanking : undefined;
   }
 };
+
+export function createSyntheticApiFeedbackStore(): ApiFeedbackStore {
+  return createInMemoryFeedbackStore({
+    initialFeedback: [syntheticApiFeedback],
+    clock: () => "2026-07-04T00:00:00.000Z",
+    idFactory: () => "feedback-synthetic-created-1"
+  });
+}
 
 export function createSyntheticApiRequest<TBody = unknown, TQuery = Record<string, unknown>, TParams = Record<string, unknown>>(
   request: Omit<ApiRequest<TBody, TQuery, TParams>, "context"> & {

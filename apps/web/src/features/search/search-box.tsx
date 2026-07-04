@@ -5,5 +5,5 @@ export interface SearchBoxProps {
 }
 
 export function SearchBox({ defaultValue = "" }: SearchBoxProps) {
-  return <Input label="Search" name="q" placeholder="Search opportunities" defaultValue={defaultValue} />;
+  return <Input label="Search" name="q" placeholder="Search opportunities, evidence, or feedback" defaultValue={defaultValue} />;
 }

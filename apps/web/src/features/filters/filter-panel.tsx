@@ -13,16 +13,26 @@ const sourceOptions = [
   { label: "Analysis", value: "analysis" }
 ] as const;
 
+const validationOptions = [
+  { label: "All validation", value: "all" },
+  { label: "Needs review", value: "needs-review" },
+  { label: "Saved", value: "saved" },
+  { label: "Dismissed", value: "dismissed" },
+  { label: "Rated", value: "rated" }
+] as const;
+
 export interface FilterPanelProps {
   readonly status?: string;
   readonly source?: string;
+  readonly validation?: string;
 }
 
-export function FilterPanel({ status = "all", source = "all" }: FilterPanelProps) {
+export function FilterPanel({ status = "all", source = "all", validation = "all" }: FilterPanelProps) {
   return (
     <div className="filter-panel">
       <Select label="Status" name="status" options={statusOptions} defaultValue={status} />
       <Select label="Source" name="source" options={sourceOptions} defaultValue={source} />
+      <Select label="Validation" name="validation" options={validationOptions} defaultValue={validation} />
     </div>
   );
 }

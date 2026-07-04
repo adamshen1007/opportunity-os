@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { sanitizeDashboardApiErrorMessage } from "../api/errors";
 import { safeDashboardErrorMessage } from "../components/states/state-copy";
-import { dashboardEvidenceFixtures, dashboardOpportunityFixtures, dashboardRankingFixtures } from "../testing";
+import {
+  dashboardEvidenceFixtures,
+  dashboardFeedbackFixtures,
+  dashboardOpportunityFixtures,
+  dashboardRankingFixtures
+} from "../testing";
 
 const unsafeTextPattern =
   /api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret|credential|authorization|bearer\s+[a-z0-9]|stack trace|internal exception/iu;
@@ -14,6 +19,7 @@ describe("Dashboard security contracts", () => {
   it("keeps deterministic fixtures free of unsafe operational details", () => {
     const fixtureOutput = serializeForInspection({
       evidence: dashboardEvidenceFixtures,
+      feedback: dashboardFeedbackFixtures,
       opportunities: dashboardOpportunityFixtures,
       rankings: dashboardRankingFixtures
     });

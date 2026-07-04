@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   API_ERROR_CODES,
   createApiError,
+  createSyntheticApiFeedbackStore,
   createSyntheticApiRequest,
+  handleCreateFeedbackRequest,
   handleGetOpportunityRequest,
+  handleGetFeedbackRequest,
   handleRankOpportunitiesRequest,
   mapUnknownErrorToApiError,
   syntheticApiOpportunityPort,
@@ -51,6 +54,32 @@ describe("API security contracts", () => {
     expect(missingOpportunity.ok).toBe(false);
     expect(JSON.stringify(invalidRanking)).not.toContain("unsafe-value");
     expect(JSON.stringify(missingOpportunity)).not.toContain("unsafe-value");
+  });
+
+  it("keeps feedback validation and missing feedback failures safe", async () => {
+    const invalidFeedback = await handleCreateFeedbackRequest(
+      createSyntheticApiRequest({
+        context: { method: "POST", path: "/v1/feedback" },
+        body: {
+          opportunityId: "",
+          status: "unsupported" as never,
+          reasonCategories: ["authorization: bearer unsafe-value" as never],
+          ratings: [{ target: "api_key=unsafe-value" as never, value: 99 as never }]
+        }
+      }),
+      createSyntheticApiFeedbackStore()
+    );
+    const missingFeedback = await handleGetFeedbackRequest(
+      createSyntheticApiRequest({ params: { feedbackId: "missing-feedback" } }),
+      createSyntheticApiFeedbackStore()
+    );
+
+    expect(invalidFeedback.ok).toBe(false);
+    expect(missingFeedback.ok).toBe(false);
+    const serialized = JSON.stringify({ invalidFeedback, missingFeedback });
+    for (const unsafe of unsafeSamples) {
+      expect(serialized).not.toContain(unsafe);
+    }
   });
 
   it("creates explicit API errors without stack output", () => {

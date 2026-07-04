@@ -277,6 +277,8 @@ Read:
 
 - CODEX_TASKS.md
 
+- DESIGN_PARTNER_WALKTHROUGH.md
+
 before beginning development.
 
 For v3.0 and later Codex work, also read:

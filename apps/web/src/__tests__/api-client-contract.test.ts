@@ -1,9 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { createDashboardApiClient, generatedApiRoutes, getOpportunity, getRanking, listOpportunities, rankOpportunities } from "../api";
-import { dashboardOpportunityFixtures, dashboardRankingFixtures } from "../testing";
+import {
+  createDashboardApiClient,
+  createFeedback,
+  generatedApiRoutes,
+  getFeedback,
+  getOpportunity,
+  getRanking,
+  listFeedback,
+  listOpportunities,
+  rankOpportunities
+} from "../api";
+import { dashboardFeedbackFixtures, dashboardOpportunityFixtures, dashboardRankingFixtures } from "../testing";
 
 const syntheticApiOpportunity = dashboardOpportunityFixtures[0]!;
 const syntheticApiRanking = dashboardRankingFixtures[0]!;
+const syntheticApiFeedback = dashboardFeedbackFixtures[0]!;
 
 function createApiSuccessResponse<TData>(data: TData, meta: { readonly correlationId: string; readonly requestId?: string }) {
   return {
@@ -110,6 +121,57 @@ describe("Dashboard API client contracts", () => {
 
     expect(result.ok).toBe(true);
     expect(JSON.parse(requestBody)).toEqual({ opportunityIds: ["synthetic-opportunity-001"] });
+  });
+
+  it("creates, lists, and reads feedback through the typed API layer", async () => {
+    const calls: string[] = [];
+    const bodies: string[] = [];
+    const client = createDashboardApiClient({
+      baseUrl: "https://api.test",
+      correlationId: "correlation-feedback-001",
+      fetch: async (input, init) => {
+        calls.push(String(input));
+        if (init?.body) {
+          bodies.push(String(init.body));
+        }
+        const isList = String(input).includes("?opportunityId=");
+        return createJsonResponse(
+          createApiSuccessResponse(
+            isList
+              ? {
+                  feedback: [syntheticApiFeedback],
+                  totalCount: 1
+                }
+              : syntheticApiFeedback,
+            { correlationId: "correlation-feedback-001" }
+          )
+        );
+      }
+    });
+
+    const created = await createFeedback(client, {
+      opportunityId: syntheticApiOpportunity.opportunityId,
+      status: "rated",
+      reasonCategories: ["weak-evidence"],
+      ratings: syntheticApiFeedback.ratings
+    });
+    const listed = await listFeedback(client, { opportunityId: syntheticApiOpportunity.opportunityId });
+    const read = await getFeedback(client, "feedback synthetic/001");
+
+    expect(created.ok).toBe(true);
+    expect(listed.ok).toBe(true);
+    expect(read.ok).toBe(true);
+    expect(calls).toEqual([
+      `https://api.test${generatedApiRoutes.createFeedback.path}`,
+      `https://api.test${generatedApiRoutes.listFeedback.path}?opportunityId=synthetic-opportunity-001`,
+      `https://api.test${generatedApiRoutes.getFeedback.path.replace(":feedbackId", "feedback%20synthetic%2F001")}`
+    ]);
+    expect(JSON.parse(bodies[0]!)).toEqual({
+      opportunityId: "synthetic-opportunity-001",
+      status: "rated",
+      reasonCategories: ["weak-evidence"],
+      ratings: syntheticApiFeedback.ratings
+    });
   });
 
   it("maps API errors without exposing secrets, stacks, raw payloads, or internal details", async () => {

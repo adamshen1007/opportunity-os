@@ -25,6 +25,21 @@ Allowed work in this milestone must remain focused on the REST API surface descr
 
 The API app may consume existing Opportunity OS packages such as `@opportunity-os/opportunity-ranking`, `@opportunity-os/opportunity-generation`, `@opportunity-os/opportunity-candidates`, `@opportunity-os/opportunity-pipeline`, and `@opportunity-os/opportunity-engine`.
 
+## Product Validation Loop Boundary
+
+Phase 3 Milestone 28 adds Product Validation Loop feedback behavior to `apps/api` for deterministic product validation. The API owns feedback vocabulary, feedback DTOs, validation, safe errors, in-memory feedback store behavior, feedback routes, deterministic fixtures, integration tests, security tests, and API/web alignment contracts for save opportunity, dismiss opportunity, usefulness rating, evidence quality rating, ranking quality rating, and feedback reason categories.
+
+Feedback exports route through `apps/api/src/index.ts`. Feedback routes are deterministic and in-memory only for tests and demo usage. They do not add database persistence, production storage, user accounts, billing, analytics platforms, notifications, email, CRM integrations, schedulers, workers, mobile apps, complex admin consoles, or unrelated product systems.
+
+Milestone 28 feedback API work is complete when:
+
+- feedback DTOs and vocabulary are exported through the public API boundary
+- create/list/get feedback route handlers are deterministic and secret-safe
+- validation errors do not expose secrets, prompts, raw payloads, stacks, or unsafe internals
+- deterministic fixtures cover saved, dismissed, rated, and reason-provided feedback
+- API integration, security, contract stability, and API/web alignment tests pass
+- `node scripts/verify-repository.mjs --phase phase-3-milestone-28`, `pnpm --filter @opportunity-os/api test`, and root verification commands pass
+
 ## Readiness Gate
 
 Milestone 26 is complete when:

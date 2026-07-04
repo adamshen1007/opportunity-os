@@ -5,6 +5,7 @@ export * from "./auth/index.js";
 export * from "./authorization/index.js";
 export * from "./context/index.js";
 export * from "./errors/index.js";
+export * from "./feedback/index.js";
 export * from "./filtering/index.js";
 export * from "./http/index.js";
 export * from "./openapi/index.js";

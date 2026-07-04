@@ -80,13 +80,13 @@ Completed:
 - Phase 3 M26 REST API
 - Phase 3 M27 Dashboard MVP
 
-Future:
+Current:
 
-- Next scoped milestone after Dashboard MVP closeout
+- Phase 3 M28 Product Validation Loop
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, and REST APIs precede the dashboard.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, and the dashboard precedes the Product Validation Loop.
 
-Do not begin implementation beyond the completed Phase 3 Milestone 27 Dashboard MVP until a later implementation task explicitly scopes the next milestone.
+Do not begin implementation beyond completed Phase 3 Milestone 28 Product Validation Loop work until a later implementation task explicitly scopes the next milestone.
 
 # Phase 0 — Repository Foundation
 
@@ -2831,6 +2831,81 @@ Readiness:
 - repository verification supports `phase-3-milestone-27`
 - dashboard routes, UI states, API integration, security tests, route stability tests, dependency-boundary tests, and Playwright coverage pass
 - authentication implementation, billing, analytics, notifications, user accounts, production deployment, persistence changes, recommendation engines, mobile apps, schedulers, workers, provider SDKs, and unrelated backend changes remain absent
+
+Next milestone dependency:
+
+- Phase 3 Milestone 28 may consume `apps/api`, `apps/web`, and deterministic product packages to prepare design-partner validation. Do not begin Product Validation Loop implementation until a scoped implementation task is approved.
+
+## Phase 3 Milestone 28 — Product Validation Loop
+
+Goal:
+
+Prepare Opportunity OS for design-partner validation by adding deterministic product validation behavior on top of the REST API and Dashboard MVP.
+
+Owners:
+
+- `apps/api`
+- `apps/web`
+
+Dependencies:
+
+- `apps/api`
+- `apps/web`
+- `@opportunity-os/opportunity-ranking`
+- `@opportunity-os/opportunity-generation`
+- `@opportunity-os/opportunity-candidates`
+- `@opportunity-os/opportunity-engine`
+
+Deliverables:
+
+- `phase-3-milestone-28` repository verification gate
+- deterministic product validation documentation
+- API feedback DTOs, validation, safe errors, in-memory feedback store behavior, and feedback routes
+- dashboard feedback interactions for save, dismiss, usefulness rating, evidence quality rating, ranking quality rating, and feedback reason categories
+- cross-app API/web feedback contract alignment tests
+- deterministic feedback fixtures
+- demo-ready validation states
+- design-partner walkthrough documentation
+
+Non-goals:
+
+- production persistence
+- billing
+- analytics platforms
+- notifications
+- email
+- CRM integrations
+- schedulers
+- workers
+- mobile apps
+- complex admin console
+- unrelated product systems
+
+Final readiness verification commands:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+node scripts/verify-repository.mjs --phase phase-3-milestone-28
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+pnpm test
+pnpm --filter @opportunity-os/web test:e2e
+docker compose config
+```
+
+Readiness:
+
+- repository verification supports `phase-3-milestone-28`
+- Product Validation Loop work is documented as deterministic product validation only
+- API feedback DTOs, validation, in-memory store behavior, route handlers, fixtures, integration tests, security tests, and contract stability tests pass
+- dashboard feedback API client, save/dismiss workflow, ratings, reason categories, validation summary, search/filter improvements, fixtures, browser tests, and alignment tests pass
+- design-partner walkthrough documentation is current
+- production persistence, billing, analytics platforms, notifications, email, CRM integrations, schedulers, workers, mobile apps, complex admin consoles, and unrelated product systems remain absent
+
+Next milestone dependency:
+
+- Phase 3 Milestone 29 may consume the completed Product Validation Loop outcomes only after a scoped implementation plan is approved. Do not begin Phase 3 Milestone 29 from Milestone 28 readiness work.
 
 Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 

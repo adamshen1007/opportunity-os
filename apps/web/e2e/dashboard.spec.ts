@@ -5,6 +5,8 @@ test("dashboard loads with navigation and state coverage", async ({ page }) => {
 
   await expect(page.getByRole("heading", { exact: true, level: 1, name: "Dashboard" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Validation Session" })).toBeVisible();
+  await expect(page.getByText("Synthetic demo state for design-partner review.")).toBeVisible();
   const navigation = page.getByRole("navigation", { name: "Dashboard navigation" });
   await expect(navigation).toBeVisible();
   await expect(navigation.getByRole("link", { name: /Opportunities/u })).toBeVisible();
@@ -20,9 +22,10 @@ test("opportunity list supports search filters pagination and detail navigation"
   await page.goto("/opportunities");
 
   await expect(page.getByRole("heading", { name: "Opportunities" })).toBeVisible();
-  await expect(page.getByPlaceholder("Search opportunities")).toBeVisible();
+  await expect(page.getByPlaceholder("Search opportunities, evidence, or feedback")).toBeVisible();
   await expect(page.getByLabel("Status")).toBeVisible();
   await expect(page.getByLabel("Source")).toBeVisible();
+  await expect(page.getByLabel("Validation")).toBeVisible();
   await expect(page.getByRole("button", { name: "Apply" })).toBeVisible();
   await expect(page.getByRole("link", { name: "First" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Previous" })).toBeVisible();
@@ -34,8 +37,29 @@ test("opportunity list supports search filters pagination and detail navigation"
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity detail" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Opportunity Detail" })).toBeVisible();
   await expect(page.getByText("Explanation", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Validation Feedback" })).toBeVisible();
+  await expect(page.getByText("Current validation status")).toBeVisible();
   await expect(page.getByText("Evidence View")).toBeVisible();
   await expect(page.getByText("Source").first()).toBeVisible();
+});
+
+test("validation workflow supports save dismiss ratings and reasons", async ({ page }) => {
+  await page.goto("/opportunities/synthetic-opportunity-001");
+
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("Feedback captured: saved.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Dismiss" }).click();
+  await expect(page.getByText("Feedback captured: dismissed.")).toBeVisible();
+
+  await page.getByRole("group", { name: "Usefulness" }).getByRole("button", { name: "5" }).click();
+  await page.getByRole("group", { name: "Evidence quality" }).getByRole("button", { name: "4" }).click();
+  await page.getByRole("group", { name: "Ranking quality" }).getByRole("button", { name: "3" }).click();
+  await page.getByLabel("Poor ranking").check();
+  await page.getByRole("button", { name: "Submit feedback" }).click();
+
+  await expect(page.getByText("Feedback captured: reason-provided.")).toBeVisible();
+  await expect(page.getByText("Reason Provided")).toBeVisible();
 });
 
 test("ranking and evidence views expose safe fixture content", async ({ page }) => {

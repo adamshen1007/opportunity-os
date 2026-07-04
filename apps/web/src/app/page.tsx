@@ -4,9 +4,15 @@ import { safeDashboardErrorMessage } from "../components/states/state-copy";
 import { Panel } from "../components/ui";
 import { DashboardToolbar } from "../features/dashboard/dashboard-toolbar";
 import { EvidenceView } from "../features/evidence/evidence-view";
+import { ValidationSessionSummary } from "../features/feedback";
 import { OpportunityList } from "../features/opportunities/opportunity-list";
 import { RankingView } from "../features/rankings/ranking-view";
-import { dashboardEvidenceFixtures, dashboardOpportunityFixtures, dashboardRankingFixtures } from "../testing";
+import {
+  dashboardEvidenceFixtures,
+  dashboardFeedbackFixtures,
+  dashboardOpportunityFixtures,
+  dashboardRankingFixtures
+} from "../testing";
 
 export default function DashboardHomePage() {
   const currentRanking = dashboardRankingFixtures[0];
@@ -18,6 +24,7 @@ export default function DashboardHomePage() {
     >
       <DashboardToolbar />
       <section className="dashboard-grid" aria-label="Dashboard summary">
+        <ValidationSessionSummary opportunities={dashboardOpportunityFixtures} feedback={dashboardFeedbackFixtures} />
         <Panel title="Opportunity List">
           <OpportunityList opportunities={dashboardOpportunityFixtures} />
         </Panel>

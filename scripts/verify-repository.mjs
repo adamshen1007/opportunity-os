@@ -114,8 +114,10 @@ const phaseTwentyThreeAliases = new Set(["phase-2-milestone-23", "candidate-oppo
 const phaseTwentyFourAliases = new Set(["phase-2-milestone-24", "opportunity-generation-workflow", "opportunity-generation-foundation"]);
 const phaseTwentyFiveAliases = new Set(["phase-3-milestone-25", "opportunity-ranking-engine", "opportunity-ranking-foundation"]);
 const phaseTwentySixAliases = new Set(["phase-3-milestone-26", "rest-api", "api-foundation"]);
-const phaseTwentySevenAliases = new Set(["review", "phase-3-milestone-27", "dashboard-mvp", "web-dashboard"]);
-const isPhaseTwentySeven = phaseTwentySevenAliases.has(phase);
+const phaseTwentySevenAliases = new Set(["phase-3-milestone-27", "dashboard-mvp", "web-dashboard"]);
+const phaseTwentyEightAliases = new Set(["review", "phase-3-milestone-28", "product-validation-loop", "product-validation-foundation"]);
+const isPhaseTwentyEight = phaseTwentyEightAliases.has(phase);
+const isPhaseTwentySeven = phaseTwentySevenAliases.has(phase) || isPhaseTwentyEight;
 const isPhaseTwentySix = phaseTwentySixAliases.has(phase) || isPhaseTwentySeven;
 const isPhaseTwentyFive = phaseTwentyFiveAliases.has(phase) || isPhaseTwentySix || isPhaseTwentySeven;
 const isPhaseTwentyFour = phaseTwentyFourAliases.has(phase) || isPhaseTwentyFive;
@@ -168,6 +170,7 @@ const allowedPhaseTwentyFourImplementationRoots = [...allowedPhaseTwentyThreeImp
 const allowedPhaseTwentyFiveImplementationRoots = [...allowedPhaseTwentyFourImplementationRoots, "packages/opportunity-ranking"];
 const allowedPhaseTwentySixImplementationRoots = [...allowedPhaseTwentyFiveImplementationRoots, "apps/api"];
 const allowedPhaseTwentySevenImplementationRoots = [...allowedPhaseTwentySixImplementationRoots, "apps/web"];
+const allowedPhaseTwentyEightImplementationRoots = allowedPhaseTwentySevenImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1477,6 +1480,12 @@ const requiredDashboardFoundationFiles = [
   "apps/web/src/__tests__/dashboard-security.test.ts",
   "apps/web/src/__tests__/dashboard-boundary.test.ts",
   "apps/web/src/__tests__/dashboard-route-stability.test.ts"
+];
+const requiredProductValidationFoundationFiles = [
+  "apps/api/src/feedback/index.ts",
+  "apps/api/src/feedback/feedback-reason-category.ts",
+  "apps/api/src/feedback/feedback-rating.ts",
+  "apps/api/src/feedback/feedback-status.ts"
 ];
 const sharedFoundationPackageRules = {
   "packages/config": {
@@ -4129,6 +4138,88 @@ function assertDashboardFoundationPolicy() {
   }
 }
 
+function assertProductValidationFoundationPolicy() {
+  assertDashboardFoundationPolicy();
+
+  for (const file of requiredProductValidationFoundationFiles) {
+    if (!exists(file)) {
+      fail(`Product Validation Loop foundation is missing required file: ${file}`);
+    }
+  }
+
+  const apiIndexPath = "apps/api/src/index.ts";
+  if (exists(apiIndexPath)) {
+    const apiIndex = read(apiIndexPath);
+    if (!apiIndex.includes("./feedback/index.js")) {
+      fail(`${apiIndexPath} must export the Product Validation Loop feedback boundary from ./feedback/index.js`);
+    }
+  }
+
+  const productValidationDocs = [
+    ["README.md", ["Phase 3 Milestone 28", "Product Validation Loop", "deterministic product validation"]],
+    ["CONTRIBUTING.md", ["Phase 3 Milestone 28", "Product Validation Loop", "deterministic product validation"]],
+    ["apps/api/README.md", ["Phase 3 Milestone 28", "Product Validation Loop", "feedback vocabulary"]],
+    [
+      "docs/04_IMPLEMENTATION/04-001_ROADMAP.md",
+      ["Phase 3 Milestone 28", "Product Validation Loop", "deterministic product validation"]
+    ],
+    [
+      "docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md",
+      ["Phase 3 Milestone 28", "Product Validation Loop", "deterministic product validation"]
+    ]
+  ];
+
+  for (const [file, requiredStatements] of productValidationDocs) {
+    if (!exists(file)) {
+      fail(`Product Validation Loop documentation is missing required file: ${file}`);
+      continue;
+    }
+
+    const content = read(file);
+    for (const statement of requiredStatements) {
+      if (!content.includes(statement)) {
+        fail(`${file} must document the Phase 3 Milestone 28 Product Validation Loop boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const prohibitedTerms = [
+    ["production persistence", /\bproduction persistence\b|\bPrismaClient\b|\bmigration\b|\bwriteToDatabase\b|\bpersist\w+/iu],
+    ["billing", /\bbilling\b|\bStripe\b/iu],
+    ["analytics platform", /\banalytics platform\b|\bSegment\b|\bPostHog\b|\bAmplitude\b|\bMixpanel\b/iu],
+    ["notifications", /\bnotification\b|\bSendGrid\b|\bTwilio\b/iu],
+    ["email integration", /\bemail integration\b|\bemail provider\b|\bResend\b|\bMailchimp\b/iu],
+    ["CRM integration", /\bCRM\b|\bSalesforce\b|\bHubSpot\b/iu],
+    ["scheduler", /\bscheduler\b|\bschedule\w+/iu],
+    ["worker", /\bworker\b|\bWorkerProcess\b/iu],
+    ["mobile app", /\bReact Native\b|\bExpo\b|\bmobile app\b/iu],
+    ["complex admin console", /\bcomplex admin console\b|\badmin console\b/iu]
+  ];
+
+  for (const appRoot of ["apps/api", "apps/web"]) {
+    for (const file of listFiles(appRoot)) {
+      if (isReadmePlaceholder(file)) continue;
+      if (
+        file.startsWith(`${appRoot}/dist/`) ||
+        file.startsWith(`${appRoot}/node_modules/`) ||
+        file.startsWith(`${appRoot}/.turbo/`) ||
+        file.startsWith(`${appRoot}/.next/`) ||
+        file.startsWith(`${appRoot}/test-results/`) ||
+        file.startsWith(`${appRoot}/playwright-report/`)
+      ) {
+        continue;
+      }
+
+      const content = read(file);
+      for (const [label, pattern] of prohibitedTerms) {
+        if (pattern.test(content)) {
+          fail(`Product Validation Loop foundation must not introduce ${label}; found prohibited reference in ${file}`);
+        }
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4165,7 +4256,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseTwentySeven
+  const allowedImplementationRoots = isPhaseTwentyEight
+    ? allowedPhaseTwentyEightImplementationRoots
+    : isPhaseTwentySeven
     ? allowedPhaseTwentySevenImplementationRoots
     : isPhaseTwentySix
     ? allowedPhaseTwentySixImplementationRoots
@@ -4226,7 +4319,7 @@ for (const placeholderRoot of placeholderOnlyRoots) {
     if ((isPhaseOne || isPhaseTwo) && isAllowedPhaseImplementationFile(file)) continue;
 
     const policyName = isPhaseOne || isPhaseTwo
-      ? `Phase ${isPhaseTwo ? (isPhaseTwentySeven ? "3 Milestone 27" : isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentySeven ? allowedPhaseTwentySevenImplementationRoots : isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
+      ? `Phase ${isPhaseTwo ? (isPhaseTwentyEight ? "3 Milestone 28" : isPhaseTwentySeven ? "3 Milestone 27" : isPhaseTwentySix ? "3 Milestone 26" : isPhaseTwentyFive ? "3 Milestone 25" : isPhaseTwentyFour ? "2 Milestone 24" : isPhaseTwentyThree ? "2 Milestone 23" : isPhaseTwentyTwo ? "2 Milestone 22" : isPhaseTwentyOne ? "2 Milestone 21" : isPhaseTwenty ? "2 Milestone 20" : isPhaseNineteen ? "2 Milestone 19" : isPhaseEighteen ? "2 Milestone 18" : isPhaseSeventeen ? "2 Milestone 17" : isPhaseSixteen ? "2 Milestone 16" : isPhaseFifteen ? "2 Milestone 15" : isPhaseFourteen ? "2 Milestone 14" : isPhaseThirteen ? "2 Milestone 13" : isPhaseTwelve ? "2 Milestone 12" : isPhaseEleven ? "2 Milestone 11" : isPhaseTen ? "2 Milestone 10" : isPhaseNine ? "1 Milestone 9" : isPhaseEight ? "1 Milestone 8" : isPhaseSeven ? "1 Milestone 7" : isPhaseSix ? "1 Milestone 6" : isPhaseFive ? "1 Milestone 5" : isPhaseFour ? "1 Milestone 4" : isPhaseThree ? "1 Milestone 3" : "1 Milestone 2") : "1 Milestone 1"} permits implementation files only inside ${JSON.stringify(isPhaseTwentyEight ? allowedPhaseTwentyEightImplementationRoots : isPhaseTwentySeven ? allowedPhaseTwentySevenImplementationRoots : isPhaseTwentySix ? allowedPhaseTwentySixImplementationRoots : isPhaseTwentyFive ? allowedPhaseTwentyFiveImplementationRoots : isPhaseTwentyFour ? allowedPhaseTwentyFourImplementationRoots : isPhaseTwentyThree ? allowedPhaseTwentyThreeImplementationRoots : isPhaseTwentyTwo ? allowedPhaseTwentyTwoImplementationRoots : isPhaseTwentyOne ? allowedPhaseTwentyOneImplementationRoots : isPhaseTwenty ? allowedPhaseTwentyImplementationRoots : isPhaseNineteen ? allowedPhaseNineteenImplementationRoots : isPhaseEighteen ? allowedPhaseEighteenImplementationRoots : isPhaseSeventeen ? allowedPhaseSeventeenImplementationRoots : isPhaseSixteen ? allowedPhaseSixteenImplementationRoots : isPhaseFifteen ? allowedPhaseFifteenImplementationRoots : isPhaseFourteen ? allowedPhaseFourteenImplementationRoots : isPhaseThirteen ? allowedPhaseThirteenImplementationRoots : isPhaseTwelve ? allowedPhaseTwelveImplementationRoots : isPhaseEleven ? allowedPhaseElevenImplementationRoots : isPhaseTen ? allowedPhaseTenImplementationRoots : isPhaseNine ? allowedPhaseNineImplementationRoots : isPhaseEight ? allowedPhaseEightImplementationRoots : isPhaseSeven ? allowedPhaseSevenImplementationRoots : isPhaseSix ? allowedPhaseSixImplementationRoots : isPhaseFive ? allowedPhaseFiveImplementationRoots : isPhaseFour ? allowedPhaseFourImplementationRoots : isPhaseTwo ? allowedPhaseTwoImplementationRoots : allowedPhaseOneImplementationRoots)}`
       : `Phase 0 placeholder directory "${placeholderRoot}/" may only contain README.md files`;
     fail(`${policyName}; found unauthorized file: ${file}`);
   }
@@ -4334,6 +4427,10 @@ if (isPhaseTwentySix) {
 
 if (isPhaseTwentySeven) {
   assertDashboardFoundationPolicy();
+}
+
+if (isPhaseTwentyEight) {
+  assertProductValidationFoundationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

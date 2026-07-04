@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { safeDashboardErrorMessage } from "../components/states/state-copy";
 import { dashboardNavItems, dashboardRoutes } from "../navigation";
-import { dashboardEvidenceFixtures, dashboardOpportunityFixtures, dashboardRankingFixtures } from "../testing";
+import {
+  dashboardEvidenceFixtures,
+  dashboardFeedbackFixtures,
+  dashboardOpportunityFixtures,
+  dashboardRankingFixtures
+} from "../testing";
 
 describe("Dashboard MVP foundation", () => {
   it("defines stable navigation from the route map", () => {
@@ -18,11 +23,13 @@ describe("Dashboard MVP foundation", () => {
   it("uses deterministic synthetic fixtures without secret-like values", () => {
     const serializedFixtures = JSON.stringify({
       evidence: dashboardEvidenceFixtures,
+      feedback: dashboardFeedbackFixtures,
       opportunities: dashboardOpportunityFixtures,
       rankings: dashboardRankingFixtures
     });
 
     expect(serializedFixtures).toContain("synthetic-opportunity-001");
+    expect(serializedFixtures).toContain("feedback-synthetic-001");
     expect(serializedFixtures).not.toMatch(/api[_-]?key|token|password|secret|credential|authorization/iu);
   });
 
