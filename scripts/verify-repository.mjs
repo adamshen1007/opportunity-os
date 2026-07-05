@@ -1342,6 +1342,16 @@ const requiredRedditLiveProviderTransportExports = [
   "mapRedditLiveListingResponse",
   "RedditLivePublicPostsResult"
 ];
+const approvedRedditLiveProviderTransportSourceFiles = [
+  "packages/connectors-reddit/src/provider/index.ts",
+  "packages/connectors-reddit/src/provider/live-api-client.ts",
+  "packages/connectors-reddit/src/provider/live-config.ts",
+  "packages/connectors-reddit/src/provider/live-dev-fetch.ts",
+  "packages/connectors-reddit/src/provider/live-execution.ts",
+  "packages/connectors-reddit/src/provider/live-http-transport.ts",
+  "packages/connectors-reddit/src/provider/live-response-mapper.ts",
+  "packages/connectors-reddit/src/provider/oauth-client.ts"
+];
 const requiredRawContentFoundationFiles = [
   "packages/raw-content/package.json",
   "packages/raw-content/README.md",
@@ -2864,6 +2874,8 @@ function assertRedditConnectorFoundationPolicy() {
     }
   }
 
+  const hasApprovedRedditLiveProviderTransport = requiredRedditLiveProviderTransportFiles.every((file) => exists(file));
+
   for (const file of listFiles("packages/connectors-reddit")) {
     if (isReadmePlaceholder(file)) continue;
     if (
@@ -2871,17 +2883,7 @@ function assertRedditConnectorFoundationPolicy() {
       file.startsWith("packages/connectors-reddit/node_modules/") ||
       file.startsWith("packages/connectors-reddit/.turbo/") ||
       file.includes("/__tests__/") ||
-      (isPhaseThirtyThree &&
-        [
-          "packages/connectors-reddit/src/provider/index.ts",
-          "packages/connectors-reddit/src/provider/live-api-client.ts",
-          "packages/connectors-reddit/src/provider/live-config.ts",
-          "packages/connectors-reddit/src/provider/live-dev-fetch.ts",
-          "packages/connectors-reddit/src/provider/live-execution.ts",
-          "packages/connectors-reddit/src/provider/live-http-transport.ts",
-          "packages/connectors-reddit/src/provider/live-response-mapper.ts",
-          "packages/connectors-reddit/src/provider/oauth-client.ts"
-        ].includes(file))
+      (hasApprovedRedditLiveProviderTransport && approvedRedditLiveProviderTransportSourceFiles.includes(file))
     ) {
       continue;
     }
