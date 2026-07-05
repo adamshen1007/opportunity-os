@@ -2,6 +2,16 @@
 
 `apps/web` owns the Phase 3 Milestone 27 Dashboard MVP application and the Phase 3 Milestone 28 design-partner validation experience for Opportunity OS.
 
+Phase 4 Milestone 31 connects the dashboard to the local API runtime for first-time local product walkthroughs. Dashboard pages use `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL` when provided and otherwise default to `http://127.0.0.1:4000`. If the API terminal is not running, the dashboard falls back to deterministic fixtures so the UI remains inspectable.
+
+Run the dashboard:
+
+```sh
+pnpm --filter @opportunity-os/web dev
+```
+
+The dashboard listens on `http://127.0.0.1:3000` by default.
+
 Milestone 27 creates the first customer-facing application. The app uses Next.js App Router, React 19, strict TypeScript, and the REST API application boundary created in Phase 3 Milestone 26.
 
 Milestone 28 layers deterministic product validation on top of the Dashboard MVP. The dashboard exposes save, dismiss, usefulness rating, evidence quality rating, ranking quality rating, feedback reason categories, validation summary, search/filter improvements, demo-ready states, and browser-tested design-partner flows. It uses synthetic fixtures and the web API integration layer; it does not add production storage behavior or external services.
@@ -100,4 +110,4 @@ Playwright is configured for deterministic dashboard coverage across desktop and
 
 ## Non-goals
 
-Milestone 27, Milestone 28, and Milestone 29 dashboard work must not introduce production identity provider wiring, commercial account systems, measurement platforms, production account management, deployment behavior beyond the documented readiness gate, storage changes outside approved beta schema work, recommendation engines, mobile apps, runtime jobs, provider SDKs, complex admin consoles, external outreach systems, tenant systems, or unrelated backend changes.
+Milestone 27, Milestone 28, Milestone 29, and Milestone 31 dashboard work must not introduce production identity provider wiring, commercial account systems, measurement platforms, production account management, deployment behavior beyond the documented readiness gate, storage changes outside approved beta schema work, recommendation engines, mobile apps, runtime jobs, provider SDKs, complex admin consoles, external outreach systems, tenant systems, live provider ingestion, AI workflows, or unrelated backend changes.

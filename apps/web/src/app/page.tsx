@@ -8,6 +8,7 @@ import { EvidenceView } from "../features/evidence/evidence-view";
 import { ValidationSessionSummary } from "../features/feedback";
 import { OpportunityList } from "../features/opportunities/opportunity-list";
 import { RankingView } from "../features/rankings/ranking-view";
+import { loadDashboardLocalData } from "../api/local-data";
 import {
   dashboardEvidenceFixtures,
   dashboardBetaInviteWorkflowFixture,
@@ -17,8 +18,12 @@ import {
   dashboardRankingFixtures
 } from "../testing";
 
-export default function DashboardHomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function DashboardHomePage() {
+  const dashboardData = await loadDashboardLocalData();
   const currentRanking = dashboardRankingFixtures[0];
+  const opportunities = dashboardData.opportunities;
 
   return (
     <AppShell
@@ -28,12 +33,12 @@ export default function DashboardHomePage() {
       <DashboardToolbar />
       <section className="dashboard-grid" aria-label="Dashboard summary">
         <BetaAccessPanel session={dashboardBetaSessionFixture} invite={dashboardBetaInviteWorkflowFixture} />
-        <ValidationSessionSummary opportunities={dashboardOpportunityFixtures} feedback={dashboardFeedbackFixtures} />
+        <ValidationSessionSummary opportunities={opportunities} feedback={dashboardFeedbackFixtures} />
         <Panel title="Opportunity List">
-          <OpportunityList opportunities={dashboardOpportunityFixtures} />
+          <OpportunityList opportunities={opportunities} />
         </Panel>
         {currentRanking ? (
-          <RankingView ranking={currentRanking} opportunities={dashboardOpportunityFixtures} />
+          <RankingView ranking={currentRanking} opportunities={opportunities} />
         ) : (
           <EmptyState title="No ranking available" message="Run ranking from the API before reviewing ranked output." />
         )}

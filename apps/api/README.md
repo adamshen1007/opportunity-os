@@ -2,6 +2,23 @@
 
 `apps/api` owns the Phase 3 Milestone 26 REST API application boundary for Opportunity OS.
 
+Phase 4 Milestone 31 adds the local product runtime HTTP adapter. The adapter lives in `apps/api/src/server.ts`, uses Node's built-in HTTP server, wraps the existing route handlers, and keeps local behavior deterministic by using the existing synthetic opportunity/ranking ports and in-memory feedback, invite, session, and bug-report stores.
+
+Run the local API after building:
+
+```sh
+pnpm --filter @opportunity-os/api build
+pnpm --filter @opportunity-os/api start
+```
+
+For development, use:
+
+```sh
+pnpm --filter @opportunity-os/api dev
+```
+
+The API listens on `http://127.0.0.1:4000` by default. Set `PORT` only when you intentionally need another API port.
+
 Milestone 26 establishes the strict TypeScript API app with explicit bootstrap, routing, OpenAPI contracts, health endpoint, opportunity endpoints, ranking endpoints, pagination, filtering, request validation, error mapping, authentication and authorization contracts, API versioning, deterministic fixtures, integration tests, security tests, contract stability tests, dependency-boundary tests, package metadata, and repository verification policy.
 
 Allowed work in this milestone must remain focused on the REST API surface described by the Engineering Kit:
@@ -76,4 +93,4 @@ Milestone 26 is complete when:
 
 ## Non-goals
 
-Milestone 26 must not introduce frontend implementation, production account management, measurement platforms, production identity providers, runtime jobs, provider SDKs, or unrelated product workflows.
+Milestone 26 and Milestone 31 must not introduce frontend implementation outside `apps/web`, production account management, measurement platforms, production identity providers, runtime jobs, provider SDKs, live provider ingestion, AI workflows, schedulers, workers, or unrelated product workflows.

@@ -1,6 +1,6 @@
 # Opportunity OS
 
-Opportunity OS is currently an Engineering Kit, staged platform foundation, Product Behavior foundation, REST API foundation, Dashboard MVP, completed Product Validation Loop, completed Phase 3 Milestone 29 Private Beta deployment readiness foundation, and active Phase 3 Milestone 30 Beta Operations foundation. The repository contains shared foundation packages, connector foundation packages, Reddit provider transport contracts, deterministic Reddit runtime support, Raw Content Pipeline Foundation contracts, Normalization Pipeline Foundation contracts, Embedding Foundation contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine Foundation contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the completed `apps/api` REST API application boundary, the completed `apps/web` Dashboard MVP application boundary, deterministic product validation feedback API behavior, dashboard feedback interactions, demo-ready validation states, design-partner walkthrough documentation, Private Beta deployment readiness configuration, and Beta Operations documentation policy. Milestone 30 is operations-only: it prepares verification, runbooks, checklists, and support documentation for real design-partner usage without adding product features. Slice B documents deployment verification, smoke testing, rollback verification, monitoring verification, health verification, and log verification in `docs/04_IMPLEMENTATION/04-008_BETA_OPERATIONS_VERIFICATION.md`. Slice C documents the operator handbook, beta user handbook, invite documentation, onboarding workflow, and support guide in `docs/04_IMPLEMENTATION/04-009_BETA_OPERATOR_HANDBOOK.md`, `docs/04_IMPLEMENTATION/04-010_BETA_USER_HANDBOOK.md`, and `docs/04_IMPLEMENTATION/04-011_BETA_SUPPORT_GUIDE.md`. Slice D documents bug triage, feature request review, feedback review, production readiness, release, launch, and troubleshooting in `docs/04_IMPLEMENTATION/04-012_BETA_OPERATIONAL_WORKFLOWS.md` through `docs/04_IMPLEMENTATION/04-016_BETA_TROUBLESHOOTING_GUIDE.md`. It intentionally does not contain recommendation engines, AI workflows, production persistence beyond the scoped Private Beta schema, schedulers, workers, provider AI calls, vector databases, billing, user accounts beyond invite-only beta access, production authentication providers, ML behavior, LLM calls, analytics platforms, notifications, email integrations, CRM integrations, mobile apps, a complex admin console, payments, subscriptions, enterprise features, or multi-tenancy.
+Opportunity OS is currently an Engineering Kit, staged platform foundation, Product Behavior foundation, REST API foundation, Dashboard MVP, completed Product Validation Loop, completed Phase 3 Milestone 29 Private Beta deployment readiness foundation, completed Phase 3 Milestone 30 Beta Operations foundation, and active Phase 4 Milestone 31 Local Product Runtime. The repository contains shared foundation packages, connector foundation packages, Reddit provider transport contracts, deterministic Reddit runtime support, Raw Content Pipeline Foundation contracts, Normalization Pipeline Foundation contracts, Embedding Foundation contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine Foundation contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the completed `apps/api` REST API application boundary, the completed `apps/web` Dashboard MVP application boundary, deterministic product validation feedback API behavior, dashboard feedback interactions, demo-ready validation states, design-partner walkthrough documentation, Private Beta deployment readiness configuration, Beta Operations documentation policy, and a local HTTP runtime for walking the dashboard against the API. Milestone 31 makes the product runnable locally without adding live provider ingestion, AI workflows, schedulers, workers, production persistence expansion, billing, analytics platforms, notifications, CRM integrations, recommendation engines, or mobile apps.
 
 Engineering Kit v3.0 is the canonical reference for future Codex work. It now reflects completed implementation through Phase 3 Milestone 29 and active Phase 3 Milestone 30 Beta Operations work. Phase 3 begins deterministic product behavior; Milestone 30 is operations-only and prepares the real-world beta operating model through production deployment verification, deployment smoke tests, rollback verification, monitoring verification, health verification, log verification, invite process verification, onboarding verification, bug triage, feature request review, feedback review, beta handbook, operator handbook, troubleshooting guidance, and repository policy before later scoped work changes product capabilities.
 
@@ -68,6 +68,48 @@ pnpm --filter @opportunity-os/web test:e2e
 During Phase 3 Beta Operations work, these commands verify repository structure, document numbering, README coverage, cross references, package boundaries, logging, event, database, domain, application, container, infrastructure composition, connector SDK foundation policy, connector runtime foundation policy, connector host foundation policy, Reddit connector foundation policy, Reddit runtime policy, Reddit provider transport boundary policy, Raw Content Pipeline Foundation policy, Normalization Pipeline Foundation policy, Embedding Foundation policy, LLM Analysis Foundation policy, Structured Analysis Foundation policy, Opportunity Engine Foundation policy, Opportunity Pipeline Foundation policy, Candidate Opportunity Engine policy, Opportunity Generation Workflow policy, Opportunity Ranking Engine policy, REST API foundation policy, Dashboard MVP foundation policy, Product Validation Loop policy, Private Beta deployment readiness policy, Beta Operations policy, and package-level tests for `apps/api`, `apps/web`, `packages/config`, `packages/types`, `packages/errors`, `packages/utils`, `packages/shared`, `packages/events`, `packages/database`, `packages/domain`, `packages/application`, `packages/container`, `packages/infrastructure`, `packages/connectors`, `packages/connector-runtime`, `packages/connector-host`, `packages/connectors-reddit`, `packages/raw-content`, `packages/normalization`, `packages/embeddings`, `packages/llm-analysis`, `packages/analysis`, `packages/opportunity-engine`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, and `packages/opportunity-ranking`.
 
 Phase 3 Milestone 30: Beta Operations has an explicit `phase-3-milestone-30` verification gate. Slice A establishes the Beta Operations boundary and repository verification support. Slice B documents production deployment verification, deployment smoke testing, rollback verification, monitoring verification, health verification, and log verification in `docs/04_IMPLEMENTATION/04-008_BETA_OPERATIONS_VERIFICATION.md`. Slice C documents the operator handbook, beta user handbook, invite documentation, onboarding workflow, and support guide in `docs/04_IMPLEMENTATION/04-009_BETA_OPERATOR_HANDBOOK.md`, `docs/04_IMPLEMENTATION/04-010_BETA_USER_HANDBOOK.md`, and `docs/04_IMPLEMENTATION/04-011_BETA_SUPPORT_GUIDE.md`. Slice D documents bug triage, feature requests, feedback review, production readiness checklist, release checklist, launch checklist, and troubleshooting guide in `docs/04_IMPLEMENTATION/04-012_BETA_OPERATIONAL_WORKFLOWS.md`, `docs/04_IMPLEMENTATION/04-013_PRODUCTION_READINESS_CHECKLIST.md`, `docs/04_IMPLEMENTATION/04-014_RELEASE_CHECKLIST.md`, `docs/04_IMPLEMENTATION/04-015_LAUNCH_CHECKLIST.md`, and `docs/04_IMPLEMENTATION/04-016_BETA_TROUBLESHOOTING_GUIDE.md`. It is operations-only and must not introduce new backend features, AI features, payments, CRM integrations, notifications, analytics platforms, mobile apps, schedulers, workers, new APIs, new dashboard features, new persistence features, or new authentication features.
+
+Phase 4 Milestone 31: Local Product Runtime has an explicit `phase-4-milestone-31` verification gate. It adds a dependency-free local HTTP server for `apps/api`, local API and dashboard dev commands, a combined workspace dev command, and a dashboard API loader that uses `http://127.0.0.1:4000` by default with fixture fallback when the API terminal is not running.
+
+## Local Product Runtime
+
+Install dependencies:
+
+```sh
+pnpm install
+```
+
+Build the workspace once:
+
+```sh
+pnpm build
+```
+
+Start the API in one terminal:
+
+```sh
+pnpm dev:api
+```
+
+Start the dashboard in a second terminal:
+
+```sh
+pnpm dev:web
+```
+
+Or start both from one terminal:
+
+```sh
+pnpm dev
+```
+
+Expected local URLs:
+
+- API health: `http://127.0.0.1:4000/health`
+- API opportunities: `http://127.0.0.1:4000/opportunities`
+- Dashboard: `http://127.0.0.1:3000`
+
+The API terminal and dashboard terminal must remain running while using the local product runtime. The dashboard reads `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL` when set and otherwise uses `http://127.0.0.1:4000`.
 
 Phase 3 Milestone 29: Private Beta has an explicit `phase-3-milestone-29` verification gate. Slice A documents Private Beta boundaries, adds deployment architecture, adds deployment readiness configuration in `.github/workflows/deploy.yml`, and keeps the work limited to production readiness policy. Slice B adds deployment workflow hardening, `config/private-beta.env.example`, secrets management, health monitoring, operational logging, monitoring strategy, and backup strategy documentation. Slice C adds invite-only authentication contracts, invite validation, session management, and minimal persistence schema for `PrivateBetaInvite` and `PrivateBetaSession`. Slice D adds the deterministic protected dashboard workflow, onboarding state, feedback persistence schema, save/dismiss persistence path, bug reporting, and invite workflow UI/API coverage. Slice E adds config binding documentation, clear deployment instructions, rollback guidance, monitoring guidance, beta operations documentation, the operational runbook, and the beta checklist. It must not introduce billing, multi-tenancy, production identity providers, enterprise auth, payments, subscriptions, enterprise features, notifications, CRM integrations, email, production user features beyond invite-only access, business logic changes, or any unscoped Private Beta behavior.
 

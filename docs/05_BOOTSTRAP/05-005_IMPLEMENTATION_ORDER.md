@@ -57,10 +57,11 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 3 M27 - Dashboard MVP | Complete | `apps/web` |
 | Phase 3 M28 - Product Validation Loop | Complete | `apps/api`, `apps/web` |
 | Phase 3 M29 - Private Beta | Complete | `apps/api`, `apps/web`, deployment documentation |
+| Phase 3 M30 - Beta Operations | Complete | operations documentation, repository verification |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, completed Phase 3 Milestone 29 Private Beta deployment readiness, and active Phase 3 Milestone 30 Beta Operations policy.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, completed Phase 3 Milestone 29 Private Beta deployment readiness, completed Phase 3 Milestone 30 Beta Operations policy, and active Phase 4 Milestone 31 Local Product Runtime.
 
 The repository does not yet contain:
 
@@ -85,7 +86,36 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 3 M30 - Beta Operations | Active | operations documentation, repository verification |
+| Phase 4 M31 - Local Product Runtime | Active | `apps/api`, `apps/web`, repository scripts |
+
+## Phase 4 M31 Boundary
+
+Milestone 31 makes the product runnable locally for first-time workflow walkthroughs.
+
+Allowed:
+
+- dependency-free local HTTP server for `apps/api`
+- local API `dev` and `start` commands
+- dashboard API base URL configuration
+- combined workspace `pnpm dev` command
+- dashboard fixture fallback when the API is unavailable
+- local runtime documentation and smoke tests
+
+Not allowed:
+
+- live Reddit ingestion
+- AI workflows
+- production persistence expansion
+- schedulers
+- workers
+- billing
+- analytics platforms
+- notifications
+- CRM integrations
+- recommendation engines
+- mobile apps
+
+Milestone 31 is complete only when `node scripts/verify-repository.mjs --phase phase-4-milestone-31`, lint, build, and tests pass, and a fresh clone can start API and dashboard locally with documented commands.
 
 ## Phase 2 M15 Boundary
 

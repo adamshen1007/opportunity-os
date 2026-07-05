@@ -118,9 +118,11 @@ const phaseTwentySevenAliases = new Set(["phase-3-milestone-27", "dashboard-mvp"
 const phaseTwentyEightAliases = new Set(["phase-3-milestone-28", "product-validation-loop", "product-validation-foundation"]);
 const phaseTwentyNineAliases = new Set(["phase-3-milestone-29", "private-beta", "private-beta-foundation"]);
 const phaseThirtyAliases = new Set(["review", "phase-3-milestone-30", "beta-operations", "beta-operations-foundation"]);
+const phaseThirtyOneAliases = new Set(["phase-4-milestone-31", "local-product-runtime", "local-runtime"]);
+const isPhaseThirtyOne = phaseThirtyOneAliases.has(phase);
 const isPhaseThirty = phaseThirtyAliases.has(phase);
 const isPhaseTwentyNine = phaseTwentyNineAliases.has(phase) || isPhaseThirty;
-const isPhaseTwentyEight = phaseTwentyEightAliases.has(phase) || isPhaseTwentyNine;
+const isPhaseTwentyEight = phaseTwentyEightAliases.has(phase) || isPhaseTwentyNine || isPhaseThirtyOne;
 const isPhaseTwentySeven = phaseTwentySevenAliases.has(phase) || isPhaseTwentyEight;
 const isPhaseTwentySix = phaseTwentySixAliases.has(phase) || isPhaseTwentySeven;
 const isPhaseTwentyFive = phaseTwentyFiveAliases.has(phase) || isPhaseTwentySix || isPhaseTwentySeven;
@@ -177,6 +179,7 @@ const allowedPhaseTwentySevenImplementationRoots = [...allowedPhaseTwentySixImpl
 const allowedPhaseTwentyEightImplementationRoots = allowedPhaseTwentySevenImplementationRoots;
 const allowedPhaseTwentyNineImplementationRoots = allowedPhaseTwentyEightImplementationRoots;
 const allowedPhaseThirtyImplementationRoots = allowedPhaseTwentyNineImplementationRoots;
+const allowedPhaseThirtyOneImplementationRoots = allowedPhaseThirtyImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -4564,6 +4567,79 @@ function assertBetaOperationsFoundationPolicy() {
   }
 }
 
+function assertLocalProductRuntimePolicy() {
+  const requiredRuntimeFiles = [
+    "apps/api/src/server.ts",
+    "apps/api/src/__tests__/local-server.test.ts",
+    "apps/web/src/api/local-data.ts",
+    "docs/04_IMPLEMENTATION/04-017_LOCAL_PRODUCT_RUNTIME.md"
+  ];
+
+  for (const file of requiredRuntimeFiles) {
+    if (!exists(file)) {
+      fail(`Local Product Runtime is missing required file: ${file}`);
+    }
+  }
+
+  const rootPackageJson = JSON.parse(read("package.json"));
+  if (rootPackageJson.scripts?.dev !== "turbo run dev --parallel") {
+    fail('Local Product Runtime requires root package.json script "dev" to run "turbo run dev --parallel".');
+  }
+  if (rootPackageJson.scripts?.["dev:api"] !== "pnpm --filter @opportunity-os/api dev") {
+    fail('Local Product Runtime requires root package.json script "dev:api" to run the API dev command.');
+  }
+  if (rootPackageJson.scripts?.["dev:web"] !== "pnpm --filter @opportunity-os/web dev") {
+    fail('Local Product Runtime requires root package.json script "dev:web" to run the dashboard dev command.');
+  }
+
+  const apiPackageJson = JSON.parse(read("apps/api/package.json"));
+  if (apiPackageJson.scripts?.dev !== "pnpm build && node dist/server.js") {
+    fail('Local Product Runtime requires apps/api package.json script "dev" to build and start dist/server.js.');
+  }
+  if (apiPackageJson.scripts?.start !== "node dist/server.js") {
+    fail('Local Product Runtime requires apps/api package.json script "start" to run "node dist/server.js".');
+  }
+
+  const webPackageJson = JSON.parse(read("apps/web/package.json"));
+  if (webPackageJson.scripts?.dev !== "next dev --hostname 127.0.0.1") {
+    fail("Local Product Runtime requires apps/web to keep the existing 127.0.0.1 Next.js dev server command.");
+  }
+
+  const runtimeDoc = exists("docs/04_IMPLEMENTATION/04-017_LOCAL_PRODUCT_RUNTIME.md")
+    ? read("docs/04_IMPLEMENTATION/04-017_LOCAL_PRODUCT_RUNTIME.md")
+    : "";
+  for (const statement of [
+    "pnpm dev:api",
+    "pnpm dev:web",
+    "pnpm dev",
+    "http://127.0.0.1:4000/health",
+    "http://127.0.0.1:3000"
+  ]) {
+    if (!runtimeDoc.includes(statement)) {
+      fail(`Local Product Runtime documentation must include "${statement}".`);
+    }
+  }
+
+  const server = exists("apps/api/src/server.ts") ? read("apps/api/src/server.ts") : "";
+  if (!server.includes("createServer")) {
+    fail("Local Product Runtime API server must use the Node HTTP server boundary.");
+  }
+  if (!server.includes("DEFAULT_PORT = 4000")) {
+    fail("Local Product Runtime API server must default to port 4000.");
+  }
+
+  const localData = exists("apps/web/src/api/local-data.ts") ? read("apps/web/src/api/local-data.ts") : "";
+  if (!localData.includes("NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL")) {
+    fail("Local Product Runtime dashboard data loader must read NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL.");
+  }
+  if (!localData.includes("http://127.0.0.1:4000")) {
+    fail("Local Product Runtime dashboard data loader must default to http://127.0.0.1:4000.");
+  }
+  if (!localData.includes("dashboardOpportunityFixtures")) {
+    fail("Local Product Runtime dashboard data loader must preserve deterministic fixture fallback.");
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4600,8 +4676,10 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseThirty
-    ? allowedPhaseThirtyImplementationRoots
+  const allowedImplementationRoots = isPhaseThirtyOne
+    ? allowedPhaseThirtyOneImplementationRoots
+    : isPhaseThirty
+      ? allowedPhaseThirtyImplementationRoots
     : isPhaseTwentyNine
     ? allowedPhaseTwentyNineImplementationRoots
     : isPhaseTwentyEight
@@ -4787,6 +4865,10 @@ if (isPhaseTwentyNine && !isPhaseThirty) {
 
 if (isPhaseThirty) {
   assertBetaOperationsFoundationPolicy();
+}
+
+if (isPhaseThirtyOne) {
+  assertLocalProductRuntimePolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

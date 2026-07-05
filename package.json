@@ -10,6 +10,9 @@
     "pnpm": "11.7.0"
   },
   "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:api": "pnpm --filter @opportunity-os/api dev",
+    "dev:web": "pnpm --filter @opportunity-os/web dev",
     "repo:check": "node scripts/verify-repository.mjs --phase review",
     "lint": "node scripts/verify-repository.mjs --phase review && turbo run lint",
     "build": "node scripts/verify-repository.mjs --phase review && turbo run build",
