@@ -10,6 +10,7 @@ export interface ApiFeedbackRatingDto {
 export interface ApiFeedbackDto {
   readonly feedbackId: string;
   readonly opportunityId: string;
+  readonly opportunityRecordId?: string;
   readonly status: ApiFeedbackStatus;
   readonly reasonCategories: readonly ApiFeedbackReasonCategory[];
   readonly ratings: readonly ApiFeedbackRatingDto[];
@@ -24,9 +25,9 @@ export interface ApiFeedbackCollectionDto {
 
 export interface ApiCreateFeedbackRequestBody {
   readonly opportunityId?: string;
+  readonly opportunityRecordId?: string;
   readonly status?: ApiFeedbackStatus;
   readonly reasonCategories?: readonly ApiFeedbackReasonCategory[];
   readonly ratings?: readonly ApiFeedbackRatingDto[];
   readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
 }
-

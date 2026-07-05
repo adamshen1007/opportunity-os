@@ -33,6 +33,7 @@ export function createInMemoryFeedbackStore(input: InMemoryFeedbackStoreInput = 
       const item: ApiFeedbackDto = {
         feedbackId: idFactory(),
         opportunityId: createInput.opportunityId,
+        opportunityRecordId: createInput.opportunityRecordId,
         status: createInput.status,
         reasonCategories: [...createInput.reasonCategories],
         ratings: createInput.ratings.map((rating) => ({ ...rating })),
@@ -62,4 +63,3 @@ function cloneFeedback(feedback: ApiFeedbackDto): ApiFeedbackDto {
     safeMetadata: feedback.safeMetadata ? { ...feedback.safeMetadata } : undefined
   };
 }
-

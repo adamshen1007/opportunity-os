@@ -56,3 +56,10 @@ export {
   type DatabaseSeedPlan,
   type DatabaseSeedResult
 } from "./seed.js";
+export {
+  PRODUCT_DATA_MODEL_NAMES,
+  PRODUCT_DATA_SCHEMA_BOUNDARY,
+  PRODUCT_DATA_TABLE_NAMES,
+  type ProductDataModelName,
+  type ProductDataTableName
+} from "./product-data-schema.js";

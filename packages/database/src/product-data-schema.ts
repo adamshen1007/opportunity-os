@@ -1,0 +1,31 @@
+export const PRODUCT_DATA_MODEL_NAMES = [
+  "RawSourceContent",
+  "NormalizedContent",
+  "AnalysisResult",
+  "CandidateOpportunityRecord",
+  "GeneratedOpportunityRecord",
+  "OpportunityRankingResult",
+  "OpportunityRankingItem"
+] as const;
+
+export type ProductDataModelName = (typeof PRODUCT_DATA_MODEL_NAMES)[number];
+
+export const PRODUCT_DATA_TABLE_NAMES = [
+  "raw_source_content",
+  "normalized_content",
+  "analysis_results",
+  "candidate_opportunity_records",
+  "generated_opportunity_records",
+  "opportunity_ranking_results",
+  "opportunity_ranking_items"
+] as const;
+
+export type ProductDataTableName = (typeof PRODUCT_DATA_TABLE_NAMES)[number];
+
+export const PRODUCT_DATA_SCHEMA_BOUNDARY = {
+  ownsDurableMvpWorkflowRecords: true,
+  implementsProviderIngestion: false,
+  implementsAiWorkflowExecution: false,
+  implementsBusinessScoring: false,
+  implementsRepositoryPersistence: false
+} as const;

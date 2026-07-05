@@ -47,4 +47,32 @@ describe("foundation baseline migration", () => {
     expect(migration).not.toMatch(/\bbilling\b/iu);
     expect(migration).not.toMatch(/\bsubscription\b/iu);
   });
+
+  it("adds durable MVP product data tables without provider ingestion or execution tables", () => {
+    const migration = fs.readFileSync(
+      path.join(import.meta.dirname, "../../prisma/migrations/20260705000000_product_data_schema/migration.sql"),
+      "utf8"
+    );
+
+    for (const tableName of [
+      "raw_source_content",
+      "normalized_content",
+      "analysis_results",
+      "candidate_opportunity_records",
+      "generated_opportunity_records",
+      "opportunity_ranking_results",
+      "opportunity_ranking_items"
+    ]) {
+      expect(migration).toMatch(new RegExp(`\\bCREATE\\s+TABLE\\s+"${tableName}"`, "iu"));
+    }
+
+    expect(migration).toContain('"opportunityRecordId" TEXT');
+    expect(migration).toContain('"private_beta_feedback_opportunityRecordId_fkey"');
+    expect(migration).not.toMatch(/\bprovider_payload\b/iu);
+    expect(migration).not.toMatch(/\braw_provider_response\b/iu);
+    expect(migration).not.toMatch(/\bingestion_run\b/iu);
+    expect(migration).not.toMatch(/\bworkflow_run\b/iu);
+    expect(migration).not.toMatch(/\bscheduler\b/iu);
+    expect(migration).not.toMatch(/\bworker\b/iu);
+  });
 });

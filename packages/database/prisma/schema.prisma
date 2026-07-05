@@ -38,18 +38,21 @@ model PrivateBetaSession {
 }
 
 model PrivateBetaFeedback {
-  id               String              @id
-  sessionId        String?
-  opportunityId    String
-  status           String
-  reasonCategories Json
-  ratings          Json
-  safeMetadata     Json?
-  createdAt        DateTime            @default(now())
-  session          PrivateBetaSession? @relation(fields: [sessionId], references: [id])
+  id                  String                      @id
+  sessionId           String?
+  opportunityId       String
+  opportunityRecordId String?
+  status              String
+  reasonCategories    Json
+  ratings             Json
+  safeMetadata        Json?
+  createdAt           DateTime                    @default(now())
+  session             PrivateBetaSession?         @relation(fields: [sessionId], references: [id])
+  opportunityRecord   GeneratedOpportunityRecord? @relation(fields: [opportunityRecordId], references: [id], onDelete: SetNull)
 
   @@index([sessionId])
   @@index([opportunityId])
+  @@index([opportunityRecordId])
   @@map("private_beta_feedback")
 }
 
@@ -66,4 +69,151 @@ model PrivateBetaBugReport {
 
   @@index([sessionId])
   @@map("private_beta_bug_reports")
+}
+
+model RawSourceContent {
+  id                 String              @id
+  sourcePlatform     String
+  sourceId           String
+  sourceType         String
+  sourceUrl          String?
+  title              String?
+  bodyText           String?
+  authorReference    String?
+  communityReference String?
+  contentHash        String?
+  capturedAt         DateTime
+  safeMetadata       Json?
+  provenance         Json?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  normalizedContent  NormalizedContent[]
+
+  @@unique([sourcePlatform, sourceId])
+  @@index([sourcePlatform])
+  @@index([sourceType])
+  @@index([contentHash])
+  @@map("raw_source_content")
+}
+
+model NormalizedContent {
+  id                 String            @id
+  rawSourceContentId String
+  canonicalText      String
+  languageCode       String?
+  contentHash        String?
+  textSegments       Json
+  safeMetadata       Json?
+  provenance         Json?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  rawSourceContent   RawSourceContent  @relation(fields: [rawSourceContentId], references: [id], onDelete: Cascade)
+  analysisResults    AnalysisResult[]
+
+  @@index([rawSourceContentId])
+  @@index([languageCode])
+  @@index([contentHash])
+  @@map("normalized_content")
+}
+
+model AnalysisResult {
+  id                       String                       @id
+  normalizedContentId      String
+  analysisType             String
+  analysisVersion          String
+  status                   String
+  structuredOutput         Json
+  evidence                 Json?
+  confidence               Json?
+  safeMetadata             Json?
+  provenance               Json?
+  createdAt                DateTime                     @default(now())
+  updatedAt                DateTime                     @updatedAt
+  normalizedContent        NormalizedContent            @relation(fields: [normalizedContentId], references: [id], onDelete: Cascade)
+  candidateOpportunities   CandidateOpportunityRecord[]
+
+  @@index([normalizedContentId])
+  @@index([analysisType])
+  @@index([status])
+  @@map("analysis_results")
+}
+
+model CandidateOpportunityRecord {
+  id                     String                       @id
+  analysisResultId       String?
+  title                  String
+  summary                String
+  hypothesis             Json
+  evidence               Json
+  confidence             Json?
+  lifecycleStatus        String
+  safeMetadata           Json?
+  provenance             Json?
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+  analysisResult         AnalysisResult?              @relation(fields: [analysisResultId], references: [id], onDelete: SetNull)
+  generatedOpportunities GeneratedOpportunityRecord[]
+
+  @@index([analysisResultId])
+  @@index([lifecycleStatus])
+  @@map("candidate_opportunity_records")
+}
+
+model GeneratedOpportunityRecord {
+  id                     String                       @id
+  candidateOpportunityId String?
+  title                  String
+  summary                String
+  hypothesis             Json
+  evidence               Json
+  confidence             Json?
+  score                  Json?
+  generationVersion      String
+  lifecycleStatus        String
+  safeMetadata           Json?
+  provenance             Json?
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+  candidateOpportunity   CandidateOpportunityRecord?  @relation(fields: [candidateOpportunityId], references: [id], onDelete: SetNull)
+  rankingItems           OpportunityRankingItem[]
+  feedback               PrivateBetaFeedback[]
+
+  @@index([candidateOpportunityId])
+  @@index([generationVersion])
+  @@index([lifecycleStatus])
+  @@map("generated_opportunity_records")
+}
+
+model OpportunityRankingResult {
+  id             String                   @id
+  rankingVersion String
+  status         String
+  generatedAt    DateTime
+  safeMetadata   Json?
+  provenance     Json?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  items          OpportunityRankingItem[]
+
+  @@index([rankingVersion])
+  @@index([status])
+  @@map("opportunity_ranking_results")
+}
+
+model OpportunityRankingItem {
+  id                     String                    @id
+  rankingResultId        String
+  generatedOpportunityId String
+  rankPosition           Int
+  score                  Json
+  explanation            Json
+  safeMetadata           Json?
+  createdAt              DateTime                  @default(now())
+  rankingResult          OpportunityRankingResult  @relation(fields: [rankingResultId], references: [id], onDelete: Cascade)
+  generatedOpportunity   GeneratedOpportunityRecord @relation(fields: [generatedOpportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([rankingResultId, generatedOpportunityId])
+  @@unique([rankingResultId, rankPosition])
+  @@index([generatedOpportunityId])
+  @@map("opportunity_ranking_items")
 }

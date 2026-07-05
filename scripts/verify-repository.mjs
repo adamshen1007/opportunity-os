@@ -119,7 +119,9 @@ const phaseTwentyEightAliases = new Set(["phase-3-milestone-28", "product-valida
 const phaseTwentyNineAliases = new Set(["phase-3-milestone-29", "private-beta", "private-beta-foundation"]);
 const phaseThirtyAliases = new Set(["review", "phase-3-milestone-30", "beta-operations", "beta-operations-foundation"]);
 const phaseThirtyOneAliases = new Set(["phase-4-milestone-31", "local-product-runtime", "local-runtime"]);
-const isPhaseThirtyOne = phaseThirtyOneAliases.has(phase);
+const phaseThirtyTwoAliases = new Set(["phase-4-milestone-32", "product-data-schema"]);
+const isPhaseThirtyTwo = phaseThirtyTwoAliases.has(phase);
+const isPhaseThirtyOne = phaseThirtyOneAliases.has(phase) || isPhaseThirtyTwo;
 const isPhaseThirty = phaseThirtyAliases.has(phase);
 const isPhaseTwentyNine = phaseTwentyNineAliases.has(phase) || isPhaseThirty;
 const isPhaseTwentyEight = phaseTwentyEightAliases.has(phase) || isPhaseTwentyNine || isPhaseThirtyOne;
@@ -180,6 +182,7 @@ const allowedPhaseTwentyEightImplementationRoots = allowedPhaseTwentySevenImplem
 const allowedPhaseTwentyNineImplementationRoots = allowedPhaseTwentyEightImplementationRoots;
 const allowedPhaseThirtyImplementationRoots = allowedPhaseTwentyNineImplementationRoots;
 const allowedPhaseThirtyOneImplementationRoots = allowedPhaseThirtyImplementationRoots;
+const allowedPhaseThirtyTwoImplementationRoots = allowedPhaseThirtyOneImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1914,7 +1917,22 @@ function exists(relativePath) {
 }
 
 function read(relativePath) {
-  return fs.readFileSync(path.join(root, relativePath), "utf8");
+  const fullPath = path.join(root, relativePath);
+  let lastError;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return fs.readFileSync(fullPath, "utf8");
+    } catch (error) {
+      lastError = error;
+      if (error.code !== "ETIMEDOUT" || attempt === 2) {
+        throw error;
+      }
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+    }
+  }
+
+  throw lastError;
 }
 
 function readTrimmed(relativePath) {
@@ -2067,7 +2085,7 @@ function listPackageJsonFiles(dir = ".") {
 
   const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
   return entries.flatMap((entry) => {
-    if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist") {
+    if (entry.isSymbolicLink() || ignoredTraversalDirectories.has(entry.name)) {
       return [];
     }
 
@@ -4640,6 +4658,90 @@ function assertLocalProductRuntimePolicy() {
   }
 }
 
+function assertProductDataSchemaPolicy() {
+  assertLocalProductRuntimePolicy();
+
+  const schemaPath = "packages/database/prisma/schema.prisma";
+  const migrationPath = "packages/database/prisma/migrations/20260705000000_product_data_schema/migration.sql";
+  const requiredModels = [
+    "RawSourceContent",
+    "NormalizedContent",
+    "AnalysisResult",
+    "CandidateOpportunityRecord",
+    "GeneratedOpportunityRecord",
+    "OpportunityRankingResult",
+    "OpportunityRankingItem"
+  ];
+  const requiredTables = [
+    "raw_source_content",
+    "normalized_content",
+    "analysis_results",
+    "candidate_opportunity_records",
+    "generated_opportunity_records",
+    "opportunity_ranking_results",
+    "opportunity_ranking_items"
+  ];
+
+  if (!exists(schemaPath)) {
+    fail("Product Data Schema requires packages/database/prisma/schema.prisma.");
+    return;
+  }
+
+  const schema = read(schemaPath);
+  for (const modelName of requiredModels) {
+    if (!new RegExp(`\\bmodel\\s+${modelName}\\b`, "u").test(schema)) {
+      fail(`Product Data Schema requires Prisma model ${modelName}.`);
+    }
+  }
+  for (const tableName of requiredTables) {
+    if (!schema.includes(`@@map("${tableName}")`)) {
+      fail(`Product Data Schema requires table mapping ${tableName}.`);
+    }
+  }
+  if (!schema.includes("opportunityRecordId String?")) {
+    fail("Product Data Schema must link private beta feedback to generated opportunity records.");
+  }
+
+  for (const [label, pattern] of [
+    ["provider ingestion tables", /\bmodel\s+(ProviderIngestion|ProviderRun|IngestionRun)\b/u],
+    ["workflow execution tables", /\bmodel\s+WorkflowRun\b/u],
+    ["scheduler tables", /\bmodel\s+SchedulerJob\b/u],
+    ["worker tables", /\bmodel\s+WorkerJob\b/u],
+    ["Prisma repository implementation", /\bPrismaRepository\b/u],
+    ["raw provider payload persistence", /\b(providerPayload|rawProviderResponse)\b/u]
+  ]) {
+    if (pattern.test(schema)) {
+      fail(`Product Data Schema must not introduce ${label}.`);
+    }
+  }
+
+  if (!exists(migrationPath)) {
+    fail(`Product Data Schema requires migration: ${migrationPath}`);
+    return;
+  }
+
+  const migration = read(migrationPath);
+  for (const tableName of requiredTables) {
+    if (!new RegExp(`\\bCREATE\\s+TABLE\\s+"${tableName}"`, "iu").test(migration)) {
+      fail(`Product Data Schema migration must create ${tableName}.`);
+    }
+  }
+  if (!migration.includes('"private_beta_feedback_opportunityRecordId_fkey"')) {
+    fail("Product Data Schema migration must add the feedback to generated opportunity foreign key.");
+  }
+  for (const [label, pattern] of [
+    ["provider ingestion tables", /\b(provider_ingestion|provider_run|ingestion_run)\b/iu],
+    ["workflow execution tables", /\bworkflow_run\b/iu],
+    ["scheduler tables", /\bscheduler\b/iu],
+    ["worker tables", /\bworker\b/iu],
+    ["raw provider payload persistence", /\b(provider_payload|raw_provider_response)\b/iu]
+  ]) {
+    if (pattern.test(migration)) {
+      fail(`Product Data Schema migration must not introduce ${label}.`);
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4676,7 +4778,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseThirtyOne
+  const allowedImplementationRoots = isPhaseThirtyTwo
+    ? allowedPhaseThirtyTwoImplementationRoots
+    : isPhaseThirtyOne
     ? allowedPhaseThirtyOneImplementationRoots
     : isPhaseThirty
       ? allowedPhaseThirtyImplementationRoots
@@ -4755,120 +4859,66 @@ for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageR
   assertSharedFoundationPackageDependencies(packageRoot, packageRule);
 }
 
-if (isPhaseThree) {
-  assertLoggingImplementationPolicy();
-}
-
-if (isPhaseFour) {
-  assertEventFoundationPolicy();
-}
-
-if (isPhaseFive) {
-  assertDatabaseFoundationPolicy();
-}
-
-if (isPhaseSix) {
-  assertDomainFoundationPolicy();
-}
-
-if (isPhaseSeven) {
-  assertApplicationFoundationPolicy();
-}
-
-if (isPhaseEight) {
-  assertContainerFoundationPolicy();
-}
-
-if (isPhaseNine) {
-  assertInfrastructureFoundationPolicy();
-}
-
-if (isPhaseTen) {
-  assertConnectorSdkFoundationPolicy();
-}
-
-if (isPhaseEleven) {
-  assertConnectorRuntimeFoundationPolicy();
-}
-
-if (isPhaseTwelve) {
-  assertConnectorHostFoundationPolicy();
-}
-
-if (isPhaseThirteen) {
-  assertRedditConnectorFoundationPolicy();
-}
-
-if (isPhaseFourteen) {
-  assertRedditRuntimeFoundationPolicy();
-}
-
-if (isPhaseFifteen) {
-  assertRedditProviderTransportPolicy();
-}
-
-if (isPhaseSixteen) {
-  assertRawContentFoundationPolicy();
-}
-
-if (isPhaseSeventeen) {
-  assertNormalizationFoundationPolicy();
-}
-
-if (isPhaseEighteen) {
-  assertEmbeddingFoundationPolicy();
-}
-
-if (isPhaseNineteen) {
-  assertLlmAnalysisFoundationPolicy();
-}
-
-if (isPhaseTwenty) {
-  assertStructuredAnalysisFoundationPolicy();
-}
-
-if (isPhaseTwentyOne) {
-  assertOpportunityEngineFoundationPolicy();
-}
-
-if (isPhaseTwentyTwo) {
-  assertOpportunityPipelineFoundationPolicy();
-}
-
-if (isPhaseTwentyThree) {
-  assertOpportunityCandidatesFoundationPolicy();
-}
-
-if (isPhaseTwentyFour) {
-  assertOpportunityGenerationFoundationPolicy();
-}
-
-if (isPhaseTwentyFive) {
-  assertOpportunityRankingFoundationPolicy();
-}
-
-if (isPhaseTwentySix) {
-  assertRestApiFoundationPolicy();
-}
-
-if (isPhaseTwentySeven) {
-  assertDashboardFoundationPolicy();
-}
-
-if (isPhaseTwentyEight && !isPhaseTwentyNine) {
-  assertProductValidationFoundationPolicy();
-}
-
-if (isPhaseTwentyNine && !isPhaseThirty) {
-  assertPrivateBetaFoundationPolicy();
-}
-
-if (isPhaseThirty) {
-  assertBetaOperationsFoundationPolicy();
-}
-
-if (isPhaseThirtyOne) {
+if (isPhaseThirtyTwo) {
+  assertProductDataSchemaPolicy();
+} else if (isPhaseThirtyOne) {
   assertLocalProductRuntimePolicy();
+} else if (isPhaseThirty) {
+  assertBetaOperationsFoundationPolicy();
+} else if (isPhaseTwentyNine) {
+  assertPrivateBetaFoundationPolicy();
+} else if (isPhaseTwentyEight) {
+  assertProductValidationFoundationPolicy();
+} else if (isPhaseTwentySeven) {
+  assertDashboardFoundationPolicy();
+} else if (isPhaseTwentySix) {
+  assertRestApiFoundationPolicy();
+} else if (isPhaseTwentyFive) {
+  assertOpportunityRankingFoundationPolicy();
+} else if (isPhaseTwentyFour) {
+  assertOpportunityGenerationFoundationPolicy();
+} else if (isPhaseTwentyThree) {
+  assertOpportunityCandidatesFoundationPolicy();
+} else if (isPhaseTwentyTwo) {
+  assertOpportunityPipelineFoundationPolicy();
+} else if (isPhaseTwentyOne) {
+  assertOpportunityEngineFoundationPolicy();
+} else if (isPhaseTwenty) {
+  assertStructuredAnalysisFoundationPolicy();
+} else if (isPhaseNineteen) {
+  assertLlmAnalysisFoundationPolicy();
+} else if (isPhaseEighteen) {
+  assertEmbeddingFoundationPolicy();
+} else if (isPhaseSeventeen) {
+  assertNormalizationFoundationPolicy();
+} else if (isPhaseSixteen) {
+  assertRawContentFoundationPolicy();
+} else if (isPhaseFifteen) {
+  assertRedditProviderTransportPolicy();
+} else if (isPhaseFourteen) {
+  assertRedditRuntimeFoundationPolicy();
+} else if (isPhaseThirteen) {
+  assertRedditConnectorFoundationPolicy();
+} else if (isPhaseTwelve) {
+  assertConnectorHostFoundationPolicy();
+} else if (isPhaseEleven) {
+  assertConnectorRuntimeFoundationPolicy();
+} else if (isPhaseTen) {
+  assertConnectorSdkFoundationPolicy();
+} else if (isPhaseNine) {
+  assertInfrastructureFoundationPolicy();
+} else if (isPhaseEight) {
+  assertContainerFoundationPolicy();
+} else if (isPhaseSeven) {
+  assertApplicationFoundationPolicy();
+} else if (isPhaseSix) {
+  assertDomainFoundationPolicy();
+} else if (isPhaseFive) {
+  assertDatabaseFoundationPolicy();
+} else if (isPhaseFour) {
+  assertEventFoundationPolicy();
+} else if (isPhaseThree) {
+  assertLoggingImplementationPolicy();
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");

@@ -17,6 +17,7 @@ import type { ApiCreateFeedbackRequestBody, ApiFeedbackRatingDto } from "./feedb
 
 export interface ValidatedApiFeedbackInput {
   readonly opportunityId: string;
+  readonly opportunityRecordId?: string;
   readonly status: ApiFeedbackStatus;
   readonly reasonCategories: readonly ApiFeedbackReasonCategory[];
   readonly ratings: readonly ApiFeedbackRatingDto[];
@@ -86,6 +87,10 @@ export function validateCreateFeedbackBody(
 
   return createApiValidationSuccess({
     opportunityId: body.opportunityId,
+    opportunityRecordId:
+      body.opportunityRecordId !== undefined && body.opportunityRecordId.trim().length > 0
+        ? body.opportunityRecordId
+        : undefined,
     status: body.status,
     reasonCategories: [...reasonCategories],
     ratings: ratings.map((rating) => ({ ...rating })),
@@ -108,4 +113,3 @@ function isApiFeedbackRatingTarget(target: string): target is ApiFeedbackRatingT
 function isApiFeedbackRatingValue(value: number): value is ApiFeedbackRatingValue {
   return (API_FEEDBACK_RATING_VALUES as readonly number[]).includes(value);
 }
-
