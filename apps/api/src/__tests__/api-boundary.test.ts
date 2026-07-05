@@ -18,7 +18,15 @@ function listSourceFiles(directory: string): string[] {
   const entries = fs.readdirSync(directory, { withFileTypes: true });
   return entries.flatMap((entry) => {
     const fullPath = path.join(directory, entry.name);
-    return entry.isDirectory() ? listSourceFiles(fullPath) : [fullPath];
+    if (entry.isDirectory()) {
+      if (entry.name === "__tests__" || entry.name === "dist" || entry.name === "node_modules") {
+        return [];
+      }
+
+      return listSourceFiles(fullPath);
+    }
+
+    return fullPath.endsWith(".ts") ? [fullPath] : [];
   });
 }
 
@@ -37,9 +45,7 @@ describe("API dependency boundaries", () => {
   });
 
   it("keeps source imports inside the API app and approved upstream packages", () => {
-    const currentFile = fileURLToPath(import.meta.url);
     const imports = listSourceFiles(sourceRoot)
-      .filter((file) => file.endsWith(".ts") && file !== currentFile)
       .flatMap((file) => {
         const content = fs.readFileSync(file, "utf8");
         return [...content.matchAll(/from "([^"]+)"/gu)].map((match) => match[1] ?? "");

@@ -59,13 +59,15 @@ describe("candidate opportunity dependency boundaries", () => {
     const files = listSourceFiles(join(PACKAGE_ROOT, "src")).filter(
       (file) => !file.includes("__tests__")
     );
+    const violations: string[] = [];
 
     for (const file of files) {
       const source = readFileSync(file, "utf8");
-      expect(
-        source,
-        `${relative(PACKAGE_ROOT, file)} contains prohibited implementation language`
-      ).not.toMatch(PROHIBITED_SOURCE_PATTERN);
+      if (PROHIBITED_SOURCE_PATTERN.test(source)) {
+        violations.push(`${relative(PACKAGE_ROOT, file)} contains prohibited implementation language`);
+      }
     }
+
+    expect(violations).toEqual([]);
   });
 });

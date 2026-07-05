@@ -120,7 +120,9 @@ const phaseTwentyNineAliases = new Set(["phase-3-milestone-29", "private-beta", 
 const phaseThirtyAliases = new Set(["review", "phase-3-milestone-30", "beta-operations", "beta-operations-foundation"]);
 const phaseThirtyOneAliases = new Set(["phase-4-milestone-31", "local-product-runtime", "local-runtime"]);
 const phaseThirtyTwoAliases = new Set(["phase-4-milestone-32", "product-data-schema"]);
-const isPhaseThirtyTwo = phaseThirtyTwoAliases.has(phase);
+const phaseThirtyThreeAliases = new Set(["phase-4-milestone-33", "reddit-live-provider-transport", "reddit-live-transport"]);
+const isPhaseThirtyThree = phaseThirtyThreeAliases.has(phase) || phase === "review";
+const isPhaseThirtyTwo = phaseThirtyTwoAliases.has(phase) || isPhaseThirtyThree;
 const isPhaseThirtyOne = phaseThirtyOneAliases.has(phase) || isPhaseThirtyTwo;
 const isPhaseThirty = phaseThirtyAliases.has(phase);
 const isPhaseTwentyNine = phaseTwentyNineAliases.has(phase) || isPhaseThirty;
@@ -183,6 +185,7 @@ const allowedPhaseTwentyNineImplementationRoots = allowedPhaseTwentyEightImpleme
 const allowedPhaseThirtyImplementationRoots = allowedPhaseTwentyNineImplementationRoots;
 const allowedPhaseThirtyOneImplementationRoots = allowedPhaseThirtyImplementationRoots;
 const allowedPhaseThirtyTwoImplementationRoots = allowedPhaseThirtyOneImplementationRoots;
+const allowedPhaseThirtyThreeImplementationRoots = allowedPhaseThirtyTwoImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1312,6 +1315,33 @@ const requiredRedditProviderTransportExports = [
   "parseRedditProviderResponse",
   "RedditProviderTransportScope"
 ];
+const requiredRedditLiveProviderTransportFiles = [
+  "packages/connectors-reddit/src/provider/live-config.ts",
+  "packages/connectors-reddit/src/provider/oauth-client.ts",
+  "packages/connectors-reddit/src/provider/live-http-transport.ts",
+  "packages/connectors-reddit/src/provider/live-api-client.ts",
+  "packages/connectors-reddit/src/provider/live-response-mapper.ts",
+  "packages/connectors-reddit/src/provider/live-execution.ts",
+  "packages/connectors-reddit/src/provider/live-dev-fetch.ts",
+  "packages/connectors-reddit/src/__tests__/provider-live-transport.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-live-security.test.ts",
+  "packages/connectors-reddit/src/__tests__/provider-live.integration.test.ts",
+  "docs/04_IMPLEMENTATION/04-018_REDDIT_LIVE_PROVIDER_TRANSPORT.md"
+];
+const requiredRedditLiveProviderTransportExports = [
+  "REDDIT_LIVE_PROVIDER_ENV_KEYS",
+  "RedditLiveProviderConfig",
+  "RedditLiveProviderConfigResult",
+  "createRedditLiveProviderConfigFromEnv",
+  "exchangeRedditOAuthToken",
+  "RedditOAuthTokenExchangeResult",
+  "createRedditLiveHttpTransport",
+  "RedditLiveHttpTransport",
+  "createRedditLiveApiClient",
+  "fetchRedditLivePublicPosts",
+  "mapRedditLiveListingResponse",
+  "RedditLivePublicPostsResult"
+];
 const requiredRawContentFoundationFiles = [
   "packages/raw-content/package.json",
   "packages/raw-content/README.md",
@@ -1910,6 +1940,15 @@ const engineeringKitOptionalEnvironmentVariables = [
   "SENTRY_DSN",
   "LANGFUSE_API_KEY",
   "LANGSMITH_API_KEY"
+];
+const engineeringKitDevOnlyEnvironmentVariables = [
+  "REDDIT_CLIENT_ID",
+  "REDDIT_CLIENT_SECRET",
+  "REDDIT_REFRESH_TOKEN",
+  "REDDIT_USER_AGENT",
+  "REDDIT_LIVE_TEST_ENABLED",
+  "REDDIT_LIVE_SUBREDDIT",
+  "REDDIT_LIVE_LIMIT"
 ];
 
 function exists(relativePath) {
@@ -2831,7 +2870,18 @@ function assertRedditConnectorFoundationPolicy() {
       file.startsWith("packages/connectors-reddit/dist/") ||
       file.startsWith("packages/connectors-reddit/node_modules/") ||
       file.startsWith("packages/connectors-reddit/.turbo/") ||
-      file.includes("/__tests__/")
+      file.includes("/__tests__/") ||
+      (isPhaseThirtyThree &&
+        [
+          "packages/connectors-reddit/src/provider/index.ts",
+          "packages/connectors-reddit/src/provider/live-api-client.ts",
+          "packages/connectors-reddit/src/provider/live-config.ts",
+          "packages/connectors-reddit/src/provider/live-dev-fetch.ts",
+          "packages/connectors-reddit/src/provider/live-execution.ts",
+          "packages/connectors-reddit/src/provider/live-http-transport.ts",
+          "packages/connectors-reddit/src/provider/live-response-mapper.ts",
+          "packages/connectors-reddit/src/provider/oauth-client.ts"
+        ].includes(file))
     ) {
       continue;
     }
@@ -4742,6 +4792,110 @@ function assertProductDataSchemaPolicy() {
   }
 }
 
+function assertRedditLiveProviderTransportPolicy() {
+  assertProductDataSchemaPolicy();
+
+  for (const file of requiredRedditLiveProviderTransportFiles) {
+    if (!exists(file)) {
+      fail(`Reddit Live Provider Transport is missing required file: ${file}`);
+    }
+  }
+
+  const providerIndexPath = "packages/connectors-reddit/src/provider/index.ts";
+  if (exists(providerIndexPath)) {
+    const providerIndex = read(providerIndexPath);
+    for (const exportName of requiredRedditLiveProviderTransportExports) {
+      if (!providerIndex.includes(exportName)) {
+        fail(`${providerIndexPath} must export ${exportName} from the live provider transport boundary`);
+      }
+    }
+  }
+
+  const redditConnectorIndexPath = "packages/connectors-reddit/src/index.ts";
+  if (exists(redditConnectorIndexPath)) {
+    const redditConnectorIndex = read(redditConnectorIndexPath);
+    for (const exportName of requiredRedditLiveProviderTransportExports) {
+      if (!redditConnectorIndex.includes(exportName)) {
+        fail(`${redditConnectorIndexPath} must export ${exportName} from the Reddit connector package root`);
+      }
+    }
+  }
+
+  const packageJsonPath = "packages/connectors-reddit/package.json";
+  if (exists(packageJsonPath)) {
+    const packageJson = JSON.parse(read(packageJsonPath));
+    if (packageJson.scripts?.["dev:reddit:live"] !== "pnpm build && node dist/provider/live-dev-fetch.js") {
+      fail("Reddit Live Provider Transport requires packages/connectors-reddit dev:reddit:live script.");
+    }
+  }
+
+  const envExample = exists(".env.example") ? read(".env.example") : "";
+  for (const envKey of [
+    "REDDIT_CLIENT_ID",
+    "REDDIT_CLIENT_SECRET",
+    "REDDIT_REFRESH_TOKEN",
+    "REDDIT_USER_AGENT",
+    "REDDIT_LIVE_TEST_ENABLED",
+    "REDDIT_LIVE_SUBREDDIT",
+    "REDDIT_LIVE_LIMIT"
+  ]) {
+    if (!envExample.includes(envKey)) {
+      fail(`Reddit Live Provider Transport requires .env.example to document ${envKey}.`);
+    }
+  }
+
+  const redditReadmePath = "packages/connectors-reddit/README.md";
+  if (exists(redditReadmePath)) {
+    const redditReadme = read(redditReadmePath);
+    for (const statement of [
+      "Phase 4 Milestone 33",
+      "controlled live Reddit provider access",
+      "pnpm --filter @opportunity-os/connectors-reddit dev:reddit:live",
+      "Default tests do not perform network calls"
+    ]) {
+      if (!redditReadme.includes(statement)) {
+        fail(`${redditReadmePath} must document the Phase 4 Milestone 33 live provider transport boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const liveDocPath = "docs/04_IMPLEMENTATION/04-018_REDDIT_LIVE_PROVIDER_TRANSPORT.md";
+  if (exists(liveDocPath)) {
+    const liveDoc = read(liveDocPath);
+    for (const statement of [
+      "OAuth token exchange",
+      "Node 24 `fetch` based HTTP transport",
+      "Default tests never call Reddit",
+      "REDDIT_LIVE_TEST_ENABLED=true"
+    ]) {
+      if (!liveDoc.includes(statement)) {
+        fail(`${liveDocPath} must document Reddit live provider transport: missing "${statement}"`);
+      }
+    }
+  }
+
+  for (const file of listFiles("packages/connectors-reddit/src")) {
+    if (!file.endsWith(".ts")) continue;
+    if (file.includes("/__tests__/")) continue;
+    const content = read(file);
+    for (const [label, pattern] of [
+      ["Raw Content persistence", /\bRawContentRepository\b|\braw content persistence\b/iu],
+      ["Prisma repository implementation", /\bPrismaClient\b|\bPrismaRepository\b/iu],
+      ["AI workflow", /\bAIWorkflow\b|\bai workflow\b|\bprompt execution\b|\bLLM\b/iu],
+      ["opportunity generation", /\bgenerateOpportunity\b|\bOpportunityGenerationService\b/iu],
+      ["REST API", /\broute handler\b|\bREST API\b|\bcreateServer\b/iu],
+      ["frontend changes", /\bReact\b|\btsx\b|\bcomponent\b/iu],
+      ["scheduler", /\bscheduler\b|\bscheduleJob\b/iu],
+      ["worker", /\bWorkerProcess\b|\bworker process\b/iu],
+      ["business logic", /\bbusiness scoring\b|\brecommendation engine\b/iu]
+    ]) {
+      if (pattern.test(content)) {
+        fail(`Reddit Live Provider Transport must not introduce ${label}; found prohibited reference in ${file}`);
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4778,7 +4932,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseThirtyTwo
+  const allowedImplementationRoots = isPhaseThirtyThree
+    ? allowedPhaseThirtyThreeImplementationRoots
+    : isPhaseThirtyTwo
     ? allowedPhaseThirtyTwoImplementationRoots
     : isPhaseThirtyOne
     ? allowedPhaseThirtyOneImplementationRoots
@@ -4859,7 +5015,9 @@ for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageR
   assertSharedFoundationPackageDependencies(packageRoot, packageRule);
 }
 
-if (isPhaseThirtyTwo) {
+if (isPhaseThirtyThree) {
+  assertRedditLiveProviderTransportPolicy();
+} else if (isPhaseThirtyTwo) {
   assertProductDataSchemaPolicy();
 } else if (isPhaseThirtyOne) {
   assertLocalProductRuntimePolicy();
@@ -4922,6 +5080,9 @@ if (isPhaseThirtyTwo) {
 }
 
 const envExampleVariables = parseEnvExampleVariables(".env.example");
+const envExampleSchemaVariables = envExampleVariables.filter(
+  (variableName) => !engineeringKitDevOnlyEnvironmentVariables.includes(variableName)
+);
 const schemaRequiredVariables = parseExportedConstArray("packages/config/src/schema.ts", "REQUIRED_ENVIRONMENT_VARIABLES");
 const schemaOptionalVariables = parseExportedConstArray("packages/config/src/schema.ts", "OPTIONAL_ENVIRONMENT_VARIABLES");
 const schemaVariables = [...schemaRequiredVariables, ...schemaOptionalVariables];
@@ -4933,10 +5094,10 @@ const engineeringKitEnvironmentVariables = [
 assertNoDuplicateVariables(".env.example", envExampleVariables);
 assertNoDuplicateVariables("packages/config schema required variables", schemaRequiredVariables);
 assertNoDuplicateVariables("packages/config schema optional variables", schemaOptionalVariables);
-assertSameVariableSet(".env.example", engineeringKitEnvironmentVariables, envExampleVariables);
+assertSameVariableSet(".env.example", engineeringKitEnvironmentVariables, envExampleSchemaVariables);
 assertSameVariableSet("packages/config required environment schema", engineeringKitRequiredEnvironmentVariables, schemaRequiredVariables);
 assertSameVariableSet("packages/config optional environment schema", engineeringKitOptionalEnvironmentVariables, schemaOptionalVariables);
-assertSameVariableSet("packages/config schema and .env.example", envExampleVariables, schemaVariables);
+assertSameVariableSet("packages/config schema and .env.example", envExampleSchemaVariables, schemaVariables);
 
 const docsFiles = listMarkdownFiles("docs").filter((file) => path.basename(file) !== "README.md");
 const developerAiFiles = listMarkdownFiles("developer-ai").filter((file) => path.basename(file) !== "README.md");

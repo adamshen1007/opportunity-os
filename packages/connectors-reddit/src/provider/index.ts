@@ -118,6 +118,53 @@ export type {
   RedditApiClientResult
 } from "./api-client.js";
 export {
+  REDDIT_LIVE_PROVIDER_ENV_KEYS,
+  createRedditLiveProviderConfigFromEnv
+} from "./live-config.js";
+export type {
+  RedditLiveProviderConfig,
+  RedditLiveProviderConfigResult,
+  RedditLiveProviderEnvKey
+} from "./live-config.js";
+export {
+  exchangeRedditOAuthToken
+} from "./oauth-client.js";
+export type {
+  RedditOAuthGrantType,
+  RedditOAuthTokenExchangeInput,
+  RedditOAuthTokenExchangeResult
+} from "./oauth-client.js";
+export {
+  createRedditLiveHttpTransport
+} from "./live-http-transport.js";
+export type {
+  RedditFetchLike,
+  RedditLiveHttpTransport,
+  RedditLiveHttpTransportInput
+} from "./live-http-transport.js";
+export {
+  mapRedditLiveListingResponse
+} from "./live-response-mapper.js";
+export type {
+  RedditLiveListingKind,
+  RedditLiveResponseMapInput,
+  RedditLiveResponseMapResult
+} from "./live-response-mapper.js";
+export {
+  createRedditLiveApiClient
+} from "./live-api-client.js";
+export type {
+  RedditLiveApiClientInput
+} from "./live-api-client.js";
+export {
+  fetchRedditLivePublicPosts
+} from "./live-execution.js";
+export type {
+  RedditLiveRuntimeContext,
+  RedditLivePublicPostsInput,
+  RedditLivePublicPostsResult
+} from "./live-execution.js";
+export {
   REDDIT_PROVIDER_ENDPOINTS,
   REDDIT_PROVIDER_REDACTED_HEADER_VALUE,
   createRedditProviderRequestDescription

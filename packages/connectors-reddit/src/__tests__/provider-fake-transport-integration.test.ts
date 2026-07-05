@@ -11,9 +11,16 @@ describe("reddit provider fake transport integration", () => {
   it("records request descriptions and returns deterministic fixture responses", async () => {
     const transport = createRedditFakeTransport();
     const result = await Promise.resolve(transport.send(REDDIT_PROVIDER_FIXTURE_REQUEST));
+    const expectedRequest = {
+      ...REDDIT_PROVIDER_FIXTURE_REQUEST,
+      headers: REDDIT_PROVIDER_FIXTURE_REQUEST.headers?.map((header) => ({
+        ...header,
+        value: header.sensitive ? "[REDACTED]" : header.value
+      }))
+    };
 
     expect(result.ok).toBe(true);
-    expect(transport.getRequests()).toEqual([REDDIT_PROVIDER_FIXTURE_REQUEST]);
+    expect(transport.getRequests()).toEqual([expectedRequest]);
     if (!result.ok) return;
 
     const parsed = parseRedditProviderResponse(result.response.body);

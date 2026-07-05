@@ -8,7 +8,7 @@
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS through Phase 3 Milestone 30 Beta Operations work.
+This document is the authoritative build sequence for Opportunity OS through Phase 4 Milestone 33 Reddit Live Provider Transport work.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -58,15 +58,15 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 3 M28 - Product Validation Loop | Complete | `apps/api`, `apps/web` |
 | Phase 3 M29 - Private Beta | Complete | `apps/api`, `apps/web`, deployment documentation |
 | Phase 3 M30 - Beta Operations | Complete | operations documentation, repository verification |
+| Phase 4 M31 - Local Product Runtime | Complete | `apps/api`, `apps/web`, repository scripts |
+| Phase 4 M32 - Product Data Schema | Complete | `packages/database`, `apps/api` |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, completed Phase 3 Milestone 29 Private Beta deployment readiness, completed Phase 3 Milestone 30 Beta Operations policy, and active Phase 4 Milestone 31 Local Product Runtime.
+The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, controlled live Reddit provider transport, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, completed Phase 3 Milestone 29 Private Beta deployment readiness, completed Phase 3 Milestone 30 Beta Operations policy, completed Phase 4 Milestone 31 Local Product Runtime, completed Phase 4 Milestone 32 Product Data Schema, and active Phase 4 Milestone 33 Reddit Live Provider Transport.
 
 The repository does not yet contain:
 
-- OAuth token exchange
-- HTTP clients
 - schedulers
 - workers
 - live AI workflows
@@ -86,7 +86,9 @@ Engineering Kit v3.0 establishes this future order:
 
 | Milestone | Goal | Primary Owner |
 |-----------|------|---------------|
-| Phase 4 M31 - Local Product Runtime | Active | `apps/api`, `apps/web`, repository scripts |
+| Phase 4 M31 - Local Product Runtime | Complete | `apps/api`, `apps/web`, repository scripts |
+| Phase 4 M32 - Product Data Schema | Complete | `packages/database`, `apps/api` |
+| Phase 4 M33 - Reddit Live Provider Transport | Active | `packages/connectors-reddit` |
 
 ## Phase 4 M31 Boundary
 
@@ -116,6 +118,35 @@ Not allowed:
 - mobile apps
 
 Milestone 31 is complete only when `node scripts/verify-repository.mjs --phase phase-4-milestone-31`, lint, build, and tests pass, and a fresh clone can start API and dashboard locally with documented commands.
+
+## Phase 4 M33 Boundary
+
+Milestone 33 adds controlled live Reddit provider transport inside `packages/connectors-reddit`.
+
+Allowed:
+
+- OAuth token exchange with explicit development credentials
+- Node 24 `fetch` based HTTP transport
+- public subreddit request execution for development verification
+- rate-limit parsing from provider headers
+- pagination metadata from Reddit listing cursors
+- safe response mapping into existing Reddit contracts
+- optional live integration test gated by environment variables
+
+Not allowed:
+
+- Raw Content persistence
+- Prisma repositories
+- AI workflows
+- opportunity generation
+- REST APIs
+- frontend changes
+- schedulers
+- workers
+- database persistence workflows
+- business logic
+
+Milestone 33 is complete only when `node scripts/verify-repository.mjs --phase phase-4-milestone-33`, lint, build, and tests pass, default tests avoid live network access, and `pnpm --filter @opportunity-os/connectors-reddit dev:reddit:live` can fetch public Reddit posts when credentials are configured.
 
 ## Phase 2 M15 Boundary
 

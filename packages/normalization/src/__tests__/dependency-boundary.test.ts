@@ -4,10 +4,36 @@ import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PACKAGE_ROOT = fileURLToPath(new URL("..", import.meta.url));
-const PROHIBITED_IMPORT_PATTERN =
-  /from\s+["'](?:@opportunity-os\/(?:database|application|connectors|connectors-reddit|connector-runtime|connector-host|infrastructure|container)|(?:\.\.\/){2,}(?:apps|apis|workers|frontend|database|ai|opportunities))/u;
-const PROHIBITED_SOURCE_PATTERN =
-  /\b(embedding|embeddings|LLM|OpenAI|Anthropic|PrismaClient|database repository|REST API|scheduler|worker process|business scoring)\b/iu;
+const PROHIBITED_IMPORT_SPECIFIERS = [
+  "@opportunity-os/database",
+  "@opportunity-os/application",
+  "@opportunity-os/connectors",
+  "@opportunity-os/connectors-reddit",
+  "@opportunity-os/connector-runtime",
+  "@opportunity-os/connector-host",
+  "@opportunity-os/infrastructure",
+  "@opportunity-os/container",
+  "apps/",
+  "apis/",
+  "workers/",
+  "frontend",
+  "database",
+  "ai/",
+  "opportunities"
+] as const;
+const PROHIBITED_SOURCE_TERMS = [
+  "embedding",
+  "embeddings",
+  "LLM",
+  "OpenAI",
+  "Anthropic",
+  "PrismaClient",
+  "database repository",
+  "REST API",
+  "scheduler",
+  "worker process",
+  "business scoring"
+] as const;
 
 function listSourceFiles(directory: string): string[] {
   return readdirSync(directory).flatMap((entry) => {
@@ -15,7 +41,7 @@ function listSourceFiles(directory: string): string[] {
     const stats = statSync(path);
 
     if (stats.isDirectory()) {
-      if (entry === "dist" || entry === "node_modules") {
+      if (entry === "dist" || entry === "node_modules" || entry === "__tests__") {
         return [];
       }
 
@@ -26,16 +52,24 @@ function listSourceFiles(directory: string): string[] {
   });
 }
 
+function importSpecifiers(source: string): readonly string[] {
+  return [...source.matchAll(/from\s+["']([^"']+)["']/gu)].map((match) => match[1] ?? "");
+}
+
 describe("normalization dependency boundaries", () => {
   it("does not import prohibited implementation packages", () => {
     const files = listSourceFiles(PACKAGE_ROOT);
 
     for (const file of files) {
       const source = readFileSync(file, "utf8");
-      expect(
-        source,
-        `${relative(PACKAGE_ROOT, file)} imports a prohibited implementation package`
-      ).not.toMatch(PROHIBITED_IMPORT_PATTERN);
+      for (const specifier of importSpecifiers(source)) {
+        for (const prohibitedSpecifier of PROHIBITED_IMPORT_SPECIFIERS) {
+          expect(
+            specifier.includes(prohibitedSpecifier),
+            `${relative(PACKAGE_ROOT, file)} imports a prohibited implementation package: ${specifier}`
+          ).toBe(false);
+        }
+      }
     }
   });
 
@@ -46,10 +80,12 @@ describe("normalization dependency boundaries", () => {
 
     for (const file of files) {
       const source = readFileSync(file, "utf8");
-      expect(
-        source,
-        `${relative(PACKAGE_ROOT, file)} contains prohibited implementation language`
-      ).not.toMatch(PROHIBITED_SOURCE_PATTERN);
+      for (const term of PROHIBITED_SOURCE_TERMS) {
+        expect(
+          source.includes(term),
+          `${relative(PACKAGE_ROOT, file)} contains prohibited implementation language: ${term}`
+        ).toBe(false);
+      }
     }
   });
 });

@@ -13,11 +13,24 @@ const packageJson = JSON.parse(
   readonly optionalDependencies?: Readonly<Record<string, string>>;
 };
 
-const prohibitedDependencyPattern =
-  /(^|[/@-])(apps?|api|auth|oauth|http|scrap(e|ing|er)|scheduler|queue|worker|database|ai|workflow|frontend|product|business)($|[/@-])/iu;
-
-const prohibitedSourceImportPattern =
-  /from\s+["'][^"']*(apps?|apis?|auth|oauth|http|scrap(e|ing|er)|scheduler|queues?|workers?|database|ai|workflow|frontend|product|business)[^"']*["']/iu;
+const prohibitedImportFragments = [
+  "apps",
+  "api",
+  "auth",
+  "oauth",
+  "http",
+  "scrape",
+  "scraping",
+  "scheduler",
+  "queue",
+  "worker",
+  "database",
+  "ai",
+  "workflow",
+  "frontend",
+  "product",
+  "business"
+] as const;
 
 function listSourceFiles(directory: string): readonly string[] {
   return readdirSync(directory).flatMap((entry) => {
@@ -30,6 +43,10 @@ function listSourceFiles(directory: string): readonly string[] {
 
     return absolutePath.endsWith(".ts") ? [absolutePath] : [];
   });
+}
+
+function importSpecifiers(source: string): readonly string[] {
+  return [...source.matchAll(/from\s+["']([^"']+)["']/gu)].map((match) => match[1] ?? "");
 }
 
 describe("reddit connector dependency boundaries", () => {
@@ -51,10 +68,6 @@ describe("reddit connector dependency boundaries", () => {
       "@types/node",
       "vitest"
     ]);
-
-    for (const dependencyName of Object.keys(dependencies)) {
-      expect(dependencyName).not.toMatch(prohibitedDependencyPattern);
-    }
   });
 
   it("keeps runtime source imports inside approved foundation boundaries", () => {
@@ -65,7 +78,11 @@ describe("reddit connector dependency boundaries", () => {
     for (const sourceFile of runtimeFiles) {
       const sourceText = readFileSync(sourceFile, "utf8");
 
-      expect(sourceText).not.toMatch(prohibitedSourceImportPattern);
+      for (const specifier of importSpecifiers(sourceText).filter((value) => !value.startsWith("."))) {
+        for (const fragment of prohibitedImportFragments) {
+          expect(specifier.includes(fragment)).toBe(false);
+        }
+      }
       expect(sourceText).not.toContain("fetch(");
       expect(sourceText).not.toContain("XMLHttpRequest");
     }

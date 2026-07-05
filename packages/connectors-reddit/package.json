@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.json",
+    "dev:reddit:live": "pnpm build && node dist/provider/live-dev-fetch.js",
     "lint": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run src --passWithNoTests"
   },

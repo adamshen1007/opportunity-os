@@ -8,6 +8,8 @@ Phase 2 Milestone 14 establishes the Reddit Runtime Foundation boundary. The mil
 
 Phase 2 Milestone 15 establishes the Reddit Provider Transport boundary. Slice A defines provider transport architecture only, adds the explicit `phase-2-milestone-15` verification gate, and routes provider transport exports through `packages/connectors-reddit/src/provider/index.ts`.
 
+Phase 4 Milestone 33 establishes controlled live Reddit provider access. Live access is opt-in, development-oriented, credential-gated, and limited to Reddit provider transport code inside `packages/connectors-reddit`. Default tests continue to use fake transport and deterministic fixtures.
+
 ## Ownership
 
 This package defines Reddit-specific connector contracts for:
@@ -23,6 +25,10 @@ This package defines Reddit-specific connector contracts for:
 - host integration contracts
 - safe error contracts
 - deterministic fixture contracts
+- controlled live Reddit provider transport
+- OAuth token exchange for configured development credentials
+- Node `fetch` based HTTP transport
+- live public subreddit post fetch command
 - export stability tests
 - contract stability tests
 - security tests
@@ -84,6 +90,39 @@ Future packages must consume `@opportunity-os/connectors-reddit` for Reddit prov
 
 The Milestone 15 verifier continues to block Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend, scheduler, worker, database persistence, and business logic. Provider transport tests are fixture-backed and do not require live Reddit calls.
 
+## Live Provider Transport Boundary
+
+Phase 4 Milestone 33 permits controlled live Reddit provider access inside `packages/connectors-reddit` only.
+
+Allowed:
+
+- OAuth token exchange against Reddit's token endpoint using explicit local credentials
+- Node 24 `fetch` based HTTP transport
+- Reddit request execution for public subreddit posts
+- live response mapping into existing safe Reddit provider contracts
+- rate-limit parsing from Reddit response headers
+- pagination metadata from Reddit listing cursors
+- secret-safe provider errors
+- optional live integration test gated by `REDDIT_LIVE_TEST_ENABLED=true`
+- development command `pnpm --filter @opportunity-os/connectors-reddit dev:reddit:live`
+
+Required environment variables for the live command:
+
+- `REDDIT_CLIENT_ID`
+- `REDDIT_USER_AGENT`
+
+Optional environment variables:
+
+- `REDDIT_CLIENT_SECRET`
+- `REDDIT_REFRESH_TOKEN`
+- `REDDIT_LIVE_TEST_ENABLED`
+- `REDDIT_LIVE_SUBREDDIT`
+- `REDDIT_LIVE_LIMIT`
+
+Default tests do not perform network calls. The live integration test is skipped unless `REDDIT_LIVE_TEST_ENABLED=true` and required credentials are configured.
+
+Milestone 33 still does not permit Raw Content persistence, Prisma repositories, AI workflows, opportunity generation, REST APIs, frontend changes, schedulers, workers, database persistence, or business logic.
+
 ## Phase 2 Milestone 15 Readiness
 
 Before handing off to the next milestone, confirm:
@@ -141,6 +180,6 @@ Phase 2 Milestone 13 is complete when:
 
 ## Non-Goals
 
-This package must not implement OAuth, live Reddit API calls, HTTP clients, provider calls, scraping, schedulers, queues, worker processes, host startup, runner loops, database persistence, AI workflows, APIs, frontend code, business logic, or connector execution.
+This package must not implement scraping, schedulers, queues, worker processes, host startup, runner loops, database persistence, AI workflows, APIs, frontend code, business logic, or connector execution beyond the controlled Phase 4 Milestone 33 live provider transport.
 
-No Reddit network behavior exists in this package.
+Reddit network behavior exists only in the controlled live provider transport and opt-in dev/integration paths. It must remain credential-gated, secret-safe, and excluded from default tests.

@@ -4,6 +4,7 @@ import {
 import type {
   RedditHttpTransport,
   RedditTransportRequest,
+  RedditTransportResponse,
   RedditTransportResult
 } from "./transport.js";
 
@@ -14,8 +15,18 @@ export type RedditFakeTransport = RedditHttpTransport & {
 };
 
 export type RedditFakeTransportInput = {
-  readonly response?: typeof REDDIT_PROVIDER_FIXTURE_TRANSPORT_RESPONSE;
+  readonly response?: RedditTransportResponse<unknown>;
 };
+
+function recordSafeRequest(request: RedditTransportRequest): RedditTransportRequest {
+  return {
+    ...request,
+    headers: request.headers?.map((header) => ({
+      ...header,
+      value: header.sensitive ? "[REDACTED]" : header.value
+    }))
+  };
+}
 
 export function createRedditFakeTransport(
   input: RedditFakeTransportInput = {}
@@ -28,10 +39,7 @@ export function createRedditFakeTransport(
     requests,
     getRequests: () => [...requests],
     send: <TBody = unknown>(request: RedditTransportRequest): RedditTransportResult<TBody> => {
-      requests.push({
-        ...request,
-        headers: request.headers?.map((header) => ({ ...header }))
-      });
+      requests.push(recordSafeRequest(request));
 
       return {
         ok: true,

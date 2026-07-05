@@ -38,6 +38,9 @@ Current scripts are limited to repository and package-boundary checks. Do not ad
 - Product Validation Loop foundation checks during Phase 3 Milestone 28
 - Private Beta deployment and operations readiness checks during Phase 3 Milestone 29
 - Beta Operations boundary checks during Phase 3 Milestone 30
+- Local Product Runtime checks during Phase 4 Milestone 31
+- Product Data Schema checks during Phase 4 Milestone 32
+- Reddit Live Provider Transport checks during Phase 4 Milestone 33
 - environment contract consistency between `.env.example`, `packages/config/src/schema.ts`, and the Engineering Kit variable set
 
 Engineering Kit v3.0 treats the active `review` phase as the Phase 3 Milestone 30 boundary. Phase 3 Milestone 26 still has an explicit `phase-3-milestone-26` gate for REST API foundation work, Phase 3 Milestone 27 has an explicit `phase-3-milestone-27` gate for Dashboard MVP foundation work, Phase 3 Milestone 28 has an explicit `phase-3-milestone-28` gate for Product Validation Loop foundation work, Phase 3 Milestone 29 has an explicit `phase-3-milestone-29` gate for Private Beta deployment readiness, operations readiness, invite-only authentication, and persistence work, and Phase 3 Milestone 30 has an explicit `phase-3-milestone-30` gate for Beta Operations policy.
@@ -45,6 +48,8 @@ Engineering Kit v3.0 treats the active `review` phase as the Phase 3 Milestone 3
 The Phase 3 Milestone 29 gate requires deployment workflow configuration, placeholder-only production config, operations documentation, config binding documentation, rollback guidance, monitoring guidance, operational runbook, beta checklist, invite contracts, invite validation, session management, `PrivateBetaInvite`, `PrivateBetaSession`, `PrivateBetaFeedback`, and `PrivateBetaBugReport` persistence schema, protected dashboard/onboarding/save-dismiss/bug-reporting/invite workflow files, and secret-safe tests while continuing to block billing, multi-tenancy, production identity providers, enterprise auth, and unrelated product systems.
 
 The Phase 3 Milestone 30 gate requires Beta Operations boundary documentation in the README, CONTRIBUTING guide, PR template, documentation index, roadmap, implementation order, implementation README, scripts README, and the `04-008` through `04-016` Beta Operations documents. It is operations-only and continues blocking new backend features, AI features, payments, CRM integrations, notifications, analytics platforms, mobile apps, schedulers, workers, new APIs, new dashboard features, new persistence features, and new authentication features.
+
+The Phase 4 Milestone 33 gate requires controlled live Reddit provider transport files, public exports, fake-transport unit tests, optional live integration test coverage, security redaction tests, `.env.example` live Reddit variables, and documentation. It permits live Reddit provider access only inside `packages/connectors-reddit` and continues blocking Raw Content persistence, AI workflows, opportunity generation, REST APIs, frontend changes, schedulers, workers, database persistence, and business logic.
 
 ## Phase 1 Shared Infrastructure Boundaries
 

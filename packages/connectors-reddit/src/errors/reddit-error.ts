@@ -26,12 +26,15 @@ export type RedditConnectorErrorOptions = {
 const sensitiveAssignmentPattern =
   /\b(authorization|token|api[_-]?key|provider[_-]?key|password|secret|credential|dsn|database[_-]?url|connection[_-]?string|raw[_-]?payload|raw[_-]?provider[_-]?payload|client[_-]?secret|refresh[_-]?token|access[_-]?token)\s*[:=]\s*[^\s,;]+/giu;
 const authorizationHeaderPattern = /\bauthorization\s*:\s*bearer\s+[^\s,;]+/giu;
+const sensitiveTokenWordPattern =
+  /\b([a-z0-9_-]*(client[_-]?secret|access[_-]?token|refresh[_-]?token|api[_-]?key|provider[_-]?key|credential|password|secret)[a-z0-9_-]*)\b/giu;
 
 export function sanitizeRedditConnectorErrorMessage(message: string): string {
   return sanitizeConnectorErrorMessage(
     message
       .replace(authorizationHeaderPattern, "[REDACTED]")
       .replace(sensitiveAssignmentPattern, "[REDACTED]")
+      .replace(sensitiveTokenWordPattern, "[REDACTED]")
       .replace(/\b(raw[-\s]?provider[-\s]?response|provider response|stack frame|stack trace|raw cause|stack|cause)\b/giu, "[REDACTED]")
   );
 }

@@ -22,28 +22,33 @@ const prohibitedDependencyNames = [
   "@anthropic-ai/sdk"
 ] as const;
 
-const prohibitedImportPatterns = [
-  /from\s+["'][^"']*@prisma\/client[^"']*["']/iu,
-  /from\s+["'][^"']*prisma[^"']*["']/iu,
-  /from\s+["'][^"']*(^|\/|@)apps?(\/|$)[^"']*["']/iu,
-  /from\s+["'][^"']*(^|\/|@)api(\/|$)[^"']*["']/iu,
-  /from\s+["'][^"']*(^|\/|@)frontend(\/|$)[^"']*["']/iu,
-  /from\s+["'][^"']*(^|\/|@)scheduler(\/|$)[^"']*["']/iu,
-  /from\s+["'][^"']*(^|\/|@)worker(\/|$)[^"']*["']/iu,
-  /from\s+["'][^"']*(^|\/|@)ai(\/|$)[^"']*["']/iu,
-  /from\s+["'][^"']*(^|\/|@)business(\/|$)[^"']*["']/iu
+const prohibitedImportFragments = [
+  "@prisma/client",
+  "prisma",
+  "apps/",
+  "app/",
+  "api/",
+  "frontend",
+  "scheduler",
+  "worker",
+  "ai/",
+  "business"
 ] as const;
 
 const prohibitedSourceTerms = [
-  /\bPrismaClient\b/iu,
-  /\bpersistRawContent\b/iu,
-  /\bwriteToDatabase\b/iu,
-  /\bfetch\s*\(/iu,
-  /\bXMLHttpRequest\b/iu,
-  /\bOpenAI\b/iu,
-  /\bAnthropic\b/iu,
-  /\bscoreOpportunity\b/iu
+  "PrismaClient",
+  "persistRawContent",
+  "writeToDatabase",
+  "fetch(",
+  "XMLHttpRequest",
+  "OpenAI",
+  "Anthropic",
+  "scoreOpportunity"
 ] as const;
+
+function importSpecifiers(content: string): readonly string[] {
+  return [...content.matchAll(/from\s+["']([^"']+)["']/gu)].map((match) => match[1] ?? "");
+}
 
 function listSourceFiles(directory: string): readonly string[] {
   return readdirSync(directory).flatMap((entry) => {
@@ -94,17 +99,27 @@ describe("raw content dependency boundaries", () => {
   });
 
   it("does not import or implement prohibited runtime boundaries", () => {
+    const violations: string[] = [];
+
     for (const file of listSourceFiles(sourceRoot)) {
       const content = readFileSync(file, "utf8");
       const relativePath = relative(repoRoot, file);
 
-      for (const pattern of prohibitedImportPatterns) {
-        expect(pattern.test(content), `Unexpected prohibited import in ${relativePath}`).toBe(false);
+      for (const specifier of importSpecifiers(content)) {
+        for (const fragment of prohibitedImportFragments) {
+          if (specifier.includes(fragment)) {
+            violations.push(`Unexpected prohibited import in ${relativePath}: ${specifier}`);
+          }
+        }
       }
 
-      for (const pattern of prohibitedSourceTerms) {
-        expect(pattern.test(content), `Unexpected prohibited source term in ${relativePath}`).toBe(false);
+      for (const term of prohibitedSourceTerms) {
+        if (content.includes(term)) {
+          violations.push(`Unexpected prohibited source term in ${relativePath}: ${term}`);
+        }
       }
     }
+
+    expect(violations).toEqual([]);
   });
 });
