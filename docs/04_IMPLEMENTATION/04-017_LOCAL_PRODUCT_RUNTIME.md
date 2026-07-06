@@ -54,6 +54,8 @@ pnpm dev
 
 Keep the API terminal and dashboard terminal running while walking through the local product.
 
+For a normal-user MVP trial, follow `docs/04_IMPLEMENTATION/04-020_MVP_TRIAL_WALKTHROUGH.md`. It includes expected browser checkpoints, feedback workflow steps, and common failure cases.
+
 ## Runtime Behavior
 
 The API local runtime wraps existing route handlers and uses deterministic local stores:
