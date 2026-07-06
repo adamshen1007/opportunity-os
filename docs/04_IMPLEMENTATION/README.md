@@ -19,3 +19,5 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-015_LAUNCH_CHECKLIST.md` defines the Phase 3 Milestone 30 launch checklist.
 - `04-016_BETA_TROUBLESHOOTING_GUIDE.md` defines the Phase 3 Milestone 30 troubleshooting guide.
 - `04-017_LOCAL_PRODUCT_RUNTIME.md` defines the Phase 4 Milestone 31 local API/dashboard runtime commands and boundaries.
+- `04-018_REDDIT_LIVE_PROVIDER_TRANSPORT.md` defines the Phase 4 Milestone 33 controlled live Reddit provider transport.
+- `04-019_MVP_USER_TEST_READINESS.md` defines the product-level MVP normal-user trial readiness checklist.
