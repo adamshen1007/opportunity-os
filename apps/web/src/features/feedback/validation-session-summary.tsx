@@ -15,7 +15,7 @@ export function ValidationSessionSummary({ opportunities, feedback }: Validation
     <Panel title="Validation Session">
       <div className="validation-session">
         <p className="muted-copy">
-          Synthetic demo state for design-partner review. Feedback stays local and deterministic.
+          Track the current validation session. Feedback stays local and deterministic for this MVP trial.
         </p>
         <dl className="validation-session-grid">
           <div>

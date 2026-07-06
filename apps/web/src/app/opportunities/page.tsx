@@ -13,7 +13,7 @@ export default async function OpportunityListPage() {
   return (
     <AppShell
       title="Opportunities"
-      subtitle="Review synthetic opportunities with ranking metadata, confidence, and evidence readiness."
+      subtitle="Choose a ranked candidate, then inspect the evidence and explanation before saving or dismissing it."
     >
       <DashboardToolbar />
       <Panel title="Opportunity List">

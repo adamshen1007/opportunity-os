@@ -4,6 +4,7 @@ import { safeDashboardErrorMessage } from "../components/states/state-copy";
 import { Panel } from "../components/ui";
 import { BetaAccessPanel, BugReportPanel } from "../features/beta";
 import { DashboardToolbar } from "../features/dashboard/dashboard-toolbar";
+import { MvpTrialGuide } from "../features/dashboard/mvp-trial-guide";
 import { EvidenceView } from "../features/evidence/evidence-view";
 import { ValidationSessionSummary } from "../features/feedback";
 import { OpportunityList } from "../features/opportunities/opportunity-list";
@@ -28,10 +29,11 @@ export default async function DashboardHomePage() {
   return (
     <AppShell
       title="Opportunity dashboard"
-      subtitle="Scan ranked opportunities, inspect evidence, and follow provenance from one operational surface."
+      subtitle="Review evidence-backed opportunities, understand why they are ranked, and capture validation feedback."
     >
       <DashboardToolbar />
       <section className="dashboard-grid" aria-label="Dashboard summary">
+        <MvpTrialGuide />
         <BetaAccessPanel session={dashboardBetaSessionFixture} invite={dashboardBetaInviteWorkflowFixture} />
         <ValidationSessionSummary opportunities={opportunities} feedback={dashboardFeedbackFixtures} />
         <Panel title="Opportunity List">

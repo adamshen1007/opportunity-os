@@ -23,7 +23,10 @@ export default async function OpportunityDetailPage({ params }: OpportunityDetai
   }
 
   return (
-    <AppShell title="Opportunity detail" subtitle="Inspect confidence, ranking explanation, provenance, and evidence.">
+    <AppShell
+      title="Opportunity detail"
+      subtitle="Decide whether this evidence-backed opportunity is worth saving for validation."
+    >
       <OpportunityDetail
         opportunity={opportunity}
         evidence={getEvidenceForOpportunity(opportunity)}

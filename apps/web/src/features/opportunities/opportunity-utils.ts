@@ -12,3 +12,17 @@ export function getEvidenceForOpportunity(opportunity: DashboardOpportunityFixtu
 export function formatConfidence(confidence: number): string {
   return `${Math.round(confidence * 100)}%`;
 }
+
+export function formatDisplayDateTime(value: string): string {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Not available";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC"
+  }).format(parsed);
+}

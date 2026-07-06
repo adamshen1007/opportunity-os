@@ -5,14 +5,17 @@ test("dashboard loads with navigation and state coverage", async ({ page }) => {
 
   await expect(page.getByRole("heading", { exact: true, level: 1, name: "Dashboard" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "MVP Trial Guide" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Validation Session" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Private Beta Access" })).toBeVisible();
+  await expect(page.getByText("Opportunity OS turns evidence into ranked opportunity candidates")).toBeVisible();
+  await expect(page.getByText("Recommendations are explainable signals, not market guarantees.")).toBeVisible();
   await expect(page.getByText("Invite only")).toBeVisible();
   await expect(page.getByText("Invite accepted", { exact: true })).toBeVisible();
   await expect(page.getByText("Review ranked opportunities")).toBeVisible();
   await expect(page.getByText("Share validation feedback")).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Bug Reporting" })).toBeVisible();
-  await expect(page.getByText("Synthetic demo state for design-partner review.")).toBeVisible();
+  await expect(page.getByText("Track the current validation session.")).toBeVisible();
   const navigation = page.getByRole("navigation", { name: "Dashboard navigation" });
   await expect(navigation).toBeVisible();
   await expect(navigation.getByRole("link", { name: /Opportunities/u })).toBeVisible();
@@ -43,6 +46,8 @@ test("opportunity list supports search filters pagination and detail navigation"
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity detail" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Opportunity Detail" })).toBeVisible();
   await expect(page.getByText("Explanation", { exact: true })).toBeVisible();
+  await expect(page.getByText("Explainable MVP")).toBeVisible();
+  await expect(page.getByText("Confirm demand, source quality, and feasibility")).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Validation Feedback" })).toBeVisible();
   await expect(page.getByText("Current validation status")).toBeVisible();
   await expect(page.getByText("Evidence View")).toBeVisible();

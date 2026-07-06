@@ -2,7 +2,7 @@ import { Badge, Panel } from "../../components/ui";
 import { OpportunityFeedbackPanel } from "../feedback";
 import type { DashboardEvidenceFixture, DashboardFeedbackFixture, DashboardOpportunityFixture } from "../../testing";
 import { EvidenceView } from "../evidence/evidence-view";
-import { formatConfidence } from "./opportunity-utils";
+import { formatConfidence, formatDisplayDateTime } from "./opportunity-utils";
 
 export interface OpportunityDetailProps {
   readonly opportunity: DashboardOpportunityFixture;
@@ -34,7 +34,7 @@ export function OpportunityDetail({ opportunity, evidence, feedback }: Opportuni
           </div>
           <div>
             <dt>Generated</dt>
-            <dd>{opportunity.provenance.generatedAt}</dd>
+            <dd>{formatDisplayDateTime(opportunity.provenance.generatedAt)}</dd>
           </div>
         </dl>
         <div className="explanation-panel">
@@ -45,6 +45,13 @@ export function OpportunityDetail({ opportunity, evidence, feedback }: Opportuni
               <li key={factor}>{factor}</li>
             ))}
           </ul>
+        </div>
+        <div className="trust-note" role="note" aria-label="Opportunity trust boundary">
+          <Badge tone="success">Explainable MVP</Badge>
+          <p>
+            Treat this as a prioritization aid. Confirm demand, source quality, and feasibility before acting on the
+            recommendation.
+          </p>
         </div>
       </Panel>
       <OpportunityFeedbackPanel opportunityId={opportunity.opportunityId} initialFeedback={feedback} />
