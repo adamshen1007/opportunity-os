@@ -38,6 +38,11 @@ export const generatedApiRoutes = {
     method: "POST",
     path: "/feedback/bug-reports",
     operationId: "createPrivateBetaBugReport"
+  },
+  createRedditScan: {
+    method: "POST",
+    path: "/scans/reddit",
+    operationId: "createRedditScan"
   }
 } as const;
 

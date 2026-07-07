@@ -11,6 +11,13 @@ test("dashboard loads with navigation and state coverage", async ({ page }) => {
   await expect(page.getByText("Opportunity OS turns evidence into ranked opportunity candidates")).toBeVisible();
   await expect(page.getByText("Recommendations are explainable signals, not market guarantees.")).toBeVisible();
   await expect(page.getByText("Invite only")).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Run Reddit Scan" })).toBeVisible();
+  await expect(page.getByLabel("Subreddit")).toBeVisible();
+  await expect(page.getByLabel("Query")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Run scan" })).toBeVisible();
+  await expect(page.getByLabel("Scan results").getByText("Fixture fallback")).toBeVisible();
+  await expect(page.getByLabel("Scan results").getByText("Raw content").first()).toBeVisible();
+  await expect(page.getByLabel("Scan results").getByText("Normalized content").first()).toBeVisible();
   await expect(page.getByText("Invite accepted", { exact: true })).toBeVisible();
   await expect(page.getByText("Review ranked opportunities")).toBeVisible();
   await expect(page.getByText("Share validation feedback")).toBeVisible();
@@ -25,6 +32,35 @@ test("dashboard loads with navigation and state coverage", async ({ page }) => {
   await expect(page.getByText("Loading opportunities")).toBeVisible();
   await expect(page.getByText("No matching opportunities")).toBeVisible();
   await expect(page.getByText("Unable to load view")).toBeVisible();
+});
+
+test("dashboard scan workbench shows safe fallback results", async ({ page }) => {
+  await page.route("**/scans/reddit", async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: false,
+        error: {
+          code: "api.unavailable",
+          statusCode: 503,
+          message: "Service unavailable",
+          correlationId: "e2e-scan"
+        },
+        meta: {
+          correlationId: "e2e-scan"
+        }
+      })
+    });
+  });
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Run scan" }).click();
+
+  await expect(page.getByText("Showing deterministic fixture results instead.")).toBeVisible();
+  await expect(page.getByLabel("Scan results").getByRole("heading", { name: "Prioritize repeated manual review workflows" })).toBeVisible();
+  await expect(page.getByLabel("Scan results").getByText("Open source context").first()).toBeVisible();
+  await expect(page.getByLabel("Scan results").getByText("analysis-fixture-001")).toBeVisible();
 });
 
 test("opportunity list supports search filters pagination and detail navigation", async ({ page }) => {

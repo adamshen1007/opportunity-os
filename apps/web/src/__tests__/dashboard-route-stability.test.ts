@@ -35,6 +35,7 @@ describe("Dashboard route stability", () => {
     expect(Object.keys(generatedApiRoutes).sort()).toEqual([
       "createFeedback",
       "createPrivateBetaBugReport",
+      "createRedditScan",
       "getFeedback",
       "getOpportunity",
       "getRanking",

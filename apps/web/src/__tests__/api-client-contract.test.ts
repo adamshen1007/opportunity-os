@@ -3,6 +3,7 @@ import {
   createDashboardApiClient,
   createFeedback,
   createPrivateBetaBugReport,
+  createRedditScan,
   generatedApiRoutes,
   getFeedback,
   getOpportunity,
@@ -16,7 +17,8 @@ import {
   dashboardBugReportRequestFixture,
   dashboardFeedbackFixtures,
   dashboardOpportunityFixtures,
-  dashboardRankingFixtures
+  dashboardRankingFixtures,
+  dashboardScanFixture
 } from "../testing";
 
 const syntheticApiOpportunity = dashboardOpportunityFixtures[0]!;
@@ -199,6 +201,39 @@ describe("Dashboard API client contracts", () => {
     expect(created.ok).toBe(true);
     expect(calls).toEqual([`https://api.test${generatedApiRoutes.createPrivateBetaBugReport.path}`]);
     expect(JSON.parse(requestBody)).toEqual(dashboardBugReportRequestFixture);
+  });
+
+  it("creates Reddit scans through the typed API layer", async () => {
+    const calls: string[] = [];
+    let requestBody = "";
+    const client = createDashboardApiClient({
+      baseUrl: "https://api.test",
+      correlationId: "correlation-scan-001",
+      fetch: async (input, init) => {
+        calls.push(String(input));
+        requestBody = String(init?.body);
+        return createJsonResponse(createApiSuccessResponse(dashboardScanFixture, { correlationId: "correlation-scan-001" }));
+      }
+    });
+
+    const created = await createRedditScan(client, {
+      subreddit: "opportunity",
+      query: "manual review",
+      limit: 5,
+      mode: "fixture"
+    });
+
+    expect(created.ok).toBe(true);
+    expect(calls).toEqual([`https://api.test${generatedApiRoutes.createRedditScan.path}`]);
+    expect(JSON.parse(requestBody)).toEqual({
+      subreddit: "opportunity",
+      query: "manual review",
+      limit: 5,
+      mode: "fixture"
+    });
+    if (created.ok) {
+      expect(created.data.opportunities[0]?.evidence[0]?.provenance.sourcePlatform).toBe("reddit");
+    }
   });
 
   it("maps API errors without exposing secrets, stacks, raw payloads, or internal details", async () => {

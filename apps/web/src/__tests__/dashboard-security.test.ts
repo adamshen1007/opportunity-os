@@ -5,7 +5,8 @@ import {
   dashboardEvidenceFixtures,
   dashboardFeedbackFixtures,
   dashboardOpportunityFixtures,
-  dashboardRankingFixtures
+  dashboardRankingFixtures,
+  dashboardScanFixture
 } from "../testing";
 
 const unsafeTextPattern =
@@ -21,7 +22,8 @@ describe("Dashboard security contracts", () => {
       evidence: dashboardEvidenceFixtures,
       feedback: dashboardFeedbackFixtures,
       opportunities: dashboardOpportunityFixtures,
-      rankings: dashboardRankingFixtures
+      rankings: dashboardRankingFixtures,
+      scans: dashboardScanFixture
     });
 
     expect(fixtureOutput).not.toMatch(unsafeTextPattern);

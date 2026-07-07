@@ -150,3 +150,86 @@ export interface DashboardApiCreateBugReportRequestBody {
   readonly severity: DashboardApiBugReportSeverity;
   readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
 }
+
+export type DashboardApiScanMode = "fixture" | "live";
+
+export interface DashboardApiRedditScanRequestBody {
+  readonly subreddit?: string;
+  readonly query?: string;
+  readonly limit?: number;
+  readonly mode?: DashboardApiScanMode;
+}
+
+export type DashboardApiScanStageName =
+  | "reddit"
+  | "raw-content"
+  | "normalization"
+  | "llm-analysis"
+  | "candidate-generation"
+  | "opportunity-generation"
+  | "ranking";
+
+export type DashboardApiScanStageStatus = "completed" | "skipped";
+
+export interface DashboardApiScanStageDto {
+  readonly name: DashboardApiScanStageName;
+  readonly status: DashboardApiScanStageStatus;
+  readonly safeMessage: string;
+}
+
+export interface DashboardApiScanEvidenceDto {
+  readonly evidenceId: string;
+  readonly sourceType: "reddit";
+  readonly summary: string;
+  readonly permalink?: string;
+  readonly confidence: number;
+  readonly provenance: {
+    readonly sourcePlatform: "reddit";
+    readonly sourceId: string;
+    readonly sourceUrl?: string;
+    readonly normalizedContentId: string;
+    readonly analysisRequestId: string;
+  };
+}
+
+export interface DashboardApiScanOpportunityDto {
+  readonly opportunityId: string;
+  readonly title: string;
+  readonly summary: string;
+  readonly confidence: number;
+  readonly rank: {
+    readonly position: number;
+    readonly score: number;
+    readonly explanation: string;
+  };
+  readonly evidence: readonly DashboardApiScanEvidenceDto[];
+  readonly provenance: {
+    readonly scanId: string;
+    readonly redditPostId: string;
+    readonly rawContentId: string;
+    readonly normalizedContentId: string;
+    readonly analysisRequestId: string;
+    readonly candidateId: string;
+    readonly generationOutputId: string;
+    readonly rankingRunId: string;
+  };
+}
+
+export interface DashboardApiScanResultDto {
+  readonly scanId: string;
+  readonly mode: DashboardApiScanMode;
+  readonly status: "completed";
+  readonly source: {
+    readonly provider: "reddit";
+    readonly subreddit: string;
+    readonly query?: string;
+    readonly itemCount: number;
+  };
+  readonly stages: readonly DashboardApiScanStageDto[];
+  readonly opportunities: readonly DashboardApiScanOpportunityDto[];
+  readonly safeMetadata: {
+    readonly deterministic: boolean;
+    readonly liveEnabled: boolean;
+    readonly rawProviderPayloadStored: false;
+  };
+}

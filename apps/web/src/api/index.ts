@@ -5,4 +5,5 @@ export * from "./generated/routes";
 export * from "./local-data";
 export * from "./opportunities";
 export * from "./rankings";
+export * from "./scans";
 export * from "./types";

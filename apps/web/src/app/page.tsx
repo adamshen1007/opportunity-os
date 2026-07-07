@@ -9,6 +9,7 @@ import { EvidenceView } from "../features/evidence/evidence-view";
 import { ValidationSessionSummary } from "../features/feedback";
 import { OpportunityList } from "../features/opportunities/opportunity-list";
 import { RankingView } from "../features/rankings/ranking-view";
+import { RedditScanWorkbench } from "../features/scans";
 import { loadDashboardLocalData } from "../api";
 import {
   dashboardEvidenceFixtures,
@@ -32,6 +33,7 @@ export default async function DashboardHomePage() {
       subtitle="Review evidence-backed opportunities, understand why they are ranked, and capture validation feedback."
     >
       <DashboardToolbar />
+      <RedditScanWorkbench />
       <section className="dashboard-grid" aria-label="Dashboard summary">
         <MvpTrialGuide />
         <BetaAccessPanel session={dashboardBetaSessionFixture} invite={dashboardBetaInviteWorkflowFixture} />

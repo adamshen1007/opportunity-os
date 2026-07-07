@@ -6,7 +6,8 @@ import {
   dashboardBetaInviteWorkflowFixture,
   dashboardBetaSessionFixture,
   dashboardBugReportFixture,
-  dashboardFeedbackFixtures
+  dashboardFeedbackFixtures,
+  dashboardScanFixture
 } from "../testing";
 
 describe("Dashboard component test infrastructure", () => {
@@ -42,5 +43,20 @@ describe("Dashboard component test infrastructure", () => {
     expect(dashboardBetaInviteWorkflowFixture.safeMessage).toContain("Invite accepted");
     expect(dashboardBugReportFixture.status).toBe("open");
     expect(dashboardBugReportFixture.title).toBe("Synthetic dashboard issue");
+  });
+
+  it("keeps deterministic scan fixtures available for dashboard fallback", () => {
+    expect(dashboardScanFixture.mode).toBe("fixture");
+    expect(dashboardScanFixture.safeMetadata.rawProviderPayloadStored).toBe(false);
+    expect(dashboardScanFixture.stages.map((stage) => stage.name)).toEqual([
+      "reddit",
+      "raw-content",
+      "normalization",
+      "llm-analysis",
+      "candidate-generation",
+      "opportunity-generation",
+      "ranking"
+    ]);
+    expect(dashboardScanFixture.opportunities[0]?.evidence[0]?.summary).toContain("manual review");
   });
 });

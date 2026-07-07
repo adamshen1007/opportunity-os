@@ -767,6 +767,204 @@ textarea:focus-visible {
   line-height: 1.55;
 }
 
+.scan-workbench,
+.scan-output,
+.scan-evidence-list {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+}
+
+.scan-form {
+  display: grid;
+  min-width: 0;
+  align-items: end;
+  grid-template-columns: minmax(130px, 0.85fr) minmax(180px, 1.1fr) minmax(86px, 0.45fr) minmax(140px, 0.7fr) auto;
+  gap: 10px;
+}
+
+.scan-copy {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: #fbf6ec;
+}
+
+.scan-copy p {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+.scan-status-grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.scan-status-grid div,
+.scan-provenance-list div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 11px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: #f8f0e3;
+}
+
+.scan-status-grid span,
+.scan-provenance-list dt,
+.scan-result-metrics span:first-child,
+.scan-evidence-item span {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.scan-status-grid strong,
+.scan-provenance-list dd {
+  min-width: 0;
+  color: var(--ink-strong);
+  font-weight: 690;
+  overflow-wrap: anywhere;
+}
+
+.scan-stage-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.scan-stage-list li {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 11px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.scan-stage-list div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.scan-stage-list strong {
+  color: var(--ink-strong);
+  font-size: 0.86rem;
+}
+
+.scan-stage-list span {
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+.scan-results-grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.scan-result-card {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.scan-result-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scan-result-heading span {
+  color: var(--clay-dark);
+  font-weight: 780;
+}
+
+.scan-result-card h4,
+.scan-result-card p {
+  margin: 0;
+}
+
+.scan-result-card h4 {
+  color: var(--ink-strong);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.scan-result-card p {
+  color: var(--ink-muted);
+  line-height: 1.58;
+}
+
+.scan-result-metrics {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 11px;
+  border: 1px solid #d6c5b4;
+  border-radius: 8px;
+  background: #fbf1e4;
+}
+
+.scan-result-metrics span:last-child {
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+.scan-evidence-item {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: #fbf6ec;
+}
+
+.scan-evidence-item strong {
+  color: var(--ink-strong);
+}
+
+.scan-evidence-item a {
+  width: max-content;
+  max-width: 100%;
+  color: var(--clay-dark);
+  font-size: 0.84rem;
+  font-weight: 720;
+}
+
+.scan-provenance-list {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
 .validation-session-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
@@ -909,6 +1107,9 @@ textarea:focus-visible {
 @media (max-width: 980px) {
   .dashboard-shell,
   .dashboard-grid,
+  .scan-form,
+  .scan-results-grid,
+  .scan-status-grid,
   .toolbar,
   .detail-layout,
   .metadata-grid,
@@ -952,8 +1153,15 @@ textarea:focus-visible {
 
   .feedback-actions,
   .feedback-reasons div,
+  .scan-copy,
+  .scan-provenance-list,
   .trust-note {
     grid-template-columns: 1fr;
+  }
+
+  .scan-copy {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .table {
