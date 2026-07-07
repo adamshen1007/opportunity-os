@@ -1,6 +1,6 @@
 import { createApiSuccessResponse, type ApiRequest, type ApiSuccessResponse } from "../../http/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
-import type { ApiHealthDto } from "./health-schema.js";
+import type { ApiHealthDependencyDto, ApiHealthDto } from "./health-schema.js";
 
 export const API_HEALTH_ROUTE = createApiRouteDefinition({
   method: API_HTTP_METHODS.get,
@@ -14,6 +14,8 @@ export const API_HEALTH_ROUTE = createApiRouteDefinition({
 export interface ApiHealthRouteInput {
   readonly serviceName: string;
   readonly version: string;
+  readonly environment?: string;
+  readonly dependencies?: readonly ApiHealthDependencyDto[];
   readonly clock: () => string;
 }
 
@@ -21,12 +23,17 @@ export function handleApiHealthRequest(
   request: ApiRequest,
   input: ApiHealthRouteInput
 ): ApiSuccessResponse<ApiHealthDto> {
+  const checkedAt = input.clock();
+  const dependencies = input.dependencies ?? [];
+
   return createApiSuccessResponse(
     {
-      status: "ok",
+      status: dependencies.some((dependency) => dependency.status !== "ok") ? "degraded" : "ok",
       serviceName: input.serviceName,
       version: input.version,
-      checkedAt: input.clock()
+      environment: input.environment ?? "local",
+      checkedAt,
+      dependencies
     },
     {
       correlationId: request.context.correlationId,

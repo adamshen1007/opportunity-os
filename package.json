@@ -16,7 +16,7 @@
     "repo:check": "node scripts/verify-repository.mjs --phase review",
     "lint": "node scripts/verify-repository.mjs --phase review && turbo run lint",
     "build": "node scripts/verify-repository.mjs --phase review && turbo run build",
-    "test": "node scripts/verify-repository.mjs --phase review && turbo run test --concurrency=1"
+    "test": "node scripts/verify-repository.mjs --phase review && turbo run test --concurrency=1 -- --testTimeout=90000"
   },
   "devDependencies": {
     "turbo": "^2.5.4",

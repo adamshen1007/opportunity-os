@@ -22,7 +22,13 @@ export const REQUIRED_ENVIRONMENT_VARIABLES = [
 export const OPTIONAL_ENVIRONMENT_VARIABLES = [
   "SENTRY_DSN",
   "LANGFUSE_API_KEY",
-  "LANGSMITH_API_KEY"
+  "LANGSMITH_API_KEY",
+  "OPPORTUNITY_OS_API_URL",
+  "OPPORTUNITY_OS_WEB_URL",
+  "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
+  "LLM_PROVIDER",
+  "LLM_MODEL",
+  "LLM_LIVE_ANALYSIS_ENABLED"
 ] as const;
 
 export type RequiredEnvironmentVariable = (typeof REQUIRED_ENVIRONMENT_VARIABLES)[number];
@@ -37,6 +43,8 @@ export const DEFAULT_ENVIRONMENT_VALUES = {
 
 const runtimeEnvironmentSchema = z.enum(["local", "development", "staging", "production"]);
 const logLevelSchema = z.enum(["trace", "debug", "info", "warn", "error", "fatal"]);
+const llmProviderSchema = z.enum(["openai", "anthropic"]);
+const booleanStringSchema = z.enum(["true", "false"]);
 
 const nonEmptyStringSchema = z.string().trim().min(1);
 const urlStringSchema = nonEmptyStringSchema.url();
@@ -60,7 +68,13 @@ export const requiredEnvironmentSchema = z.object({
 export const optionalEnvironmentSchema = z.object({
   SENTRY_DSN: urlStringSchema.optional(),
   LANGFUSE_API_KEY: nonEmptyStringSchema.optional(),
-  LANGSMITH_API_KEY: nonEmptyStringSchema.optional()
+  LANGSMITH_API_KEY: nonEmptyStringSchema.optional(),
+  OPPORTUNITY_OS_API_URL: urlStringSchema.optional(),
+  OPPORTUNITY_OS_WEB_URL: urlStringSchema.optional(),
+  NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: urlStringSchema.optional(),
+  LLM_PROVIDER: llmProviderSchema.optional(),
+  LLM_MODEL: nonEmptyStringSchema.optional(),
+  LLM_LIVE_ANALYSIS_ENABLED: booleanStringSchema.optional()
 });
 
 export function validateRequiredEnvironment(input: Record<string, unknown>): RequiredEnvironment {
@@ -131,6 +145,22 @@ function getIssueMessage(variableName: EnvironmentVariableName, issue: z.ZodIssu
 
   if (variableName === "SENTRY_DSN") {
     return "SENTRY_DSN must be a valid URL";
+  }
+
+  if (
+    variableName === "OPPORTUNITY_OS_API_URL" ||
+    variableName === "OPPORTUNITY_OS_WEB_URL" ||
+    variableName === "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL"
+  ) {
+    return `${variableName} must be a valid URL`;
+  }
+
+  if (variableName === "LLM_PROVIDER") {
+    return "LLM_PROVIDER must be one of: openai, anthropic";
+  }
+
+  if (variableName === "LLM_LIVE_ANALYSIS_ENABLED") {
+    return "LLM_LIVE_ANALYSIS_ENABLED must be one of: true, false";
   }
 
   return `${variableName} must be a non-empty string`;

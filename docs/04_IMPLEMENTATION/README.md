@@ -22,3 +22,4 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-018_REDDIT_LIVE_PROVIDER_TRANSPORT.md` defines the Phase 4 Milestone 33 controlled live Reddit provider transport.
 - `04-019_MVP_USER_TEST_READINESS.md` defines the product-level MVP normal-user trial readiness checklist.
 - `04-020_MVP_TRIAL_WALKTHROUGH.md` defines the step-by-step local MVP trial flow for Adam.
+- `04-021_EXTERNAL_MVP_RUNTIME.md` defines the Phase 4 Milestone 34 hosted external MVP runtime deployment, production environment, health check, and external URL verification boundary.

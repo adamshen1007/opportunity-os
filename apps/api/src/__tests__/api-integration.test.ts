@@ -69,6 +69,7 @@ describe("API integration contracts", () => {
     const health = handleApiHealthRequest(createSyntheticApiRequest(), {
       serviceName: "opportunity-api",
       version: "0.0.0",
+      environment: "production",
       clock: () => "2026-07-03T00:00:00.000Z"
     });
     const opportunities = await handleListOpportunitiesRequest(
@@ -92,6 +93,7 @@ describe("API integration contracts", () => {
     );
 
     expect(health.ok).toBe(true);
+    expect(health.data.environment).toBe("production");
     expect(opportunities.ok).toBe(true);
     expect(opportunity.ok).toBe(true);
     expect(ranking.ok).toBe(true);

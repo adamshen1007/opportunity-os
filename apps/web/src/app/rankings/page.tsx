@@ -1,5 +1,5 @@
 import { AppShell } from "../../components/layout";
-import { loadDashboardLocalData } from "../../api/local-data";
+import { loadDashboardLocalData } from "../../api";
 import { EmptyState } from "../../components/states";
 import { RankingView } from "../../features/rankings/ranking-view";
 import { dashboardRankingFixtures } from "../../testing";

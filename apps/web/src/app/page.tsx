@@ -9,7 +9,7 @@ import { EvidenceView } from "../features/evidence/evidence-view";
 import { ValidationSessionSummary } from "../features/feedback";
 import { OpportunityList } from "../features/opportunities/opportunity-list";
 import { RankingView } from "../features/rankings/ranking-view";
-import { loadDashboardLocalData } from "../api/local-data";
+import { loadDashboardLocalData } from "../api";
 import {
   dashboardEvidenceFixtures,
   dashboardBetaInviteWorkflowFixture,

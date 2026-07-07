@@ -55,7 +55,17 @@ function createOptionalIntegrationConfig(optionalEnvironment: OptionalEnvironmen
   return {
     ...(optionalEnvironment.SENTRY_DSN === undefined ? {} : { sentryDsn: optionalEnvironment.SENTRY_DSN }),
     ...(optionalEnvironment.LANGFUSE_API_KEY === undefined ? {} : { langfuseApiKey: optionalEnvironment.LANGFUSE_API_KEY }),
-    ...(optionalEnvironment.LANGSMITH_API_KEY === undefined ? {} : { langsmithApiKey: optionalEnvironment.LANGSMITH_API_KEY })
+    ...(optionalEnvironment.LANGSMITH_API_KEY === undefined ? {} : { langsmithApiKey: optionalEnvironment.LANGSMITH_API_KEY }),
+    ...(optionalEnvironment.OPPORTUNITY_OS_API_URL === undefined ? {} : { apiUrl: optionalEnvironment.OPPORTUNITY_OS_API_URL }),
+    ...(optionalEnvironment.OPPORTUNITY_OS_WEB_URL === undefined ? {} : { webUrl: optionalEnvironment.OPPORTUNITY_OS_WEB_URL }),
+    ...(optionalEnvironment.NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL === undefined
+      ? {}
+      : { publicApiBaseUrl: optionalEnvironment.NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL }),
+    ...(optionalEnvironment.LLM_PROVIDER === undefined ? {} : { llmProvider: optionalEnvironment.LLM_PROVIDER }),
+    ...(optionalEnvironment.LLM_MODEL === undefined ? {} : { llmModel: optionalEnvironment.LLM_MODEL }),
+    ...(optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === undefined
+      ? {}
+      : { liveLlmAnalysisEnabled: optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === "true" })
   };
 }
 

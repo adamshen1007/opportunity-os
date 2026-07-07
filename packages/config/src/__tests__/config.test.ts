@@ -29,7 +29,13 @@ const requiredEnvironment: RequiredEnvironment = {
 const optionalEnvironment: OptionalEnvironment = {
   SENTRY_DSN: "https://example.sentry.io/123",
   LANGFUSE_API_KEY: "langfuse-secret-value",
-  LANGSMITH_API_KEY: "langsmith-secret-value"
+  LANGSMITH_API_KEY: "langsmith-secret-value",
+  OPPORTUNITY_OS_API_URL: "https://api.example.com",
+  OPPORTUNITY_OS_WEB_URL: "https://app.example.com",
+  NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: "https://api.example.com",
+  LLM_PROVIDER: "openai",
+  LLM_MODEL: "gpt-4.1-mini",
+  LLM_LIVE_ANALYSIS_ENABLED: "true"
 };
 
 const processLikeGlobal = globalThis as typeof globalThis & {
@@ -72,7 +78,13 @@ describe("config package scaffold", () => {
       optionalIntegrations: {
         sentryDsn: "https://example.sentry.io/123",
         langfuseApiKey: "langfuse-secret-value",
-        langsmithApiKey: "langsmith-secret-value"
+        langsmithApiKey: "langsmith-secret-value",
+        apiUrl: "https://api.example.com",
+        webUrl: "https://app.example.com",
+        publicApiBaseUrl: "https://api.example.com",
+        llmProvider: "openai",
+        llmModel: "gpt-4.1-mini",
+        liveLlmAnalysisEnabled: true
       }
     });
   });

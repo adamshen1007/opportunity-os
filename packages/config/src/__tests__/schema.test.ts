@@ -47,7 +47,13 @@ describe("environment variable contract", () => {
     expect(OPTIONAL_ENVIRONMENT_VARIABLES).toEqual([
       "SENTRY_DSN",
       "LANGFUSE_API_KEY",
-      "LANGSMITH_API_KEY"
+      "LANGSMITH_API_KEY",
+      "OPPORTUNITY_OS_API_URL",
+      "OPPORTUNITY_OS_WEB_URL",
+      "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
+      "LLM_PROVIDER",
+      "LLM_MODEL",
+      "LLM_LIVE_ANALYSIS_ENABLED"
     ]);
   });
 
@@ -178,12 +184,24 @@ describe("environment variable contract", () => {
       validateOptionalEnvironment({
         SENTRY_DSN: "https://example.sentry.io/123",
         LANGFUSE_API_KEY: "langfuse-secret-value",
-        LANGSMITH_API_KEY: "langsmith-secret-value"
+        LANGSMITH_API_KEY: "langsmith-secret-value",
+        OPPORTUNITY_OS_API_URL: "https://api.example.com",
+        OPPORTUNITY_OS_WEB_URL: "https://app.example.com",
+        NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: "https://api.example.com",
+        LLM_PROVIDER: "openai",
+        LLM_MODEL: "gpt-4.1-mini",
+        LLM_LIVE_ANALYSIS_ENABLED: "false"
       })
     ).toEqual({
       SENTRY_DSN: "https://example.sentry.io/123",
       LANGFUSE_API_KEY: "langfuse-secret-value",
-      LANGSMITH_API_KEY: "langsmith-secret-value"
+      LANGSMITH_API_KEY: "langsmith-secret-value",
+      OPPORTUNITY_OS_API_URL: "https://api.example.com",
+      OPPORTUNITY_OS_WEB_URL: "https://app.example.com",
+      NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: "https://api.example.com",
+      LLM_PROVIDER: "openai",
+      LLM_MODEL: "gpt-4.1-mini",
+      LLM_LIVE_ANALYSIS_ENABLED: "false"
     });
   });
 
@@ -192,7 +210,10 @@ describe("environment variable contract", () => {
       validateOptionalEnvironment({
         SENTRY_DSN: "not-a-url",
         LANGFUSE_API_KEY: "",
-        LANGSMITH_API_KEY: ""
+        LANGSMITH_API_KEY: "",
+        OPPORTUNITY_OS_API_URL: "not-a-url",
+        LLM_PROVIDER: "gemini",
+        LLM_LIVE_ANALYSIS_ENABLED: "yes"
       })
     ).toThrow("SENTRY_DSN: SENTRY_DSN must be a valid URL");
   });

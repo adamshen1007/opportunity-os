@@ -34,6 +34,7 @@ import { API_ERROR_CODES, createApiError } from "./errors/index.js";
 export interface LocalApiServerOptions {
   readonly serviceName?: string;
   readonly version?: string;
+  readonly environment?: string;
   readonly clock?: () => string;
 }
 
@@ -60,6 +61,7 @@ const DEFAULT_PORT = 4000;
 export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
   const serviceName = options.serviceName ?? DEFAULT_SERVICE_NAME;
   const version = options.version ?? DEFAULT_VERSION;
+  const environment = options.environment ?? "local";
   const clock = options.clock ?? (() => new Date().toISOString());
   const feedbackStore = createSyntheticApiFeedbackStore();
   const bugReportStore = createSyntheticApiBugReportStore();
@@ -73,7 +75,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "GET",
       path: "/health",
-      handler: (request) => handleApiHealthRequest(request, { serviceName, version, clock })
+      handler: (request) => handleApiHealthRequest(request, { serviceName, version, environment, clock })
     },
     {
       method: "GET",

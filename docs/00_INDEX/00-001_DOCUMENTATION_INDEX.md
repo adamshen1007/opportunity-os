@@ -13,7 +13,7 @@
 
 Engineering Kit v3.0 is the canonical reference for future Codex work.
 
-It reflects completed implementation through Phase 3 Milestone 29 and active Phase 3 Milestone 30 Beta Operations work:
+It reflects completed implementation through Phase 4 Milestone 33 and active Phase 4 Milestone 34 External MVP Runtime work:
 
 - Phase 0 Repository Foundation
 - Phase 1 M1 Runtime Configuration
@@ -45,8 +45,12 @@ It reflects completed implementation through Phase 3 Milestone 29 and active Pha
 - Phase 3 M27 Dashboard MVP
 - Phase 3 M28 Product Validation Loop
 - Phase 3 M29 Private Beta
+- Phase 3 M30 Beta Operations
+- Phase 4 M31 Local Product Runtime
+- Phase 4 M32 Product Data Schema
+- Phase 4 M33 Reddit Live Provider Transport
 
-Current implementation is Phase 3 Milestone 30: Beta Operations. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
+Current implementation is Phase 4 Milestone 34: External MVP Runtime. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
 ## Purpose
 
@@ -193,6 +197,7 @@ Documents:
 - 04-018_REDDIT_LIVE_PROVIDER_TRANSPORT.md
 - 04-019_MVP_USER_TEST_READINESS.md
 - 04-020_MVP_TRIAL_WALKTHROUGH.md
+- 04-021_EXTERNAL_MVP_RUNTIME.md
 
 - Development playbooks
 

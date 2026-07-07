@@ -10,18 +10,18 @@ permissions:
   contents: read
 
 concurrency:
-  group: private-beta-deploy-${{ github.ref }}
+  group: external-mvp-deploy-${{ github.ref }}
   cancel-in-progress: false
 
 env:
-  DEPLOYMENT_ENVIRONMENT: private-beta
+  DEPLOYMENT_ENVIRONMENT: external-mvp
   NODE_ENV: production
 
 jobs:
-  private-beta-readiness:
-    name: private-beta deployment readiness
+  external-mvp-readiness:
+    name: external MVP deployment readiness
     runs-on: ubuntu-latest
-    environment: private-beta
+    environment: external-mvp
 
     steps:
       - name: Checkout
@@ -41,8 +41,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify private-beta policy
-        run: node scripts/verify-repository.mjs --phase phase-3-milestone-29
+      - name: Verify external MVP policy
+        run: node scripts/verify-repository.mjs --phase phase-4-milestone-34
 
       - name: Lint
         run: pnpm lint
@@ -58,10 +58,11 @@ jobs:
 
       - name: Record deployment workflow contract
         run: |
-          echo "deployment workflow: private-beta"
-          echo "production config: config/private-beta.env.example"
-          echo "secrets management: GitHub private-beta environment secrets"
+          echo "deployment workflow: external-mvp"
+          echo "production config: .env.example plus protected external-mvp environment secrets"
+          echo "secrets management: GitHub external-mvp environment secrets"
           echo "health monitoring: API health endpoint and Docker Compose health checks"
           echo "operational logging: structured secret-safe logs"
           echo "monitoring strategy: health, logs, error rate, latency, resource pressure"
           echo "backup strategy: PostgreSQL snapshot and restore runbook"
+          echo "External URL verification: check OPPORTUNITY_OS_WEB_URL and OPPORTUNITY_OS_API_URL after deployment"

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { loadDashboardLocalData } from "../../../api/local-data";
+import { loadDashboardLocalData } from "../../../api";
 import { AppShell } from "../../../components/layout";
 import { OpportunityDetail } from "../../../features/opportunities/opportunity-detail";
 import { getEvidenceForOpportunity } from "../../../features/opportunities/opportunity-utils";

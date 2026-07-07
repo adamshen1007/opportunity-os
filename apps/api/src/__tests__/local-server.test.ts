@@ -5,6 +5,7 @@ function createTestDispatcher() {
   return createLocalApiDispatcher({
     serviceName: "opportunity-os-api-test",
     version: "test",
+    environment: "local",
     clock: () => "2026-07-05T00:00:00.000Z"
   });
 }
@@ -22,7 +23,11 @@ describe("local API server", () => {
     });
 
     expect(health.ok).toBe(true);
-    expect(health.ok ? health.data : undefined).toMatchObject({ status: "ok" });
+    expect(health.ok ? health.data : undefined).toMatchObject({
+      status: "ok",
+      environment: "local",
+      dependencies: []
+    });
 
     const opportunities = await dispatch({
       method: "GET",

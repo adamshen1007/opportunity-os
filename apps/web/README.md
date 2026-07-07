@@ -4,6 +4,8 @@
 
 Phase 4 Milestone 31 connects the dashboard to the local API runtime for first-time local product walkthroughs. Dashboard pages use `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL` when provided and otherwise default to `http://127.0.0.1:4000`. If the API terminal is not running, the dashboard falls back to deterministic fixtures so the UI remains inspectable.
 
+Phase 4 Milestone 34 uses the same API base URL contract for hosted external MVP deployments. Hosted web environments must bind `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL` to the deployed API origin and `OPPORTUNITY_OS_WEB_URL` to the deployed dashboard origin. Browser-visible error states must remain safe and must not show secrets, raw provider payloads, stack traces, or internal dependency details.
+
 For the normal-user MVP trial, follow `docs/04_IMPLEMENTATION/04-020_MVP_TRIAL_WALKTHROUGH.md`. The first screen should explain the product purpose, the review flow, the local/demo data boundary, and the feedback actions without requiring repository context.
 
 Run the dashboard:

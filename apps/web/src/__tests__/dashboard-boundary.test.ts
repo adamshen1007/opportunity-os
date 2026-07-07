@@ -20,7 +20,7 @@ describe("Dashboard dependency boundary", () => {
   it("keeps scripts deterministic and local", () => {
     expect(webPackageJson.scripts.test).toBe("vitest run src --passWithNoTests");
     expect(webPackageJson.scripts["test:e2e"]).toBe("playwright test");
-    expect(webPackageJson.scripts.build).toBe("next build");
+    expect(webPackageJson.scripts.build).toBe("next build --webpack");
   });
 
   it("keeps validation feedback dependencies limited to local dashboard behavior", () => {

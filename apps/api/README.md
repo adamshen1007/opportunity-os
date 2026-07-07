@@ -21,6 +21,12 @@ The API listens on `http://127.0.0.1:4000` by default. Set `PORT` only when you 
 
 For the normal-user MVP trial, start this API before opening the dashboard and verify `http://127.0.0.1:4000/health`. The dashboard can fall back to fixtures if the API is unavailable, but the API-backed path is the preferred trial path.
 
+## Production Health Check
+
+Phase 4 Milestone 34 extends `/health` for hosted external MVP verification.
+
+The response includes service name, version, environment, checked timestamp, aggregate status, dependency summaries, and safe dependency messages only. It must not expose credentials, database URLs, Redis URLs, provider keys, auth headers, raw provider payloads, stack traces, or internal dependency details.
+
 Milestone 26 establishes the strict TypeScript API app with explicit bootstrap, routing, OpenAPI contracts, health endpoint, opportunity endpoints, ranking endpoints, pagination, filtering, request validation, error mapping, authentication and authorization contracts, API versioning, deterministic fixtures, integration tests, security tests, contract stability tests, dependency-boundary tests, package metadata, and repository verification policy.
 
 Allowed work in this milestone must remain focused on the REST API surface described by the Engineering Kit:

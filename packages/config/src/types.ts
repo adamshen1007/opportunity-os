@@ -21,6 +21,12 @@ export interface OptionalEnvironment {
   readonly SENTRY_DSN?: string;
   readonly LANGFUSE_API_KEY?: string;
   readonly LANGSMITH_API_KEY?: string;
+  readonly OPPORTUNITY_OS_API_URL?: string;
+  readonly OPPORTUNITY_OS_WEB_URL?: string;
+  readonly NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL?: string;
+  readonly LLM_PROVIDER?: "openai" | "anthropic";
+  readonly LLM_MODEL?: string;
+  readonly LLM_LIVE_ANALYSIS_ENABLED?: "true" | "false";
 }
 
 export interface DefaultEnvironmentValues {
@@ -61,6 +67,12 @@ export interface OptionalIntegrationConfig {
   readonly sentryDsn?: string;
   readonly langfuseApiKey?: string;
   readonly langsmithApiKey?: string;
+  readonly apiUrl?: string;
+  readonly webUrl?: string;
+  readonly publicApiBaseUrl?: string;
+  readonly llmProvider?: "openai" | "anthropic";
+  readonly llmModel?: string;
+  readonly liveLlmAnalysisEnabled?: boolean;
 }
 
 export interface RuntimeConfig {

@@ -1,0 +1,112 @@
+# 04-021_EXTERNAL_MVP_RUNTIME.md
+
+**Document ID:** 04-021  
+**Version:** 3.0.0  
+**Status:** Active  
+**Layer:** 4 - Implementation  
+**Owner:** Opportunity OS Architecture Team
+
+## Purpose
+
+Phase 4 Milestone 34 prepares Opportunity OS for a hosted external MVP runtime.
+
+This slice establishes deployment and production environment readiness only. It does not add new product workflows, new providers, schedulers, workers, billing, CRM integrations, notifications, multi-tenancy, recommendation engines, or a complex admin console.
+
+## Boundary
+
+Milestone 34 is scoped to:
+
+- hosted web deployment readiness
+- hosted API deployment readiness
+- production environment contract
+- protected production secrets binding
+- production health check shape
+- external URL verification
+- deployment smoke-test documentation
+
+Milestone 34 must not introduce:
+
+- YouTube, X, or Product Hunt connectors
+- schedulers or workers
+- billing, CRM, notifications, or multi-tenancy
+- recommendation engine behavior
+- complex admin console behavior
+- secret logging, secret serialization, or committed secrets
+
+## Production Environment Contract
+
+The canonical environment contract remains `.env.example` plus the runtime validation schema in `packages/config`.
+
+Hosted environments must bind actual values through protected deployment environment settings or an approved secret manager.
+
+Required values continue to include:
+
+- application identity and port
+- database and Redis URLs
+- provider API keys and model names
+- JWT secret and expiry
+- structured logging and OpenTelemetry endpoint
+
+External MVP runtime values include:
+
+- `OPPORTUNITY_OS_API_URL`
+- `OPPORTUNITY_OS_WEB_URL`
+- `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`
+- `LLM_PROVIDER`
+- `LLM_MODEL`
+- `LLM_LIVE_ANALYSIS_ENABLED`
+
+`LLM_LIVE_ANALYSIS_ENABLED` must default to `false` for local and CI usage. Live provider analysis is opt-in and must remain env-gated.
+
+Secrets must never be committed, logged, serialized, displayed in health output, included in deployment logs, or copied into documentation examples.
+
+## Deployment Configuration
+
+The deployment workflow is `.github/workflows/deploy.yml`.
+
+The workflow verifies:
+
+- `node scripts/verify-repository.mjs --phase phase-4-milestone-34`
+- `pnpm lint`
+- `pnpm build`
+- `pnpm test`
+- `docker compose config`
+
+The workflow records the deployment contract for the external MVP environment. It does not perform destructive production actions and does not create provider accounts, billing flows, schedulers, workers, or managed CRM/notification integrations.
+
+## Production Health Check
+
+The API health route must expose a safe health response containing:
+
+- service name
+- version
+- environment
+- checked timestamp
+- aggregate status
+- dependency summaries
+- safe dependency messages only
+
+Health responses must not expose credentials, database URLs, Redis URLs, provider keys, auth headers, raw provider payloads, stack traces, or internal dependency details.
+
+## External URL Verification
+
+After deployment, operators must verify:
+
+1. `OPPORTUNITY_OS_API_URL` opens the API host.
+2. `OPPORTUNITY_OS_API_URL/health` returns a safe JSON response with `status`, `environment`, `checkedAt`, and `dependencies`.
+3. `OPPORTUNITY_OS_WEB_URL` opens the dashboard.
+4. The dashboard reads `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`.
+5. The dashboard can load opportunities or a safe empty/demo state.
+6. Browser-visible errors do not expose secrets, stack traces, raw provider payloads, or internal dependency details.
+
+## Readiness Gate
+
+Phase 4 Milestone 34 Slice A is ready when:
+
+- repository verification passes for `review` and `phase-4-milestone-34`
+- lint, build, and tests pass
+- `.env.example` documents the hosted runtime contract
+- deployment workflow checks the Phase 34 gate
+- API health output is production-safe
+- external URL verification is documented
+

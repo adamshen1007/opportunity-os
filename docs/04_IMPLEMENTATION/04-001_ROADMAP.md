@@ -84,14 +84,15 @@ Completed:
 - Phase 3 M30 Beta Operations
 - Phase 4 M31 Local Product Runtime
 - Phase 4 M32 Product Data Schema
+- Phase 4 M33 Reddit Live Provider Transport
 
 Current:
 
-- Phase 4 M33 Reddit Live Provider Transport
+- Phase 4 M34 External MVP Runtime
 
-From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, the dashboard precedes the Product Validation Loop, the Product Validation Loop precedes Private Beta deployment readiness, Private Beta deployment readiness precedes Beta Operations, Beta Operations precedes the Local Product Runtime, Local Product Runtime precedes Product Data Schema, and Product Data Schema precedes controlled Reddit live provider transport.
+From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, the dashboard precedes the Product Validation Loop, the Product Validation Loop precedes Private Beta deployment readiness, Private Beta deployment readiness precedes Beta Operations, Beta Operations precedes the Local Product Runtime, Local Product Runtime precedes Product Data Schema, Product Data Schema precedes controlled Reddit live provider transport, and controlled Reddit live provider transport precedes the hosted External MVP Runtime.
 
-Do not begin implementation beyond the scoped Phase 4 Milestone 33 Reddit Live Provider Transport task until a later implementation task explicitly scopes the next slice.
+Do not begin implementation beyond the scoped Phase 4 Milestone 34 External MVP Runtime task until a later implementation task explicitly scopes the next slice.
 
 # Phase 0 — Repository Foundation
 

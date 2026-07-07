@@ -121,7 +121,9 @@ const phaseThirtyAliases = new Set(["review", "phase-3-milestone-30", "beta-oper
 const phaseThirtyOneAliases = new Set(["phase-4-milestone-31", "local-product-runtime", "local-runtime"]);
 const phaseThirtyTwoAliases = new Set(["phase-4-milestone-32", "product-data-schema"]);
 const phaseThirtyThreeAliases = new Set(["phase-4-milestone-33", "reddit-live-provider-transport", "reddit-live-transport"]);
-const isPhaseThirtyThree = phaseThirtyThreeAliases.has(phase) || phase === "review";
+const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp"]);
+const isPhaseThirtyFour = phaseThirtyFourAliases.has(phase) || phase === "review";
+const isPhaseThirtyThree = phaseThirtyThreeAliases.has(phase) || isPhaseThirtyFour;
 const isPhaseThirtyTwo = phaseThirtyTwoAliases.has(phase) || isPhaseThirtyThree;
 const isPhaseThirtyOne = phaseThirtyOneAliases.has(phase) || isPhaseThirtyTwo;
 const isPhaseThirty = phaseThirtyAliases.has(phase);
@@ -186,6 +188,7 @@ const allowedPhaseThirtyImplementationRoots = allowedPhaseTwentyNineImplementati
 const allowedPhaseThirtyOneImplementationRoots = allowedPhaseThirtyImplementationRoots;
 const allowedPhaseThirtyTwoImplementationRoots = allowedPhaseThirtyOneImplementationRoots;
 const allowedPhaseThirtyThreeImplementationRoots = allowedPhaseThirtyTwoImplementationRoots;
+const allowedPhaseThirtyFourImplementationRoots = allowedPhaseThirtyThreeImplementationRoots;
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1949,7 +1952,13 @@ const allowedRedditConnectorPackageDependencies = new Set([
 const engineeringKitOptionalEnvironmentVariables = [
   "SENTRY_DSN",
   "LANGFUSE_API_KEY",
-  "LANGSMITH_API_KEY"
+  "LANGSMITH_API_KEY",
+  "OPPORTUNITY_OS_API_URL",
+  "OPPORTUNITY_OS_WEB_URL",
+  "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
+  "LLM_PROVIDER",
+  "LLM_MODEL",
+  "LLM_LIVE_ANALYSIS_ENABLED"
 ];
 const engineeringKitDevOnlyEnvironmentVariables = [
   "REDDIT_CLIENT_ID",
@@ -1971,7 +1980,11 @@ function read(relativePath) {
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      return fs.readFileSync(fullPath, "utf8");
+      const content = fs.readFileSync(fullPath, "utf8");
+      if (content.length > 0 || fs.statSync(fullPath).size === 0 || attempt === 2) {
+        return content;
+      }
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
     } catch (error) {
       lastError = error;
       if (error.code !== "ETIMEDOUT" || attempt === 2) {
@@ -4898,6 +4911,111 @@ function assertRedditLiveProviderTransportPolicy() {
   }
 }
 
+function assertExternalMvpRuntimePolicy() {
+  assertRedditLiveProviderTransportPolicy();
+
+  const externalRuntimeDocPath = "docs/04_IMPLEMENTATION/04-021_EXTERNAL_MVP_RUNTIME.md";
+  if (!exists(externalRuntimeDocPath)) {
+    fail(`External MVP Runtime is missing required documentation: ${externalRuntimeDocPath}`);
+  }
+
+  if (exists(externalRuntimeDocPath)) {
+    const externalRuntimeDoc = read(externalRuntimeDocPath);
+    for (const statement of [
+      "Phase 4 Milestone 34",
+      "hosted external MVP runtime",
+      "production environment contract",
+      "external URL verification",
+      "Secrets must never be committed"
+    ]) {
+      if (!externalRuntimeDoc.includes(statement)) {
+        fail(`${externalRuntimeDocPath} must document the Phase 4 Milestone 34 external runtime boundary: missing "${statement}"`);
+      }
+    }
+  }
+
+  const deployWorkflowPath = ".github/workflows/deploy.yml";
+  if (!exists(deployWorkflowPath)) {
+    fail("External MVP Runtime requires .github/workflows/deploy.yml.");
+  }
+
+  if (exists(deployWorkflowPath)) {
+    const deployWorkflow = read(deployWorkflowPath);
+    for (const statement of [
+      "external-mvp",
+      "phase-4-milestone-34",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test",
+      "docker compose config",
+      "External URL verification"
+    ]) {
+      if (!deployWorkflow.includes(statement)) {
+        fail(`${deployWorkflowPath} must document the hosted external MVP deployment gate: missing "${statement}"`);
+      }
+    }
+  }
+
+  const envExample = exists(".env.example") ? read(".env.example") : "";
+  for (const envKey of [
+    "OPPORTUNITY_OS_API_URL",
+    "OPPORTUNITY_OS_WEB_URL",
+    "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
+    "LLM_PROVIDER",
+    "LLM_MODEL",
+    "LLM_LIVE_ANALYSIS_ENABLED"
+  ]) {
+    if (!envExample.includes(envKey)) {
+      fail(`External MVP Runtime requires .env.example to document ${envKey}.`);
+    }
+  }
+
+  const healthRoutePath = "apps/api/src/routes/health/health-route.ts";
+  const healthSchemaPath = "apps/api/src/routes/health/health-schema.ts";
+  for (const file of [healthRoutePath, healthSchemaPath]) {
+    if (!exists(file)) {
+      fail(`External MVP Runtime requires production health check file: ${file}`);
+    }
+  }
+  if (exists(healthSchemaPath)) {
+    const healthSchema = read(healthSchemaPath);
+    for (const field of ["environment", "dependencies", "safeMessage"]) {
+      if (!healthSchema.includes(field)) {
+        fail(`${healthSchemaPath} must expose production health field "${field}".`);
+      }
+    }
+  }
+
+  const externalRuntimeSourceRoots = [
+    ...fs.readdirSync(path.join(root, "apps"), { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => `apps/${entry.name}/src`),
+    ...fs.readdirSync(path.join(root, "packages"), { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => `packages/${entry.name}/src`)
+  ].filter((sourceRoot) => exists(sourceRoot));
+
+  for (const sourceRoot of externalRuntimeSourceRoots) {
+    for (const file of listFiles(sourceRoot)) {
+      if (!file.endsWith(".ts") && !file.endsWith(".tsx")) continue;
+      if (file.includes("/__tests__/") || file.includes("/testing/") || file.includes("/fixtures/")) continue;
+      const content = read(file);
+      for (const [label, pattern] of [
+        ["YouTube connector", /\bYouTube\b|\byoutube\b/iu],
+        ["X connector", /\bTwitter\b|\bX connector\b|\bx connector\b/iu],
+        ["Product Hunt connector", /\bProduct Hunt\b|\bProductHunt\b/iu],
+        ["scheduler", /\bscheduler\b|\bscheduleJob\b/iu],
+        ["worker", /\bWorkerProcess\b|\bworker process\b/iu],
+        ["billing", /\bbilling\b|\bsubscription\b|\bpayment\b/iu],
+        ["CRM", /\bCRM\b|crm integration/iu],
+        ["notification system", /\bnotification system\b|\bpush notification\b|\bemail notification\b/iu],
+        ["multi-tenancy", /\bmulti-tenant\b|\bmultitenancy\b/iu],
+        ["complex admin console", /\badmin console\b|\bAdminConsole\b/iu]
+      ]) {
+        if (pattern.test(content)) {
+          fail(`External MVP Runtime must not introduce ${label}; found prohibited reference in ${file}`);
+        }
+      }
+    }
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -4934,7 +5052,9 @@ function isReadmePlaceholder(file) {
 }
 
 function isAllowedPhaseImplementationFile(file) {
-  const allowedImplementationRoots = isPhaseThirtyThree
+  const allowedImplementationRoots = isPhaseThirtyFour
+    ? allowedPhaseThirtyFourImplementationRoots
+    : isPhaseThirtyThree
     ? allowedPhaseThirtyThreeImplementationRoots
     : isPhaseThirtyTwo
     ? allowedPhaseThirtyTwoImplementationRoots
@@ -5017,7 +5137,9 @@ for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageR
   assertSharedFoundationPackageDependencies(packageRoot, packageRule);
 }
 
-if (isPhaseThirtyThree) {
+if (isPhaseThirtyFour) {
+  assertExternalMvpRuntimePolicy();
+} else if (isPhaseThirtyThree) {
   assertRedditLiveProviderTransportPolicy();
 } else if (isPhaseThirtyTwo) {
   assertProductDataSchemaPolicy();

@@ -149,6 +149,7 @@ describe("API auth and endpoint contracts", () => {
       {
         serviceName: "opportunity-api",
         version: "0.0.0",
+        environment: "production",
         clock: () => "2026-07-03T00:00:00.000Z"
       }
     );
@@ -156,7 +157,34 @@ describe("API auth and endpoint contracts", () => {
     expect(API_HEALTH_ROUTE.path).toBe("/health");
     expect(response.ok).toBe(true);
     expect(response.data.status).toBe("ok");
+    expect(response.data.environment).toBe("production");
+    expect(response.data.dependencies).toEqual([]);
     expect(response.data.checkedAt).toBe("2026-07-03T00:00:00.000Z");
+  });
+
+  it("returns degraded health when a dependency reports a safe failure", () => {
+    const response = handleApiHealthRequest(
+      {
+        context: requestContext
+      },
+      {
+        serviceName: "opportunity-api",
+        version: "0.0.0",
+        environment: "production",
+        dependencies: [
+          {
+            name: "database",
+            status: "unavailable",
+            checkedAt: "2026-07-03T00:00:00.000Z",
+            safeMessage: "Database health check unavailable."
+          }
+        ],
+        clock: () => "2026-07-03T00:00:00.000Z"
+      }
+    );
+
+    expect(response.data.status).toBe("degraded");
+    expect(response.data.dependencies[0]?.safeMessage).toBe("Database health check unavailable.");
   });
 
   it("lists opportunities through an explicit port", async () => {

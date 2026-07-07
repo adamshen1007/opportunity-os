@@ -1,6 +1,6 @@
 import { AppShell } from "../../components/layout";
 import { Panel } from "../../components/ui";
-import { loadDashboardLocalData } from "../../api/local-data";
+import { loadDashboardLocalData } from "../../api";
 import { DashboardToolbar } from "../../features/dashboard/dashboard-toolbar";
 import { OpportunityList } from "../../features/opportunities/opportunity-list";
 import { PaginationControls } from "../../features/pagination/pagination-controls";
