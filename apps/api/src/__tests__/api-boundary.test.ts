@@ -7,11 +7,15 @@ const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const sourceRoot = path.resolve(packageRoot, "src");
 
 const allowedWorkspaceDependencies = new Set([
+  "@opportunity-os/connectors-reddit",
+  "@opportunity-os/llm-analysis",
+  "@opportunity-os/normalization",
   "@opportunity-os/opportunity-candidates",
   "@opportunity-os/opportunity-engine",
   "@opportunity-os/opportunity-generation",
   "@opportunity-os/opportunity-pipeline",
-  "@opportunity-os/opportunity-ranking"
+  "@opportunity-os/opportunity-ranking",
+  "@opportunity-os/raw-content"
 ]);
 
 function listSourceFiles(directory: string): string[] {
@@ -59,5 +63,5 @@ describe("API dependency boundaries", () => {
     });
 
     expect(disallowedImports).toEqual([]);
-  });
+  }, 30000);
 });

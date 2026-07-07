@@ -17,6 +17,15 @@ importers:
 
   apps/api:
     dependencies:
+      '@opportunity-os/connectors-reddit':
+        specifier: workspace:*
+        version: link:../../packages/connectors-reddit
+      '@opportunity-os/llm-analysis':
+        specifier: workspace:*
+        version: link:../../packages/llm-analysis
+      '@opportunity-os/normalization':
+        specifier: workspace:*
+        version: link:../../packages/normalization
       '@opportunity-os/opportunity-candidates':
         specifier: workspace:*
         version: link:../../packages/opportunity-candidates
@@ -32,6 +41,9 @@ importers:
       '@opportunity-os/opportunity-ranking':
         specifier: workspace:*
         version: link:../../packages/opportunity-ranking
+      '@opportunity-os/raw-content':
+        specifier: workspace:*
+        version: link:../../packages/raw-content
     devDependencies:
       '@types/node':
         specifier: ^26.0.1

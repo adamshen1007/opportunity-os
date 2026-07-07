@@ -1,0 +1,143 @@
+import { describe, expect, it } from "vitest";
+import {
+  createLocalApiDispatcher,
+  handleCreateRedditScanRequest,
+  runOpportunityScanPipeline
+} from "../index.js";
+
+const requestContext = {
+  correlationId: "correlation-scan-test",
+  requestId: "request-scan-test",
+  method: "POST",
+  path: "/scans/reddit"
+};
+
+describe("Reddit end-to-end opportunity scan pipeline", () => {
+  it("runs the default fixture path through all MVP stages", async () => {
+    const result = await runOpportunityScanPipeline({
+      subreddit: "opportunity",
+      query: "manual review",
+      limit: 5,
+      mode: "fixture",
+      correlationId: requestContext.correlationId,
+      requestId: requestContext.requestId,
+      requestedAt: "2026-07-07T00:00:00.000Z",
+      env: {}
+    });
+
+    expect(result.mode).toBe("fixture");
+    expect(result.stages.map((stage) => stage.name)).toEqual([
+      "reddit",
+      "raw-content",
+      "normalization",
+      "llm-analysis",
+      "candidate-generation",
+      "opportunity-generation",
+      "ranking"
+    ]);
+    expect(result.opportunities.length).toBeGreaterThan(0);
+    expect(result.opportunities[0]?.evidence[0]?.provenance).toMatchObject({
+      sourcePlatform: "reddit",
+      normalizedContentId: expect.stringContaining("normalized-"),
+      analysisRequestId: expect.stringContaining("analysis_request")
+    });
+    expect(result.opportunities[0]?.provenance).toMatchObject({
+      redditPostId: "post_fixture",
+      rawContentId: "raw-post-post_fixture",
+      rankingRunId: "mvp-scan-ranking-run"
+    });
+  });
+
+  it("keeps live mode env-gated and falls back to deterministic fixtures when disabled", async () => {
+    const result = await runOpportunityScanPipeline({
+      subreddit: "opportunity",
+      limit: 1,
+      mode: "live",
+      correlationId: requestContext.correlationId,
+      requestedAt: "2026-07-07T00:00:00.000Z",
+      env: {
+        REDDIT_LIVE_TEST_ENABLED: "false",
+        LLM_LIVE_ANALYSIS_ENABLED: "false"
+      }
+    });
+
+    expect(result.mode).toBe("fixture");
+    expect(result.safeMetadata).toMatchObject({
+      deterministic: true,
+      liveEnabled: false,
+      rawProviderPayloadStored: false
+    });
+  });
+
+  it("does not leak unsafe provider, credential, or runtime details", async () => {
+    const result = await runOpportunityScanPipeline({
+      subreddit: "opportunity",
+      limit: 1,
+      mode: "fixture",
+      correlationId: requestContext.correlationId,
+      requestedAt: "2026-07-07T00:00:00.000Z",
+      env: {
+        OPENAI_API_KEY: "sk-unsafe-secret",
+        REDDIT_PRODUCTION_CLIENT_SECRET: "unsafe-client-secret"
+      }
+    });
+    const serialized = JSON.stringify(result);
+
+    expect(serialized).not.toContain("sk-unsafe-secret");
+    expect(serialized).not.toContain("unsafe-client-secret");
+    expect(serialized).not.toMatch(/authorization|bearer|access_token|refresh_token|stack trace|raw cause/iu);
+  });
+
+  it("exposes the scan through a safe API route and local dispatcher", async () => {
+    const routeResponse = await handleCreateRedditScanRequest({
+      context: requestContext,
+      body: {
+        subreddit: "opportunity",
+        query: "manual review",
+        limit: 1
+      }
+    });
+    expect(routeResponse.ok).toBe(true);
+    expect(routeResponse.ok ? routeResponse.data.opportunities.length : 0).toBe(1);
+
+    const dispatch = createLocalApiDispatcher({
+      serviceName: "opportunity-os-api-test",
+      version: "test",
+      environment: "local",
+      clock: () => "2026-07-07T00:00:00.000Z"
+    });
+    const dispatched = await dispatch({
+      method: "POST",
+      path: "/scans/reddit",
+      body: {
+        subreddit: "opportunity",
+        limit: 1
+      },
+      headers: {
+        "x-correlation-id": requestContext.correlationId
+      }
+    });
+
+    expect(dispatched.ok).toBe(true);
+    expect(dispatched.ok ? dispatched.data : undefined).toMatchObject({
+      source: {
+        provider: "reddit",
+        subreddit: "opportunity",
+        itemCount: 1
+      }
+    });
+  });
+
+  it("returns validation errors for unsafe scan inputs", async () => {
+    const response = await handleCreateRedditScanRequest({
+      context: requestContext,
+      body: {
+        subreddit: "not valid!",
+        limit: 999
+      }
+    });
+
+    expect(response.ok).toBe(false);
+    expect(response.ok ? undefined : response.error.details).toEqual(["subreddit:invalid", "limit:invalid"]);
+  });
+});

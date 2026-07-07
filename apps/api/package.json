@@ -27,11 +27,15 @@
     "pnpm": "11.7.0"
   },
   "dependencies": {
+    "@opportunity-os/connectors-reddit": "workspace:*",
+    "@opportunity-os/llm-analysis": "workspace:*",
+    "@opportunity-os/normalization": "workspace:*",
     "@opportunity-os/opportunity-candidates": "workspace:*",
     "@opportunity-os/opportunity-engine": "workspace:*",
     "@opportunity-os/opportunity-generation": "workspace:*",
     "@opportunity-os/opportunity-pipeline": "workspace:*",
-    "@opportunity-os/opportunity-ranking": "workspace:*"
+    "@opportunity-os/opportunity-ranking": "workspace:*",
+    "@opportunity-os/raw-content": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

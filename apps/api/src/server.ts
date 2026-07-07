@@ -17,6 +17,7 @@ import {
   handleGetRankingRequest,
   handleRankOpportunitiesRequest
 } from "./routes/rankings/index.js";
+import { handleCreateRedditScanRequest } from "./routes/scans/index.js";
 import {
   handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
@@ -91,6 +92,11 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       method: "POST",
       path: "/rankings",
       handler: (request) => handleRankOpportunitiesRequest(asHandlerRequest(request), syntheticApiRankingPort)
+    },
+    {
+      method: "POST",
+      path: "/scans/reddit",
+      handler: (request) => handleCreateRedditScanRequest(asHandlerRequest(request))
     },
     {
       method: "GET",
