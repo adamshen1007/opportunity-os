@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   createRedditFakeTransport,
+  createRedditLiveHttpTransport,
   createRedditLiveApiClient,
+  createRedditLiveProviderConfigFromEnv,
   createRedditProviderError,
   createRedditProviderRequestDescription,
   exchangeRedditOAuthToken
@@ -9,9 +11,34 @@ import {
 import { REDDIT_FAKE_HOST_CONTEXT } from "../testing/index.js";
 
 const unsafePattern =
-  /secret-access-token|secret-refresh-token|secret-client-secret|bearer\s+secret|basic\s+[a-z0-9+/=]+|raw provider response|stack trace|raw cause/iu;
+  /secret-access-token|secret-refresh-token|secret-client-secret|secret-client-id|bearer\s+secret|basic\s+[a-z0-9+/=]+|raw provider response|stack trace|raw cause/iu;
 
 describe("reddit live provider security", () => {
+  it("does not serialize production credential values from config or transport failures", async () => {
+    const configResult = createRedditLiveProviderConfigFromEnv({
+      REDDIT_PRODUCTION_CLIENT_ID: "secret-client-id",
+      REDDIT_PRODUCTION_CLIENT_SECRET: "secret-client-secret",
+      REDDIT_PRODUCTION_REFRESH_TOKEN: "secret-refresh-token",
+      REDDIT_PRODUCTION_USER_AGENT: "OpportunityOS/0.0.0 external-mvp",
+      REDDIT_LIVE_TEST_ENABLED: "true"
+    });
+    const transport = createRedditLiveHttpTransport({
+      now: () => "2026-07-05T00:00:00.000Z",
+      fetch: async () => {
+        throw new Error("secret-access-token raw provider response stack trace");
+      }
+    });
+    const failure = await transport.send({
+      method: "GET",
+      url: "https://oauth.reddit.example/r/startups/new",
+      headers: [{ name: "authorization", value: "Bearer secret-access-token", sensitive: true }]
+    });
+
+    expect(configResult.ok).toBe(true);
+    expect(failure.ok).toBe(false);
+    expect(JSON.stringify({ configResult, failure })).not.toMatch(unsafePattern);
+  });
+
   it("redacts sensitive headers in fake transport history and live client descriptions", async () => {
     const transport = createRedditFakeTransport();
     const description = createRedditProviderRequestDescription({

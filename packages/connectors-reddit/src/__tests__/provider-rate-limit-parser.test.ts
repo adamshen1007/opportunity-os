@@ -52,4 +52,19 @@ describe("reddit provider rate-limit parser", () => {
     expect(serialized).not.toContain("authorization");
     expect(serialized).not.toContain("token");
   });
+
+  it("keeps provider rate-limit parsing stable for exhausted live limits", () => {
+    const metadata = parseRedditProviderRateLimitMetadata({
+      checkedAt: "2026-07-05T00:00:00.000Z",
+      headers: [
+        { name: "X-RateLimit-Limit", value: "60" },
+        { name: "X-RateLimit-Remaining", value: "0" },
+        { name: "X-RateLimit-Reset", value: "120" }
+      ]
+    });
+
+    expect(metadata.remaining).toBe(0);
+    expect(metadata.resetAt).toBe("2026-07-05T00:02:00.000Z");
+    expect(metadata.safeSourceMetadata?.fallback).toBe(false);
+  });
 });

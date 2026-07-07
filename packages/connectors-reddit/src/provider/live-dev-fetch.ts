@@ -14,7 +14,9 @@ async function main() {
   }
 
   if (!configResult.config.enabled) {
-    console.error("Set REDDIT_LIVE_TEST_ENABLED=true before running the live Reddit dev fetch command.");
+    console.error(
+      "Live Reddit scan skipped. Set REDDIT_LIVE_TEST_ENABLED=true and configure Reddit production credentials before running this command."
+    );
     process.exitCode = 1;
     return;
   }
@@ -42,6 +44,12 @@ async function main() {
   }
 
   console.log(`Fetched ${result.envelope.items.length} public Reddit posts from r/${configResult.config.subreddit}.`);
+  if (result.envelope.metadata.rateLimit) {
+    const { remaining, resetAt } = result.envelope.metadata.rateLimit;
+    console.log(
+      `Rate limit: remaining=${remaining ?? "unknown"} resetAt=${resetAt ?? "unknown"}`
+    );
+  }
   for (const item of result.envelope.items.slice(0, 5)) {
     if ("title" in item && "permalink" in item) {
       console.log(`- ${item.title} (${item.permalink})`);

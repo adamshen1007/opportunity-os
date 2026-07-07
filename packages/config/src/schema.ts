@@ -28,7 +28,8 @@ export const OPTIONAL_ENVIRONMENT_VARIABLES = [
   "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
   "LLM_PROVIDER",
   "LLM_MODEL",
-  "LLM_LIVE_ANALYSIS_ENABLED"
+  "LLM_LIVE_ANALYSIS_ENABLED",
+  "LLM_PROVIDER_TIMEOUT_MS"
 ] as const;
 
 export type RequiredEnvironmentVariable = (typeof REQUIRED_ENVIRONMENT_VARIABLES)[number];
@@ -74,7 +75,8 @@ export const optionalEnvironmentSchema = z.object({
   NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: urlStringSchema.optional(),
   LLM_PROVIDER: llmProviderSchema.optional(),
   LLM_MODEL: nonEmptyStringSchema.optional(),
-  LLM_LIVE_ANALYSIS_ENABLED: booleanStringSchema.optional()
+  LLM_LIVE_ANALYSIS_ENABLED: booleanStringSchema.optional(),
+  LLM_PROVIDER_TIMEOUT_MS: z.coerce.number().int().min(1).max(120000).optional()
 });
 
 export function validateRequiredEnvironment(input: Record<string, unknown>): RequiredEnvironment {
@@ -161,6 +163,10 @@ function getIssueMessage(variableName: EnvironmentVariableName, issue: z.ZodIssu
 
   if (variableName === "LLM_LIVE_ANALYSIS_ENABLED") {
     return "LLM_LIVE_ANALYSIS_ENABLED must be one of: true, false";
+  }
+
+  if (variableName === "LLM_PROVIDER_TIMEOUT_MS") {
+    return "LLM_PROVIDER_TIMEOUT_MS must be an integer between 1 and 120000";
   }
 
   return `${variableName} must be a non-empty string`;

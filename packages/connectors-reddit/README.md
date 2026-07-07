@@ -10,6 +10,8 @@ Phase 2 Milestone 15 establishes the Reddit Provider Transport boundary. Slice A
 
 Phase 4 Milestone 33 establishes controlled live Reddit provider access. Live access is opt-in, development-oriented, credential-gated, and limited to Reddit provider transport code inside `packages/connectors-reddit`. Default tests continue to use fake transport and deterministic fixtures.
 
+Phase 4 Milestone 34 Slice B promotes that live path into the real Reddit datasource boundary for the External MVP Runtime. The implementation remains env-gated and package-local: fake provider behavior is still the default for CI and deterministic tests, while live Reddit scans run only through the explicit development command with configured credentials.
+
 ## Ownership
 
 This package defines Reddit-specific connector contracts for:
@@ -108,11 +110,13 @@ Allowed:
 
 Required environment variables for the live command:
 
-- `REDDIT_CLIENT_ID`
-- `REDDIT_USER_AGENT`
+- `REDDIT_PRODUCTION_CLIENT_ID` or `REDDIT_CLIENT_ID`
+- `REDDIT_PRODUCTION_USER_AGENT` or `REDDIT_USER_AGENT`
 
 Optional environment variables:
 
+- `REDDIT_PRODUCTION_CLIENT_SECRET`
+- `REDDIT_PRODUCTION_REFRESH_TOKEN`
 - `REDDIT_CLIENT_SECRET`
 - `REDDIT_REFRESH_TOKEN`
 - `REDDIT_LIVE_TEST_ENABLED`
@@ -120,6 +124,19 @@ Optional environment variables:
 - `REDDIT_LIVE_LIMIT`
 
 Default tests do not perform network calls. The live integration test is skipped unless `REDDIT_LIVE_TEST_ENABLED=true` and required credentials are configured.
+
+Run an explicit live scan only when credentials are configured:
+
+```sh
+REDDIT_LIVE_TEST_ENABLED=true \
+REDDIT_PRODUCTION_CLIENT_ID=... \
+REDDIT_PRODUCTION_USER_AGENT="OpportunityOS/0.0.0 external-mvp" \
+REDDIT_LIVE_SUBREDDIT=entrepreneur \
+REDDIT_LIVE_LIMIT=5 \
+pnpm --filter @opportunity-os/connectors-reddit dev:reddit:live
+```
+
+If the configured Reddit app requires a client secret or refresh token, also provide `REDDIT_PRODUCTION_CLIENT_SECRET` and/or `REDDIT_PRODUCTION_REFRESH_TOKEN`. The command prints only safe summaries, post titles, permalinks, and parsed rate-limit metadata. It must not print credentials, tokens, auth headers, raw provider responses, stacks, or causes.
 
 Milestone 33 still does not permit Raw Content persistence, Prisma repositories, AI workflows, opportunity generation, REST APIs, frontend changes, schedulers, workers, database persistence, or business logic.
 

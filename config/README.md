@@ -37,6 +37,7 @@ Optional variables:
 - `LLM_PROVIDER`
 - `LLM_MODEL`
 - `LLM_LIVE_ANALYSIS_ENABLED`
+- `LLM_PROVIDER_TIMEOUT_MS`
 
 ## Defaults And Fail-Fast Behavior
 
@@ -64,6 +65,7 @@ Hosted runtime variables:
 - `LLM_PROVIDER` selects the configured live analysis provider.
 - `LLM_MODEL` selects the configured live analysis model.
 - `LLM_LIVE_ANALYSIS_ENABLED` gates live provider analysis and must remain `false` by default in local and CI environments.
+- `LLM_PROVIDER_TIMEOUT_MS` bounds live provider calls and must be an integer from `1` through `120000` when present.
 
 Provider API keys remain secret values and must be supplied through protected deployment environment configuration. Hosted runtime health checks and logs must never print API keys, tokens, auth headers, JWT secrets, database URLs, Redis URLs, provider prompts, raw provider payloads, stack traces, or unsafe internals.
 

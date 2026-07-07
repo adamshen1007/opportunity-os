@@ -45,7 +45,7 @@ Required variables:
 Optional variables:
 
 - external monitoring and AI observability: `SENTRY_DSN`, `LANGFUSE_API_KEY`, `LANGSMITH_API_KEY`
-- hosted external MVP runtime: `OPPORTUNITY_OS_API_URL`, `OPPORTUNITY_OS_WEB_URL`, `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`, `LLM_PROVIDER`, `LLM_MODEL`, `LLM_LIVE_ANALYSIS_ENABLED`
+- hosted external MVP runtime: `OPPORTUNITY_OS_API_URL`, `OPPORTUNITY_OS_WEB_URL`, `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`, `LLM_PROVIDER`, `LLM_MODEL`, `LLM_LIVE_ANALYSIS_ENABLED`, `LLM_PROVIDER_TIMEOUT_MS`
 
 ## Defaults And Normalization
 
@@ -63,6 +63,7 @@ Normalization rules:
 - hosted runtime URLs must be valid URLs when present.
 - `LLM_PROVIDER` must be `openai` or `anthropic` when present.
 - `LLM_LIVE_ANALYSIS_ENABLED` must be `true` or `false` when present and should remain `false` for local and CI usage.
+- `LLM_PROVIDER_TIMEOUT_MS` must be an integer from `1` through `120000` when present.
 
 Required secrets and credentials do not receive defaults. This includes provider API keys and `JWT_SECRET`.
 

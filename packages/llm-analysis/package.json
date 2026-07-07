@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.json",
+    "dev:llm:live": "pnpm build && node dist/provider/live-smoke.js",
     "lint": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run src --passWithNoTests"
   },

@@ -61,17 +61,31 @@ export {
   llmAnalysisFixtureValidationSuccess
 } from "./fixtures/index.js";
 export {
+  LIVE_LLM_PROVIDER_ENV_KEYS,
+  LIVE_LLM_PROVIDER_NAMES,
   LLM_PROVIDER_CAPABILITIES,
-  LLM_PROVIDER_STABILITY_STATUSES
+  LLM_PROVIDER_STABILITY_STATUSES,
+  createLiveLlmProviderConfigFromEnv,
+  createLiveLlmPromptBoundary,
+  createOpenAiLiveLlmProviderAdapter
 } from "./provider/index.js";
 export type {
+  LiveLlmFetch,
+  LiveLlmPromptBoundary,
+  LiveLlmProviderConfig,
+  LiveLlmProviderConfigResult,
+  LiveLlmProviderEnvKey,
+  LiveLlmProviderName,
+  LiveLlmSensitiveValue,
   LlmModelId,
   LlmProviderCapability,
   LlmProviderContract,
   LlmProviderId,
   LlmProviderMetadata,
   LlmProviderModel,
-  LlmProviderStabilityStatus
+  LlmProviderStabilityStatus,
+  OpenAiLiveLlmProviderAdapter,
+  OpenAiLiveLlmProviderAdapterOptions
 } from "./provider/index.js";
 export {
   PROMPT_SAFETY_CLASSIFICATIONS,

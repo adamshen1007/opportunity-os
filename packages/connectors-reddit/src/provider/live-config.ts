@@ -1,6 +1,10 @@
 import type { RedditOAuthCredentials, RedditSensitiveAuthValue } from "./auth.js";
 
 export const REDDIT_LIVE_PROVIDER_ENV_KEYS = [
+  "REDDIT_PRODUCTION_CLIENT_ID",
+  "REDDIT_PRODUCTION_CLIENT_SECRET",
+  "REDDIT_PRODUCTION_REFRESH_TOKEN",
+  "REDDIT_PRODUCTION_USER_AGENT",
   "REDDIT_CLIENT_ID",
   "REDDIT_CLIENT_SECRET",
   "REDDIT_REFRESH_TOKEN",
@@ -39,8 +43,16 @@ function sensitive(value: string | undefined): RedditSensitiveAuthValue | undefi
 
   return {
     value: trimmed,
-    sensitive: true
+    sensitive: true,
+    toJSON: () => ({
+      value: "[REDACTED]",
+      sensitive: true
+    })
   };
+}
+
+function firstPresent(...values: readonly (string | undefined)[]): string | undefined {
+  return values.find((value) => value !== undefined && value.trim() !== "");
 }
 
 function readPositiveLimit(value: string | undefined): number {
@@ -52,12 +64,12 @@ function readPositiveLimit(value: string | undefined): number {
 export function createRedditLiveProviderConfigFromEnv(
   env: Readonly<Record<string, string | undefined>>
 ): RedditLiveProviderConfigResult {
-  const clientId = sensitive(env.REDDIT_CLIENT_ID);
-  const userAgent = env.REDDIT_USER_AGENT?.trim();
+  const clientId = sensitive(firstPresent(env.REDDIT_PRODUCTION_CLIENT_ID, env.REDDIT_CLIENT_ID));
+  const userAgent = firstPresent(env.REDDIT_PRODUCTION_USER_AGENT, env.REDDIT_USER_AGENT)?.trim();
   const missingKeys: RedditLiveProviderEnvKey[] = [];
 
-  if (!clientId) missingKeys.push("REDDIT_CLIENT_ID");
-  if (!userAgent) missingKeys.push("REDDIT_USER_AGENT");
+  if (!clientId) missingKeys.push("REDDIT_PRODUCTION_CLIENT_ID");
+  if (!userAgent) missingKeys.push("REDDIT_PRODUCTION_USER_AGENT");
 
   if (missingKeys.length > 0 || !clientId || !userAgent) {
     return {
@@ -72,8 +84,8 @@ export function createRedditLiveProviderConfigFromEnv(
     config: {
       credentials: {
         clientId,
-        clientSecret: sensitive(env.REDDIT_CLIENT_SECRET),
-        refreshToken: sensitive(env.REDDIT_REFRESH_TOKEN),
+        clientSecret: sensitive(firstPresent(env.REDDIT_PRODUCTION_CLIENT_SECRET, env.REDDIT_CLIENT_SECRET)),
+        refreshToken: sensitive(firstPresent(env.REDDIT_PRODUCTION_REFRESH_TOKEN, env.REDDIT_REFRESH_TOKEN)),
         userAgent
       },
       subreddit: env.REDDIT_LIVE_SUBREDDIT?.trim() || "entrepreneur",

@@ -122,10 +122,13 @@ export function createRedditLiveHttpTransport(
             metadata: responseMetadata
           }
         };
-      } catch {
+      } catch (error) {
         return {
           ok: false,
-          safeMessage: "Reddit provider request failed before a safe response was received.",
+          safeMessage:
+            error instanceof DOMException && error.name === "AbortError"
+              ? "Reddit provider request timed out before a safe response was received."
+              : "Reddit provider request failed before a safe response was received.",
           metadata: {
             status: 0,
             receivedAt: now(),

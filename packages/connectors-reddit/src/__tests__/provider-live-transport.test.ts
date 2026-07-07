@@ -2,12 +2,35 @@ import { describe, expect, it } from "vitest";
 import {
   createRedditFakeTransport,
   createRedditLiveHttpTransport,
+  createRedditLiveProviderConfigFromEnv,
   exchangeRedditOAuthToken,
   mapRedditLiveListingResponse,
   parseRedditProviderResponse
 } from "../index.js";
 
 describe("reddit live provider transport", () => {
+  it("supports production credential environment aliases while keeping live access disabled by default", () => {
+    const result = createRedditLiveProviderConfigFromEnv({
+      REDDIT_PRODUCTION_CLIENT_ID: "production-client-id",
+      REDDIT_PRODUCTION_CLIENT_SECRET: "production-client-secret",
+      REDDIT_PRODUCTION_REFRESH_TOKEN: "production-refresh-token",
+      REDDIT_PRODUCTION_USER_AGENT: "OpportunityOS/0.0.0 external-mvp",
+      REDDIT_LIVE_SUBREDDIT: "startups",
+      REDDIT_LIVE_LIMIT: "10"
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.config.enabled).toBe(false);
+    expect(result.config.subreddit).toBe("startups");
+    expect(result.config.limit).toBe(10);
+    expect(result.config.credentials.clientId.sensitive).toBe(true);
+    expect(result.config.credentials.clientSecret?.sensitive).toBe(true);
+    expect(result.config.credentials.refreshToken?.sensitive).toBe(true);
+    expect(JSON.stringify(result)).not.toContain("production-client-secret");
+    expect(JSON.stringify(result)).not.toContain("production-refresh-token");
+  });
+
   it("exchanges OAuth credentials through an injected transport without exposing tokens", async () => {
     const transport = createRedditFakeTransport({
       response: {
@@ -75,6 +98,34 @@ describe("reddit live provider transport", () => {
       expect(result.response.metadata.safeSource).toBe("reddit-live-provider");
     }
     expect(JSON.stringify(result)).not.toContain("secret-access-token");
+  });
+
+  it("returns safe transport failures for non-OK provider responses", async () => {
+    const transport = createRedditLiveHttpTransport({
+      now: () => "2026-07-05T00:00:00.000Z",
+      fetch: async () =>
+        new Response(JSON.stringify({ error: "secret-token raw provider response" }), {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: {
+            "content-type": "application/json",
+            "x-ratelimit-remaining": "0",
+            "x-ratelimit-reset": "120"
+          }
+        })
+    });
+    const result = await transport.send({
+      method: "GET",
+      url: "https://oauth.reddit.example/r/startups/new",
+      headers: [{ name: "authorization", value: "Bearer secret-access-token", sensitive: true }]
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.safeMessage).toBe("Reddit provider request failed with HTTP status 429.");
+    expect(result.metadata?.status).toBe(429);
+    expect(JSON.stringify(result)).not.toContain("secret-access-token");
+    expect(JSON.stringify(result)).not.toContain("raw provider response");
   });
 
   it("maps Reddit listing responses into safe provider contracts", () => {

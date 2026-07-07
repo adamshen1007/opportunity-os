@@ -1958,9 +1958,14 @@ const engineeringKitOptionalEnvironmentVariables = [
   "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
   "LLM_PROVIDER",
   "LLM_MODEL",
-  "LLM_LIVE_ANALYSIS_ENABLED"
+  "LLM_LIVE_ANALYSIS_ENABLED",
+  "LLM_PROVIDER_TIMEOUT_MS"
 ];
 const engineeringKitDevOnlyEnvironmentVariables = [
+  "REDDIT_PRODUCTION_CLIENT_ID",
+  "REDDIT_PRODUCTION_CLIENT_SECRET",
+  "REDDIT_PRODUCTION_REFRESH_TOKEN",
+  "REDDIT_PRODUCTION_USER_AGENT",
   "REDDIT_CLIENT_ID",
   "REDDIT_CLIENT_SECRET",
   "REDDIT_REFRESH_TOKEN",
@@ -4963,10 +4968,62 @@ function assertExternalMvpRuntimePolicy() {
     "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
     "LLM_PROVIDER",
     "LLM_MODEL",
-    "LLM_LIVE_ANALYSIS_ENABLED"
+    "LLM_LIVE_ANALYSIS_ENABLED",
+    "LLM_PROVIDER_TIMEOUT_MS"
   ]) {
     if (!envExample.includes(envKey)) {
       fail(`External MVP Runtime requires .env.example to document ${envKey}.`);
+    }
+  }
+
+  for (const file of [
+    "packages/llm-analysis/src/provider/live-config.ts",
+    "packages/llm-analysis/src/provider/live-prompt-boundary.ts",
+    "packages/llm-analysis/src/provider/openai-live-adapter.ts",
+    "packages/llm-analysis/src/provider/live-smoke.ts",
+    "packages/llm-analysis/src/__tests__/live-provider.test.ts",
+    "packages/llm-analysis/src/__tests__/live-provider-security.test.ts"
+  ]) {
+    if (!exists(file)) {
+      fail(`External MVP Runtime requires live LLM integration file: ${file}`);
+    }
+  }
+
+  const llmAnalysisProviderIndexPath = "packages/llm-analysis/src/provider/index.ts";
+  if (exists(llmAnalysisProviderIndexPath)) {
+    const providerIndex = read(llmAnalysisProviderIndexPath);
+    for (const exportName of [
+      "createLiveLlmProviderConfigFromEnv",
+      "createLiveLlmPromptBoundary",
+      "createOpenAiLiveLlmProviderAdapter"
+    ]) {
+      if (!providerIndex.includes(exportName)) {
+        fail(`${llmAnalysisProviderIndexPath} must export ${exportName} from the live LLM provider boundary`);
+      }
+    }
+  }
+
+  const llmAnalysisPackageJsonPath = "packages/llm-analysis/package.json";
+  if (exists(llmAnalysisPackageJsonPath)) {
+    const llmAnalysisPackageJson = JSON.parse(read(llmAnalysisPackageJsonPath));
+    if (llmAnalysisPackageJson.scripts?.["dev:llm:live"] !== "pnpm build && node dist/provider/live-smoke.js") {
+      fail(`${llmAnalysisPackageJsonPath} must define dev:llm:live as the env-gated live LLM smoke command`);
+    }
+  }
+
+  const llmAnalysisReadmePath = "packages/llm-analysis/README.md";
+  if (exists(llmAnalysisReadmePath)) {
+    const llmAnalysisReadme = read(llmAnalysisReadmePath);
+    for (const statement of [
+      "Phase 4 Milestone 34 Slice C",
+      "env-gated live provider adapter",
+      "LLM_LIVE_ANALYSIS_ENABLED=true",
+      "OPENAI_API_KEY",
+      "dev:llm:live"
+    ]) {
+      if (!llmAnalysisReadme.includes(statement)) {
+        fail(`${llmAnalysisReadmePath} must document live LLM integration: missing "${statement}"`);
+      }
     }
   }
 

@@ -27,6 +27,7 @@ export interface OptionalEnvironment {
   readonly LLM_PROVIDER?: "openai" | "anthropic";
   readonly LLM_MODEL?: string;
   readonly LLM_LIVE_ANALYSIS_ENABLED?: "true" | "false";
+  readonly LLM_PROVIDER_TIMEOUT_MS?: number;
 }
 
 export interface DefaultEnvironmentValues {
@@ -73,6 +74,7 @@ export interface OptionalIntegrationConfig {
   readonly llmProvider?: "openai" | "anthropic";
   readonly llmModel?: string;
   readonly liveLlmAnalysisEnabled?: boolean;
+  readonly llmProviderTimeoutMs?: number;
 }
 
 export interface RuntimeConfig {

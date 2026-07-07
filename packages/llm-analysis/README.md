@@ -60,3 +60,41 @@ docker compose config
 ```
 
 Future LLM Analysis Pipeline work must consume `@opportunity-os/llm-analysis` instead of redefining provider abstraction, prompt, structured output, analysis request/response, validation, error, event, fixture, safety, or redaction contracts.
+
+## Phase 4 Milestone 34 Live LLM Integration
+
+Phase 4 Milestone 34 Slice C adds the first env-gated live provider adapter for external MVP runtime validation. The default path remains deterministic: tests and CI use fixtures and injected fake `fetch` functions, and live provider calls run only when explicitly enabled.
+
+Live provider ownership:
+
+- provider config is read from explicit environment input by `createLiveLlmProviderConfigFromEnv`
+- the first supported provider is `openai`
+- the adapter uses Node 24 `fetch` with no provider SDK dependency
+- prompt construction is routed through `createLiveLlmPromptBoundary`
+- prompt previews redact secret-like input keys
+- provider errors serialize only safe code, category, message, correlation ID, optional request ID, and safe metadata
+
+Required environment variables for the live command:
+
+- `LLM_LIVE_ANALYSIS_ENABLED=true`
+- `LLM_PROVIDER=openai`
+- `LLM_MODEL`
+- `OPENAI_API_KEY`
+
+Optional:
+
+- `LLM_PROVIDER_TIMEOUT_MS`
+
+Run the smoke command only from a protected environment:
+
+```sh
+LLM_LIVE_ANALYSIS_ENABLED=true \
+LLM_PROVIDER=openai \
+LLM_MODEL=gpt-4.1-mini \
+OPENAI_API_KEY=... \
+pnpm --filter @opportunity-os/llm-analysis dev:llm:live
+```
+
+The command prints only the provider/model and returned output field names. It must not print API keys, authorization headers, raw provider payloads, prompts, stack traces, or raw causes.
+
+Slice C does not add provider SDKs, dashboard behavior, persistence, schedulers, workers, billing, recommendation logic, or new product workflows.

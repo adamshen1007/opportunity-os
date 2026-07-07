@@ -11,6 +11,10 @@ export type RedditAuthSensitiveFieldKey =
 export type RedditSensitiveAuthValue = {
   readonly value: string;
   readonly sensitive: true;
+  readonly toJSON?: () => {
+    readonly value: "[REDACTED]";
+    readonly sensitive: true;
+  };
 };
 
 export type RedditOAuthCredentials = {

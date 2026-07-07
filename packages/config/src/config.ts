@@ -65,7 +65,10 @@ function createOptionalIntegrationConfig(optionalEnvironment: OptionalEnvironmen
     ...(optionalEnvironment.LLM_MODEL === undefined ? {} : { llmModel: optionalEnvironment.LLM_MODEL }),
     ...(optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === undefined
       ? {}
-      : { liveLlmAnalysisEnabled: optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === "true" })
+      : { liveLlmAnalysisEnabled: optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === "true" }),
+    ...(optionalEnvironment.LLM_PROVIDER_TIMEOUT_MS === undefined
+      ? {}
+      : { llmProviderTimeoutMs: optionalEnvironment.LLM_PROVIDER_TIMEOUT_MS })
   };
 }
 

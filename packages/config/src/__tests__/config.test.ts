@@ -35,7 +35,8 @@ const optionalEnvironment: OptionalEnvironment = {
   NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: "https://api.example.com",
   LLM_PROVIDER: "openai",
   LLM_MODEL: "gpt-4.1-mini",
-  LLM_LIVE_ANALYSIS_ENABLED: "true"
+  LLM_LIVE_ANALYSIS_ENABLED: "true",
+  LLM_PROVIDER_TIMEOUT_MS: 30000
 };
 
 const processLikeGlobal = globalThis as typeof globalThis & {
@@ -84,7 +85,8 @@ describe("config package scaffold", () => {
         publicApiBaseUrl: "https://api.example.com",
         llmProvider: "openai",
         llmModel: "gpt-4.1-mini",
-        liveLlmAnalysisEnabled: true
+        liveLlmAnalysisEnabled: true,
+        llmProviderTimeoutMs: 30000
       }
     });
   });

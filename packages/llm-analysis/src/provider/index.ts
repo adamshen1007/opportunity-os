@@ -2,6 +2,17 @@ export {
   LLM_PROVIDER_CAPABILITIES,
   LLM_PROVIDER_STABILITY_STATUSES
 } from "./llm-provider-metadata.js";
+export {
+  LIVE_LLM_PROVIDER_ENV_KEYS,
+  LIVE_LLM_PROVIDER_NAMES,
+  createLiveLlmProviderConfigFromEnv
+} from "./live-config.js";
+export {
+  createLiveLlmPromptBoundary
+} from "./live-prompt-boundary.js";
+export {
+  createOpenAiLiveLlmProviderAdapter
+} from "./openai-live-adapter.js";
 export type {
   LlmModelId,
   LlmProviderCapability,
@@ -13,3 +24,18 @@ export type {
 export type {
   LlmProviderContract
 } from "./llm-provider.js";
+export type {
+  LiveLlmProviderConfig,
+  LiveLlmProviderConfigResult,
+  LiveLlmProviderEnvKey,
+  LiveLlmProviderName,
+  LiveLlmSensitiveValue
+} from "./live-config.js";
+export type {
+  LiveLlmPromptBoundary
+} from "./live-prompt-boundary.js";
+export type {
+  LiveLlmFetch,
+  OpenAiLiveLlmProviderAdapter,
+  OpenAiLiveLlmProviderAdapterOptions
+} from "./openai-live-adapter.js";

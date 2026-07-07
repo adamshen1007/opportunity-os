@@ -71,7 +71,7 @@ Phase 3 Milestone 30: Beta Operations has an explicit `phase-3-milestone-30` ver
 
 Phase 4 Milestone 31: Local Product Runtime has an explicit `phase-4-milestone-31` verification gate. It adds a dependency-free local HTTP server for `apps/api`, local API and dashboard dev commands, a combined workspace dev command, and a dashboard API loader that uses `http://127.0.0.1:4000` by default with fixture fallback when the API terminal is not running.
 
-Phase 4 Milestone 34: External MVP Runtime has an explicit `phase-4-milestone-34` verification gate. It documents hosted web/API deployment readiness, production environment binding, protected secrets handling, production-safe API health output, and external URL verification. Hosted runtime values are documented in `.env.example`: `OPPORTUNITY_OS_API_URL`, `OPPORTUNITY_OS_WEB_URL`, `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`, `LLM_PROVIDER`, `LLM_MODEL`, and `LLM_LIVE_ANALYSIS_ENABLED`.
+Phase 4 Milestone 34: External MVP Runtime has an explicit `phase-4-milestone-34` verification gate. It documents hosted web/API deployment readiness, production environment binding, protected secrets handling, production-safe API health output, and external URL verification. Hosted runtime values are documented in `.env.example`: `OPPORTUNITY_OS_API_URL`, `OPPORTUNITY_OS_WEB_URL`, `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`, `LLM_PROVIDER`, `LLM_MODEL`, `LLM_LIVE_ANALYSIS_ENABLED`, and `LLM_PROVIDER_TIMEOUT_MS`.
 
 ## Local Product Runtime
 

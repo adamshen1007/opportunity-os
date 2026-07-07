@@ -53,7 +53,8 @@ describe("environment variable contract", () => {
       "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
       "LLM_PROVIDER",
       "LLM_MODEL",
-      "LLM_LIVE_ANALYSIS_ENABLED"
+      "LLM_LIVE_ANALYSIS_ENABLED",
+      "LLM_PROVIDER_TIMEOUT_MS"
     ]);
   });
 
@@ -190,7 +191,8 @@ describe("environment variable contract", () => {
         NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: "https://api.example.com",
         LLM_PROVIDER: "openai",
         LLM_MODEL: "gpt-4.1-mini",
-        LLM_LIVE_ANALYSIS_ENABLED: "false"
+        LLM_LIVE_ANALYSIS_ENABLED: "false",
+        LLM_PROVIDER_TIMEOUT_MS: "30000"
       })
     ).toEqual({
       SENTRY_DSN: "https://example.sentry.io/123",
@@ -201,7 +203,8 @@ describe("environment variable contract", () => {
       NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: "https://api.example.com",
       LLM_PROVIDER: "openai",
       LLM_MODEL: "gpt-4.1-mini",
-      LLM_LIVE_ANALYSIS_ENABLED: "false"
+      LLM_LIVE_ANALYSIS_ENABLED: "false",
+      LLM_PROVIDER_TIMEOUT_MS: 30000
     });
   });
 
@@ -213,7 +216,8 @@ describe("environment variable contract", () => {
         LANGSMITH_API_KEY: "",
         OPPORTUNITY_OS_API_URL: "not-a-url",
         LLM_PROVIDER: "gemini",
-        LLM_LIVE_ANALYSIS_ENABLED: "yes"
+        LLM_LIVE_ANALYSIS_ENABLED: "yes",
+        LLM_PROVIDER_TIMEOUT_MS: "0"
       })
     ).toThrow("SENTRY_DSN: SENTRY_DSN must be a valid URL");
   });

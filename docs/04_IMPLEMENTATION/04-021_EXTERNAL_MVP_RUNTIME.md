@@ -55,8 +55,21 @@ External MVP runtime values include:
 - `LLM_PROVIDER`
 - `LLM_MODEL`
 - `LLM_LIVE_ANALYSIS_ENABLED`
+- `LLM_PROVIDER_TIMEOUT_MS`
+
+Real Reddit datasource access for Slice B is also environment-gated:
+
+- `REDDIT_PRODUCTION_CLIENT_ID`
+- `REDDIT_PRODUCTION_CLIENT_SECRET`
+- `REDDIT_PRODUCTION_REFRESH_TOKEN`
+- `REDDIT_PRODUCTION_USER_AGENT`
+- `REDDIT_LIVE_TEST_ENABLED`
+- `REDDIT_LIVE_SUBREDDIT`
+- `REDDIT_LIVE_LIMIT`
 
 `LLM_LIVE_ANALYSIS_ENABLED` must default to `false` for local and CI usage. Live provider analysis is opt-in and must remain env-gated.
+
+Live LLM analysis for Slice C uses `@opportunity-os/llm-analysis` with `LLM_PROVIDER=openai`, `LLM_MODEL`, `OPENAI_API_KEY`, and optional `LLM_PROVIDER_TIMEOUT_MS`. The smoke command is `pnpm --filter @opportunity-os/llm-analysis dev:llm:live`. Default CI and local tests must continue to use deterministic fixtures and injected fake provider responses.
 
 Secrets must never be committed, logged, serialized, displayed in health output, included in deployment logs, or copied into documentation examples.
 
@@ -99,6 +112,10 @@ After deployment, operators must verify:
 5. The dashboard can load opportunities or a safe empty/demo state.
 6. Browser-visible errors do not expose secrets, stack traces, raw provider payloads, or internal dependency details.
 
+For Reddit datasource smoke testing, run `pnpm --filter @opportunity-os/connectors-reddit dev:reddit:live` only from a protected environment where `REDDIT_LIVE_TEST_ENABLED=true` and Reddit credentials are configured. Default CI and local tests must continue to use fake transport and deterministic fixtures.
+
+For LLM smoke testing, run `pnpm --filter @opportunity-os/llm-analysis dev:llm:live` only from a protected environment where `LLM_LIVE_ANALYSIS_ENABLED=true`, `LLM_PROVIDER=openai`, `LLM_MODEL`, and `OPENAI_API_KEY` are configured. The command must not print prompts, raw provider payloads, authorization headers, API keys, stack traces, or raw causes.
+
 ## Readiness Gate
 
 Phase 4 Milestone 34 Slice A is ready when:
@@ -109,4 +126,3 @@ Phase 4 Milestone 34 Slice A is ready when:
 - deployment workflow checks the Phase 34 gate
 - API health output is production-safe
 - external URL verification is documented
-
