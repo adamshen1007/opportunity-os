@@ -71,6 +71,24 @@ model PrivateBetaBugReport {
   @@map("private_beta_bug_reports")
 }
 
+model ScanRunRecord {
+  id           String   @id
+  mode         String
+  status       String
+  source       Json
+  stages       Json
+  safeMetadata Json?
+  startedAt    DateTime
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([mode])
+  @@index([status])
+  @@index([startedAt])
+  @@map("scan_run_records")
+}
+
 model RawSourceContent {
   id                 String              @id
   sourcePlatform     String

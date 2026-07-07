@@ -34,10 +34,12 @@ const allowedModelNames = [
   "PrivateBetaFeedback",
   "PrivateBetaInvite",
   "PrivateBetaSession",
-  "RawSourceContent"
+  "RawSourceContent",
+  "ScanRunRecord"
 ];
 
 const requiredProductTableMappings = [
+  "@@map(\"scan_run_records\")",
   "@@map(\"raw_source_content\")",
   "@@map(\"normalized_content\")",
   "@@map(\"analysis_results\")",
@@ -85,6 +87,7 @@ describe("database schema policy", () => {
     const schema = fs.readFileSync(schemaPath, "utf8");
 
     expect(schema).toContain("model RawSourceContent");
+    expect(schema).toContain("model ScanRunRecord");
     expect(schema).toContain("model GeneratedOpportunityRecord");
     expect(schema).toContain("model OpportunityRankingResult");
     expect(schema).toContain("GeneratedOpportunityRecord? @relation");

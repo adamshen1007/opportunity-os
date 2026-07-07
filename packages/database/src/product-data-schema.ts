@@ -1,4 +1,5 @@
 export const PRODUCT_DATA_MODEL_NAMES = [
+  "ScanRunRecord",
   "RawSourceContent",
   "NormalizedContent",
   "AnalysisResult",
@@ -11,6 +12,7 @@ export const PRODUCT_DATA_MODEL_NAMES = [
 export type ProductDataModelName = (typeof PRODUCT_DATA_MODEL_NAMES)[number];
 
 export const PRODUCT_DATA_TABLE_NAMES = [
+  "scan_run_records",
   "raw_source_content",
   "normalized_content",
   "analysis_results",

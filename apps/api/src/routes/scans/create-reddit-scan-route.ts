@@ -6,6 +6,7 @@ import {
   type ApiRedditScanRequestBody,
   type ApiScanResultDto
 } from "../../pipeline/index.js";
+import { createNoopScanPersistenceStore, type ApiScanPersistenceStore } from "../../persistence/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
 
 export const API_CREATE_REDDIT_SCAN_ROUTE = createApiRouteDefinition({
@@ -18,7 +19,8 @@ export const API_CREATE_REDDIT_SCAN_ROUTE = createApiRouteDefinition({
 });
 
 export async function handleCreateRedditScanRequest(
-  request: ApiRequest<ApiRedditScanRequestBody>
+  request: ApiRequest<ApiRedditScanRequestBody>,
+  persistence: ApiScanPersistenceStore = createNoopScanPersistenceStore()
 ): Promise<ApiResponse<ApiScanResultDto, ReturnType<typeof createApiError>>> {
   const meta = {
     correlationId: request.context.correlationId,
@@ -46,6 +48,10 @@ export async function handleCreateRedditScanRequest(
       correlationId: meta.correlationId,
       requestId: meta.requestId,
       requestedAt: "2026-07-07T00:00:00.000Z"
+    });
+    await persistence.persistScanResult({
+      result,
+      persistedAt: "2026-07-07T00:00:00.000Z"
     });
 
     return createApiSuccessResponse(result, meta);

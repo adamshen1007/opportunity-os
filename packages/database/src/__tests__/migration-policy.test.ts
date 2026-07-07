@@ -75,4 +75,20 @@ describe("foundation baseline migration", () => {
     expect(migration).not.toMatch(/\bscheduler\b/iu);
     expect(migration).not.toMatch(/\bworker\b/iu);
   });
+
+  it("adds scan run persistence without unsafe provider payload storage", () => {
+    const migration = fs.readFileSync(
+      path.join(import.meta.dirname, "../../prisma/migrations/20260707010000_scan_run_records/migration.sql"),
+      "utf8"
+    );
+
+    expect(migration).toMatch(/\bCREATE\s+TABLE\s+"scan_run_records"/iu);
+    expect(migration).toContain('"source" JSONB');
+    expect(migration).toContain('"stages" JSONB');
+    expect(migration).toContain('"safeMetadata" JSONB');
+    expect(migration).not.toMatch(/\bprovider_payload\b/iu);
+    expect(migration).not.toMatch(/\braw_provider_response\b/iu);
+    expect(migration).not.toMatch(/\bauth/i);
+    expect(migration).not.toMatch(/\bsecret\b/iu);
+  });
 });

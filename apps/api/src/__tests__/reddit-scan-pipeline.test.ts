@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createLocalApiDispatcher,
+  createInMemoryScanPersistenceStore,
   handleCreateRedditScanRequest,
   runOpportunityScanPipeline
 } from "../index.js";
@@ -89,6 +90,7 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
   });
 
   it("exposes the scan through a safe API route and local dispatcher", async () => {
+    const persistence = createInMemoryScanPersistenceStore();
     const routeResponse = await handleCreateRedditScanRequest({
       context: requestContext,
       body: {
@@ -96,9 +98,14 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
         query: "manual review",
         limit: 1
       }
-    });
+    }, persistence);
     expect(routeResponse.ok).toBe(true);
     expect(routeResponse.ok ? routeResponse.data.opportunities.length : 0).toBe(1);
+    if (routeResponse.ok) {
+      await expect(persistence.resolveOpportunityRecordId(routeResponse.data.opportunities[0]!.opportunityId)).resolves.toBe(
+        routeResponse.data.opportunities[0]!.provenance.generationOutputId
+      );
+    }
 
     const dispatch = createLocalApiDispatcher({
       serviceName: "opportunity-os-api-test",

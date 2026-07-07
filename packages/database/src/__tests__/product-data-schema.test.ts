@@ -8,6 +8,7 @@ import {
 describe("product data schema contracts", () => {
   it("publishes stable MVP product data model names", () => {
     expect(PRODUCT_DATA_MODEL_NAMES).toEqual([
+      "ScanRunRecord",
       "RawSourceContent",
       "NormalizedContent",
       "AnalysisResult",
@@ -20,6 +21,7 @@ describe("product data schema contracts", () => {
 
   it("publishes stable MVP product data table names", () => {
     expect(PRODUCT_DATA_TABLE_NAMES).toEqual([
+      "scan_run_records",
       "raw_source_content",
       "normalized_content",
       "analysis_results",

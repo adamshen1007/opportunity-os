@@ -29,6 +29,7 @@ import {
   handleCreateInviteRequest,
   handleGetSessionRequest
 } from "./routes/auth/index.js";
+import { createInMemoryScanPersistenceStore, type ApiScanPersistenceStore } from "./persistence/index.js";
 import type { ApiRequest, ApiResponse } from "./http/index.js";
 import { API_ERROR_CODES, createApiError } from "./errors/index.js";
 
@@ -37,6 +38,7 @@ export interface LocalApiServerOptions {
   readonly version?: string;
   readonly environment?: string;
   readonly clock?: () => string;
+  readonly scanPersistence?: ApiScanPersistenceStore;
 }
 
 export interface LocalApiDispatchInput {
@@ -67,6 +69,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
   const feedbackStore = createSyntheticApiFeedbackStore();
   const bugReportStore = createSyntheticApiBugReportStore();
   const inviteStore = createSyntheticApiInviteStore();
+  const scanPersistence = options.scanPersistence ?? createInMemoryScanPersistenceStore();
 
   const routeTable: readonly {
     readonly method: string;
@@ -96,7 +99,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "POST",
       path: "/scans/reddit",
-      handler: (request) => handleCreateRedditScanRequest(asHandlerRequest(request))
+      handler: (request) => handleCreateRedditScanRequest(asHandlerRequest(request), scanPersistence)
     },
     {
       method: "GET",
@@ -106,7 +109,10 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "POST",
       path: "/feedback",
-      handler: (request) => handleCreateFeedbackRequest(asHandlerRequest(request), feedbackStore)
+      handler: (request) =>
+        handleCreateFeedbackRequest(asHandlerRequest(request), feedbackStore, {
+          resolveOpportunityRecordId: (opportunityId) => scanPersistence.resolveOpportunityRecordId(opportunityId)
+        })
     },
     {
       method: "GET",

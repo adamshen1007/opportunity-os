@@ -25,6 +25,7 @@ import {
   type ApiFeedbackDto,
   type ApiFeedbackStore
 } from "../feedback/index.js";
+import { createInMemoryScanPersistenceStore, type ApiScanPersistenceStore } from "../persistence/index.js";
 
 export const syntheticApiRequestContext: ApiRequestContext = {
   correlationId: "correlation-synthetic-1",
@@ -213,6 +214,10 @@ export function createSyntheticApiFeedbackStore(): ApiFeedbackStore {
     clock: () => "2026-07-04T00:00:00.000Z",
     idFactory: () => "feedback-synthetic-created-1"
   });
+}
+
+export function createSyntheticApiScanPersistenceStore(): ApiScanPersistenceStore {
+  return createInMemoryScanPersistenceStore();
 }
 
 export function createSyntheticApiBugReportStore(): ApiBugReportStore {

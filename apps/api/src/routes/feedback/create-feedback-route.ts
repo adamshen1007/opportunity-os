@@ -6,6 +6,7 @@ import {
   validateCreateFeedbackBody
 } from "../../feedback/index.js";
 import { createApiFailureResponse, createApiSuccessResponse, type ApiRequest, type ApiResponse } from "../../http/index.js";
+import { withResolvedOpportunityRecordId } from "../../persistence/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
 
 export const API_CREATE_FEEDBACK_ROUTE = createApiRouteDefinition({
@@ -19,7 +20,10 @@ export const API_CREATE_FEEDBACK_ROUTE = createApiRouteDefinition({
 
 export async function handleCreateFeedbackRequest(
   request: ApiRequest<ApiCreateFeedbackRequestBody>,
-  store: ApiFeedbackStore
+  store: ApiFeedbackStore,
+  options: {
+    readonly resolveOpportunityRecordId?: (opportunityId: string) => Promise<string | undefined>;
+  } = {}
 ): Promise<ApiResponse<ApiFeedbackDto, ReturnType<typeof createApiError>>> {
   const meta = {
     correlationId: request.context.correlationId,
@@ -41,12 +45,12 @@ export async function handleCreateFeedbackRequest(
     );
   }
 
-  const feedback = await store.createFeedback({
+  const resolvedOpportunityRecordId = await options.resolveOpportunityRecordId?.(parsed.value.opportunityId);
+  const feedback = await store.createFeedback(withResolvedOpportunityRecordId({
     ...parsed.value,
     correlationId: meta.correlationId,
     requestId: meta.requestId
-  });
+  }, resolvedOpportunityRecordId));
 
   return createApiSuccessResponse(feedback, meta);
 }
-
