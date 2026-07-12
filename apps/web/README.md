@@ -115,3 +115,6 @@ Playwright is configured for deterministic dashboard coverage across desktop and
 ## Non-goals
 
 Milestone 27, Milestone 28, Milestone 29, and Milestone 31 dashboard work must not introduce production identity provider wiring, commercial account systems, measurement platforms, production account management, deployment behavior beyond the documented readiness gate, storage changes outside approved beta schema work, recommendation engines, mobile apps, runtime jobs, provider SDKs, complex admin consoles, external outreach systems, tenant systems, live provider ingestion, AI workflows, or unrelated backend changes.
+## Multi-Source Scan Workbench
+
+The dashboard's **Run Opportunity Scan** panel supports Stack Exchange and Reddit. Stack Exchange provides the current live product-validation path. Reddit live mode remains clearly marked as approval-gated. Results show attribution, evidence links, provenance, API quota metadata, evidence coverage, and average confidence.

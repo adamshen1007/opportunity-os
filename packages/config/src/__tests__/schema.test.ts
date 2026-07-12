@@ -54,7 +54,15 @@ describe("environment variable contract", () => {
       "LLM_PROVIDER",
       "LLM_MODEL",
       "LLM_LIVE_ANALYSIS_ENABLED",
-      "LLM_PROVIDER_TIMEOUT_MS"
+      "LLM_PROVIDER_TIMEOUT_MS",
+      "GEMINI_API_KEY",
+      "GEMINI_MODEL",
+      "STACK_EXCHANGE_LIVE_SCAN_ENABLED",
+      "STACK_EXCHANGE_API_BASE_URL",
+      "STACK_EXCHANGE_DEFAULT_SITE",
+      "STACK_EXCHANGE_API_KEY",
+      "STACK_EXCHANGE_TIMEOUT_MS",
+      "STACK_EXCHANGE_QUERY"
     ]);
   });
 
@@ -192,7 +200,9 @@ describe("environment variable contract", () => {
         LLM_PROVIDER: "openai",
         LLM_MODEL: "gpt-4.1-mini",
         LLM_LIVE_ANALYSIS_ENABLED: "false",
-        LLM_PROVIDER_TIMEOUT_MS: "30000"
+        LLM_PROVIDER_TIMEOUT_MS: "30000",
+        GEMINI_API_KEY: "gemini-secret-value",
+        GEMINI_MODEL: "gemini-2.5-flash"
       })
     ).toEqual({
       SENTRY_DSN: "https://example.sentry.io/123",
@@ -204,7 +214,9 @@ describe("environment variable contract", () => {
       LLM_PROVIDER: "openai",
       LLM_MODEL: "gpt-4.1-mini",
       LLM_LIVE_ANALYSIS_ENABLED: "false",
-      LLM_PROVIDER_TIMEOUT_MS: 30000
+      LLM_PROVIDER_TIMEOUT_MS: 30000,
+      GEMINI_API_KEY: "gemini-secret-value",
+      GEMINI_MODEL: "gemini-2.5-flash"
     });
   });
 
@@ -215,7 +227,7 @@ describe("environment variable contract", () => {
         LANGFUSE_API_KEY: "",
         LANGSMITH_API_KEY: "",
         OPPORTUNITY_OS_API_URL: "not-a-url",
-        LLM_PROVIDER: "gemini",
+        LLM_PROVIDER: "unsupported",
         LLM_LIVE_ANALYSIS_ENABLED: "yes",
         LLM_PROVIDER_TIMEOUT_MS: "0"
       })

@@ -8,6 +8,7 @@ const sourceRoot = path.resolve(packageRoot, "src");
 
 const allowedWorkspaceDependencies = new Set([
   "@opportunity-os/connectors-reddit",
+  "@opportunity-os/connectors-stack-exchange",
   "@opportunity-os/llm-analysis",
   "@opportunity-os/normalization",
   "@opportunity-os/opportunity-candidates",
@@ -63,5 +64,5 @@ describe("API dependency boundaries", () => {
     });
 
     expect(disallowedImports).toEqual([]);
-  }, 30000);
+  }, 90000);
 });

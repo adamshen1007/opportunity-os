@@ -102,3 +102,8 @@ Milestone 26 is complete when:
 ## Non-goals
 
 Milestone 26 and Milestone 31 must not introduce frontend implementation outside `apps/web`, production account management, measurement platforms, production identity providers, runtime jobs, provider SDKs, live provider ingestion, AI workflows, schedulers, workers, or unrelated product workflows.
+## Multi-Source Scans
+
+`POST /scans` is the canonical scan endpoint. It accepts `source: "stack-exchange" | "reddit"`, a query, a result limit, mode, and source-specific `site`, `tags`, or `subreddit` fields. `POST /scans/reddit` remains a compatibility route.
+
+Stack Exchange fixture mode is the default. Live mode also requires `STACK_EXCHANGE_LIVE_SCAN_ENABLED=true`. Responses preserve evidence and provenance, include attribution and quota metadata, and never return provider credentials or raw provider responses.

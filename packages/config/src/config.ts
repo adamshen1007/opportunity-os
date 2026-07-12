@@ -68,7 +68,27 @@ function createOptionalIntegrationConfig(optionalEnvironment: OptionalEnvironmen
       : { liveLlmAnalysisEnabled: optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === "true" }),
     ...(optionalEnvironment.LLM_PROVIDER_TIMEOUT_MS === undefined
       ? {}
-      : { llmProviderTimeoutMs: optionalEnvironment.LLM_PROVIDER_TIMEOUT_MS })
+      : { llmProviderTimeoutMs: optionalEnvironment.LLM_PROVIDER_TIMEOUT_MS }),
+    ...(optionalEnvironment.GEMINI_API_KEY === undefined ? {} : { geminiApiKey: optionalEnvironment.GEMINI_API_KEY }),
+    ...(optionalEnvironment.GEMINI_MODEL === undefined ? {} : { geminiModel: optionalEnvironment.GEMINI_MODEL }),
+    ...(optionalEnvironment.STACK_EXCHANGE_LIVE_SCAN_ENABLED === undefined
+      ? {}
+      : { stackExchangeLiveScanEnabled: optionalEnvironment.STACK_EXCHANGE_LIVE_SCAN_ENABLED === "true" }),
+    ...(optionalEnvironment.STACK_EXCHANGE_API_BASE_URL === undefined
+      ? {}
+      : { stackExchangeApiBaseUrl: optionalEnvironment.STACK_EXCHANGE_API_BASE_URL }),
+    ...(optionalEnvironment.STACK_EXCHANGE_DEFAULT_SITE === undefined
+      ? {}
+      : { stackExchangeDefaultSite: optionalEnvironment.STACK_EXCHANGE_DEFAULT_SITE }),
+    ...(optionalEnvironment.STACK_EXCHANGE_API_KEY === undefined
+      ? {}
+      : { stackExchangeApiKey: optionalEnvironment.STACK_EXCHANGE_API_KEY }),
+    ...(optionalEnvironment.STACK_EXCHANGE_TIMEOUT_MS === undefined
+      ? {}
+      : { stackExchangeTimeoutMs: optionalEnvironment.STACK_EXCHANGE_TIMEOUT_MS }),
+    ...(optionalEnvironment.STACK_EXCHANGE_QUERY === undefined
+      ? {}
+      : { stackExchangeQuery: optionalEnvironment.STACK_EXCHANGE_QUERY })
   };
 }
 

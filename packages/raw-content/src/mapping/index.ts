@@ -10,3 +10,5 @@ export type {
   RedditRawContentMappingTarget,
   RedditRawContentSourceInput
 } from "./reddit-to-raw-content.js";
+export { mapStackExchangeQuestionToRawContent } from "./stack-exchange-to-raw-content.js";
+export type { StackExchangeRawContentMappingInput } from "./stack-exchange-to-raw-content.js";

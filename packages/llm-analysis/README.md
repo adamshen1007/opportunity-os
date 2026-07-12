@@ -68,7 +68,7 @@ Phase 4 Milestone 34 Slice C adds the first env-gated live provider adapter for 
 Live provider ownership:
 
 - provider config is read from explicit environment input by `createLiveLlmProviderConfigFromEnv`
-- the first supported provider is `openai`
+- supported providers are `openai` and `gemini`
 - the adapter uses Node 24 `fetch` with no provider SDK dependency
 - prompt construction is routed through `createLiveLlmPromptBoundary`
 - prompt previews redact secret-like input keys
@@ -77,21 +77,33 @@ Live provider ownership:
 Required environment variables for the live command:
 
 - `LLM_LIVE_ANALYSIS_ENABLED=true`
-- `LLM_PROVIDER=openai`
+- `LLM_PROVIDER=openai` or `LLM_PROVIDER=gemini`
 - `LLM_MODEL`
-- `OPENAI_API_KEY`
+- `OPENAI_API_KEY` for OpenAI, or `GEMINI_API_KEY` for Gemini
 
 Optional:
 
 - `LLM_PROVIDER_TIMEOUT_MS`
+- `OPENAI_MODEL`
+- `GEMINI_MODEL`
 
-Run the smoke command only from a protected environment:
+Run the OpenAI smoke command only from a protected environment:
 
 ```sh
 LLM_LIVE_ANALYSIS_ENABLED=true \
 LLM_PROVIDER=openai \
 LLM_MODEL=gpt-4.1-mini \
 OPENAI_API_KEY=... \
+pnpm --filter @opportunity-os/llm-analysis dev:llm:live
+```
+
+Run the Gemini smoke command only from a protected environment:
+
+```sh
+LLM_LIVE_ANALYSIS_ENABLED=true \
+LLM_PROVIDER=gemini \
+LLM_MODEL=gemini-2.5-flash \
+GEMINI_API_KEY=... \
 pnpm --filter @opportunity-os/llm-analysis dev:llm:live
 ```
 

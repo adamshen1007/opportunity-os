@@ -8,7 +8,14 @@ import {
   type RedditPost
 } from "@opportunity-os/connectors-reddit";
 import {
+  createStackExchangeProviderConfigFromEnv,
+  searchStackExchange,
+  type StackExchangeQuestion,
+  type StackExchangeQuotaMetadata
+} from "@opportunity-os/connectors-stack-exchange";
+import {
   ANALYSIS_RESULT_STATUSES,
+  createGeminiLiveLlmProviderAdapter,
   createLiveLlmProviderConfigFromEnv,
   createOpenAiLiveLlmProviderAdapter,
   llmAnalysisFixturePrompt,
@@ -40,7 +47,7 @@ import {
   type OpportunityRankingUpstreamReference,
   type OpportunityRankingVersion
 } from "@opportunity-os/opportunity-ranking";
-import { RAW_CONTENT_ENVELOPE_VERSION, RAW_CONTENT_SOURCE_PLATFORMS } from "@opportunity-os/raw-content";
+import { RAW_CONTENT_ENVELOPE_VERSION } from "@opportunity-os/raw-content";
 import type {
   ApiScanEvidenceDto,
   ApiScanMode,
@@ -49,7 +56,8 @@ import type {
   ApiScanStageDto
 } from "./scan-pipeline-dto.js";
 import { API_SCAN_MODES, API_SCAN_STAGE_STATUSES } from "./scan-pipeline-dto.js";
-import type { ApiRedditScanRequest } from "./reddit-scan-request.js";
+import type { ApiScanRequest } from "./scan-request.js";
+import { createScanValidationMetrics } from "./scan-validation-metrics.js";
 
 export type OpportunityScanPipelineContext = {
   readonly correlationId: string;
@@ -58,7 +66,18 @@ export type OpportunityScanPipelineContext = {
   readonly env?: NodeJS.ProcessEnv;
 };
 
-export type OpportunityScanPipelineInput = ApiRedditScanRequest & OpportunityScanPipelineContext;
+export type OpportunityScanPipelineInput = Omit<ApiScanRequest, "source" | "query" | "tags"> &
+  Partial<Pick<ApiScanRequest, "source" | "query" | "tags">> &
+  OpportunityScanPipelineContext;
+
+type PipelineSourceItem = {
+  readonly id: string;
+  readonly title: string;
+  readonly bodyText?: string;
+  readonly permalink: string;
+  readonly community: string;
+  readonly source: "reddit" | "stack-exchange";
+};
 
 type PipelineRawContent = {
   readonly id: string;
@@ -68,21 +87,21 @@ type PipelineRawContent = {
   readonly bodyText?: string;
   readonly permalink: string;
   readonly source: {
-    readonly platform: "reddit";
+    readonly platform: "reddit" | "stack-exchange";
     readonly sourceId: string;
     readonly sourceUrl: string;
-    readonly subreddit: string;
+    readonly community: string;
   };
   readonly ingestion: {
     readonly ingestionId: string;
     readonly ingestedAt: string;
-    readonly connectorId: "reddit";
+    readonly connectorId: "reddit" | "stack-exchange";
   };
   readonly provenance: {
-    readonly sourcePlatform: "reddit";
+    readonly sourcePlatform: "reddit" | "stack-exchange";
     readonly sourceId: string;
     readonly sourceUrl: string;
-    readonly transformBoundary: "reddit-to-raw-content";
+    readonly transformBoundary: "reddit-to-raw-content" | "stack-exchange-to-raw-content";
     readonly rawProviderPayloadStored: false;
   };
 };
@@ -103,7 +122,7 @@ type PipelineCandidate = {
   readonly evidenceSummary: string;
   readonly confidence: number;
   readonly provenance: {
-    readonly redditPostId: string;
+    readonly sourceItemId: string;
     readonly rawContentId: string;
     readonly normalizedContentId: string;
     readonly analysisRequestId: string;
@@ -156,7 +175,7 @@ async function readReddit(input: OpportunityScanPipelineInput): Promise<{
   const result = await fetchRedditLivePublicPosts({
     credentials: redditConfig.config.credentials,
     transport: createRedditLiveHttpTransport(),
-    subreddit: input.subreddit,
+    subreddit: input.subreddit ?? "opportunity",
     limit: input.limit,
     tokenEndpoint: redditConfig.config.tokenEndpoint,
     apiBaseUrl: redditConfig.config.apiBaseUrl,
@@ -182,7 +201,69 @@ async function readReddit(input: OpportunityScanPipelineInput): Promise<{
   };
 }
 
-function mapPostToRawContent(post: RedditPost, requestedAt: string): PipelineRawContent {
+type SourceReadResult = {
+  readonly mode: ApiScanMode;
+  readonly items: readonly PipelineSourceItem[];
+  readonly community: string;
+  readonly attribution: string;
+  readonly quota?: StackExchangeQuotaMetadata;
+};
+
+async function readSource(input: OpportunityScanPipelineInput): Promise<SourceReadResult> {
+  if (input.source === "stack-exchange") {
+    const config = createStackExchangeProviderConfigFromEnv(input.env ?? process.env);
+    const provider = await searchStackExchange({
+      config: { ...config, enabled: input.mode === API_SCAN_MODES.live && config.enabled },
+      request: {
+        query: input.query ?? "manual review",
+        site: input.site,
+        tags: input.tags ?? [],
+        pageSize: input.limit
+      }
+    });
+    if (!provider.ok) throw new Error(provider.error.message);
+    return {
+      mode: provider.result.mode,
+      items: provider.result.items.slice(0, input.limit).map(mapStackExchangeQuestion),
+      community: input.site ?? config.defaultSite,
+      attribution: provider.result.attribution.sourceName,
+      quota: provider.result.quota
+    };
+  }
+
+  const reddit = await readReddit(input);
+  const posts = reddit.envelope.kind === "posts" ? reddit.envelope.items.slice(0, input.limit) : [];
+  return {
+    mode: reddit.mode,
+    items: posts.map(mapRedditPost),
+    community: input.subreddit ?? "opportunity",
+    attribution: "Reddit"
+  };
+}
+
+function mapRedditPost(post: RedditPost): PipelineSourceItem {
+  return {
+    id: post.id,
+    title: post.title,
+    bodyText: post.bodyText,
+    permalink: post.permalink,
+    community: post.subreddit.name,
+    source: "reddit"
+  };
+}
+
+function mapStackExchangeQuestion(question: StackExchangeQuestion): PipelineSourceItem {
+  return {
+    id: question.id,
+    title: question.title,
+    bodyText: question.bodyText,
+    permalink: question.permalink,
+    community: question.site,
+    source: "stack-exchange"
+  };
+}
+
+function mapPostToRawContent(post: PipelineSourceItem, requestedAt: string): PipelineRawContent {
   return {
     id: `raw-post-${safeId(post.id)}`,
     version: RAW_CONTENT_ENVELOPE_VERSION,
@@ -191,21 +272,21 @@ function mapPostToRawContent(post: RedditPost, requestedAt: string): PipelineRaw
     bodyText: post.bodyText,
     permalink: post.permalink,
     source: {
-      platform: RAW_CONTENT_SOURCE_PLATFORMS[0],
+      platform: post.source,
       sourceId: post.id,
       sourceUrl: post.permalink,
-      subreddit: post.subreddit.name
+      community: post.community
     },
     ingestion: {
       ingestionId: `ingestion-${safeId(post.id)}`,
       ingestedAt: requestedAt,
-      connectorId: "reddit"
+      connectorId: post.source
     },
     provenance: {
-      sourcePlatform: "reddit",
+      sourcePlatform: post.source,
       sourceId: post.id,
       sourceUrl: post.permalink,
-      transformBoundary: "reddit-to-raw-content",
+      transformBoundary: post.source === "reddit" ? "reddit-to-raw-content" : "stack-exchange-to-raw-content",
       rawProviderPayloadStored: false
     }
   };
@@ -236,7 +317,9 @@ async function analyzeContent(
     return llmAnalysisFixtureResult;
   }
 
-  const adapter = createOpenAiLiveLlmProviderAdapter({ config: config.config });
+  const adapter = config.config.provider === "gemini"
+    ? createGeminiLiveLlmProviderAdapter({ config: config.config })
+    : createOpenAiLiveLlmProviderAdapter({ config: config.config });
   return adapter.analyze({
     ...llmAnalysisFixtureRequest,
     input: {
@@ -278,7 +361,7 @@ function analysisConfidence(result: AnalysisResult): number {
 }
 
 function createCandidate(input: {
-  readonly post: RedditPost;
+  readonly post: PipelineSourceItem;
   readonly raw: PipelineRawContent;
   readonly normalized: PipelineNormalizedContent;
   readonly analysis: AnalysisResult;
@@ -286,11 +369,11 @@ function createCandidate(input: {
   return {
     candidateId: `candidate-${safeId(input.post.id)}`,
     status: CANDIDATE_OPPORTUNITY_STATUSES.validationReady,
-    title: `People in r/${input.post.subreddit.name} may need help with: ${input.post.title}`,
+    title: `People in ${input.post.community} may need help with: ${input.post.title}`,
     evidenceSummary: analysisSummary(input.analysis, input.normalized.text.slice(0, 180)),
     confidence: analysisConfidence(input.analysis),
     provenance: {
-      redditPostId: input.post.id,
+      sourceItemId: input.post.id,
       rawContentId: input.raw.id,
       normalizedContentId: input.normalized.id,
       analysisRequestId: llmAnalysisFixtureRequest.id
@@ -399,7 +482,7 @@ function rankGeneratedOpportunities(input: {
 
 function toDto(input: {
   readonly generated: PipelineGeneratedOpportunity;
-  readonly post: RedditPost;
+  readonly post: PipelineSourceItem;
   readonly raw: PipelineRawContent;
   readonly normalized: PipelineNormalizedContent;
   readonly scanId: string;
@@ -409,12 +492,12 @@ function toDto(input: {
 }): ApiScanOpportunityDto {
   const evidence: ApiScanEvidenceDto = {
     evidenceId: `evidence-${safeId(input.post.id)}`,
-    sourceType: "reddit",
+    sourceType: input.post.source,
     summary: input.generated.candidate.evidenceSummary,
     permalink: input.post.permalink,
     confidence: input.generated.candidate.confidence,
     provenance: {
-      sourcePlatform: "reddit",
+      sourcePlatform: input.post.source,
       sourceId: input.post.id,
       sourceUrl: input.post.permalink,
       normalizedContentId: input.normalized.id,
@@ -435,7 +518,8 @@ function toDto(input: {
     evidence: [evidence],
     provenance: {
       scanId: input.scanId,
-      redditPostId: input.post.id,
+      sourceItemId: input.post.id,
+      ...(input.post.source === "reddit" ? { redditPostId: input.post.id } : {}),
       rawContentId: input.raw.id,
       normalizedContentId: input.normalized.id,
       analysisRequestId: llmAnalysisFixtureRequest.id,
@@ -454,12 +538,13 @@ function assertSafeOutput(result: ApiScanResultDto): void {
 }
 
 export async function runOpportunityScanPipeline(input: OpportunityScanPipelineInput): Promise<ApiScanResultDto> {
-  const reddit = await readReddit(input);
-  const posts = reddit.envelope.kind === "posts" ? reddit.envelope.items.slice(0, input.limit) : [];
-  const scanId = `scan-${safeId(input.subreddit)}-${safeId(input.requestedAt)}`;
+  const sourceName = input.source ?? "reddit";
+  const source = await readSource({ ...input, source: sourceName });
+  const posts = source.items;
+  const scanId = `scan-${safeId(sourceName)}-${safeId(source.community)}-${safeId(input.requestedAt)}`;
   const rawContent = posts.map((post) => mapPostToRawContent(post, input.requestedAt));
   const normalizedContent = rawContent.map((raw) => normalizeRawContent(raw));
-  const analyses = await Promise.all(normalizedContent.map((normalized) => analyzeContent(normalized, input, reddit.mode)));
+  const analyses = await Promise.all(normalizedContent.map((normalized) => analyzeContent(normalized, input, source.mode)));
   const candidates = posts.map((post, index) =>
     createCandidate({
       post,
@@ -480,7 +565,7 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
     const matchingRank = ranked.find((rank) => rank.opportunity.entityId === item.opportunityId);
     return toDto({
       generated: item,
-      post: posts[index] as RedditPost,
+      post: posts[index] as PipelineSourceItem,
       raw: rawContent[index] as PipelineRawContent,
       normalized: normalizedContent[index] as PipelineNormalizedContent,
       scanId,
@@ -491,27 +576,33 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
   });
   const result: ApiScanResultDto = {
     scanId,
-    mode: reddit.mode,
+    mode: source.mode,
     status: "completed",
     source: {
-      provider: "reddit",
-      subreddit: input.subreddit,
-      query: input.query,
-      itemCount: posts.length
+      provider: sourceName,
+      community: source.community,
+      ...(sourceName === "reddit"
+        ? { subreddit: input.subreddit ?? source.community }
+        : { site: input.site ?? source.community }),
+      query: input.query ?? "manual review",
+      attribution: source.attribution,
+      itemCount: posts.length,
+      quota: source.quota
     },
     stages: [
-      stage("reddit", reddit.mode === API_SCAN_MODES.live ? "Fetched Reddit content through the env-gated live provider." : "Loaded deterministic Reddit fixture content."),
-      stage("raw-content", "Mapped Reddit content into safe Raw Content envelopes."),
+      stage("source", source.mode === API_SCAN_MODES.live ? `Fetched ${source.attribution} content through the live provider.` : `Loaded deterministic ${source.attribution} fixture content.`),
+      stage("raw-content", `Mapped ${source.attribution} content into safe Raw Content envelopes.`),
       stage("normalization", "Normalized text while preserving source provenance."),
-      stage("llm-analysis", reddit.mode === API_SCAN_MODES.live ? "Ran env-gated live LLM analysis or safe fixture fallback." : "Used deterministic LLM analysis fixture output."),
+      stage("llm-analysis", source.mode === API_SCAN_MODES.live ? "Ran env-gated live LLM analysis or safe fixture fallback." : "Used deterministic LLM analysis fixture output."),
       stage("candidate-generation", "Built evidence-backed candidate opportunities."),
       stage("opportunity-generation", "Generated opportunities from validated candidates."),
       stage("ranking", "Ranked generated opportunities with explainable deterministic ranking.")
     ],
     opportunities,
+    validationMetrics: createScanValidationMetrics({ retrievedItems: posts.length, opportunities }),
     safeMetadata: {
-      deterministic: reddit.mode === API_SCAN_MODES.fixture,
-      liveEnabled: reddit.mode === API_SCAN_MODES.live,
+      deterministic: source.mode === API_SCAN_MODES.fixture,
+      liveEnabled: source.mode === API_SCAN_MODES.live,
       rawProviderPayloadStored: false
     }
   };

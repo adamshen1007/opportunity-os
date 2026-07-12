@@ -29,7 +29,15 @@ export const OPTIONAL_ENVIRONMENT_VARIABLES = [
   "LLM_PROVIDER",
   "LLM_MODEL",
   "LLM_LIVE_ANALYSIS_ENABLED",
-  "LLM_PROVIDER_TIMEOUT_MS"
+  "LLM_PROVIDER_TIMEOUT_MS",
+  "GEMINI_API_KEY",
+  "GEMINI_MODEL",
+  "STACK_EXCHANGE_LIVE_SCAN_ENABLED",
+  "STACK_EXCHANGE_API_BASE_URL",
+  "STACK_EXCHANGE_DEFAULT_SITE",
+  "STACK_EXCHANGE_API_KEY",
+  "STACK_EXCHANGE_TIMEOUT_MS",
+  "STACK_EXCHANGE_QUERY"
 ] as const;
 
 export type RequiredEnvironmentVariable = (typeof REQUIRED_ENVIRONMENT_VARIABLES)[number];
@@ -44,7 +52,7 @@ export const DEFAULT_ENVIRONMENT_VALUES = {
 
 const runtimeEnvironmentSchema = z.enum(["local", "development", "staging", "production"]);
 const logLevelSchema = z.enum(["trace", "debug", "info", "warn", "error", "fatal"]);
-const llmProviderSchema = z.enum(["openai", "anthropic"]);
+const llmProviderSchema = z.enum(["openai", "anthropic", "gemini"]);
 const booleanStringSchema = z.enum(["true", "false"]);
 
 const nonEmptyStringSchema = z.string().trim().min(1);
@@ -76,7 +84,15 @@ export const optionalEnvironmentSchema = z.object({
   LLM_PROVIDER: llmProviderSchema.optional(),
   LLM_MODEL: nonEmptyStringSchema.optional(),
   LLM_LIVE_ANALYSIS_ENABLED: booleanStringSchema.optional(),
-  LLM_PROVIDER_TIMEOUT_MS: z.coerce.number().int().min(1).max(120000).optional()
+  LLM_PROVIDER_TIMEOUT_MS: z.coerce.number().int().min(1).max(120000).optional(),
+  GEMINI_API_KEY: nonEmptyStringSchema.optional(),
+  GEMINI_MODEL: nonEmptyStringSchema.optional(),
+  STACK_EXCHANGE_LIVE_SCAN_ENABLED: booleanStringSchema.optional(),
+  STACK_EXCHANGE_API_BASE_URL: urlStringSchema.optional(),
+  STACK_EXCHANGE_DEFAULT_SITE: nonEmptyStringSchema.optional(),
+  STACK_EXCHANGE_API_KEY: nonEmptyStringSchema.optional(),
+  STACK_EXCHANGE_TIMEOUT_MS: z.coerce.number().int().min(1000).max(30000).optional(),
+  STACK_EXCHANGE_QUERY: nonEmptyStringSchema.optional()
 });
 
 export function validateRequiredEnvironment(input: Record<string, unknown>): RequiredEnvironment {
@@ -158,7 +174,7 @@ function getIssueMessage(variableName: EnvironmentVariableName, issue: z.ZodIssu
   }
 
   if (variableName === "LLM_PROVIDER") {
-    return "LLM_PROVIDER must be one of: openai, anthropic";
+    return "LLM_PROVIDER must be one of: openai, anthropic, gemini";
   }
 
   if (variableName === "LLM_LIVE_ANALYSIS_ENABLED") {

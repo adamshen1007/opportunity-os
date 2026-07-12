@@ -1,9 +1,9 @@
 # 04-021_EXTERNAL_MVP_RUNTIME.md
 
-**Document ID:** 04-021  
-**Version:** 3.0.0  
-**Status:** Active  
-**Layer:** 4 - Implementation  
+**Document ID:** 04-021
+**Version:** 3.0.0
+**Status:** Active
+**Layer:** 4 - Implementation
 **Owner:** Opportunity OS Architecture Team
 
 ## Purpose
@@ -69,7 +69,7 @@ Real Reddit datasource access for Slice B is also environment-gated:
 
 `LLM_LIVE_ANALYSIS_ENABLED` must default to `false` for local and CI usage. Live provider analysis is opt-in and must remain env-gated.
 
-Live LLM analysis for Slice C uses `@opportunity-os/llm-analysis` with `LLM_PROVIDER=openai`, `LLM_MODEL`, `OPENAI_API_KEY`, and optional `LLM_PROVIDER_TIMEOUT_MS`. The smoke command is `pnpm --filter @opportunity-os/llm-analysis dev:llm:live`. Default CI and local tests must continue to use deterministic fixtures and injected fake provider responses.
+Live LLM analysis for Slice C uses `@opportunity-os/llm-analysis` with `LLM_PROVIDER=openai` and `OPENAI_API_KEY`, or `LLM_PROVIDER=gemini` and `GEMINI_API_KEY`. `LLM_MODEL` can select either provider model, while `OPENAI_MODEL` and `GEMINI_MODEL` provide provider-specific defaults. The smoke command is `pnpm --filter @opportunity-os/llm-analysis dev:llm:live`. Default CI and local tests must continue to use deterministic fixtures and injected fake provider responses.
 
 Secrets must never be committed, logged, serialized, displayed in health output, included in deployment logs, or copied into documentation examples.
 
@@ -114,7 +114,7 @@ After deployment, operators must verify:
 
 For Reddit datasource smoke testing, run `pnpm --filter @opportunity-os/connectors-reddit dev:reddit:live` only from a protected environment where `REDDIT_LIVE_TEST_ENABLED=true` and Reddit credentials are configured. Default CI and local tests must continue to use fake transport and deterministic fixtures.
 
-For LLM smoke testing, run `pnpm --filter @opportunity-os/llm-analysis dev:llm:live` only from a protected environment where `LLM_LIVE_ANALYSIS_ENABLED=true`, `LLM_PROVIDER=openai`, `LLM_MODEL`, and `OPENAI_API_KEY` are configured. The command must not print prompts, raw provider payloads, authorization headers, API keys, stack traces, or raw causes.
+For LLM smoke testing, run `pnpm --filter @opportunity-os/llm-analysis dev:llm:live` only from a protected environment where `LLM_LIVE_ANALYSIS_ENABLED=true` and either OpenAI or Gemini credentials are configured. OpenAI requires `LLM_PROVIDER=openai`, a model through `LLM_MODEL` or `OPENAI_MODEL`, and `OPENAI_API_KEY`. Gemini requires `LLM_PROVIDER=gemini`, a model through `LLM_MODEL` or `GEMINI_MODEL`, and `GEMINI_API_KEY`. The command must not print prompts, raw provider payloads, authorization headers, API keys, stack traces, or raw causes.
 
 ## Readiness Gate
 

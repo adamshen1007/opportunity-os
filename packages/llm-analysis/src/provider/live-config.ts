@@ -1,5 +1,6 @@
 export const LIVE_LLM_PROVIDER_NAMES = {
-  openai: "openai"
+  openai: "openai",
+  gemini: "gemini"
 } as const;
 
 export const LIVE_LLM_PROVIDER_ENV_KEYS = [
@@ -8,6 +9,8 @@ export const LIVE_LLM_PROVIDER_ENV_KEYS = [
   "LLM_LIVE_ANALYSIS_ENABLED",
   "OPENAI_API_KEY",
   "OPENAI_MODEL",
+  "GEMINI_API_KEY",
+  "GEMINI_MODEL",
   "LLM_PROVIDER_TIMEOUT_MS"
 ] as const;
 
@@ -31,7 +34,9 @@ export type LiveLlmProviderConfig = {
   readonly provider: LiveLlmProviderName;
   readonly model: string;
   readonly apiKey?: LiveLlmSensitiveValue;
-  readonly endpoint: "https://api.openai.com/v1/responses";
+  readonly endpoint:
+    | "https://api.openai.com/v1/responses"
+    | "https://generativelanguage.googleapis.com/v1beta";
   readonly timeoutMs: number;
 };
 
@@ -75,22 +80,33 @@ export function createLiveLlmProviderConfigFromEnv(
 ): LiveLlmProviderConfigResult {
   const enabled = readEnabled(env.LLM_LIVE_ANALYSIS_ENABLED);
   const provider = env.LLM_PROVIDER?.trim().toLowerCase() || LIVE_LLM_PROVIDER_NAMES.openai;
-  const model = env.LLM_MODEL?.trim() || env.OPENAI_MODEL?.trim() || "gpt-4.1-mini";
-  const apiKey = sensitive(env.OPENAI_API_KEY);
+  const model =
+    env.LLM_MODEL?.trim() ||
+    (provider === LIVE_LLM_PROVIDER_NAMES.gemini
+      ? env.GEMINI_MODEL?.trim() || "gemini-2.5-flash"
+      : env.OPENAI_MODEL?.trim() || "gpt-4.1-mini");
+  const apiKey = sensitive(
+    provider === LIVE_LLM_PROVIDER_NAMES.gemini ? env.GEMINI_API_KEY : env.OPENAI_API_KEY
+  );
 
-  if (provider !== LIVE_LLM_PROVIDER_NAMES.openai) {
+  if (
+    provider !== LIVE_LLM_PROVIDER_NAMES.openai &&
+    provider !== LIVE_LLM_PROVIDER_NAMES.gemini
+  ) {
     return {
       ok: false,
       missingKeys: [],
-      safeMessage: "Live LLM analysis currently supports only the openai provider."
+      safeMessage: "Live LLM analysis currently supports only openai and gemini providers."
     };
   }
 
   if (enabled && !apiKey) {
     return {
       ok: false,
-      missingKeys: ["OPENAI_API_KEY"],
-      safeMessage: "Live LLM analysis requires OPENAI_API_KEY when LLM_LIVE_ANALYSIS_ENABLED=true."
+      missingKeys: [provider === LIVE_LLM_PROVIDER_NAMES.gemini ? "GEMINI_API_KEY" : "OPENAI_API_KEY"],
+      safeMessage: `Live LLM analysis requires ${
+        provider === LIVE_LLM_PROVIDER_NAMES.gemini ? "GEMINI_API_KEY" : "OPENAI_API_KEY"
+      } when LLM_LIVE_ANALYSIS_ENABLED=true.`
     };
   }
 
@@ -101,7 +117,10 @@ export function createLiveLlmProviderConfigFromEnv(
       provider,
       model,
       ...(apiKey === undefined ? {} : { apiKey }),
-      endpoint: "https://api.openai.com/v1/responses",
+      endpoint:
+        provider === LIVE_LLM_PROVIDER_NAMES.gemini
+          ? "https://generativelanguage.googleapis.com/v1beta"
+          : "https://api.openai.com/v1/responses",
       timeoutMs: readPositiveTimeout(env.LLM_PROVIDER_TIMEOUT_MS)
     }
   };

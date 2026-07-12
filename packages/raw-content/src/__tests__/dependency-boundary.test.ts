@@ -85,6 +85,7 @@ describe("raw content dependency boundaries", () => {
     expect(Object.keys(dependencies).sort()).toEqual([
       "@opportunity-os/application",
       "@opportunity-os/connectors-reddit",
+      "@opportunity-os/connectors-stack-exchange",
       "@opportunity-os/database",
       "@opportunity-os/domain",
       "@opportunity-os/events",

@@ -6,13 +6,15 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
   status: "completed",
   source: {
     provider: "reddit",
+    community: "opportunity",
     subreddit: "opportunity",
     query: "manual review",
+    attribution: "Reddit",
     itemCount: 2
   },
   stages: [
     {
-      name: "reddit",
+      name: "source",
       status: "completed",
       safeMessage: "Loaded deterministic Reddit fixture content."
     },
@@ -77,6 +79,7 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
       ],
       provenance: {
         scanId: "scan-opportunity-20260707",
+        sourceItemId: "post_fixture_manual_review",
         redditPostId: "post_fixture_manual_review",
         rawContentId: "raw-fixture-001",
         normalizedContentId: "normalized-fixture-001",
@@ -115,6 +118,7 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
       ],
       provenance: {
         scanId: "scan-opportunity-20260707",
+        sourceItemId: "post_fixture_evidence_summary",
         redditPostId: "post_fixture_evidence_summary",
         rawContentId: "raw-fixture-002",
         normalizedContentId: "normalized-fixture-002",
@@ -125,6 +129,14 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
       }
     }
   ],
+  validationMetrics: {
+    retrievedItems: 2,
+    generatedOpportunities: 2,
+    evidenceBackedOpportunities: 2,
+    evidenceCoverage: 1,
+    averageConfidence: 0.765,
+    reviewStatus: "ready-for-human-review"
+  },
   safeMetadata: {
     deterministic: true,
     liveEnabled: false,

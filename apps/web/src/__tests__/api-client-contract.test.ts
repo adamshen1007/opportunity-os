@@ -4,6 +4,7 @@ import {
   createFeedback,
   createPrivateBetaBugReport,
   createRedditScan,
+  createScan,
   generatedApiRoutes,
   getFeedback,
   getOpportunity,
@@ -234,6 +235,28 @@ describe("Dashboard API client contracts", () => {
     if (created.ok) {
       expect(created.data.opportunities[0]?.evidence[0]?.provenance.sourcePlatform).toBe("reddit");
     }
+  });
+
+  it("creates source-neutral Stack Exchange scans through the typed API layer", async () => {
+    const calls: string[] = [];
+    const client = createDashboardApiClient({
+      baseUrl: "https://api.test",
+      correlationId: "correlation-stack-exchange-001",
+      fetch: async (input) => {
+        calls.push(String(input));
+        return createJsonResponse(createApiSuccessResponse(dashboardScanFixture, { correlationId: "correlation-stack-exchange-001" }));
+      }
+    });
+    const created = await createScan(client, {
+      source: "stack-exchange",
+      site: "stackoverflow",
+      query: "manual deployment",
+      tags: ["deployment"],
+      limit: 5,
+      mode: "fixture"
+    });
+    expect(created.ok).toBe(true);
+    expect(calls).toEqual([`https://api.test${generatedApiRoutes.createScan.path}`]);
   });
 
   it("maps API errors without exposing secrets, stacks, raw payloads, or internal details", async () => {

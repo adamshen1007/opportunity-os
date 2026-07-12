@@ -24,10 +24,18 @@ export interface OptionalEnvironment {
   readonly OPPORTUNITY_OS_API_URL?: string;
   readonly OPPORTUNITY_OS_WEB_URL?: string;
   readonly NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL?: string;
-  readonly LLM_PROVIDER?: "openai" | "anthropic";
+  readonly LLM_PROVIDER?: "openai" | "anthropic" | "gemini";
   readonly LLM_MODEL?: string;
   readonly LLM_LIVE_ANALYSIS_ENABLED?: "true" | "false";
   readonly LLM_PROVIDER_TIMEOUT_MS?: number;
+  readonly GEMINI_API_KEY?: string;
+  readonly GEMINI_MODEL?: string;
+  readonly STACK_EXCHANGE_LIVE_SCAN_ENABLED?: "true" | "false";
+  readonly STACK_EXCHANGE_API_BASE_URL?: string;
+  readonly STACK_EXCHANGE_DEFAULT_SITE?: string;
+  readonly STACK_EXCHANGE_API_KEY?: string;
+  readonly STACK_EXCHANGE_TIMEOUT_MS?: number;
+  readonly STACK_EXCHANGE_QUERY?: string;
 }
 
 export interface DefaultEnvironmentValues {
@@ -71,10 +79,18 @@ export interface OptionalIntegrationConfig {
   readonly apiUrl?: string;
   readonly webUrl?: string;
   readonly publicApiBaseUrl?: string;
-  readonly llmProvider?: "openai" | "anthropic";
+  readonly llmProvider?: "openai" | "anthropic" | "gemini";
   readonly llmModel?: string;
   readonly liveLlmAnalysisEnabled?: boolean;
   readonly llmProviderTimeoutMs?: number;
+  readonly geminiApiKey?: string;
+  readonly geminiModel?: string;
+  readonly stackExchangeLiveScanEnabled?: boolean;
+  readonly stackExchangeApiBaseUrl?: string;
+  readonly stackExchangeDefaultSite?: string;
+  readonly stackExchangeApiKey?: string;
+  readonly stackExchangeTimeoutMs?: number;
+  readonly stackExchangeQuery?: string;
 }
 
 export interface RuntimeConfig {

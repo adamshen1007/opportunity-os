@@ -3,7 +3,8 @@ import {
   createLocalApiDispatcher,
   createInMemoryScanPersistenceStore,
   handleCreateRedditScanRequest,
-  runOpportunityScanPipeline
+  runOpportunityScanPipeline,
+  type ApiScanResultDto
 } from "../index.js";
 
 const requestContext = {
@@ -28,7 +29,7 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
 
     expect(result.mode).toBe("fixture");
     expect(result.stages.map((stage) => stage.name)).toEqual([
-      "reddit",
+      "source",
       "raw-content",
       "normalization",
       "llm-analysis",
@@ -43,6 +44,7 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
       analysisRequestId: expect.stringContaining("analysis_request")
     });
     expect(result.opportunities[0]?.provenance).toMatchObject({
+      sourceItemId: "post_fixture",
       redditPostId: "post_fixture",
       rawContentId: "raw-post-post_fixture",
       rankingRunId: "mvp-scan-ranking-run"
@@ -146,5 +148,40 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
 
     expect(response.ok).toBe(false);
     expect(response.ok ? undefined : response.error.details).toEqual(["subreddit:invalid", "limit:invalid"]);
+  });
+
+  it("runs a source-neutral Stack Exchange scan through the same pipeline", async () => {
+    const dispatch = createLocalApiDispatcher({
+      clock: () => "2026-07-07T00:00:00.000Z"
+    });
+    const response = await dispatch({
+      method: "POST",
+      path: "/scans",
+      body: {
+        source: "stack-exchange",
+        site: "stackoverflow",
+        query: "manual deployment",
+        tags: ["deployment"],
+        limit: 1,
+        mode: "fixture"
+      }
+    });
+    expect(response.ok).toBe(true);
+    if (!response.ok) return;
+    const data = response.data as ApiScanResultDto;
+    expect(data).toMatchObject({
+      mode: "fixture",
+      source: {
+        provider: "stack-exchange",
+        site: "stackoverflow",
+        attribution: "Stack Exchange",
+        itemCount: 1
+      }
+    });
+    expect(data.opportunities[0]?.evidence[0]).toMatchObject({
+      sourceType: "stack-exchange",
+      provenance: { sourcePlatform: "stack-exchange" }
+    });
+    expect(JSON.stringify(data)).not.toMatch(/api[_-]?key|authorization|bearer|raw provider/iu);
   });
 });

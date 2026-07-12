@@ -98,6 +98,8 @@ export type {
 export {
   REDDIT_RAW_CONTENT_MAPPING_TARGETS
 } from "./mapping/index.js";
+export { mapStackExchangeQuestionToRawContent } from "./mapping/index.js";
+export type { StackExchangeRawContentMappingInput } from "./mapping/index.js";
 export type {
   RedditRawContentMappedItem,
   RedditRawContentMappingContext,

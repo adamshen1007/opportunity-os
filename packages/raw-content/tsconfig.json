@@ -13,6 +13,7 @@
   "references": [
     { "path": "../application" },
     { "path": "../connectors-reddit" },
+    { "path": "../connectors-stack-exchange" },
     { "path": "../database" },
     { "path": "../domain" },
     { "path": "../events" },

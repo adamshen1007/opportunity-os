@@ -20,6 +20,9 @@ importers:
       '@opportunity-os/connectors-reddit':
         specifier: workspace:*
         version: link:../../packages/connectors-reddit
+      '@opportunity-os/connectors-stack-exchange':
+        specifier: workspace:*
+        version: link:../../packages/connectors-stack-exchange
       '@opportunity-os/llm-analysis':
         specifier: workspace:*
         version: link:../../packages/llm-analysis
@@ -244,6 +247,22 @@ importers:
       '@opportunity-os/events':
         specifier: workspace:*
         version: link:../events
+      '@opportunity-os/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.1
+        version: 26.0.1
+      vitest:
+        specifier: ^4.0.16
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1)(jiti@2.7.0))
+
+  packages/connectors-stack-exchange:
+    dependencies:
+      '@opportunity-os/connectors':
+        specifier: workspace:*
+        version: link:../connectors
       '@opportunity-os/shared':
         specifier: workspace:*
         version: link:../shared
@@ -575,6 +594,9 @@ importers:
       '@opportunity-os/connectors-reddit':
         specifier: workspace:*
         version: link:../connectors-reddit
+      '@opportunity-os/connectors-stack-exchange':
+        specifier: workspace:*
+        version: link:../connectors-stack-exchange
       '@opportunity-os/database':
         specifier: workspace:*
         version: link:../database

@@ -49,7 +49,7 @@ describe("Dashboard component test infrastructure", () => {
     expect(dashboardScanFixture.mode).toBe("fixture");
     expect(dashboardScanFixture.safeMetadata.rawProviderPayloadStored).toBe(false);
     expect(dashboardScanFixture.stages.map((stage) => stage.name)).toEqual([
-      "reddit",
+      "source",
       "raw-content",
       "normalization",
       "llm-analysis",

@@ -90,7 +90,7 @@ Engineering Kit v3.0 establishes this future order:
 | Phase 4 M31 - Local Product Runtime | Complete | `apps/api`, `apps/web`, repository scripts |
 | Phase 4 M32 - Product Data Schema | Complete | `packages/database`, `apps/api` |
 | Phase 4 M33 - Reddit Live Provider Transport | Complete | `packages/connectors-reddit` |
-| Phase 4 M34 - External MVP Runtime | Active | deployment workflow, production env, health checks, docs |
+| Phase 4 M34 - External MVP Runtime | Active | deployment workflow, production env, health checks, readiness gate |
 
 ## Phase 4 M31 Boundary
 
@@ -170,7 +170,7 @@ Not allowed:
 - complex admin console work
 - committed, logged, serialized, or displayed secrets
 
-Milestone 34 is complete only when `node scripts/verify-repository.mjs --phase phase-4-milestone-34`, lint, build, and tests pass, deployment readiness is documented, `.env.example` contains the hosted runtime contract, and the API health route returns safe production status metadata.
+Milestone 34 is complete only when `node scripts/verify-repository.mjs --phase phase-4-milestone-34`, lint, build, tests, Playwright, and Docker Compose config pass, deployment readiness is documented, `.env.example` contains the hosted runtime contract, the API health route returns safe production status metadata, and the final readiness gate in `docs/04_IMPLEMENTATION/04-022_EXTERNAL_MVP_READINESS_GATE.md` records Reddit and LLM smoke-test status.
 
 ## Phase 2 M15 Boundary
 
@@ -1043,3 +1043,6 @@ A milestone is complete only when:
 | 3.0.13 | Updated the canonical implementation order to reflect completed Phase 3 Milestone 26 REST API work and define the Dashboard handoff. |
 | 3.0.14 | Added the Phase 3 Milestone 27 Dashboard MVP foundation boundary and verification gate. |
 | 3.0.15 | Completed the Phase 3 Milestone 27 Dashboard MVP implementation order, readiness commands, and final governance gate. |
+## Phase 4 Milestones 35-39 - Multi-Source Product Validation
+
+The source-neutral scan boundary precedes the Stack Exchange connector. The connector precedes Raw Content mapping and persistence. Pipeline integration precedes dashboard source selection. The visible workflow precedes real-data design-partner validation. Reddit activation remains conditional on approval and must not block these milestones.

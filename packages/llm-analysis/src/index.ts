@@ -65,11 +65,14 @@ export {
   LIVE_LLM_PROVIDER_NAMES,
   LLM_PROVIDER_CAPABILITIES,
   LLM_PROVIDER_STABILITY_STATUSES,
+  createGeminiLiveLlmProviderAdapter,
   createLiveLlmProviderConfigFromEnv,
   createLiveLlmPromptBoundary,
   createOpenAiLiveLlmProviderAdapter
 } from "./provider/index.js";
 export type {
+  GeminiLiveLlmProviderAdapter,
+  GeminiLiveLlmProviderAdapterOptions,
   LiveLlmFetch,
   LiveLlmPromptBoundary,
   LiveLlmProviderConfig,

@@ -220,12 +220,13 @@ async function persistOpportunity(
   completedAt: Date
 ): Promise<void> {
   const primaryEvidence = opportunity.evidence[0];
-  const sourceId = primaryEvidence?.provenance.sourceId ?? opportunity.provenance.redditPostId;
+  const sourceId = primaryEvidence?.provenance.sourceId ?? opportunity.provenance.sourceItemId;
+  const sourcePlatform = primaryEvidence?.provenance.sourcePlatform ?? "reddit";
 
   await database.rawSourceContent.upsert({
     where: {
       sourcePlatform_sourceId: {
-        sourcePlatform: "reddit",
+        sourcePlatform,
         sourceId
       }
     },
@@ -241,7 +242,7 @@ async function persistOpportunity(
     },
     create: {
       id: opportunity.provenance.rawContentId,
-      sourcePlatform: "reddit",
+      sourcePlatform,
       sourceId,
       sourceType: "post",
       sourceUrl: primaryEvidence?.permalink,

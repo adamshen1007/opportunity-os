@@ -71,7 +71,9 @@ Phase 3 Milestone 30: Beta Operations has an explicit `phase-3-milestone-30` ver
 
 Phase 4 Milestone 31: Local Product Runtime has an explicit `phase-4-milestone-31` verification gate. It adds a dependency-free local HTTP server for `apps/api`, local API and dashboard dev commands, a combined workspace dev command, and a dashboard API loader that uses `http://127.0.0.1:4000` by default with fixture fallback when the API terminal is not running.
 
-Phase 4 Milestone 34: External MVP Runtime has an explicit `phase-4-milestone-34` verification gate. It documents hosted web/API deployment readiness, production environment binding, protected secrets handling, production-safe API health output, and external URL verification. Hosted runtime values are documented in `.env.example`: `OPPORTUNITY_OS_API_URL`, `OPPORTUNITY_OS_WEB_URL`, `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`, `LLM_PROVIDER`, `LLM_MODEL`, `LLM_LIVE_ANALYSIS_ENABLED`, and `LLM_PROVIDER_TIMEOUT_MS`.
+Phase 4 Milestone 34: External MVP Runtime has an explicit `phase-4-milestone-34` verification gate. It documents hosted web/API deployment readiness, production environment binding, protected secrets handling, production-safe API health output, and external URL verification. Hosted runtime values are documented in `.env.example`: `OPPORTUNITY_OS_API_URL`, `OPPORTUNITY_OS_WEB_URL`, `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL`, `LLM_PROVIDER`, `LLM_MODEL`, `LLM_LIVE_ANALYSIS_ENABLED`, `LLM_PROVIDER_TIMEOUT_MS`, `OPENAI_API_KEY`, `OPENAI_MODEL`, `GEMINI_API_KEY`, and `GEMINI_MODEL`.
+
+The final External MVP readiness checklist, Reddit setup guide, LLM setup guide, dashboard walkthrough, smoke test report, and Go / No-Go criteria live in `docs/04_IMPLEMENTATION/04-022_EXTERNAL_MVP_READINESS_GATE.md`.
 
 ## Local Product Runtime
 
@@ -223,7 +225,7 @@ Required variables are grouped in `.env.example`:
 
 - Application: `APP_NAME`, `NODE_ENV`, `PORT`
 - Services: `DATABASE_URL`, `REDIS_URL`
-- AI providers: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_MODEL`, `ANTHROPIC_MODEL`
+- AI providers: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_MODEL`, `ANTHROPIC_MODEL`, optional `GEMINI_API_KEY`, optional `GEMINI_MODEL`
 - Authentication: `JWT_SECRET`, `JWT_EXPIRES_IN`
 - Observability: `LOG_LEVEL`, `OTEL_EXPORTER_ENDPOINT`
 
@@ -861,3 +863,6 @@ Future API, persistence, workflow, product, dashboard, scoring, ranking, and rec
 The milestone must not introduce production ranking algorithms, recommendation engines, business scoring, REST APIs, frontend behavior, persistence implementation, schedulers, workers, billing, user accounts, provider SDKs, live AI providers, prompt execution, provider payloads, or business workflows.
 
 Milestone 24 is complete when `@opportunity-os/opportunity-generation` is implemented, tested, documented, independently buildable, included in root `pnpm lint`, `pnpm build`, and `pnpm test`, and verified by `node scripts/verify-repository.mjs --phase review`, `node scripts/verify-repository.mjs --phase phase-2-milestone-24`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`.
+## Real-Data Product Validation
+
+Opportunity OS can run the full evidence-to-ranked-opportunity workflow with the official Stack Exchange API while Reddit access is awaiting approval. Use fixture mode for deterministic tests and explicitly enable Stack Exchange live mode for operator-led trials. See `docs/04_IMPLEMENTATION/04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md`.

@@ -1,5 +1,6 @@
 export const RAW_CONTENT_SOURCE_PLATFORMS = [
-  "reddit"
+  "reddit",
+  "stack-exchange"
 ] as const;
 
 export type RawContentSourcePlatform =

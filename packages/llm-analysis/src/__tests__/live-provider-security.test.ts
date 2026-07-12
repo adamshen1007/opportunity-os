@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  createGeminiLiveLlmProviderAdapter,
   createLiveLlmProviderConfigFromEnv,
   createOpenAiLiveLlmProviderAdapter,
   llmAnalysisFixtureRequest
 } from "../index.js";
 
 const unsafePattern =
-  /sk-secret-test-key|bearer\s+sk-|authorization|raw provider response|stack trace|raw cause/iu;
+  /sk-secret-test-key|gemini-secret-test-key|bearer\s+sk-|authorization|x-goog-api-key|raw provider response|stack trace|raw cause/iu;
 
 describe("live LLM provider security", () => {
   it("does not leak credentials when config is serialized", () => {
@@ -70,6 +71,31 @@ describe("live LLM provider security", () => {
     const result = await adapter.analyze(llmAnalysisFixtureRequest);
 
     expect(result.status).toBe("unsafe-output");
+    expect(JSON.stringify(result)).not.toMatch(unsafePattern);
+  });
+
+  it("does not leak Gemini credentials or raw provider failures", async () => {
+    const configResult = createLiveLlmProviderConfigFromEnv({
+      LLM_LIVE_ANALYSIS_ENABLED: "true",
+      LLM_PROVIDER: "gemini",
+      GEMINI_MODEL: "gemini-2.5-flash",
+      GEMINI_API_KEY: "gemini-secret-test-key"
+    });
+
+    expect(configResult.ok).toBe(true);
+    if (!configResult.ok) return;
+    expect(JSON.stringify(configResult)).not.toMatch(unsafePattern);
+
+    const adapter = createGeminiLiveLlmProviderAdapter({
+      config: configResult.config,
+      fetch: async () => {
+        throw new Error("gemini-secret-test-key raw provider response stack trace raw cause");
+      }
+    });
+
+    const result = await adapter.analyze(llmAnalysisFixtureRequest);
+
+    expect(result.status).toBe("provider-unavailable");
     expect(JSON.stringify(result)).not.toMatch(unsafePattern);
   });
 });

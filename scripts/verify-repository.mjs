@@ -58,6 +58,7 @@ const requiredReadmes = [
   "packages/connector-host/README.md",
   "packages/connector-runtime/README.md",
   "packages/connectors-reddit/README.md",
+  "packages/connectors-stack-exchange/README.md",
   "packages/connectors/README.md",
   "packages/config/README.md",
   "packages/database/README.md",
@@ -121,7 +122,18 @@ const phaseThirtyAliases = new Set(["review", "phase-3-milestone-30", "beta-oper
 const phaseThirtyOneAliases = new Set(["phase-4-milestone-31", "local-product-runtime", "local-runtime"]);
 const phaseThirtyTwoAliases = new Set(["phase-4-milestone-32", "product-data-schema"]);
 const phaseThirtyThreeAliases = new Set(["phase-4-milestone-33", "reddit-live-provider-transport", "reddit-live-transport"]);
-const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp"]);
+const phaseMultiSourceAliases = new Set([
+  "phase-4-milestone-35",
+  "phase-4-milestone-36",
+  "phase-4-milestone-37",
+  "phase-4-milestone-38",
+  "phase-4-milestone-39",
+  "multi-source-scan",
+  "stack-exchange-connector",
+  "real-data-product-validation"
+]);
+const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp", ...phaseMultiSourceAliases]);
+const isMultiSourcePhase = phaseMultiSourceAliases.has(phase) || phase === "review";
 const isPhaseThirtyFour = phaseThirtyFourAliases.has(phase) || phase === "review";
 const isPhaseThirtyThree = phaseThirtyThreeAliases.has(phase) || isPhaseThirtyFour;
 const isPhaseThirtyTwo = phaseThirtyTwoAliases.has(phase) || isPhaseThirtyThree;
@@ -188,7 +200,7 @@ const allowedPhaseThirtyImplementationRoots = allowedPhaseTwentyNineImplementati
 const allowedPhaseThirtyOneImplementationRoots = allowedPhaseThirtyImplementationRoots;
 const allowedPhaseThirtyTwoImplementationRoots = allowedPhaseThirtyOneImplementationRoots;
 const allowedPhaseThirtyThreeImplementationRoots = allowedPhaseThirtyTwoImplementationRoots;
-const allowedPhaseThirtyFourImplementationRoots = allowedPhaseThirtyThreeImplementationRoots;
+const allowedPhaseThirtyFourImplementationRoots = [...allowedPhaseThirtyThreeImplementationRoots, "packages/connectors-stack-exchange"];
 const requiredLoggingImplementationFiles = [
   "packages/shared/src/logging/index.ts",
   "packages/shared/src/logging/logger-clock.ts",
@@ -1711,11 +1723,19 @@ const sharedFoundationPackageRules = {
       "@opportunity-os/shared"
     ]
   },
+  "packages/connectors-stack-exchange": {
+    packageName: "@opportunity-os/connectors-stack-exchange",
+    allowedWorkspaceDependencies: [
+      "@opportunity-os/connectors",
+      "@opportunity-os/shared"
+    ]
+  },
   "packages/raw-content": {
     packageName: "@opportunity-os/raw-content",
     allowedWorkspaceDependencies: [
       "@opportunity-os/application",
       "@opportunity-os/connectors-reddit",
+      "@opportunity-os/connectors-stack-exchange",
       "@opportunity-os/database",
       "@opportunity-os/domain",
       "@opportunity-os/events",
@@ -1959,7 +1979,15 @@ const engineeringKitOptionalEnvironmentVariables = [
   "LLM_PROVIDER",
   "LLM_MODEL",
   "LLM_LIVE_ANALYSIS_ENABLED",
-  "LLM_PROVIDER_TIMEOUT_MS"
+  "LLM_PROVIDER_TIMEOUT_MS",
+  "GEMINI_API_KEY",
+  "GEMINI_MODEL",
+  "STACK_EXCHANGE_LIVE_SCAN_ENABLED",
+  "STACK_EXCHANGE_API_BASE_URL",
+  "STACK_EXCHANGE_DEFAULT_SITE",
+  "STACK_EXCHANGE_API_KEY",
+  "STACK_EXCHANGE_TIMEOUT_MS",
+  "STACK_EXCHANGE_QUERY"
 ];
 const engineeringKitDevOnlyEnvironmentVariables = [
   "REDDIT_PRODUCTION_CLIENT_ID",
@@ -5073,6 +5101,54 @@ function assertExternalMvpRuntimePolicy() {
   }
 }
 
+function assertMultiSourceProductValidationPolicy() {
+  for (const file of [
+    "packages/connectors-stack-exchange/package.json",
+    "packages/connectors-stack-exchange/README.md",
+    "packages/connectors-stack-exchange/src/index.ts",
+    "packages/connectors-stack-exchange/src/provider/client.ts",
+    "packages/connectors-stack-exchange/src/provider/config.ts",
+    "packages/connectors-stack-exchange/src/provider/contracts.ts",
+    "packages/connectors-stack-exchange/src/provider/fixtures.ts",
+    "packages/connectors-stack-exchange/src/__tests__/provider.test.ts",
+    "packages/raw-content/src/mapping/stack-exchange-to-raw-content.ts",
+    "apps/api/src/pipeline/scan-request.ts",
+    "apps/api/src/routes/scans/create-scan-route.ts",
+    "docs/04_IMPLEMENTATION/04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md"
+  ]) {
+    if (!exists(file)) fail(`Multi-source product validation is missing required file: ${file}`);
+  }
+
+  const sourcePlatforms = exists("packages/raw-content/src/source/source-platform.ts")
+    ? read("packages/raw-content/src/source/source-platform.ts")
+    : "";
+  if (!sourcePlatforms.includes('"stack-exchange"')) {
+    fail("Raw Content source vocabulary must include stack-exchange.");
+  }
+
+  const server = exists("apps/api/src/server.ts") ? read("apps/api/src/server.ts") : "";
+  if (!server.includes('path: "/scans"') || !server.includes('path: "/scans/reddit"')) {
+    fail("API must expose source-neutral /scans and preserve /scans/reddit compatibility.");
+  }
+
+  const dashboard = exists("apps/web/src/features/scans/reddit-scan-workbench.tsx")
+    ? read("apps/web/src/features/scans/reddit-scan-workbench.tsx")
+    : "";
+  for (const statement of ["Datasource", "Stack Exchange", "Reddit (approval required for live)"]) {
+    if (!dashboard.includes(statement)) fail(`Dashboard multi-source scan workflow is missing "${statement}".`);
+  }
+
+  const envExample = exists(".env.example") ? read(".env.example") : "";
+  for (const envKey of [
+    "STACK_EXCHANGE_LIVE_SCAN_ENABLED",
+    "STACK_EXCHANGE_API_BASE_URL",
+    "STACK_EXCHANGE_DEFAULT_SITE",
+    "STACK_EXCHANGE_API_KEY"
+  ]) {
+    if (!envExample.includes(envKey)) fail(`Multi-source scan requires .env.example to document ${envKey}.`);
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -5196,6 +5272,7 @@ for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageR
 
 if (isPhaseThirtyFour) {
   assertExternalMvpRuntimePolicy();
+  if (isMultiSourcePhase) assertMultiSourceProductValidationPolicy();
 } else if (isPhaseThirtyThree) {
   assertRedditLiveProviderTransportPolicy();
 } else if (isPhaseThirtyTwo) {

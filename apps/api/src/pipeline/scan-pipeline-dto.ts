@@ -1,9 +1,18 @@
+import type { ApiScanValidationMetricsDto } from "./scan-validation-metrics.js";
+
 export const API_SCAN_MODES = {
   fixture: "fixture",
   live: "live"
 } as const;
 
 export type ApiScanMode = (typeof API_SCAN_MODES)[keyof typeof API_SCAN_MODES];
+
+export const API_SCAN_SOURCES = {
+  reddit: "reddit",
+  stackExchange: "stack-exchange"
+} as const;
+
+export type ApiScanSource = (typeof API_SCAN_SOURCES)[keyof typeof API_SCAN_SOURCES];
 
 export const API_SCAN_STAGE_STATUSES = {
   completed: "completed",
@@ -15,7 +24,7 @@ export type ApiScanStageStatus =
 
 export type ApiScanStageDto = {
   readonly name:
-    | "reddit"
+    | "source"
     | "raw-content"
     | "normalization"
     | "llm-analysis"
@@ -28,12 +37,12 @@ export type ApiScanStageDto = {
 
 export type ApiScanEvidenceDto = {
   readonly evidenceId: string;
-  readonly sourceType: "reddit";
+  readonly sourceType: ApiScanSource;
   readonly summary: string;
   readonly permalink?: string;
   readonly confidence: number;
   readonly provenance: {
-    readonly sourcePlatform: "reddit";
+    readonly sourcePlatform: ApiScanSource;
     readonly sourceId: string;
     readonly sourceUrl?: string;
     readonly normalizedContentId: string;
@@ -54,7 +63,8 @@ export type ApiScanOpportunityDto = {
   readonly evidence: readonly ApiScanEvidenceDto[];
   readonly provenance: {
     readonly scanId: string;
-    readonly redditPostId: string;
+    readonly sourceItemId: string;
+    readonly redditPostId?: string;
     readonly rawContentId: string;
     readonly normalizedContentId: string;
     readonly analysisRequestId: string;
@@ -69,13 +79,23 @@ export type ApiScanResultDto = {
   readonly mode: ApiScanMode;
   readonly status: "completed";
   readonly source: {
-    readonly provider: "reddit";
-    readonly subreddit: string;
-    readonly query?: string;
+    readonly provider: ApiScanSource;
+    readonly community: string;
+    readonly subreddit?: string;
+    readonly site?: string;
+    readonly query: string;
+    readonly attribution: string;
     readonly itemCount: number;
+    readonly quota?: {
+      readonly remaining?: number;
+      readonly maximum?: number;
+      readonly backoffSeconds?: number;
+      readonly hasMore: boolean;
+    };
   };
   readonly stages: readonly ApiScanStageDto[];
   readonly opportunities: readonly ApiScanOpportunityDto[];
+  readonly validationMetrics: ApiScanValidationMetricsDto;
   readonly safeMetadata: {
     readonly deterministic: boolean;
     readonly liveEnabled: boolean;

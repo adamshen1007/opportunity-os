@@ -1,5 +1,7 @@
 import {
+  createGeminiLiveLlmProviderAdapter,
   createLiveLlmProviderConfigFromEnv,
+  LIVE_LLM_PROVIDER_NAMES,
   createOpenAiLiveLlmProviderAdapter
 } from "./index.js";
 import { llmAnalysisFixtureRequest } from "../fixtures/index.js";
@@ -19,13 +21,16 @@ async function main() {
     return;
   }
 
-  const adapter = createOpenAiLiveLlmProviderAdapter({ config: configResult.config });
+  const adapter =
+    configResult.config.provider === LIVE_LLM_PROVIDER_NAMES.gemini
+      ? createGeminiLiveLlmProviderAdapter({ config: configResult.config })
+      : createOpenAiLiveLlmProviderAdapter({ config: configResult.config });
   const result = await adapter.analyze({
     ...llmAnalysisFixtureRequest,
     provider: {
       ...llmAnalysisFixtureRequest.provider,
-      id: "openai" as typeof llmAnalysisFixtureRequest.provider.id,
-      name: "OpenAI",
+      id: configResult.config.provider as typeof llmAnalysisFixtureRequest.provider.id,
+      name: configResult.config.provider === LIVE_LLM_PROVIDER_NAMES.gemini ? "Gemini" : "OpenAI",
       models: [
         {
           id: configResult.config.model as typeof llmAnalysisFixtureRequest.provider.models[number]["id"],

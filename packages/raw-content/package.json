@@ -31,6 +31,7 @@
   "dependencies": {
     "@opportunity-os/application": "workspace:*",
     "@opportunity-os/connectors-reddit": "workspace:*",
+    "@opportunity-os/connectors-stack-exchange": "workspace:*",
     "@opportunity-os/database": "workspace:*",
     "@opportunity-os/domain": "workspace:*",
     "@opportunity-os/events": "workspace:*",

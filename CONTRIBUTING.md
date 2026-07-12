@@ -992,3 +992,6 @@ Every pull request should include:
 - Phase classification: Phase 0 foundation or Phase 1+ implementation
 - Confirmation that cross references and document numbering were checked
 - Confirmation that no secrets or unrelated local artifacts are included
+## Datasource Changes
+
+Datasource pull requests must preserve the source-neutral scan contract, canonical Raw Content mapping, original evidence links, required attribution, provider quotas/backoff, fixture-default tests, secret-safe errors, and explicit live-network gates. Do not add scraping or bypass a provider's approval process.

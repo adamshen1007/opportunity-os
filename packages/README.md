@@ -129,3 +129,8 @@ Future package work should:
 - add integration tests only when implementation depends on PostgreSQL, Redis, queues, or provider adapters
 
 Do not add tests for application behavior, APIs, connectors, AI workflows, database behavior, or business logic before the corresponding implementation task is approved.
+# Multi-Source Connector Packages
+
+- `connectors-reddit` owns Reddit contracts and the approval-gated provider transport.
+- `connectors-stack-exchange` owns the official read-only Stack Exchange datasource.
+- Both feed the source-neutral API scan boundary and canonical Raw Content pipeline; downstream packages must not depend on provider payload shapes.

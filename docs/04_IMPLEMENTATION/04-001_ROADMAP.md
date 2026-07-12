@@ -88,11 +88,17 @@ Completed:
 
 Current:
 
-- Phase 4 M34 External MVP Runtime
+- Phase 4 M35 Multi-Source Scan Boundary
+- Phase 4 M36 Stack Exchange Live Connector
+- Phase 4 M37 Multi-Source Pipeline and Persistence
+- Phase 4 M38 Dashboard Source Selection
+- Phase 4 M39 Real-Data Product Validation
+
+Slice G is the final External MVP Runtime readiness gate. It validates repository policy, lint, build, tests, Playwright, Docker Compose, env-gated Reddit smoke testing, env-gated LLM smoke testing, the deployment checklist, Reddit setup guide, LLM setup guide, dashboard walkthrough, smoke test report, and Go / No-Go decision in `docs/04_IMPLEMENTATION/04-022_EXTERNAL_MVP_READINESS_GATE.md`.
 
 From Milestone 15 onward, Opportunity OS transitions from platform foundation to real provider and product capability. This transition remains staged: provider transport precedes Raw Content contracts, Raw Content precedes normalization, normalization precedes embeddings, embeddings precede LLM analysis contracts, LLM analysis precedes structured analysis contracts, structured analysis precedes Opportunity Engine contracts, Opportunity Engine contracts precede Opportunity Pipeline contracts, Opportunity Pipeline contracts precede Candidate Opportunity contracts, Candidate Opportunity contracts precede Opportunity Generation Workflow contracts, Opportunity Generation Workflow contracts precede Opportunity Ranking Engine product behavior, Opportunity Ranking Engine precedes REST APIs, REST APIs precede the dashboard, the dashboard precedes the Product Validation Loop, the Product Validation Loop precedes Private Beta deployment readiness, Private Beta deployment readiness precedes Beta Operations, Beta Operations precedes the Local Product Runtime, Local Product Runtime precedes Product Data Schema, Product Data Schema precedes controlled Reddit live provider transport, and controlled Reddit live provider transport precedes the hosted External MVP Runtime.
 
-Do not begin implementation beyond the scoped Phase 4 Milestone 34 External MVP Runtime task until a later implementation task explicitly scopes the next slice.
+Milestones 35-39 remove Reddit approval from the product's critical path. Stack Exchange provides the first approved live validation datasource while Reddit remains environment-gated pending written approval. See `04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md`.
 
 # Phase 0 — Repository Foundation
 

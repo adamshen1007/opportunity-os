@@ -64,3 +64,4 @@
 - [ ] I updated documentation where needed.
 - [ ] I did not introduce business logic unless this PR is explicitly scoped for implementation.
 - [ ] I did not introduce connectors, APIs, or AI workflows unless approved by specification.
+- [ ] Datasource changes preserve attribution, provenance, quota/backoff handling, fixture-default tests, and explicit live-network gates.

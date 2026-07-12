@@ -20,7 +20,7 @@ export type RawContentProvenance = {
   readonly source: RawContentSourceMetadata;
   readonly ingestion: RawContentIngestionMetadata;
   readonly providerReference: RawContentProviderReference;
-  readonly collectedThrough: "reddit-provider-transport";
+  readonly collectedThrough: "reddit-provider-transport" | "stack-exchange-provider-transport";
   readonly transformBoundary: RawContentProvenanceTransformBoundary;
   readonly recordedAt: RawContentTimestamp;
   readonly safeMetadata?: RawContentSafeMetadata;

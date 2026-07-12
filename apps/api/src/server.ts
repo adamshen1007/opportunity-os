@@ -17,7 +17,7 @@ import {
   handleGetRankingRequest,
   handleRankOpportunitiesRequest
 } from "./routes/rankings/index.js";
-import { handleCreateRedditScanRequest } from "./routes/scans/index.js";
+import { handleCreateRedditScanRequest, handleCreateScanRequest } from "./routes/scans/index.js";
 import {
   handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
@@ -90,6 +90,11 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       method: "GET",
       path: "/opportunities/:opportunityId",
       handler: (request) => handleGetOpportunityRequest(asHandlerRequest(request), syntheticApiOpportunityPort)
+    },
+    {
+      method: "POST",
+      path: "/scans",
+      handler: (request) => handleCreateScanRequest(asHandlerRequest(request), scanPersistence)
     },
     {
       method: "POST",

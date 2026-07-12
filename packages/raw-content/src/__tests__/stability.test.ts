@@ -19,6 +19,7 @@ describe("raw content export stability", () => {
       "RAW_CONTENT_VALIDATION_ISSUE_CODES",
       "REDDIT_RAW_CONTENT_MAPPING_TARGETS",
       "RawContentError",
+      "mapStackExchangeQuestionToRawContent",
       "rawContentFixtureAuthor",
       "rawContentFixtureAuthorSource",
       "rawContentFixtureComment",

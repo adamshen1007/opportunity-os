@@ -15,5 +15,7 @@ describe("public exports", () => {
     expect(llmAnalysis.ANALYSIS_ERROR_CODES).toBeDefined();
     expect(llmAnalysis.ANALYSIS_EVENT_NAMES).toBeDefined();
     expect(llmAnalysis.LLM_ANALYSIS_FIXTURE_IDS).toBeDefined();
+    expect(llmAnalysis.createOpenAiLiveLlmProviderAdapter).toBeDefined();
+    expect(llmAnalysis.createGeminiLiveLlmProviderAdapter).toBeDefined();
   });
 });

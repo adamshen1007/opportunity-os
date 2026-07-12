@@ -152,6 +152,17 @@ export interface DashboardApiCreateBugReportRequestBody {
 }
 
 export type DashboardApiScanMode = "fixture" | "live";
+export type DashboardApiScanSource = "reddit" | "stack-exchange";
+
+export interface DashboardApiScanRequestBody {
+  readonly source: DashboardApiScanSource;
+  readonly subreddit?: string;
+  readonly site?: string;
+  readonly query?: string;
+  readonly tags?: readonly string[];
+  readonly limit?: number;
+  readonly mode?: DashboardApiScanMode;
+}
 
 export interface DashboardApiRedditScanRequestBody {
   readonly subreddit?: string;
@@ -161,7 +172,7 @@ export interface DashboardApiRedditScanRequestBody {
 }
 
 export type DashboardApiScanStageName =
-  | "reddit"
+  | "source"
   | "raw-content"
   | "normalization"
   | "llm-analysis"
@@ -179,12 +190,12 @@ export interface DashboardApiScanStageDto {
 
 export interface DashboardApiScanEvidenceDto {
   readonly evidenceId: string;
-  readonly sourceType: "reddit";
+  readonly sourceType: DashboardApiScanSource;
   readonly summary: string;
   readonly permalink?: string;
   readonly confidence: number;
   readonly provenance: {
-    readonly sourcePlatform: "reddit";
+    readonly sourcePlatform: DashboardApiScanSource;
     readonly sourceId: string;
     readonly sourceUrl?: string;
     readonly normalizedContentId: string;
@@ -205,7 +216,8 @@ export interface DashboardApiScanOpportunityDto {
   readonly evidence: readonly DashboardApiScanEvidenceDto[];
   readonly provenance: {
     readonly scanId: string;
-    readonly redditPostId: string;
+    readonly sourceItemId: string;
+    readonly redditPostId?: string;
     readonly rawContentId: string;
     readonly normalizedContentId: string;
     readonly analysisRequestId: string;
@@ -220,13 +232,30 @@ export interface DashboardApiScanResultDto {
   readonly mode: DashboardApiScanMode;
   readonly status: "completed";
   readonly source: {
-    readonly provider: "reddit";
-    readonly subreddit: string;
-    readonly query?: string;
+    readonly provider: DashboardApiScanSource;
+    readonly community: string;
+    readonly subreddit?: string;
+    readonly site?: string;
+    readonly query: string;
+    readonly attribution: string;
     readonly itemCount: number;
+    readonly quota?: {
+      readonly remaining?: number;
+      readonly maximum?: number;
+      readonly backoffSeconds?: number;
+      readonly hasMore: boolean;
+    };
   };
   readonly stages: readonly DashboardApiScanStageDto[];
   readonly opportunities: readonly DashboardApiScanOpportunityDto[];
+  readonly validationMetrics: {
+    readonly retrievedItems: number;
+    readonly generatedOpportunities: number;
+    readonly evidenceBackedOpportunities: number;
+    readonly evidenceCoverage: number;
+    readonly averageConfidence: number;
+    readonly reviewStatus: "ready-for-human-review" | "no-results";
+  };
   readonly safeMetadata: {
     readonly deterministic: boolean;
     readonly liveEnabled: boolean;

@@ -141,7 +141,7 @@ const comment: RawContentComment = {
 
 describe("raw content canonical contracts", () => {
   it("locks source platform and envelope vocabularies", () => {
-    expect(RAW_CONTENT_SOURCE_PLATFORMS).toEqual(["reddit"]);
+    expect(RAW_CONTENT_SOURCE_PLATFORMS).toEqual(["reddit", "stack-exchange"]);
     expect(RAW_CONTENT_KINDS).toEqual([
       "post",
       "comment",

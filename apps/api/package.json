@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@opportunity-os/connectors-reddit": "workspace:*",
+    "@opportunity-os/connectors-stack-exchange": "workspace:*",
     "@opportunity-os/llm-analysis": "workspace:*",
     "@opportunity-os/normalization": "workspace:*",
     "@opportunity-os/opportunity-candidates": "workspace:*",

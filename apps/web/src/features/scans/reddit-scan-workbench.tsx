@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { createDashboardApiClient, createRedditScan, type DashboardApiScanMode, type DashboardApiScanResultDto } from "../../api";
+import {
+  createDashboardApiClient,
+  createScan,
+  type DashboardApiScanMode,
+  type DashboardApiScanResultDto,
+  type DashboardApiScanSource
+} from "../../api";
 import { ErrorState, LoadingState } from "../../components/states";
 import { safeDashboardErrorMessage } from "../../components/states/state-copy";
 import { Badge, Button, Input, Panel, Select } from "../../components/ui";
@@ -18,6 +24,11 @@ interface ScanState {
 const scanModeOptions = [
   { label: "Fixture fallback", value: "fixture" },
   { label: "Live if configured", value: "live" }
+] as const;
+
+const sourceOptions = [
+  { label: "Stack Exchange", value: "stack-exchange" },
+  { label: "Reddit (approval required for live)", value: "reddit" }
 ] as const;
 
 function getDashboardApiBaseUrl(): string {
@@ -62,7 +73,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
         </div>
         <div>
           <span>Source</span>
-          <strong>r/{result.source.subreddit}</strong>
+          <strong>{result.source.provider === "reddit" ? `r/${result.source.subreddit}` : result.source.site}</strong>
         </div>
         <div>
           <span>Items</span>
@@ -72,6 +83,18 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
           <span>Mode</span>
           <strong>{result.mode === "live" ? "Live configured" : "Fixture fallback"}</strong>
         </div>
+      </div>
+
+      <p className="scan-attribution">
+        Source attribution: {result.source.attribution}
+        {result.source.quota?.remaining !== undefined ? ` · API quota remaining: ${result.source.quota.remaining}` : ""}
+      </p>
+
+      <div className="scan-status-grid" aria-label="Validation metrics">
+        <div><span>Retrieved</span><strong>{result.validationMetrics.retrievedItems}</strong></div>
+        <div><span>Opportunities</span><strong>{result.validationMetrics.generatedOpportunities}</strong></div>
+        <div><span>Evidence coverage</span><strong>{formatPercent(result.validationMetrics.evidenceCoverage)}</strong></div>
+        <div><span>Average confidence</span><strong>{formatPercent(result.validationMetrics.averageConfidence)}</strong></div>
       </div>
 
       <ol className="scan-stage-list" aria-label="Scan stages">
@@ -141,6 +164,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
 }
 
 export function RedditScanWorkbench() {
+  const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
   const [scanState, setScanState] = useState<ScanState>({
     status: "ready",
     result: dashboardScanFixture,
@@ -154,15 +178,18 @@ export function RedditScanWorkbench() {
     const formData = new FormData(event.currentTarget);
     const mode = (readText(formData.get("mode")) ?? "fixture") as DashboardApiScanMode;
     const request = {
-      subreddit: readText(formData.get("subreddit")) ?? "opportunity",
+      source,
+      subreddit: source === "reddit" ? readText(formData.get("subreddit")) ?? "opportunity" : undefined,
+      site: source === "stack-exchange" ? readText(formData.get("site")) ?? "stackoverflow" : undefined,
       query: readText(formData.get("query")),
+      tags: source === "stack-exchange" ? (readText(formData.get("tags"))?.split(",").map((tag) => tag.trim()).filter(Boolean) ?? []) : [],
       limit: normalizeLimit(formData.get("limit")),
       mode
     };
 
     setScanState({
       status: "running",
-      message: `Scanning r/${request.subreddit} through the MVP pipeline.`
+      message: `Scanning ${source === "reddit" ? `r/${request.subreddit}` : request.site} through the MVP pipeline.`
     });
 
     const client = createDashboardApiClient({
@@ -172,7 +199,7 @@ export function RedditScanWorkbench() {
     });
 
     try {
-      const result = await createRedditScan(client, request);
+      const result = await createScan(client, request);
       if (result.ok) {
         setScanState({
           status: "completed",
@@ -197,11 +224,37 @@ export function RedditScanWorkbench() {
   }
 
   return (
-    <Panel title="Run Reddit Scan">
+    <Panel title="Run Opportunity Scan">
       <div className="scan-workbench">
         <form className="scan-form" onSubmit={handleSubmit}>
-          <Input label="Subreddit" name="subreddit" defaultValue="opportunity" placeholder="opportunity" disabled={isRunning} />
+          <Select
+            label="Datasource"
+            name="source"
+            options={sourceOptions}
+            value={source}
+            onChange={(event) => setSource(event.currentTarget.value as DashboardApiScanSource)}
+            disabled={isRunning}
+          />
+          {source === "reddit" ? (
+            <Input label="Subreddit" name="subreddit" defaultValue="opportunity" placeholder="opportunity" disabled={isRunning} />
+          ) : (
+            <Select
+              label="Stack Exchange site"
+              name="site"
+              options={[
+                { label: "Stack Overflow", value: "stackoverflow" },
+                { label: "Software Engineering", value: "softwareengineering" },
+                { label: "Project Management", value: "pm" },
+                { label: "Workplace", value: "workplace" }
+              ]}
+              defaultValue="stackoverflow"
+              disabled={isRunning}
+            />
+          )}
           <Input label="Query" name="query" defaultValue="manual review" placeholder="manual review" disabled={isRunning} />
+          {source === "stack-exchange" ? (
+            <Input label="Tags (comma separated)" name="tags" placeholder="typescript, deployment" disabled={isRunning} />
+          ) : null}
           <Input label="Limit" name="limit" defaultValue="5" placeholder="5" disabled={isRunning} />
           <Select label="Mode" name="mode" options={scanModeOptions} defaultValue="fixture" disabled={isRunning} />
           <Button type="submit" disabled={isRunning}>
@@ -215,6 +268,7 @@ export function RedditScanWorkbench() {
           </Badge>
           <p>{scanState.message}</p>
           <p>API target: {apiBaseUrl}</p>
+          <p>{source === "reddit" ? "Live Reddit scans remain gated until Reddit approves API access." : "Stack Exchange live scans use the official read-only API."}</p>
         </div>
 
         {isRunning ? <LoadingState title="Scan running" message="The pipeline is collecting, analyzing, and ranking safe output." /> : null}
@@ -224,3 +278,5 @@ export function RedditScanWorkbench() {
     </Panel>
   );
 }
+
+export const MultiSourceScanWorkbench = RedditScanWorkbench;

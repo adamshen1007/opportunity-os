@@ -11,8 +11,9 @@ test("dashboard loads with navigation and state coverage", async ({ page }) => {
   await expect(page.getByText("Opportunity OS turns evidence into ranked opportunity candidates")).toBeVisible();
   await expect(page.getByText("Recommendations are explainable signals, not market guarantees.")).toBeVisible();
   await expect(page.getByText("Invite only")).toBeVisible();
-  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Run Reddit Scan" })).toBeVisible();
-  await expect(page.getByLabel("Subreddit")).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Run Opportunity Scan" })).toBeVisible();
+  await expect(page.getByLabel("Datasource")).toBeVisible();
+  await expect(page.getByLabel("Stack Exchange site")).toBeVisible();
   await expect(page.getByLabel("Query")).toBeVisible();
   await expect(page.getByRole("button", { name: "Run scan" })).toBeVisible();
   await expect(page.getByLabel("Scan results").getByText("Fixture fallback")).toBeVisible();
@@ -35,7 +36,7 @@ test("dashboard loads with navigation and state coverage", async ({ page }) => {
 });
 
 test("dashboard scan workbench shows safe fallback results", async ({ page }) => {
-  await page.route("**/scans/reddit", async (route) => {
+  await page.route("**/scans", async (route) => {
     await route.fulfill({
       status: 503,
       contentType: "application/json",

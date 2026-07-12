@@ -1,7 +1,18 @@
 import { generatedApiRoutes } from "./generated/routes";
 import type { DashboardApiResult } from "./client";
 import type { DashboardApiRequester } from "./opportunities";
-import type { DashboardApiRedditScanRequestBody, DashboardApiScanResultDto } from "./types";
+import type { DashboardApiRedditScanRequestBody, DashboardApiScanRequestBody, DashboardApiScanResultDto } from "./types";
+
+export function createScan(
+  client: DashboardApiRequester,
+  body: DashboardApiScanRequestBody
+): Promise<DashboardApiResult<DashboardApiScanResultDto>> {
+  return client.request<DashboardApiScanResultDto, DashboardApiScanRequestBody>({
+    method: generatedApiRoutes.createScan.method,
+    path: generatedApiRoutes.createScan.path,
+    body
+  });
+}
 
 export function createRedditScan(
   client: DashboardApiRequester,

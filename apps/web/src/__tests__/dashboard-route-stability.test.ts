@@ -36,6 +36,7 @@ describe("Dashboard route stability", () => {
       "createFeedback",
       "createPrivateBetaBugReport",
       "createRedditScan",
+      "createScan",
       "getFeedback",
       "getOpportunity",
       "getRanking",

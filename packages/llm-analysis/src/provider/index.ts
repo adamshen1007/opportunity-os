@@ -11,6 +11,9 @@ export {
   createLiveLlmPromptBoundary
 } from "./live-prompt-boundary.js";
 export {
+  createGeminiLiveLlmProviderAdapter
+} from "./gemini-live-adapter.js";
+export {
   createOpenAiLiveLlmProviderAdapter
 } from "./openai-live-adapter.js";
 export type {
@@ -34,6 +37,10 @@ export type {
 export type {
   LiveLlmPromptBoundary
 } from "./live-prompt-boundary.js";
+export type {
+  GeminiLiveLlmProviderAdapter,
+  GeminiLiveLlmProviderAdapterOptions
+} from "./gemini-live-adapter.js";
 export type {
   LiveLlmFetch,
   OpenAiLiveLlmProviderAdapter,
