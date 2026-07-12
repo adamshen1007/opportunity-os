@@ -1,3 +1,5 @@
+import { InfoHint } from "./info-hint";
+
 export interface InputProps {
   readonly label: string;
   readonly name: string;
@@ -6,6 +8,7 @@ export interface InputProps {
   readonly disabled?: boolean;
   readonly type?: "text" | "password" | "number";
   readonly autoComplete?: string;
+  readonly hint?: string;
 }
 
 export function Input({
@@ -15,11 +18,12 @@ export function Input({
   defaultValue,
   disabled = false,
   type = "text",
-  autoComplete
+  autoComplete,
+  hint
 }: InputProps) {
   return (
     <label className="field">
-      <span>{label}</span>
+      <span>{label}{hint ? <InfoHint label={`About ${label}`}>{hint}</InfoHint> : null}</span>
       <input
         type={type}
         name={name}

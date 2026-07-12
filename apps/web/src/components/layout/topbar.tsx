@@ -1,4 +1,4 @@
-import { Badge } from "../ui";
+import { Plus } from "lucide-react";
 
 export interface TopbarProps {
   readonly title: string;
@@ -9,11 +9,12 @@ export function Topbar({ title, subtitle }: TopbarProps) {
   return (
     <header className="topbar">
       <div>
-        <p className="eyebrow">Dashboard MVP</p>
         <h2>{title}</h2>
         <p>{subtitle}</p>
       </div>
-      <Badge tone="success">API Ready</Badge>
+      <div className="topbar-actions">
+        <a className="primary-action" href="/#run-scan"><Plus aria-hidden="true" size={17} />New scan</a>
+      </div>
     </header>
   );
 }

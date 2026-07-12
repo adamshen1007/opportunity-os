@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import webPackageJson from "../../package.json" with { type: "json" };
 
-const expectedDependencies = ["@opportunity-os/api", "next", "react", "react-dom"] as const;
+const expectedDependencies = ["@opportunity-os/api", "lucide-react", "next", "react", "react-dom"] as const;
 const expectedDevDependencies = [
   "@playwright/test",
   "@types/node",

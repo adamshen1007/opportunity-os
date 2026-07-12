@@ -3,36 +3,22 @@ import { expect, test } from "@playwright/test";
 test("dashboard loads with navigation and state coverage", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { exact: true, level: 1, name: "Dashboard" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity dashboard" })).toBeVisible();
-  await expect(page.getByRole("heading", { exact: true, level: 3, name: "MVP Trial Guide" })).toBeVisible();
-  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Validation Session" })).toBeVisible();
-  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Private Beta Access" })).toBeVisible();
-  await expect(page.getByText("Opportunity OS turns evidence into ranked opportunity candidates")).toBeVisible();
-  await expect(page.getByText("Recommendations are explainable signals, not market guarantees.")).toBeVisible();
-  await expect(page.getByText("Invite only")).toBeVisible();
-  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Run Opportunity Scan" })).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Run a new scan" })).toBeVisible();
+  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Top opportunities" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "About confidence scores" })).toBeVisible();
   await expect(page.getByLabel("Datasource")).toBeVisible();
   await expect(page.getByLabel("Stack Exchange site")).toBeVisible();
   await expect(page.getByLabel("Query")).toBeVisible();
   await expect(page.getByRole("button", { name: "Run scan" })).toBeVisible();
-  await expect(page.getByLabel("Scan results").getByText("Fixture fallback")).toBeVisible();
-  await expect(page.getByLabel("Scan results").getByText("Raw content").first()).toBeVisible();
-  await expect(page.getByLabel("Scan results").getByText("Normalized content").first()).toBeVisible();
-  await expect(page.getByText("Invite accepted", { exact: true })).toBeVisible();
-  await expect(page.getByText("Review ranked opportunities")).toBeVisible();
-  await expect(page.getByText("Share validation feedback")).toBeVisible();
-  await expect(page.getByRole("heading", { exact: true, level: 3, name: "Bug Reporting" })).toBeVisible();
-  await expect(page.getByText("Track the current validation session.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Prioritize repeated manual review workflows" })).toBeVisible();
+  await expect(page.getByText("Beta session and support tools")).toBeVisible();
   const navigation = page.getByRole("navigation", { name: "Dashboard navigation" });
   await expect(navigation).toBeVisible();
   await expect(navigation.getByRole("link", { name: /Opportunities/u })).toBeVisible();
   await expect(navigation.getByRole("link", { name: /Rankings/u })).toBeVisible();
   await expect(navigation.getByRole("link", { name: /Evidence/u })).toBeVisible();
 
-  await expect(page.getByText("Loading opportunities")).toBeVisible();
-  await expect(page.getByText("No matching opportunities")).toBeVisible();
-  await expect(page.getByText("Unable to load view")).toBeVisible();
 });
 
 test("dashboard scan workbench shows safe fallback results", async ({ page }) => {
@@ -61,6 +47,7 @@ test("dashboard scan workbench shows safe fallback results", async ({ page }) =>
   await expect(page.getByText("Showing deterministic fixture results instead.")).toBeVisible();
   await expect(page.getByText(/Source attribution: Stack Exchange/u)).toBeVisible();
   await expect(page.getByText(/Source attribution: Reddit/u)).toHaveCount(0);
+  await page.getByText("View pipeline details and generated results").click();
   await expect(page.getByLabel("Scan results").getByRole("heading", { name: "Prioritize repeated manual review workflows" })).toBeVisible();
   await expect(page.getByLabel("Scan results").getByText("Open source context").first()).toBeVisible();
   await expect(page.getByLabel("Scan results").getByText("analysis-fixture-001")).toBeVisible();
@@ -114,6 +101,7 @@ test("validation workflow supports save dismiss ratings and reasons", async ({ p
 
 test("private beta flow covers protected access onboarding feedback and bug reporting", async ({ page }) => {
   await page.goto("/");
+  await page.getByText("Beta session and support tools").click();
 
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Private Beta Access" })).toBeVisible();
   await expect(page.getByText("Invite only")).toBeVisible();
@@ -133,6 +121,7 @@ test("private beta flow covers protected access onboarding feedback and bug repo
   await expect(page.getByText("Feedback captured: rated.")).toBeVisible();
 
   await page.goto("/");
+  await page.getByText("Beta session and support tools").click();
   await page.getByRole("button", { name: "Send bug report" }).click();
   await expect(page.getByText("Bug report captured: open.")).toBeVisible();
 });

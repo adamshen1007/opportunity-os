@@ -1,3 +1,6 @@
+import type { SelectHTMLAttributes } from "react";
+import { InfoHint } from "./info-hint";
+
 export interface SelectOption {
   readonly label: string;
   readonly value: string;
@@ -9,12 +12,13 @@ export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement
   readonly options: readonly SelectOption[];
   readonly defaultValue?: string;
   readonly disabled?: boolean;
+  readonly hint?: string;
 }
 
-export function Select({ label, name, options, defaultValue, disabled = false, ...selectProps }: SelectProps) {
+export function Select({ label, name, options, defaultValue, disabled = false, hint, ...selectProps }: SelectProps) {
   return (
     <label className="field">
-      <span>{label}</span>
+      <span>{label}{hint ? <InfoHint label={`About ${label}`}>{hint}</InfoHint> : null}</span>
       <select
         name={name}
         disabled={disabled}
@@ -30,4 +34,3 @@ export function Select({ label, name, options, defaultValue, disabled = false, .
     </label>
   );
 }
-import type { SelectHTMLAttributes } from "react";

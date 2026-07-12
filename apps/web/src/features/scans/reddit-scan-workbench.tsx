@@ -98,19 +98,21 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
         <div><span>Average confidence</span><strong>{formatPercent(result.validationMetrics.averageConfidence)}</strong></div>
       </div>
 
-      <ol className="scan-stage-list" aria-label="Scan stages">
-        {result.stages.map((stage) => (
-          <li key={stage.name}>
-            <Badge tone={stage.status === "completed" ? "success" : "warning"}>{stage.status}</Badge>
-            <div>
-              <strong>{stage.name}</strong>
-              <span>{stage.safeMessage}</span>
-            </div>
-          </li>
-        ))}
-      </ol>
+      <details className="scan-details">
+        <summary>View pipeline details and generated results</summary>
+        <ol className="scan-stage-list" aria-label="Scan stages">
+          {result.stages.map((stage) => (
+            <li key={stage.name}>
+              <Badge tone={stage.status === "completed" ? "success" : "warning"}>{stage.status}</Badge>
+              <div>
+                <strong>{stage.name}</strong>
+                <span>{stage.safeMessage}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
 
-      <div className="scan-results-grid">
+        <div className="scan-results-grid">
         {result.opportunities.map((opportunity) => (
           <article className="scan-result-card" key={opportunity.opportunityId}>
             <div className="scan-result-heading">
@@ -159,7 +161,8 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
             </dl>
           </article>
         ))}
-      </div>
+        </div>
+      </details>
     </div>
   );
 }
@@ -168,7 +171,6 @@ export function RedditScanWorkbench() {
   const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
   const [scanState, setScanState] = useState<ScanState>({
     status: "ready",
-    result: getDashboardScanFixture("stack-exchange"),
     message: "Use fixture mode for a local walkthrough, or live mode when credentials are configured."
   });
   const apiBaseUrl = useMemo(() => getDashboardApiBaseUrl(), []);
@@ -246,11 +248,12 @@ export function RedditScanWorkbench() {
   }
 
   return (
-    <Panel title="Run Opportunity Scan">
+    <Panel title="Run a new scan" hint="Choose a source and describe the workflow problem you want Opportunity OS to investigate. Fixture mode is safe for demonstrations; live mode uses configured external services.">
       <div className="scan-workbench">
         <form className="scan-form" onSubmit={handleSubmit}>
           <Select
             label="Datasource"
+            hint="Select where Opportunity OS should collect public evidence."
             name="source"
             options={sourceOptions}
             value={source}
@@ -273,12 +276,12 @@ export function RedditScanWorkbench() {
               disabled={isRunning}
             />
           )}
-          <Input label="Query" name="query" defaultValue="manual review" placeholder="manual review" disabled={isRunning} />
+          <Input label="Query" name="query" defaultValue="manual review" placeholder="manual review" hint="Describe a recurring problem, job, or workflow rather than a product solution." disabled={isRunning} />
           {source === "stack-exchange" ? (
             <Input label="Tags (comma separated)" name="tags" placeholder="typescript, deployment" disabled={isRunning} />
           ) : null}
           <Input label="Limit" name="limit" defaultValue="5" placeholder="5" disabled={isRunning} />
-          <Select label="Mode" name="mode" options={scanModeOptions} defaultValue="fixture" disabled={isRunning} />
+          <Select label="Mode" name="mode" options={scanModeOptions} defaultValue="fixture" hint="Fixture mode uses deterministic sample data. Live mode calls configured providers." disabled={isRunning} />
           <Input
             label="Pilot access code (live mode only)"
             name="accessToken"
@@ -292,7 +295,7 @@ export function RedditScanWorkbench() {
           </Button>
         </form>
 
-        <div className="scan-copy">
+        <div className="scan-copy" role="status">
           <Badge tone={scanState.status === "completed" ? "success" : scanState.status === "fallback" ? "warning" : "neutral"}>
             {scanState.status}
           </Badge>
