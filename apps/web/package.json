@@ -8,6 +8,7 @@
     "build": "next build --webpack",
     "dev": "next dev --hostname 127.0.0.1",
     "lint": "tsc --noEmit -p tsconfig.json",
+    "start": "next start --hostname 127.0.0.1",
     "test": "vitest run src --passWithNoTests",
     "test:e2e": "playwright test"
   },
