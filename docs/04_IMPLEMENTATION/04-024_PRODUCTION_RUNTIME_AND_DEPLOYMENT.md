@@ -17,7 +17,7 @@ Turn the verified multi-source MVP into an explicitly configured hosted runtime.
 
 ## Deployment Assets
 
-- `render.yaml` defines the API build, migration pre-deploy command, start command, health check, and protected environment contract. Automatic deployment remains disabled until an operator completes the checklist.
+- `render.yaml` defines the API build, migration pre-deploy command, start command, health check, and protected environment contract. Its dependency-inclusive `pnpm --filter @opportunity-os/api... build` command builds the API and every required workspace package in topological order on a clean Render machine. Automatic deployment remains disabled until an operator completes the checklist.
 - `apps/web/vercel.json` defines the Vercel monorepo install and dashboard build commands.
 - `scripts/verify-external-mvp.mjs` verifies hosted health, dashboard availability, and a fixture or explicitly enabled live scan without printing secrets or raw provider output.
 

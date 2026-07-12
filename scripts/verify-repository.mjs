@@ -5180,7 +5180,13 @@ function assertHostedPilotPolicy() {
   }
 
   const renderBlueprint = exists("render.yaml") ? read("render.yaml") : "";
-  for (const statement of ["migrate:deploy", "healthCheckPath: /health", "autoDeploy: false", "API_PERSISTENCE_MODE"]) {
+  for (const statement of [
+    "pnpm --filter @opportunity-os/api... build",
+    "migrate:deploy",
+    "healthCheckPath: /health",
+    "autoDeploy: false",
+    "API_PERSISTENCE_MODE"
+  ]) {
     if (!renderBlueprint.includes(statement)) fail(`render.yaml is missing hosted pilot control: ${statement}`);
   }
 }
