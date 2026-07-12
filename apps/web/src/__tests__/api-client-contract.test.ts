@@ -19,7 +19,8 @@ import {
   dashboardFeedbackFixtures,
   dashboardOpportunityFixtures,
   dashboardRankingFixtures,
-  dashboardScanFixture
+  dashboardScanFixture,
+  dashboardStackExchangeScanFixture
 } from "../testing";
 
 const syntheticApiOpportunity = dashboardOpportunityFixtures[0]!;
@@ -244,7 +245,7 @@ describe("Dashboard API client contracts", () => {
       correlationId: "correlation-stack-exchange-001",
       fetch: async (input) => {
         calls.push(String(input));
-        return createJsonResponse(createApiSuccessResponse(dashboardScanFixture, { correlationId: "correlation-stack-exchange-001" }));
+        return createJsonResponse(createApiSuccessResponse(dashboardStackExchangeScanFixture, { correlationId: "correlation-stack-exchange-001" }));
       }
     });
     const created = await createScan(client, {
@@ -257,6 +258,10 @@ describe("Dashboard API client contracts", () => {
     });
     expect(created.ok).toBe(true);
     expect(calls).toEqual([`https://api.test${generatedApiRoutes.createScan.path}`]);
+    if (created.ok) {
+      expect(created.data.source.attribution).toBe("Stack Exchange");
+      expect(created.data.opportunities[0]?.evidence[0]?.provenance.sourcePlatform).toBe("stack-exchange");
+    }
   });
 
   it("maps API errors without exposing secrets, stacks, raw payloads, or internal details", async () => {

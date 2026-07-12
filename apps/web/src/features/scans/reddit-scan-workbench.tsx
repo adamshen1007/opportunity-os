@@ -12,7 +12,7 @@ import {
 import { ErrorState, LoadingState } from "../../components/states";
 import { safeDashboardErrorMessage } from "../../components/states/state-copy";
 import { Badge, Button, Input, Panel, Select } from "../../components/ui";
-import { dashboardScanFixture } from "../../testing";
+import { getDashboardScanFixture } from "../../testing";
 
 type ScanStatus = "ready" | "running" | "completed" | "fallback" | "error";
 
@@ -168,7 +168,7 @@ export function RedditScanWorkbench() {
   const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
   const [scanState, setScanState] = useState<ScanState>({
     status: "ready",
-    result: dashboardScanFixture,
+    result: getDashboardScanFixture("stack-exchange"),
     message: "Use fixture mode for a local walkthrough, or live mode when credentials are configured."
   });
   const apiBaseUrl = useMemo(() => getDashboardApiBaseUrl(), []);
@@ -233,13 +233,13 @@ export function RedditScanWorkbench() {
 
       setScanState({
         status: "fallback",
-        result: dashboardScanFixture,
+        result: getDashboardScanFixture(source),
         message: `${toSafeScanMessage(result.error.message)} Showing deterministic fixture results instead.`
       });
     } catch {
       setScanState({
         status: "fallback",
-        result: dashboardScanFixture,
+        result: getDashboardScanFixture(source),
         message: "The API is not reachable from this browser session. Showing deterministic fixture results instead."
       });
     }

@@ -7,7 +7,9 @@ import {
   dashboardBetaSessionFixture,
   dashboardBugReportFixture,
   dashboardFeedbackFixtures,
-  dashboardScanFixture
+  dashboardScanFixture,
+  dashboardStackExchangeScanFixture,
+  getDashboardScanFixture
 } from "../testing";
 
 describe("Dashboard component test infrastructure", () => {
@@ -58,5 +60,15 @@ describe("Dashboard component test infrastructure", () => {
       "ranking"
     ]);
     expect(dashboardScanFixture.opportunities[0]?.evidence[0]?.summary).toContain("manual review");
+    expect(dashboardStackExchangeScanFixture.source.attribution).toBe("Stack Exchange");
+    expect(dashboardStackExchangeScanFixture.source.provider).toBe("stack-exchange");
+    expect(dashboardStackExchangeScanFixture.stages[0]?.safeMessage).toContain("Stack Exchange");
+    expect(dashboardStackExchangeScanFixture.opportunities[0]?.evidence[0]).toMatchObject({
+      sourceType: "stack-exchange",
+      provenance: { sourcePlatform: "stack-exchange" }
+    });
+    expect(dashboardStackExchangeScanFixture.opportunities[0]?.provenance).not.toHaveProperty("redditPostId");
+    expect(getDashboardScanFixture("reddit").source.attribution).toBe("Reddit");
+    expect(getDashboardScanFixture("stack-exchange").source.attribution).toBe("Stack Exchange");
   });
 });

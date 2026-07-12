@@ -59,6 +59,8 @@ test("dashboard scan workbench shows safe fallback results", async ({ page }) =>
   await page.getByRole("button", { name: "Run scan" }).click();
 
   await expect(page.getByText("Showing deterministic fixture results instead.")).toBeVisible();
+  await expect(page.getByText(/Source attribution: Stack Exchange/u)).toBeVisible();
+  await expect(page.getByText(/Source attribution: Reddit/u)).toHaveCount(0);
   await expect(page.getByLabel("Scan results").getByRole("heading", { name: "Prioritize repeated manual review workflows" })).toBeVisible();
   await expect(page.getByLabel("Scan results").getByText("Open source context").first()).toBeVisible();
   await expect(page.getByLabel("Scan results").getByText("analysis-fixture-001")).toBeVisible();

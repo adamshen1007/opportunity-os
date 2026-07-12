@@ -1,4 +1,4 @@
-import type { DashboardApiScanResultDto } from "../../api";
+import type { DashboardApiScanResultDto, DashboardApiScanSource } from "../../api";
 
 export const dashboardScanFixture: DashboardApiScanResultDto = {
   scanId: "scan-opportunity-20260707",
@@ -143,3 +143,57 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
     rawProviderPayloadStored: false
   }
 };
+
+export const dashboardStackExchangeScanFixture: DashboardApiScanResultDto = {
+  ...dashboardScanFixture,
+  scanId: "scan-stack-exchange-20260712",
+  source: {
+    provider: "stack-exchange",
+    community: "stackoverflow",
+    site: "stackoverflow",
+    query: "manual review",
+    attribution: "Stack Exchange",
+    itemCount: dashboardScanFixture.source.itemCount,
+    quota: {
+      remaining: 298,
+      maximum: 300,
+      hasMore: false
+    }
+  },
+  stages: dashboardScanFixture.stages.map((stage) =>
+    stage.name === "source"
+      ? { ...stage, safeMessage: "Loaded deterministic Stack Exchange fixture content." }
+      : stage
+  ),
+  opportunities: dashboardScanFixture.opportunities.map((opportunity, index) => {
+    const sourceId = `question_fixture_${index + 1}`;
+    const sourceUrl = `https://stackoverflow.com/questions/${10000000 + index}/fixture-question`;
+    const { redditPostId: _redditPostId, ...provenance } = opportunity.provenance;
+
+    return {
+      ...opportunity,
+      opportunityId: `stack-exchange-opportunity-${index + 1}`,
+      evidence: opportunity.evidence.map((evidence) => ({
+        ...evidence,
+        evidenceId: `stack-exchange-evidence-${index + 1}`,
+        sourceType: "stack-exchange",
+        permalink: sourceUrl,
+        provenance: {
+          ...evidence.provenance,
+          sourcePlatform: "stack-exchange",
+          sourceId,
+          sourceUrl
+        }
+      })),
+      provenance: {
+        ...provenance,
+        scanId: "scan-stack-exchange-20260712",
+        sourceItemId: sourceId
+      }
+    };
+  })
+};
+
+export function getDashboardScanFixture(source: DashboardApiScanSource): DashboardApiScanResultDto {
+  return source === "stack-exchange" ? dashboardStackExchangeScanFixture : dashboardScanFixture;
+}
