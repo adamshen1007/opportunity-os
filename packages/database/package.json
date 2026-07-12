@@ -18,12 +18,12 @@
   ],
   "scripts": {
     "build": "prisma --config=./prisma.config.ts generate && tsc -p tsconfig.json",
-    "lint": "tsc --noEmit -p tsconfig.json",
+    "lint": "prisma --config=./prisma.config.ts generate && tsc --noEmit -p tsconfig.json",
     "migrate:deploy": "prisma --config=./prisma.config.ts migrate deploy",
     "migrate:dev": "prisma --config=./prisma.config.ts migrate dev",
     "migrate:status": "prisma --config=./prisma.config.ts migrate status",
     "prisma": "prisma --config=./prisma.config.ts",
-    "test": "vitest run src --passWithNoTests",
+    "test": "prisma --config=./prisma.config.ts generate && vitest run src --passWithNoTests",
     "verify:local": "prisma --config=./prisma.config.ts migrate status"
   },
   "engines": {
