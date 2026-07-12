@@ -61,6 +61,12 @@ function createOptionalIntegrationConfig(optionalEnvironment: OptionalEnvironmen
     ...(optionalEnvironment.NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL === undefined
       ? {}
       : { publicApiBaseUrl: optionalEnvironment.NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL }),
+    ...(optionalEnvironment.API_PERSISTENCE_MODE === undefined
+      ? {}
+      : { apiPersistenceMode: optionalEnvironment.API_PERSISTENCE_MODE }),
+    ...(optionalEnvironment.API_LIVE_SCAN_ACCESS_TOKEN === undefined
+      ? {}
+      : { apiLiveScanAccessToken: optionalEnvironment.API_LIVE_SCAN_ACCESS_TOKEN }),
     ...(optionalEnvironment.LLM_PROVIDER === undefined ? {} : { llmProvider: optionalEnvironment.LLM_PROVIDER }),
     ...(optionalEnvironment.LLM_MODEL === undefined ? {} : { llmModel: optionalEnvironment.LLM_MODEL }),
     ...(optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === undefined

@@ -132,8 +132,17 @@ const phaseMultiSourceAliases = new Set([
   "stack-exchange-connector",
   "real-data-product-validation"
 ]);
-const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp", ...phaseMultiSourceAliases]);
-const isMultiSourcePhase = phaseMultiSourceAliases.has(phase) || phase === "review";
+const phaseHostedPilotAliases = new Set([
+  "phase-4-milestone-40",
+  "phase-4-milestone-41",
+  "phase-4-milestone-42",
+  "phase-4-milestone-43",
+  "phase-4-milestone-44",
+  "hosted-pilot"
+]);
+const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp", ...phaseMultiSourceAliases, ...phaseHostedPilotAliases]);
+const isHostedPilotPhase = phaseHostedPilotAliases.has(phase) || phase === "review";
+const isMultiSourcePhase = phaseMultiSourceAliases.has(phase) || isHostedPilotPhase;
 const isPhaseThirtyFour = phaseThirtyFourAliases.has(phase) || phase === "review";
 const isPhaseThirtyThree = phaseThirtyThreeAliases.has(phase) || isPhaseThirtyFour;
 const isPhaseThirtyTwo = phaseThirtyTwoAliases.has(phase) || isPhaseThirtyThree;
@@ -1976,6 +1985,8 @@ const engineeringKitOptionalEnvironmentVariables = [
   "OPPORTUNITY_OS_API_URL",
   "OPPORTUNITY_OS_WEB_URL",
   "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
+  "API_PERSISTENCE_MODE",
+  "API_LIVE_SCAN_ACCESS_TOKEN",
   "LLM_PROVIDER",
   "LLM_MODEL",
   "LLM_LIVE_ANALYSIS_ENABLED",
@@ -5149,6 +5160,31 @@ function assertMultiSourceProductValidationPolicy() {
   }
 }
 
+function assertHostedPilotPolicy() {
+  for (const file of [
+    "render.yaml",
+    "apps/web/vercel.json",
+    "scripts/verify-external-mvp.mjs",
+    "apps/api/src/runtime/production-runtime.ts",
+    "apps/api/src/security/fixed-window-rate-limiter.ts",
+    "packages/database/src/prisma-runtime.ts",
+    "docs/04_IMPLEMENTATION/04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md",
+    "docs/04_IMPLEMENTATION/04-025_DESIGN_PARTNER_PILOT.md"
+  ]) {
+    if (!exists(file)) fail(`Hosted Pilot is missing required file: ${file}`);
+  }
+
+  const envExample = exists(".env.example") ? read(".env.example") : "";
+  for (const envKey of ["API_PERSISTENCE_MODE", "API_LIVE_SCAN_ACCESS_TOKEN"]) {
+    if (!envExample.includes(envKey)) fail(`Hosted Pilot requires .env.example to document ${envKey}.`);
+  }
+
+  const renderBlueprint = exists("render.yaml") ? read("render.yaml") : "";
+  for (const statement of ["migrate:deploy", "healthCheckPath: /health", "autoDeploy: false", "API_PERSISTENCE_MODE"]) {
+    if (!renderBlueprint.includes(statement)) fail(`render.yaml is missing hosted pilot control: ${statement}`);
+  }
+}
+
 for (const file of requiredFoundationFiles) {
   if (!exists(file)) fail(`Missing foundation file: ${file}`);
 }
@@ -5273,6 +5309,7 @@ for (const [packageRoot, packageRule] of Object.entries(sharedFoundationPackageR
 if (isPhaseThirtyFour) {
   assertExternalMvpRuntimePolicy();
   if (isMultiSourcePhase) assertMultiSourceProductValidationPolicy();
+  if (isHostedPilotPhase) assertHostedPilotPolicy();
 } else if (isPhaseThirtyThree) {
   assertRedditLiveProviderTransportPolicy();
 } else if (isPhaseThirtyTwo) {

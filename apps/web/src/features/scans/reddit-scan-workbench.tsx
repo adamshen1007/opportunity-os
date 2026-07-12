@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   createDashboardApiClient,
   createScan,
+  getScan,
   type DashboardApiScanMode,
   type DashboardApiScanResultDto,
   type DashboardApiScanSource
@@ -173,10 +174,29 @@ export function RedditScanWorkbench() {
   const apiBaseUrl = useMemo(() => getDashboardApiBaseUrl(), []);
   const isRunning = scanState.status === "running";
 
+  useEffect(() => {
+    const scanId = window.localStorage.getItem("opportunity-os:last-scan-id");
+    if (!scanId) return;
+    const client = createDashboardApiClient({
+      baseUrl: apiBaseUrl,
+      correlationId: createCorrelationId(),
+      fetch: window.fetch.bind(window)
+    });
+    void getScan(client, scanId).then((result) => {
+      if (!result.ok) return;
+      setScanState({
+        status: "completed",
+        result: result.data,
+        message: "Restored the last persisted scan. Review its evidence and feedback below."
+      });
+    });
+  }, [apiBaseUrl]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const mode = (readText(formData.get("mode")) ?? "fixture") as DashboardApiScanMode;
+    const accessToken = readText(formData.get("accessToken"));
     const request = {
       source,
       subreddit: source === "reddit" ? readText(formData.get("subreddit")) ?? "opportunity" : undefined,
@@ -195,12 +215,14 @@ export function RedditScanWorkbench() {
     const client = createDashboardApiClient({
       baseUrl: apiBaseUrl,
       correlationId: createCorrelationId(),
-      fetch: window.fetch.bind(window)
+      fetch: window.fetch.bind(window),
+      accessToken
     });
 
     try {
       const result = await createScan(client, request);
       if (result.ok) {
+        window.localStorage.setItem("opportunity-os:last-scan-id", result.data.scanId);
         setScanState({
           status: "completed",
           result: result.data,
@@ -257,6 +279,14 @@ export function RedditScanWorkbench() {
           ) : null}
           <Input label="Limit" name="limit" defaultValue="5" placeholder="5" disabled={isRunning} />
           <Select label="Mode" name="mode" options={scanModeOptions} defaultValue="fixture" disabled={isRunning} />
+          <Input
+            label="Pilot access code (live mode only)"
+            name="accessToken"
+            type="password"
+            autoComplete="off"
+            placeholder="Enter your invite code"
+            disabled={isRunning}
+          />
           <Button type="submit" disabled={isRunning}>
             {isRunning ? "Scanning" : "Run scan"}
           </Button>

@@ -51,6 +51,8 @@ describe("environment variable contract", () => {
       "OPPORTUNITY_OS_API_URL",
       "OPPORTUNITY_OS_WEB_URL",
       "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
+      "API_PERSISTENCE_MODE",
+      "API_LIVE_SCAN_ACCESS_TOKEN",
       "LLM_PROVIDER",
       "LLM_MODEL",
       "LLM_LIVE_ANALYSIS_ENABLED",

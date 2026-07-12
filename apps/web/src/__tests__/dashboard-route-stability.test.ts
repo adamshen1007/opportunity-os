@@ -40,6 +40,7 @@ describe("Dashboard route stability", () => {
       "getFeedback",
       "getOpportunity",
       "getRanking",
+      "getScan",
       "listFeedback",
       "listOpportunities",
       "rankOpportunities"

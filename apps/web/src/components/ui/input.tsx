@@ -4,13 +4,30 @@ export interface InputProps {
   readonly placeholder?: string;
   readonly defaultValue?: string;
   readonly disabled?: boolean;
+  readonly type?: "text" | "password" | "number";
+  readonly autoComplete?: string;
 }
 
-export function Input({ label, name, placeholder, defaultValue, disabled = false }: InputProps) {
+export function Input({
+  label,
+  name,
+  placeholder,
+  defaultValue,
+  disabled = false,
+  type = "text",
+  autoComplete
+}: InputProps) {
   return (
     <label className="field">
       <span>{label}</span>
-      <input name={name} placeholder={placeholder} defaultValue={defaultValue} disabled={disabled} />
+      <input
+        type={type}
+        name={name}
+        placeholder={placeholder}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        autoComplete={autoComplete}
+      />
     </label>
   );
 }

@@ -26,6 +26,8 @@ export const OPTIONAL_ENVIRONMENT_VARIABLES = [
   "OPPORTUNITY_OS_API_URL",
   "OPPORTUNITY_OS_WEB_URL",
   "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
+  "API_PERSISTENCE_MODE",
+  "API_LIVE_SCAN_ACCESS_TOKEN",
   "LLM_PROVIDER",
   "LLM_MODEL",
   "LLM_LIVE_ANALYSIS_ENABLED",
@@ -54,6 +56,7 @@ const runtimeEnvironmentSchema = z.enum(["local", "development", "staging", "pro
 const logLevelSchema = z.enum(["trace", "debug", "info", "warn", "error", "fatal"]);
 const llmProviderSchema = z.enum(["openai", "anthropic", "gemini"]);
 const booleanStringSchema = z.enum(["true", "false"]);
+const persistenceModeSchema = z.enum(["memory", "database"]);
 
 const nonEmptyStringSchema = z.string().trim().min(1);
 const urlStringSchema = nonEmptyStringSchema.url();
@@ -81,6 +84,8 @@ export const optionalEnvironmentSchema = z.object({
   OPPORTUNITY_OS_API_URL: urlStringSchema.optional(),
   OPPORTUNITY_OS_WEB_URL: urlStringSchema.optional(),
   NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL: urlStringSchema.optional(),
+  API_PERSISTENCE_MODE: persistenceModeSchema.optional(),
+  API_LIVE_SCAN_ACCESS_TOKEN: nonEmptyStringSchema.optional(),
   LLM_PROVIDER: llmProviderSchema.optional(),
   LLM_MODEL: nonEmptyStringSchema.optional(),
   LLM_LIVE_ANALYSIS_ENABLED: booleanStringSchema.optional(),

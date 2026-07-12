@@ -8,6 +8,7 @@ export interface ApiScanPersistenceInput {
 export interface ApiScanPersistenceStore {
   readonly persistScanResult: (input: ApiScanPersistenceInput) => Promise<void>;
   readonly resolveOpportunityRecordId: (opportunityId: string) => Promise<string | undefined>;
+  readonly getScanResult: (scanId: string) => Promise<ApiScanResultDto | undefined>;
 }
 
 export interface ApiScanPersistenceRecord {
@@ -30,6 +31,9 @@ export function createNoopScanPersistenceStore(): ApiScanPersistenceStore {
     },
     async resolveOpportunityRecordId() {
       return undefined;
+    },
+    async getScanResult() {
+      return undefined;
     }
   };
 }
@@ -37,6 +41,7 @@ export function createNoopScanPersistenceStore(): ApiScanPersistenceStore {
 export function createInMemoryScanPersistenceStore(input: InMemoryScanPersistenceInput = {}): ApiScanPersistenceStore {
   const records = new Map<string, ApiScanPersistenceRecord>();
   const opportunityRecordIds = new Map<string, string>();
+  const results = new Map<string, ApiScanResultDto>();
 
   for (const record of input.initialRecords ?? []) {
     records.set(record.scanId, cloneRecord(record));
@@ -50,12 +55,17 @@ export function createInMemoryScanPersistenceStore(input: InMemoryScanPersistenc
       assertSafePersistencePayload(result);
       const record = toScanPersistenceRecord(result);
       records.set(record.scanId, cloneRecord(record));
+      results.set(result.scanId, structuredClone(result));
       for (const [opportunityId, recordId] of Object.entries(record.opportunityRecordIds)) {
         opportunityRecordIds.set(opportunityId, recordId);
       }
     },
     async resolveOpportunityRecordId(opportunityId) {
       return opportunityRecordIds.get(opportunityId);
+    },
+    async getScanResult(scanId) {
+      const result = results.get(scanId);
+      return result ? structuredClone(result) : undefined;
     }
   };
 }
@@ -87,6 +97,7 @@ function cloneRecord(record: ApiScanPersistenceRecord): ApiScanPersistenceRecord
 
 export interface ApiScanPersistenceDatabaseDelegate<TArgs = unknown> {
   readonly upsert: (args: TArgs) => Promise<unknown>;
+  readonly findUnique?: (args: unknown) => Promise<unknown>;
 }
 
 export interface ApiScanPersistenceDatabaseClient {
@@ -111,6 +122,12 @@ export function createDatabaseScanPersistenceStore(database: ApiScanPersistenceD
     },
     async resolveOpportunityRecordId(opportunityId) {
       return memory.resolveOpportunityRecordId(opportunityId);
+    },
+    async getScanResult(scanId) {
+      const record = await database.scanRunRecord.findUnique?.({ where: { id: scanId }, select: { result: true } });
+      if (!record || typeof record !== "object" || !("result" in record) || !record.result) return undefined;
+      assertSafePersistencePayload(record.result);
+      return record.result as ApiScanResultDto;
     }
   };
 }
@@ -128,6 +145,7 @@ async function persistToDatabase(database: ApiScanPersistenceDatabaseClient, inp
       source: result.source,
       stages: result.stages,
       safeMetadata: result.safeMetadata,
+      result,
       completedAt
     },
     create: {
@@ -137,6 +155,7 @@ async function persistToDatabase(database: ApiScanPersistenceDatabaseClient, inp
       source: result.source,
       stages: result.stages,
       safeMetadata: result.safeMetadata,
+      result,
       startedAt: completedAt,
       completedAt
     }

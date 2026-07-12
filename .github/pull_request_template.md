@@ -65,3 +65,5 @@
 - [ ] I did not introduce business logic unless this PR is explicitly scoped for implementation.
 - [ ] I did not introduce connectors, APIs, or AI workflows unless approved by specification.
 - [ ] Datasource changes preserve attribution, provenance, quota/backoff handling, fixture-default tests, and explicit live-network gates.
+- [ ] Production runtime changes preserve database lifecycle, restricted CORS, rate controls, secret-safe logs, migration safety, health checks, and rollback readiness.
+- [ ] Pilot-facing changes preserve evidence/provenance and the M44 measurable launch gates.

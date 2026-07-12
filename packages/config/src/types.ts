@@ -24,6 +24,8 @@ export interface OptionalEnvironment {
   readonly OPPORTUNITY_OS_API_URL?: string;
   readonly OPPORTUNITY_OS_WEB_URL?: string;
   readonly NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL?: string;
+  readonly API_PERSISTENCE_MODE?: "memory" | "database";
+  readonly API_LIVE_SCAN_ACCESS_TOKEN?: string;
   readonly LLM_PROVIDER?: "openai" | "anthropic" | "gemini";
   readonly LLM_MODEL?: string;
   readonly LLM_LIVE_ANALYSIS_ENABLED?: "true" | "false";
@@ -79,6 +81,8 @@ export interface OptionalIntegrationConfig {
   readonly apiUrl?: string;
   readonly webUrl?: string;
   readonly publicApiBaseUrl?: string;
+  readonly apiPersistenceMode?: "memory" | "database";
+  readonly apiLiveScanAccessToken?: string;
   readonly llmProvider?: "openai" | "anthropic" | "gemini";
   readonly llmModel?: string;
   readonly liveLlmAnalysisEnabled?: boolean;

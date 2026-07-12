@@ -1046,3 +1046,7 @@ A milestone is complete only when:
 ## Phase 4 Milestones 35-39 - Multi-Source Product Validation
 
 The source-neutral scan boundary precedes the Stack Exchange connector. The connector precedes Raw Content mapping and persistence. Pipeline integration precedes dashboard source selection. The visible workflow precedes real-data design-partner validation. Reddit activation remains conditional on approval and must not block these milestones.
+
+## Phase 4 Milestones 40-44 - Hosted Pilot
+
+Production database composition precedes API access controls. Security controls precede host deployment. Deployment precedes observability verification. A monitored, persistent, rollback-ready release precedes design-partner invitations. No live deployment is authorized merely by merging these assets; an operator must complete the release checklist and explicitly trigger hosting.

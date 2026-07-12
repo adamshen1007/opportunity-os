@@ -45,4 +45,15 @@ describe("local API server", () => {
       opportunities: [{ opportunityId: "opportunity-synthetic-1" }]
     });
   });
+
+  it("restores a persisted scan through its stable scan id", async () => {
+    const dispatch = createTestDispatcher();
+    const created = await dispatch({ method: "POST", path: "/scans", body: { source: "stack-exchange", mode: "fixture" } });
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+    const scanId = (created.data as { scanId: string }).scanId;
+    const restored = await dispatch({ method: "GET", path: `/scans/${scanId}` });
+    expect(restored.ok).toBe(true);
+    expect(restored.ok ? restored.data : undefined).toMatchObject({ scanId });
+  });
 });

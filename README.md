@@ -866,3 +866,5 @@ Milestone 24 is complete when `@opportunity-os/opportunity-generation` is implem
 ## Real-Data Product Validation
 
 Opportunity OS can run the full evidence-to-ranked-opportunity workflow with the official Stack Exchange API while Reddit access is awaiting approval. Use fixture mode for deterministic tests and explicitly enable Stack Exchange live mode for operator-led trials. See `docs/04_IMPLEMENTATION/04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md`.
+
+Production pilot deployment is defined by `render.yaml`, `apps/web/vercel.json`, `docs/04_IMPLEMENTATION/04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md`, and the executable `pnpm smoke:external` gate. Hosted API persistence requires `API_PERSISTENCE_MODE=database` and a protected `DATABASE_URL`.

@@ -63,3 +63,7 @@ export {
   type ProductDataModelName,
   type ProductDataTableName
 } from "./product-data-schema.js";
+export {
+  createPrismaDatabaseRuntime,
+  type PrismaDatabaseRuntime
+} from "./prisma-runtime.js";

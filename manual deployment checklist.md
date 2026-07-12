@@ -2,6 +2,8 @@
 
 This is the beginner-first deployment guide for Opportunity OS.
 
+> Hosted pilot note: complete Phase 4 Milestones 40-44 before inviting users. Use `render.yaml` for the API and `apps/web/vercel.json` for the dashboard. Merging these files does not deploy production automatically because `autoDeploy` is intentionally disabled.
+
 Use it as a sequential checklist. Do not skip ahead. Each step tells you:
 
 1. Do this.

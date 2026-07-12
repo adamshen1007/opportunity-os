@@ -6,6 +6,7 @@ export interface DashboardApiClientOptions {
   readonly fetch: typeof fetch;
   readonly correlationId: string;
   readonly requestId?: string;
+  readonly accessToken?: string;
 }
 
 export interface DashboardApiRequestOptions<TBody = unknown> {
@@ -46,7 +47,8 @@ export function createDashboardApiClient(options: DashboardApiClientOptions) {
       headers: {
         "content-type": "application/json",
         "x-correlation-id": options.correlationId,
-        ...(options.requestId ? { "x-request-id": options.requestId } : {})
+        ...(options.requestId ? { "x-request-id": options.requestId } : {}),
+        ...(options.accessToken ? { "x-opportunity-os-access-token": options.accessToken } : {})
       },
       body: requestOptions.body === undefined ? undefined : JSON.stringify(requestOptions.body)
     });

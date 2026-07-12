@@ -78,6 +78,7 @@ model ScanRunRecord {
   source       Json
   stages       Json
   safeMetadata Json?
+  result       Json?
   startedAt    DateTime
   completedAt  DateTime?
   createdAt    DateTime @default(now())

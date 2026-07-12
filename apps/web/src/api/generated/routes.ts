@@ -48,6 +48,11 @@ export const generatedApiRoutes = {
     method: "POST",
     path: "/scans",
     operationId: "createScan"
+  },
+  getScan: {
+    method: "GET",
+    path: "/scans/:scanId",
+    operationId: "getScan"
   }
 } as const;
 

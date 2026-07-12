@@ -50,7 +50,7 @@ It reflects completed implementation through Phase 4 Milestone 33 and active Pha
 - Phase 4 M32 Product Data Schema
 - Phase 4 M33 Reddit Live Provider Transport
 
-Current implementation is Phase 4 Milestone 34: External MVP Runtime. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
+Current implementation is Phase 4 Milestones 40-44: production runtime composition, external API security, deployment automation, observability, and design-partner pilot readiness. See `docs/04_IMPLEMENTATION/04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md` and `docs/04_IMPLEMENTATION/04-025_DESIGN_PARTNER_PILOT.md`. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
 ## Purpose
 

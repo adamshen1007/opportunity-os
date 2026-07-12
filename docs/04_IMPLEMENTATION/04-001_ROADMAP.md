@@ -93,6 +93,11 @@ Current:
 - Phase 4 M37 Multi-Source Pipeline and Persistence
 - Phase 4 M38 Dashboard Source Selection
 - Phase 4 M39 Real-Data Product Validation
+- Phase 4 M40 Production Runtime Composition
+- Phase 4 M41 External API Security
+- Phase 4 M42 Deployment Automation
+- Phase 4 M43 Production Observability
+- Phase 4 M44 Design-Partner Pilot
 
 Slice G is the final External MVP Runtime readiness gate. It validates repository policy, lint, build, tests, Playwright, Docker Compose, env-gated Reddit smoke testing, env-gated LLM smoke testing, the deployment checklist, Reddit setup guide, LLM setup guide, dashboard walkthrough, smoke test report, and Go / No-Go decision in `docs/04_IMPLEMENTATION/04-022_EXTERNAL_MVP_READINESS_GATE.md`.
 

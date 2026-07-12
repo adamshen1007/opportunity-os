@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, timingSafeEqual } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
 import {
@@ -17,7 +17,7 @@ import {
   handleGetRankingRequest,
   handleRankOpportunitiesRequest
 } from "./routes/rankings/index.js";
-import { handleCreateRedditScanRequest, handleCreateScanRequest } from "./routes/scans/index.js";
+import { handleCreateRedditScanRequest, handleCreateScanRequest, handleGetScanRequest } from "./routes/scans/index.js";
 import {
   handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
@@ -30,6 +30,9 @@ import {
   handleGetSessionRequest
 } from "./routes/auth/index.js";
 import { createInMemoryScanPersistenceStore, type ApiScanPersistenceStore } from "./persistence/index.js";
+import type { ApiFeedbackStore } from "./feedback/index.js";
+import { createApiProductionRuntime } from "./runtime/index.js";
+import { createFixedWindowRateLimiter, type FixedWindowRateLimiter } from "./security/index.js";
 import type { ApiRequest, ApiResponse } from "./http/index.js";
 import { API_ERROR_CODES, createApiError } from "./errors/index.js";
 
@@ -39,6 +42,11 @@ export interface LocalApiServerOptions {
   readonly environment?: string;
   readonly clock?: () => string;
   readonly scanPersistence?: ApiScanPersistenceStore;
+  readonly feedbackStore?: ApiFeedbackStore;
+  readonly databaseIsReady?: () => Promise<boolean>;
+  readonly allowedOrigin?: string;
+  readonly liveScanAccessToken?: string;
+  readonly scanRateLimiter?: FixedWindowRateLimiter;
 }
 
 export interface LocalApiDispatchInput {
@@ -66,10 +74,11 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
   const version = options.version ?? DEFAULT_VERSION;
   const environment = options.environment ?? "local";
   const clock = options.clock ?? (() => new Date().toISOString());
-  const feedbackStore = createSyntheticApiFeedbackStore();
+  const feedbackStore = options.feedbackStore ?? createSyntheticApiFeedbackStore();
   const bugReportStore = createSyntheticApiBugReportStore();
   const inviteStore = createSyntheticApiInviteStore();
   const scanPersistence = options.scanPersistence ?? createInMemoryScanPersistenceStore();
+  const scanRateLimiter = options.scanRateLimiter ?? createFixedWindowRateLimiter({ limit: 10, windowMs: 60_000 });
 
   const routeTable: readonly {
     readonly method: string;
@@ -79,7 +88,18 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "GET",
       path: "/health",
-      handler: (request) => handleApiHealthRequest(request, { serviceName, version, environment, clock })
+      handler: async (request) => {
+        const databaseReady = options.databaseIsReady ? await options.databaseIsReady() : undefined;
+        return handleApiHealthRequest(request, {
+          serviceName,
+          version,
+          environment,
+          clock,
+          dependencies: databaseReady === undefined
+            ? []
+            : [{ name: "database", status: databaseReady ? "ok" : "degraded", checkedAt: clock(), safeMessage: databaseReady ? "Database is ready." : "Database is unavailable." }]
+        });
+      }
     },
     {
       method: "GET",
@@ -95,6 +115,11 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       method: "POST",
       path: "/scans",
       handler: (request) => handleCreateScanRequest(asHandlerRequest(request), scanPersistence)
+    },
+    {
+      method: "GET",
+      path: "/scans/:scanId",
+      handler: (request) => handleGetScanRequest(asHandlerRequest(request), scanPersistence)
     },
     {
       method: "POST",
@@ -165,6 +190,22 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       return createFailureResponseFromInput(input, requestUrl.pathname, "Route was not found.", 404);
     }
 
+    if (input.method === "POST" && requestUrl.pathname.startsWith("/scans")) {
+      const rate = scanRateLimiter.consume(input.headers?.["x-forwarded-for"] ?? input.headers?.["x-request-id"] ?? "anonymous");
+      if (!rate.allowed) {
+        return createFailureResponseFromInput(input, requestUrl.pathname, "Scan rate limit exceeded. Try again shortly.", 429);
+      }
+      const requestedMode = input.body && typeof input.body === "object" && "mode" in input.body
+        ? (input.body as { mode?: unknown }).mode
+        : undefined;
+      if (requestedMode === "live" && options.liveScanAccessToken && !safeTokenEquals(
+        input.headers?.["x-opportunity-os-access-token"],
+        options.liveScanAccessToken
+      )) {
+        return createFailureResponseFromInput(input, requestUrl.pathname, "Live scan access is not authorized.", 401);
+      }
+    }
+
     const request: ApiRequest<unknown, Record<string, string>, Record<string, string>> = {
       context: {
         correlationId: input.headers?.["x-correlation-id"] ?? randomUUID(),
@@ -189,7 +230,8 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
   const dispatchLocalApiRequest = createLocalApiDispatcher(options);
 
   return createServer(async (incoming, outgoing) => {
-    applyCorsHeaders(outgoing);
+    const startedAt = Date.now();
+    applyCorsHeaders(outgoing, incoming.headers.origin, options.allowedOrigin);
 
     if (incoming.method === "OPTIONS") {
       outgoing.writeHead(204);
@@ -209,7 +251,9 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
           path: requestUrl.pathname,
           headers: {
             "x-correlation-id": getHeaderValue(incoming, "x-correlation-id"),
-            "x-request-id": getHeaderValue(incoming, "x-request-id")
+            "x-request-id": getHeaderValue(incoming, "x-request-id"),
+            "x-forwarded-for": getHeaderValue(incoming, "x-forwarded-for"),
+            "x-opportunity-os-access-token": getHeaderValue(incoming, "x-opportunity-os-access-token")
           }
         },
         requestUrl.pathname,
@@ -227,8 +271,17 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
       body,
       headers: {
         "x-correlation-id": getHeaderValue(incoming, "x-correlation-id"),
-        "x-request-id": getHeaderValue(incoming, "x-request-id")
+        "x-request-id": getHeaderValue(incoming, "x-request-id"),
+        "x-forwarded-for": getHeaderValue(incoming, "x-forwarded-for"),
+        "x-opportunity-os-access-token": getHeaderValue(incoming, "x-opportunity-os-access-token")
       }
+    });
+    writeOperationalLog({
+      method: incoming.method ?? "GET",
+      path: requestUrl.pathname,
+      statusCode: getResponseStatus(response),
+      durationMs: Date.now() - startedAt,
+      correlationId: response.meta.correlationId
     });
     writeJson(outgoing, getResponseStatus(response), response);
   });
@@ -261,8 +314,14 @@ function asHandlerRequest(request: ApiRequest<unknown, Record<string, string>, R
 
 async function readRequestBody(request: IncomingMessage): Promise<unknown> {
   const chunks: Buffer[] = [];
+  let size = 0;
   for await (const chunk of request) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += buffer.length;
+    if (size > 256 * 1024) {
+      throw new Error("Request body is too large.");
+    }
+    chunks.push(buffer);
   }
 
   const rawBody = Buffer.concat(chunks).toString("utf8").trim();
@@ -323,6 +382,10 @@ function createFailureResponseFromInput(
       code:
         statusCode === 404
           ? API_ERROR_CODES.notFound
+          : statusCode === 401
+            ? API_ERROR_CODES.unauthorized
+            : statusCode === 429
+              ? API_ERROR_CODES.forbidden
           : statusCode === 400
             ? API_ERROR_CODES.badRequest
             : API_ERROR_CODES.internal,
@@ -346,10 +409,35 @@ function writeJson(response: ServerResponse, statusCode: number, body: unknown):
   response.end(JSON.stringify(body));
 }
 
-function applyCorsHeaders(response: ServerResponse): void {
-  response.setHeader("access-control-allow-origin", "*");
+function applyCorsHeaders(response: ServerResponse, requestOrigin: string | undefined, allowedOrigin?: string): void {
+  if (!allowedOrigin || requestOrigin === allowedOrigin) {
+    response.setHeader("access-control-allow-origin", allowedOrigin ?? "*");
+  }
   response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
-  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id");
+  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token");
+}
+
+function safeTokenEquals(provided: string | undefined, expected: string): boolean {
+  if (!provided) return false;
+  const left = Buffer.from(provided);
+  const right = Buffer.from(expected);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+function writeOperationalLog(input: {
+  readonly method: string;
+  readonly path: string;
+  readonly statusCode: number;
+  readonly durationMs: number;
+  readonly correlationId: string;
+}): void {
+  process.stdout.write(`${JSON.stringify({
+    timestamp: new Date().toISOString(),
+    service: "opportunity-os-api",
+    severity: input.statusCode >= 500 ? "error" : input.statusCode >= 400 ? "warn" : "info",
+    eventName: "api.request.completed",
+    ...input
+  })}\n`);
 }
 
 function parsePort(value: string | undefined): number | undefined {
@@ -366,5 +454,27 @@ function isDirectExecution(moduleUrl: string): boolean {
 }
 
 if (isDirectExecution(import.meta.url)) {
-  startLocalApiServer();
+  void startConfiguredApiServer();
+}
+
+async function startConfiguredApiServer(): Promise<void> {
+  const useDatabase = process.env.API_PERSISTENCE_MODE === "database";
+  const runtime = useDatabase ? await createApiProductionRuntime() : undefined;
+  const server = startLocalApiServer({
+    environment: process.env.NODE_ENV,
+    scanPersistence: runtime?.scanPersistence,
+    feedbackStore: runtime?.feedbackStore,
+    databaseIsReady: runtime?.databaseIsReady,
+    allowedOrigin: process.env.OPPORTUNITY_OS_WEB_URL,
+    liveScanAccessToken: process.env.API_LIVE_SCAN_ACCESS_TOKEN
+  });
+
+  const shutdown = async () => {
+    server.close(async () => {
+      await runtime?.close();
+      process.exitCode = 0;
+    });
+  };
+  process.once("SIGTERM", shutdown);
+  process.once("SIGINT", shutdown);
 }

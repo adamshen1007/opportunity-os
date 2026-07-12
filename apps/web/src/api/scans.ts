@@ -24,3 +24,13 @@ export function createRedditScan(
     body
   });
 }
+
+export function getScan(
+  client: DashboardApiRequester,
+  scanId: string
+): Promise<DashboardApiResult<DashboardApiScanResultDto>> {
+  return client.request<DashboardApiScanResultDto>({
+    method: generatedApiRoutes.getScan.method,
+    path: generatedApiRoutes.getScan.path.replace(":scanId", encodeURIComponent(scanId))
+  });
+}

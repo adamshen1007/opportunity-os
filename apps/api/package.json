@@ -27,6 +27,7 @@
     "pnpm": "11.7.0"
   },
   "dependencies": {
+    "@opportunity-os/database": "workspace:*",
     "@opportunity-os/connectors-reddit": "workspace:*",
     "@opportunity-os/connectors-stack-exchange": "workspace:*",
     "@opportunity-os/llm-analysis": "workspace:*",

@@ -9,6 +9,7 @@ const sourceRoot = path.resolve(packageRoot, "src");
 const allowedWorkspaceDependencies = new Set([
   "@opportunity-os/connectors-reddit",
   "@opportunity-os/connectors-stack-exchange",
+  "@opportunity-os/database",
   "@opportunity-os/llm-analysis",
   "@opportunity-os/normalization",
   "@opportunity-os/opportunity-candidates",

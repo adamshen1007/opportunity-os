@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: opportunity-os-api
+    runtime: node
+    plan: starter
+    branch: main
+    buildCommand: corepack enable && corepack prepare pnpm@11.7.0 --activate && pnpm install --frozen-lockfile && pnpm --filter @opportunity-os/database build && pnpm --filter @opportunity-os/api build
+    preDeployCommand: pnpm --filter @opportunity-os/database migrate:deploy
+    startCommand: pnpm --filter @opportunity-os/api start
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: API_PERSISTENCE_MODE
+        value: database
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: API_LIVE_SCAN_ACCESS_TOKEN
+        sync: false
+      - key: OPPORTUNITY_OS_WEB_URL
+        sync: false
+      - key: OPPORTUNITY_OS_API_URL
+        sync: false
+      - key: STACK_EXCHANGE_LIVE_SCAN_ENABLED
+        value: "true"
+      - key: STACK_EXCHANGE_DEFAULT_SITE
+        value: stackoverflow
+      - key: STACK_EXCHANGE_API_KEY
+        sync: false
+      - key: LLM_LIVE_ANALYSIS_ENABLED
+        value: "true"
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: LLM_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_API_KEY
+        sync: false

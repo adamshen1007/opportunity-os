@@ -25,3 +25,5 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-021_EXTERNAL_MVP_RUNTIME.md` defines the Phase 4 Milestone 34 hosted external MVP runtime deployment, production environment, health check, and external URL verification boundary.
 - `04-022_EXTERNAL_MVP_READINESS_GATE.md` defines the Phase 4 Milestone 34 final readiness gate, deployment checklist, Reddit setup guide, LLM setup guide, dashboard walkthrough, smoke test report, and Go / No-Go criteria.
 - `04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md` defines Phase 4 Milestones 35-39: source-neutral scans, Stack Exchange integration, dashboard source selection, attribution, and real-data validation.
+- `04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md` defines Phase 4 Milestones 40-43 production composition, API controls, host deployment, smoke testing, monitoring, backup, and rollback.
+- `04-025_DESIGN_PARTNER_PILOT.md` defines the Phase 4 Milestone 44 pilot cohort, session workflow, metrics, and Go gates.

@@ -390,6 +390,8 @@ For Phase 1 Milestone 2, the verifier also checks shared foundation package depe
 
 ## Environment Contract Verification
 
+Phase 4 Milestone 44 adds `node scripts/verify-repository.mjs --phase phase-4-milestone-44` for hosted pilot composition, deployment assets, and pilot documentation. `pnpm smoke:external` checks configured hosted API health, dashboard availability, and one safe fixture or explicitly enabled live scan.
+
 The verifier compares variable names only. It does not print or inspect secret values.
 
 It fails when:

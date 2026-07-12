@@ -44,6 +44,7 @@ describe("scan persistence", () => {
     await expect(persistence.resolveOpportunityRecordId(opportunity.opportunityId)).resolves.toBe(
       opportunity.provenance.generationOutputId
     );
+    await expect(persistence.getScanResult(response.data.scanId)).resolves.toEqual(response.data);
 
     const feedbackStore = createInMemoryFeedbackStore({
       clock: () => "2026-07-07T00:00:00.000Z",
