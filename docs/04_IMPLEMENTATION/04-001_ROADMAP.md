@@ -105,6 +105,8 @@ From Milestone 15 onward, Opportunity OS transitions from platform foundation to
 
 Milestones 35-39 remove Reddit approval from the product's critical path. Stack Exchange provides the first approved live validation datasource while Reddit remains environment-gated pending written approval. See `04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md`.
 
+Milestones 45-51 complete production connectivity, durable invite sessions, honest live-mode UX, persisted scan history, feedback continuity, API trust controls, and the closed-beta launch gate. See `04-026_EXTERNAL_USER_LAUNCH.md`.
+
 # Phase 0 — Repository Foundation
 
 ## Goal

@@ -17,7 +17,7 @@ import {
   handleGetRankingRequest,
   handleRankOpportunitiesRequest
 } from "./routes/rankings/index.js";
-import { handleCreateRedditScanRequest, handleCreateScanRequest, handleGetScanRequest } from "./routes/scans/index.js";
+import { handleCreateRedditScanRequest, handleCreateScanRequest, handleGetScanRequest, handleListScansRequest } from "./routes/scans/index.js";
 import {
   handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
@@ -31,10 +31,12 @@ import {
 } from "./routes/auth/index.js";
 import { createInMemoryScanPersistenceStore, type ApiScanPersistenceStore } from "./persistence/index.js";
 import type { ApiFeedbackStore } from "./feedback/index.js";
+import type { ApiInviteStore } from "./auth/index.js";
 import { createApiProductionRuntime } from "./runtime/index.js";
 import { createFixedWindowRateLimiter, type FixedWindowRateLimiter } from "./security/index.js";
 import type { ApiRequest, ApiResponse } from "./http/index.js";
 import { API_ERROR_CODES, createApiError } from "./errors/index.js";
+import type { ApiHealthDependencyDto } from "./routes/health/index.js";
 
 export interface LocalApiServerOptions {
   readonly serviceName?: string;
@@ -43,10 +45,15 @@ export interface LocalApiServerOptions {
   readonly clock?: () => string;
   readonly scanPersistence?: ApiScanPersistenceStore;
   readonly feedbackStore?: ApiFeedbackStore;
+  readonly inviteStore?: ApiInviteStore;
   readonly databaseIsReady?: () => Promise<boolean>;
   readonly allowedOrigin?: string;
+  readonly allowedOrigins?: readonly string[];
+  readonly healthDependencies?: () => Promise<readonly ApiHealthDependencyDto[]>;
   readonly liveScanAccessToken?: string;
   readonly scanRateLimiter?: FixedWindowRateLimiter;
+  readonly requireAuthentication?: boolean;
+  readonly adminAccessToken?: string;
 }
 
 export interface LocalApiDispatchInput {
@@ -76,7 +83,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
   const clock = options.clock ?? (() => new Date().toISOString());
   const feedbackStore = options.feedbackStore ?? createSyntheticApiFeedbackStore();
   const bugReportStore = createSyntheticApiBugReportStore();
-  const inviteStore = createSyntheticApiInviteStore();
+  const inviteStore = options.inviteStore ?? createSyntheticApiInviteStore();
   const scanPersistence = options.scanPersistence ?? createInMemoryScanPersistenceStore();
   const scanRateLimiter = options.scanRateLimiter ?? createFixedWindowRateLimiter({ limit: 10, windowMs: 60_000 });
 
@@ -90,14 +97,18 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       path: "/health",
       handler: async (request) => {
         const databaseReady = options.databaseIsReady ? await options.databaseIsReady() : undefined;
+        const configuredDependencies = options.healthDependencies ? await options.healthDependencies() : [];
         return handleApiHealthRequest(request, {
           serviceName,
           version,
           environment,
           clock,
-          dependencies: databaseReady === undefined
-            ? []
-            : [{ name: "database", status: databaseReady ? "ok" : "degraded", checkedAt: clock(), safeMessage: databaseReady ? "Database is ready." : "Database is unavailable." }]
+          dependencies: [
+            ...(databaseReady === undefined
+              ? []
+              : [{ name: "database", status: databaseReady ? "ok" as const : "degraded" as const, checkedAt: clock(), safeMessage: databaseReady ? "Database is ready." : "Database is unavailable." }]),
+            ...configuredDependencies
+          ]
         });
       }
     },
@@ -110,6 +121,11 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       method: "GET",
       path: "/opportunities/:opportunityId",
       handler: (request) => handleGetOpportunityRequest(asHandlerRequest(request), syntheticApiOpportunityPort)
+    },
+    {
+      method: "GET",
+      path: "/scans",
+      handler: (request) => handleListScansRequest(asHandlerRequest(request), scanPersistence)
     },
     {
       method: "POST",
@@ -190,6 +206,18 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       return createFailureResponseFromInput(input, requestUrl.pathname, "Route was not found.", 404);
     }
 
+    if (options.requireAuthentication && input.method === "POST" && requestUrl.pathname === "/auth/invites") {
+      if (!options.adminAccessToken || !safeTokenEquals(input.headers?.["x-opportunity-os-admin-token"], options.adminAccessToken)) {
+        return createFailureResponseFromInput(input, requestUrl.pathname, "Administrative access is not authorized.", 401);
+      }
+    } else if (options.requireAuthentication && requiresSession(input.method, requestUrl.pathname)) {
+      const sessionId = input.headers?.["x-opportunity-os-session-id"];
+      const session = sessionId ? await inviteStore.getSession(sessionId) : undefined;
+      if (!session) {
+        return createFailureResponseFromInput(input, requestUrl.pathname, "An active beta session is required.", 401);
+      }
+    }
+
     if (input.method === "POST" && requestUrl.pathname.startsWith("/scans")) {
       const rate = scanRateLimiter.consume(input.headers?.["x-forwarded-for"] ?? input.headers?.["x-request-id"] ?? "anonymous");
       if (!rate.allowed) {
@@ -231,10 +259,15 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
 
   return createServer(async (incoming, outgoing) => {
     const startedAt = Date.now();
-    applyCorsHeaders(outgoing, incoming.headers.origin, options.allowedOrigin);
+    applySecurityHeaders(outgoing);
+    const originAllowed = applyCorsHeaders(
+      outgoing,
+      incoming.headers.origin,
+      options.allowedOrigins ?? parseAllowedOrigins(options.allowedOrigin)
+    );
 
     if (incoming.method === "OPTIONS") {
-      outgoing.writeHead(204);
+      outgoing.writeHead(originAllowed ? 204 : 403);
       outgoing.end();
       return;
     }
@@ -273,9 +306,17 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
         "x-correlation-id": getHeaderValue(incoming, "x-correlation-id"),
         "x-request-id": getHeaderValue(incoming, "x-request-id"),
         "x-forwarded-for": getHeaderValue(incoming, "x-forwarded-for"),
-        "x-opportunity-os-access-token": getHeaderValue(incoming, "x-opportunity-os-access-token")
+        "x-opportunity-os-access-token": getHeaderValue(incoming, "x-opportunity-os-access-token"),
+        "x-opportunity-os-admin-token": getHeaderValue(incoming, "x-opportunity-os-admin-token"),
+        "x-opportunity-os-session-id": getHeaderValue(incoming, "x-opportunity-os-session-id") ?? readCookie(incoming, "opportunity_os_session")
       }
     });
+    if (requestUrl.pathname === "/auth/invites/accept" && response.ok) {
+      const sessionId = (response.data as { session?: { sessionId?: unknown } }).session?.sessionId;
+      if (typeof sessionId === "string") {
+        outgoing.setHeader("set-cookie", createSessionCookie(sessionId, options.environment === "production"));
+      }
+    }
     writeOperationalLog({
       method: incoming.method ?? "GET",
       path: requestUrl.pathname,
@@ -409,12 +450,49 @@ function writeJson(response: ServerResponse, statusCode: number, body: unknown):
   response.end(JSON.stringify(body));
 }
 
-function applyCorsHeaders(response: ServerResponse, requestOrigin: string | undefined, allowedOrigin?: string): void {
-  if (!allowedOrigin || requestOrigin === allowedOrigin) {
-    response.setHeader("access-control-allow-origin", allowedOrigin ?? "*");
+export function applySecurityHeaders(response: ServerResponse): void {
+  response.setHeader("x-content-type-options", "nosniff");
+  response.setHeader("x-frame-options", "DENY");
+  response.setHeader("referrer-policy", "no-referrer");
+  response.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  response.setHeader("content-security-policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
+  response.setHeader("cache-control", "no-store");
+}
+
+export function applyCorsHeaders(response: ServerResponse, requestOrigin: string | undefined, allowedOrigins: readonly string[]): boolean {
+  response.setHeader("vary", "Origin");
+  const originAllowed = allowedOrigins.length === 0 || requestOrigin === undefined || allowedOrigins.includes(requestOrigin);
+  if (originAllowed) {
+    response.setHeader("access-control-allow-origin", requestOrigin ?? allowedOrigins[0] ?? "*");
   }
+  response.setHeader("access-control-allow-credentials", "true");
   response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
-  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token");
+  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token,x-opportunity-os-session-id,x-opportunity-os-admin-token");
+  return originAllowed;
+}
+
+function parseAllowedOrigins(value: string | undefined): readonly string[] {
+  return value?.split(",").map((origin) => origin.trim().replace(/\/$/u, "")).filter(Boolean) ?? [];
+}
+
+function requiresSession(method: string, pathname: string): boolean {
+  if (pathname === "/health" || pathname === "/auth/invites/accept") return false;
+  if (method === "POST" && pathname === "/auth/invites") return false;
+  return true;
+}
+
+function readCookie(request: IncomingMessage, name: string): string | undefined {
+  const cookieHeader = request.headers.cookie;
+  if (!cookieHeader) return undefined;
+  for (const part of cookieHeader.split(";")) {
+    const [key, ...value] = part.trim().split("=");
+    if (key === name) return decodeURIComponent(value.join("="));
+  }
+  return undefined;
+}
+
+function createSessionCookie(sessionId: string, secure: boolean): string {
+  return [`opportunity_os_session=${encodeURIComponent(sessionId)}`, "HttpOnly", "Path=/", "SameSite=None", "Max-Age=28800", ...(secure ? ["Secure"] : [])].join("; ");
 }
 
 function safeTokenEquals(provided: string | undefined, expected: string): boolean {
@@ -464,9 +542,13 @@ async function startConfiguredApiServer(): Promise<void> {
     environment: process.env.NODE_ENV,
     scanPersistence: runtime?.scanPersistence,
     feedbackStore: runtime?.feedbackStore,
+    inviteStore: runtime?.inviteStore,
     databaseIsReady: runtime?.databaseIsReady,
-    allowedOrigin: process.env.OPPORTUNITY_OS_WEB_URL,
-    liveScanAccessToken: process.env.API_LIVE_SCAN_ACCESS_TOKEN
+    allowedOrigins: parseAllowedOrigins(process.env.OPPORTUNITY_OS_WEB_ORIGINS ?? process.env.OPPORTUNITY_OS_WEB_URL),
+    healthDependencies: async () => createConfiguredHealthDependencies(process.env),
+    liveScanAccessToken: process.env.API_LIVE_SCAN_ACCESS_TOKEN,
+    requireAuthentication: process.env.API_AUTH_REQUIRED === "true",
+    adminAccessToken: process.env.API_ADMIN_ACCESS_TOKEN
   });
 
   const shutdown = async () => {
@@ -477,4 +559,28 @@ async function startConfiguredApiServer(): Promise<void> {
   };
   process.once("SIGTERM", shutdown);
   process.once("SIGINT", shutdown);
+}
+
+function createConfiguredHealthDependencies(env: NodeJS.ProcessEnv): readonly ApiHealthDependencyDto[] {
+  const checkedAt = new Date().toISOString();
+  return [
+    {
+      name: "redis",
+      status: env.REDIS_URL?.trim() ? "ok" : "degraded",
+      checkedAt,
+      safeMessage: env.REDIS_URL?.trim() ? "Redis configuration is present." : "Redis configuration is unavailable."
+    },
+    {
+      name: "stack-exchange",
+      status: env.STACK_EXCHANGE_LIVE_SCAN_ENABLED === "true" ? "ok" : "degraded",
+      checkedAt,
+      safeMessage: env.STACK_EXCHANGE_LIVE_SCAN_ENABLED === "true" ? "Stack Exchange live scans are enabled." : "Stack Exchange live scans are disabled."
+    },
+    {
+      name: "llm",
+      status: env.LLM_LIVE_ANALYSIS_ENABLED === "true" ? "ok" : "degraded",
+      checkedAt,
+      safeMessage: env.LLM_LIVE_ANALYSIS_ENABLED === "true" ? "Live LLM analysis is enabled." : "Live LLM analysis is disabled."
+    }
+  ];
 }

@@ -44,6 +44,7 @@ export function createDashboardApiClient(options: DashboardApiClientOptions) {
   ): Promise<DashboardApiResult<TData>> {
     const response = await options.fetch(createDashboardApiUrl(options.baseUrl, requestOptions.path, requestOptions.query), {
       method: requestOptions.method,
+      credentials: "include",
       headers: {
         "content-type": "application/json",
         "x-correlation-id": options.correlationId,

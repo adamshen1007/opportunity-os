@@ -1050,3 +1050,7 @@ The source-neutral scan boundary precedes the Stack Exchange connector. The conn
 ## Phase 4 Milestones 40-44 - Hosted Pilot
 
 Production database composition precedes API access controls. Security controls precede host deployment. Deployment precedes observability verification. A monitored, persistent, rollback-ready release precedes design-partner invitations. No live deployment is authorized merely by merging these assets; an operator must complete the release checklist and explicitly trigger hosting.
+
+## Phase 4 Milestones 45-51 - External User Launch
+
+Production connectivity precedes durable invite sessions. Durable access precedes external-user routes. Honest live/fixture UX precedes persisted scan history. Persistence continuity precedes security and operational hardening. The closed-beta launch gate is last and must pass before external invitations are issued. See `docs/04_IMPLEMENTATION/04-026_EXTERNAL_USER_LAUNCH.md`.

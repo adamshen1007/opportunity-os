@@ -53,6 +53,18 @@ test("dashboard scan workbench shows safe fallback results", async ({ page }) =>
   await expect(page.getByLabel("Scan results").getByText("analysis-fixture-001")).toBeVisible();
 });
 
+test("live scan failures never masquerade as fixture results", async ({ page }) => {
+  await page.route("**/scans", async (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ ok: false, error: { code: "api.unavailable", statusCode: 503, message: "Service unavailable", correlationId: "live-failure" }, meta: { correlationId: "live-failure" } }) }));
+  await page.goto("/");
+  await page.locator('select[name="mode"]').selectOption("live");
+  await page.getByRole("button", { name: "Run scan" }).click();
+  await expect(page.getByText("No demo results were substituted.").first()).toBeVisible();
+  await expect(page.getByLabel("Scan results")).toHaveCount(0);
+  await page.getByRole("button", { name: "Try demo data" }).click();
+  await expect(page.getByText("Showing explicit demo data.")).toBeVisible();
+  await expect(page.getByLabel("Scan results")).toBeVisible();
+});
+
 test("opportunity list supports search filters pagination and detail navigation", async ({ page }) => {
   await page.goto("/opportunities");
 

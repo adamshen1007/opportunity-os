@@ -140,7 +140,12 @@ const phaseHostedPilotAliases = new Set([
   "phase-4-milestone-44",
   "hosted-pilot"
 ]);
-const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp", ...phaseMultiSourceAliases, ...phaseHostedPilotAliases]);
+const phaseExternalUserAliases = new Set([
+  "phase-4-milestone-45", "phase-4-milestone-46", "phase-4-milestone-47",
+  "phase-4-milestone-48", "phase-4-milestone-49", "phase-4-milestone-50",
+  "phase-4-milestone-51", "external-user-runtime", "closed-beta-launch"
+]);
+const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp", ...phaseMultiSourceAliases, ...phaseHostedPilotAliases, ...phaseExternalUserAliases]);
 const isHostedPilotPhase = phaseHostedPilotAliases.has(phase) || phase === "review";
 const isMultiSourcePhase = phaseMultiSourceAliases.has(phase) || isHostedPilotPhase;
 const isPhaseThirtyFour = phaseThirtyFourAliases.has(phase) || phase === "review";
@@ -1984,9 +1989,12 @@ const engineeringKitOptionalEnvironmentVariables = [
   "LANGSMITH_API_KEY",
   "OPPORTUNITY_OS_API_URL",
   "OPPORTUNITY_OS_WEB_URL",
+  "OPPORTUNITY_OS_WEB_ORIGINS",
   "NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL",
   "API_PERSISTENCE_MODE",
   "API_LIVE_SCAN_ACCESS_TOKEN",
+  "API_AUTH_REQUIRED",
+  "API_ADMIN_ACCESS_TOKEN",
   "LLM_PROVIDER",
   "LLM_MODEL",
   "LLM_LIVE_ANALYSIS_ENABLED",
@@ -2063,6 +2071,7 @@ function listMarkdownFiles(dir) {
   if (!fs.existsSync(absoluteDir)) return [];
   const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
   return entries.flatMap((entry) => {
+    if (entry.name === ".DS_Store") return [];
     if (entry.isSymbolicLink()) {
       return [];
     }
@@ -2082,6 +2091,7 @@ function listFiles(dir) {
   if (!fs.existsSync(absoluteDir)) return [];
   const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
   return entries.flatMap((entry) => {
+    if (entry.name === ".DS_Store") return [];
     if (entry.isSymbolicLink()) {
       return [];
     }

@@ -9,6 +9,7 @@ export interface ApiScanPersistenceStore {
   readonly persistScanResult: (input: ApiScanPersistenceInput) => Promise<void>;
   readonly resolveOpportunityRecordId: (opportunityId: string) => Promise<string | undefined>;
   readonly getScanResult: (scanId: string) => Promise<ApiScanResultDto | undefined>;
+  readonly listScanResults: (limit?: number) => Promise<readonly ApiScanResultDto[]>;
 }
 
 export interface ApiScanPersistenceRecord {
@@ -34,6 +35,9 @@ export function createNoopScanPersistenceStore(): ApiScanPersistenceStore {
     },
     async getScanResult() {
       return undefined;
+    },
+    async listScanResults() {
+      return [];
     }
   };
 }
@@ -66,6 +70,9 @@ export function createInMemoryScanPersistenceStore(input: InMemoryScanPersistenc
     async getScanResult(scanId) {
       const result = results.get(scanId);
       return result ? structuredClone(result) : undefined;
+    },
+    async listScanResults(limit = 10) {
+      return [...results.values()].slice(-Math.max(1, Math.min(limit, 25))).reverse().map((result) => structuredClone(result));
     }
   };
 }
@@ -98,6 +105,7 @@ function cloneRecord(record: ApiScanPersistenceRecord): ApiScanPersistenceRecord
 export interface ApiScanPersistenceDatabaseDelegate<TArgs = unknown> {
   readonly upsert: (args: TArgs) => Promise<unknown>;
   readonly findUnique?: (args: unknown) => Promise<unknown>;
+  readonly findMany?: (args: unknown) => Promise<readonly unknown[]>;
 }
 
 export interface ApiScanPersistenceDatabaseClient {
@@ -128,6 +136,19 @@ export function createDatabaseScanPersistenceStore(database: ApiScanPersistenceD
       if (!record || typeof record !== "object" || !("result" in record) || !record.result) return undefined;
       assertSafePersistencePayload(record.result);
       return record.result as ApiScanResultDto;
+    },
+    async listScanResults(limit = 10) {
+      const records = await database.scanRunRecord.findMany?.({
+        where: { result: { not: null } },
+        orderBy: { completedAt: "desc" },
+        take: Math.max(1, Math.min(limit, 25)),
+        select: { result: true }
+      }) ?? [];
+      return records.flatMap((record) => {
+        if (!record || typeof record !== "object" || !("result" in record) || !record.result) return [];
+        assertSafePersistencePayload(record.result);
+        return [record.result as ApiScanResultDto];
+      });
     }
   };
 }

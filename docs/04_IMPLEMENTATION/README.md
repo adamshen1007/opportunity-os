@@ -1,5 +1,7 @@
 # Implementation
 
+Current external-user launch gate: [`04-026_EXTERNAL_USER_LAUNCH.md`](04-026_EXTERNAL_USER_LAUNCH.md).
+
 Roadmap, implementation task guidance, design-partner validation walkthroughs, and Private Beta deployment/operations guidance.
 
 - `04-001_ROADMAP.md` defines milestone order, deliverables, non-goals, and readiness gates.
@@ -27,3 +29,4 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md` defines Phase 4 Milestones 35-39: source-neutral scans, Stack Exchange integration, dashboard source selection, attribution, and real-data validation.
 - `04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md` defines Phase 4 Milestones 40-43 production composition, API controls, host deployment, smoke testing, monitoring, backup, and rollback.
 - `04-025_DESIGN_PARTNER_PILOT.md` defines the Phase 4 Milestone 44 pilot cohort, session workflow, metrics, and Go gates.
+- `04-026_EXTERNAL_USER_LAUNCH.md` defines M45-M51 production connectivity, durable access, honest scan UX, persistence continuity, security hardening, and closed-beta launch gate.

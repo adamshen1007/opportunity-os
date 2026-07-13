@@ -20,6 +20,9 @@
 - [ ] `pnpm lint`
 - [ ] `pnpm build`
 - [ ] `pnpm test`
+- [ ] External runtime changes preserve honest live/fixture attribution.
+- [ ] Authentication, CORS, persistence, and logs were reviewed for secret safety.
+- [ ] `node scripts/verify-repository.mjs --phase phase-4-milestone-51` was run when M45-M51 behavior changed.
 
 ## Security And Hygiene
 

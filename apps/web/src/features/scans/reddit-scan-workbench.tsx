@@ -5,6 +5,7 @@ import {
   createDashboardApiClient,
   createScan,
   getScan,
+  listScans,
   type DashboardApiScanMode,
   type DashboardApiScanResultDto,
   type DashboardApiScanSource
@@ -173,25 +174,30 @@ export function RedditScanWorkbench() {
     status: "ready",
     message: "Use fixture mode for a local walkthrough, or live mode when credentials are configured."
   });
+  const [recentScans, setRecentScans] = useState<readonly DashboardApiScanResultDto[]>([]);
   const apiBaseUrl = useMemo(() => getDashboardApiBaseUrl(), []);
   const isRunning = scanState.status === "running";
 
   useEffect(() => {
     const scanId = window.localStorage.getItem("opportunity-os:last-scan-id");
-    if (!scanId) return;
     const client = createDashboardApiClient({
       baseUrl: apiBaseUrl,
       correlationId: createCorrelationId(),
       fetch: window.fetch.bind(window)
     });
-    void getScan(client, scanId).then((result) => {
-      if (!result.ok) return;
-      setScanState({
-        status: "completed",
-        result: result.data,
-        message: "Restored the last persisted scan. Review its evidence and feedback below."
-      });
-    });
+    if (scanId) {
+      void getScan(client, scanId).then((result) => {
+        if (!result.ok) return;
+        setScanState({
+          status: "completed",
+          result: result.data,
+          message: "Restored the last persisted scan. Review its evidence and feedback below."
+        });
+      }).catch(() => undefined);
+    }
+    void listScans(client, 5).then((result) => {
+      if (result.ok) setRecentScans(result.data.scans);
+    }).catch(() => undefined);
   }, [apiBaseUrl]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -225,6 +231,7 @@ export function RedditScanWorkbench() {
       const result = await createScan(client, request);
       if (result.ok) {
         window.localStorage.setItem("opportunity-os:last-scan-id", result.data.scanId);
+        setRecentScans((current) => [result.data, ...current.filter((scan) => scan.scanId !== result.data.scanId)].slice(0, 5));
         setScanState({
           status: "completed",
           result: result.data,
@@ -234,15 +241,19 @@ export function RedditScanWorkbench() {
       }
 
       setScanState({
-        status: "fallback",
-        result: getDashboardScanFixture(source),
-        message: `${toSafeScanMessage(result.error.message)} Showing deterministic fixture results instead.`
+        status: mode === "live" ? "error" : "fallback",
+        ...(mode === "live" ? {} : { result: getDashboardScanFixture(source) }),
+        message: mode === "live"
+          ? `${toSafeScanMessage(result.error.message)} No demo results were substituted.`
+          : `${toSafeScanMessage(result.error.message)} Showing deterministic fixture results instead.`
       });
     } catch {
       setScanState({
-        status: "fallback",
-        result: getDashboardScanFixture(source),
-        message: "The API is not reachable from this browser session. Showing deterministic fixture results instead."
+        status: mode === "live" ? "error" : "fallback",
+        ...(mode === "live" ? {} : { result: getDashboardScanFixture(source) }),
+        message: mode === "live"
+          ? "The live API is not reachable. No demo results were substituted."
+          : "The API is not reachable from this browser session. Showing deterministic fixture results instead."
       });
     }
   }
@@ -300,13 +311,36 @@ export function RedditScanWorkbench() {
             {scanState.status}
           </Badge>
           <p>{scanState.message}</p>
-          <p>API target: {apiBaseUrl}</p>
           <p>{source === "reddit" ? "Live Reddit scans remain gated until Reddit approves API access." : "Stack Exchange live scans use the official read-only API."}</p>
         </div>
 
         {isRunning ? <LoadingState title="Scan running" message="The pipeline is collecting, analyzing, and ranking safe output." /> : null}
-        {scanState.status === "error" ? <ErrorState title="Scan unavailable" message={safeDashboardErrorMessage} /> : null}
+        {scanState.status === "error" ? (
+          <div className="scan-error-actions">
+            <ErrorState title="Live scan unavailable" message={scanState.message ?? safeDashboardErrorMessage} />
+            <Button onClick={() => setScanState({ status: "fallback", result: getDashboardScanFixture(source), message: "Showing explicit demo data. These are not live results." })}>Try demo data</Button>
+          </div>
+        ) : null}
         {scanState.result ? <ScanResultView result={scanState.result} /> : null}
+        {recentScans.length > 0 ? (
+          <section className="scan-history" aria-label="Recent scan history">
+            <div>
+              <h3>Recent scans</h3>
+              <p>Reopen completed scans without rerunning external providers.</p>
+            </div>
+            <ul>
+              {recentScans.map((scan) => (
+                <li key={scan.scanId}>
+                  <button type="button" onClick={() => setScanState({ status: "completed", result: scan, message: "Restored a persisted scan from your recent history." })}>
+                    <strong>{scan.source.attribution}</strong>
+                    <span>{scan.opportunities.length} opportunities</span>
+                    <span>{scan.mode}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </Panel>
   );

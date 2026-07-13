@@ -3,6 +3,10 @@ import type { DashboardApiResult } from "./client";
 import type { DashboardApiRequester } from "./opportunities";
 import type { DashboardApiRedditScanRequestBody, DashboardApiScanRequestBody, DashboardApiScanResultDto } from "./types";
 
+export interface DashboardApiScanHistoryDto {
+  readonly scans: readonly DashboardApiScanResultDto[];
+}
+
 export function createScan(
   client: DashboardApiRequester,
   body: DashboardApiScanRequestBody
@@ -32,5 +36,16 @@ export function getScan(
   return client.request<DashboardApiScanResultDto>({
     method: generatedApiRoutes.getScan.method,
     path: generatedApiRoutes.getScan.path.replace(":scanId", encodeURIComponent(scanId))
+  });
+}
+
+export function listScans(
+  client: DashboardApiRequester,
+  limit = 5
+): Promise<DashboardApiResult<DashboardApiScanHistoryDto>> {
+  return client.request<DashboardApiScanHistoryDto>({
+    method: "GET",
+    path: "/scans",
+    query: { limit }
   });
 }

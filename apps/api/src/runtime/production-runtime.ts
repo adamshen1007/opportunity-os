@@ -1,5 +1,6 @@
 import { createPrismaDatabaseRuntime, type PrismaDatabaseRuntime } from "@opportunity-os/database";
 import type { ApiFeedbackStore } from "../feedback/index.js";
+import { createDatabaseInviteStore, type ApiInviteStore } from "../auth/index.js";
 import {
   createDatabaseFeedbackStore,
   createDatabaseScanPersistenceStore,
@@ -12,6 +13,7 @@ export interface ApiProductionRuntime {
   readonly database: PrismaDatabaseRuntime;
   readonly scanPersistence: ApiScanPersistenceStore;
   readonly feedbackStore: ApiFeedbackStore;
+  readonly inviteStore: ApiInviteStore;
   readonly close: () => Promise<void>;
   readonly databaseIsReady: () => Promise<boolean>;
 }
@@ -26,11 +28,17 @@ export async function createApiProductionRuntime(
 
   const database = createPrismaDatabaseRuntime(databaseUrl);
   await database.connect();
+  const inviteCodePepper = env.JWT_SECRET?.trim();
+  if (!inviteCodePepper) {
+    await database.disconnect();
+    throw new Error("JWT_SECRET is required for durable invite authentication.");
+  }
 
   return {
     database,
     scanPersistence: createDatabaseScanPersistenceStore(toScanPersistenceClient(database.client)),
     feedbackStore: createDatabaseFeedbackStore(toFeedbackPersistenceClient(database.client)),
+    inviteStore: createDatabaseInviteStore({ client: database.client, inviteCodePepper }),
     close: () => database.disconnect(),
     databaseIsReady: () => database.probe()
   };
@@ -42,11 +50,14 @@ function toScanPersistenceClient(client: RuntimeClient): ApiScanPersistenceDatab
   const delegate = (model: {
     upsert: (args: never) => Promise<unknown>;
     findUnique?: (args: never) => Promise<unknown>;
+    findMany?: (args: never) => Promise<readonly unknown[]>;
   }) => {
     const findUnique = model.findUnique;
+    const findMany = model.findMany;
     return {
       upsert: (args: unknown) => model.upsert(args as never),
-      ...(findUnique ? { findUnique: (args: unknown) => findUnique(args as never) } : {})
+      ...(findUnique ? { findUnique: (args: unknown) => findUnique(args as never) } : {}),
+      ...(findMany ? { findMany: (args: unknown) => findMany(args as never) } : {})
     };
   };
   return {
