@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   createDashboardApiClient,
   createScan,
@@ -14,6 +14,7 @@ import { ErrorState, LoadingState } from "../../components/states";
 import { safeDashboardErrorMessage } from "../../components/states/state-copy";
 import { Badge, Button, Input, Panel, Select } from "../../components/ui";
 import { getDashboardScanFixture } from "../../testing";
+import { getScanOpportunityAnchorId } from "./scan-opportunity-adapter";
 
 type ScanStatus = "ready" | "running" | "completed" | "fallback" | "error";
 
@@ -65,7 +66,25 @@ function toSafeScanMessage(message: string | undefined): string {
   return message;
 }
 
+export interface RedditScanWorkbenchProps {
+  readonly onResultChange?: (result: DashboardApiScanResultDto) => void;
+}
+
 function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto }) {
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const openSelectedOpportunity = () => {
+      const selectedId = window.location.hash.slice(1);
+      if (result.opportunities.some((opportunity) => getScanOpportunityAnchorId(opportunity.opportunityId) === selectedId)) {
+        if (detailsRef.current) detailsRef.current.open = true;
+      }
+    };
+    openSelectedOpportunity();
+    window.addEventListener("hashchange", openSelectedOpportunity);
+    return () => window.removeEventListener("hashchange", openSelectedOpportunity);
+  }, [result]);
+
   return (
     <div className="scan-output" aria-label="Scan results">
       <div className="scan-status-grid">
@@ -99,7 +118,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
         <div><span>Average confidence</span><strong>{formatPercent(result.validationMetrics.averageConfidence)}</strong></div>
       </div>
 
-      <details className="scan-details">
+      <details className="scan-details" ref={detailsRef}>
         <summary>View pipeline details and generated results</summary>
         <ol className="scan-stage-list" aria-label="Scan stages">
           {result.stages.map((stage) => (
@@ -115,7 +134,11 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
 
         <div className="scan-results-grid">
         {result.opportunities.map((opportunity) => (
-          <article className="scan-result-card" key={opportunity.opportunityId}>
+          <article
+            className="scan-result-card"
+            id={getScanOpportunityAnchorId(opportunity.opportunityId)}
+            key={opportunity.opportunityId}
+          >
             <div className="scan-result-heading">
               <Badge tone="success">{`Rank #${opportunity.rank.position}`}</Badge>
               <span>Score {opportunity.rank.score}</span>
@@ -168,7 +191,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
   );
 }
 
-export function RedditScanWorkbench() {
+export function RedditScanWorkbench({ onResultChange }: RedditScanWorkbenchProps = {}) {
   const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
   const [scanState, setScanState] = useState<ScanState>({
     status: "ready",
@@ -193,12 +216,13 @@ export function RedditScanWorkbench() {
           result: result.data,
           message: "Restored the last persisted scan. Review its evidence and feedback below."
         });
+        onResultChange?.(result.data);
       }).catch(() => undefined);
     }
     void listScans(client, 5).then((result) => {
       if (result.ok) setRecentScans(result.data.scans);
     }).catch(() => undefined);
-  }, [apiBaseUrl]);
+  }, [apiBaseUrl, onResultChange]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -237,24 +261,29 @@ export function RedditScanWorkbench() {
           result: result.data,
           message: "Scan completed. Review ranked opportunities, evidence, and provenance below."
         });
+        onResultChange?.(result.data);
         return;
       }
 
+      const fallbackResult = getDashboardScanFixture(source);
       setScanState({
         status: mode === "live" ? "error" : "fallback",
-        ...(mode === "live" ? {} : { result: getDashboardScanFixture(source) }),
+        ...(mode === "live" ? {} : { result: fallbackResult }),
         message: mode === "live"
           ? `${toSafeScanMessage(result.error.message)} No demo results were substituted.`
           : `${toSafeScanMessage(result.error.message)} Showing deterministic fixture results instead.`
       });
+      if (mode !== "live") onResultChange?.(fallbackResult);
     } catch {
+      const fallbackResult = getDashboardScanFixture(source);
       setScanState({
         status: mode === "live" ? "error" : "fallback",
-        ...(mode === "live" ? {} : { result: getDashboardScanFixture(source) }),
+        ...(mode === "live" ? {} : { result: fallbackResult }),
         message: mode === "live"
           ? "The live API is not reachable. No demo results were substituted."
           : "The API is not reachable from this browser session. Showing deterministic fixture results instead."
       });
+      if (mode !== "live") onResultChange?.(fallbackResult);
     }
   }
 
@@ -318,7 +347,11 @@ export function RedditScanWorkbench() {
         {scanState.status === "error" ? (
           <div className="scan-error-actions">
             <ErrorState title="Live scan unavailable" message={scanState.message ?? safeDashboardErrorMessage} />
-            <Button onClick={() => setScanState({ status: "fallback", result: getDashboardScanFixture(source), message: "Showing explicit demo data. These are not live results." })}>Try demo data</Button>
+            <Button onClick={() => {
+              const fallbackResult = getDashboardScanFixture(source);
+              setScanState({ status: "fallback", result: fallbackResult, message: "Showing explicit demo data. These are not live results." });
+              onResultChange?.(fallbackResult);
+            }}>Try demo data</Button>
           </div>
         ) : null}
         {scanState.result ? <ScanResultView result={scanState.result} /> : null}
@@ -331,7 +364,10 @@ export function RedditScanWorkbench() {
             <ul>
               {recentScans.map((scan) => (
                 <li key={scan.scanId}>
-                  <button type="button" onClick={() => setScanState({ status: "completed", result: scan, message: "Restored a persisted scan from your recent history." })}>
+                  <button type="button" onClick={() => {
+                    setScanState({ status: "completed", result: scan, message: "Restored a persisted scan from your recent history." });
+                    onResultChange?.(scan);
+                  }}>
                     <strong>{scan.source.attribution}</strong>
                     <span>{scan.opportunities.length} opportunities</span>
                     <span>{scan.mode}</span>

@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { dashboardFeedbackRatingLabels, dashboardFeedbackReasonLabels } from "../features/feedback/feedback-labels";
+import { mapScanResultToDashboardOpportunities } from "../features/scans/scan-opportunity-adapter";
 import { renderDashboardElement } from "../testing/component-render";
 import {
   dashboardBetaInviteWorkflowFixture,
@@ -70,5 +71,21 @@ describe("Dashboard component test infrastructure", () => {
     expect(dashboardStackExchangeScanFixture.opportunities[0]?.provenance).not.toHaveProperty("redditPostId");
     expect(getDashboardScanFixture("reddit").source.attribution).toBe("Reddit");
     expect(getDashboardScanFixture("stack-exchange").source.attribution).toBe("Stack Exchange");
+  });
+
+  it("maps the active scan into the visible opportunity list", () => {
+    const opportunities = mapScanResultToDashboardOpportunities(dashboardStackExchangeScanFixture);
+
+    expect(opportunities).toHaveLength(dashboardStackExchangeScanFixture.opportunities.length);
+    expect(opportunities[0]).toMatchObject({
+      opportunityId: "stack-exchange-opportunity-1",
+      detailHref: "#scan-opportunity-stack-exchange-opportunity-1",
+      title: dashboardStackExchangeScanFixture.opportunities[0]?.title,
+      provenance: { sourceName: "Stack Exchange fixture scan" }
+    });
+    expect(opportunities[0]?.explanation.summary).toBe(
+      dashboardStackExchangeScanFixture.opportunities[0]?.rank.explanation
+    );
+    expect(opportunities[0]?.evidenceIds).toEqual(["stack-exchange-evidence-1"]);
   });
 });

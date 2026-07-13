@@ -23,7 +23,7 @@ export function OpportunityList({ opportunities }: OpportunityListProps) {
           header: "Opportunity",
           render: (row) => (
             <div className="table-title">
-              <a href={`/opportunities/${row.opportunityId}`}>{row.title}</a>
+              <a href={row.detailHref ?? `/opportunities/${row.opportunityId}`}>{row.title}</a>
               <span>{row.summary}</span>
             </div>
           )
