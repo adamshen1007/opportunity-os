@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, Panel } from "../../components/ui";
 import type { DashboardOpportunityFixture, DashboardRankingFixture } from "../../testing";
 import { formatConfidence } from "../opportunities/opportunity-utils";
@@ -32,7 +33,7 @@ export function RankingView({ ranking, opportunities }: RankingViewProps) {
           <li key={opportunity.opportunityId}>
             <div>
               <Badge tone="success">{`#${opportunity.rank.position}`}</Badge>
-              <a href={`/opportunities/${opportunity.opportunityId}`}>{opportunity.title}</a>
+              <Link href={`/opportunities/${opportunity.opportunityId}`}>{opportunity.title}</Link>
             </div>
             <span>
               Score {opportunity.rank.score} · Confidence {formatConfidence(opportunity.confidence)}

@@ -20,6 +20,32 @@ async function prepareActiveScan(page: import("@playwright/test").Page) {
       body: JSON.stringify({ ok: true, data: { scans: [scan] }, meta: { correlationId: "e2e-scan-history" } })
     });
   });
+  await page.route("**/feedback", async (route) => {
+    const body = route.request().postDataJSON() as {
+      opportunityId: string;
+      status: "saved" | "dismissed" | "rated" | "reason-provided";
+      reasonCategories?: readonly string[];
+      ratings?: readonly unknown[];
+      safeMetadata?: Readonly<Record<string, string | number | boolean>>;
+    };
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        data: {
+          feedbackId: `feedback-${body.status}`,
+          opportunityId: body.opportunityId,
+          status: body.status,
+          reasonCategories: body.reasonCategories ?? [],
+          ratings: body.ratings ?? [],
+          createdAt: "2026-07-13T00:00:00.000Z",
+          safeMetadata: body.safeMetadata
+        },
+        meta: { correlationId: "e2e-feedback" }
+      })
+    });
+  });
 }
 
 test("dashboard loads with navigation and state coverage", async ({ page }) => {
@@ -217,15 +243,38 @@ test("opportunity list supports search filters pagination and detail navigation"
   await expect(page.getByText("Source").first()).toBeVisible();
 });
 
+test("repeated panel navigation keeps the active scan visible", async ({ page }) => {
+  await prepareActiveScan(page);
+  await page.goto("/");
+
+  for (let pass = 0; pass < 2; pass += 1) {
+    const navigation = page.getByRole("navigation", { name: "Dashboard navigation" });
+    await navigation.getByRole("link", { name: "Opportunities" }).click();
+    await expect(page.getByText("Opportunity List · Stack Exchange")).toBeVisible();
+
+    await navigation.getByRole("link", { name: "Detail" }).click();
+    await expect(page.getByRole("heading", { name: "Prioritize repeated manual review workflows" })).toBeVisible();
+
+    await navigation.getByRole("link", { name: "Rankings" }).click();
+    await expect(page.getByText("ranking-fixture-001")).toBeVisible();
+
+    await navigation.getByRole("link", { name: "Evidence" }).click();
+    await expect(page.getByText("Stack Exchange · stackoverflow").first()).toBeVisible();
+
+    await navigation.getByRole("link", { name: "Overview" }).click();
+    await expect(page.getByText("Opportunity List · Stack Exchange")).toBeVisible();
+  }
+});
+
 test("validation workflow supports save dismiss ratings and reasons", async ({ page }) => {
   await prepareActiveScan(page);
   await page.goto("/opportunities/stack-exchange-opportunity-1");
 
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByText("Feedback captured: saved.")).toBeVisible();
+  await expect(page.getByText("Opportunity saved. Your feedback is attached to this opportunity.")).toBeVisible();
 
   await page.getByRole("button", { name: "Dismiss" }).click();
-  await expect(page.getByText("Feedback captured: dismissed.")).toBeVisible();
+  await expect(page.getByText("Opportunity dismissed. Your feedback is attached to this opportunity.")).toBeVisible();
 
   await page.getByRole("group", { name: "Usefulness" }).getByRole("button", { name: "5" }).click();
   await page.getByRole("group", { name: "Evidence quality" }).getByRole("button", { name: "4" }).click();
@@ -233,7 +282,7 @@ test("validation workflow supports save dismiss ratings and reasons", async ({ p
   await page.getByLabel("Poor ranking").check();
   await page.getByRole("button", { name: "Submit feedback" }).click();
 
-  await expect(page.getByText("Feedback captured: reason-provided.")).toBeVisible();
+  await expect(page.getByText("Feedback submitted. Your ratings and reasons are saved.")).toBeVisible();
   await expect(page.getByText("Reason Provided")).toBeVisible();
 });
 
@@ -250,14 +299,14 @@ test("private beta flow covers protected access onboarding feedback and bug repo
   await prepareActiveScan(page);
   await page.goto("/opportunities/stack-exchange-opportunity-1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByText("Feedback captured: saved.")).toBeVisible();
+  await expect(page.getByText("Opportunity saved. Your feedback is attached to this opportunity.")).toBeVisible();
   await page.getByRole("button", { name: "Dismiss" }).click();
-  await expect(page.getByText("Feedback captured: dismissed.")).toBeVisible();
+  await expect(page.getByText("Opportunity dismissed. Your feedback is attached to this opportunity.")).toBeVisible();
   await page.getByRole("group", { name: "Usefulness" }).getByRole("button", { name: "5" }).click();
   await page.getByRole("group", { name: "Evidence quality" }).getByRole("button", { name: "4" }).click();
   await page.getByRole("group", { name: "Ranking quality" }).getByRole("button", { name: "3" }).click();
   await page.getByRole("button", { name: "Submit feedback" }).click();
-  await expect(page.getByText("Feedback captured: rated.")).toBeVisible();
+  await expect(page.getByText("Feedback submitted. Your ratings are saved.")).toBeVisible();
 
   await page.goto("/");
   await page.getByText("Beta session and support tools").click();

@@ -1,5 +1,6 @@
 import { AppShell } from "../components/layout";
 import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { InfoHint } from "../components/ui";
 import { BetaAccessPanel, BugReportPanel } from "../features/beta";
 import { ValidationSessionSummary } from "../features/feedback";
@@ -26,7 +27,7 @@ export default async function DashboardHomePage() {
       <section className="opportunity-section" aria-label="Top opportunities">
         <div className="section-heading">
           <div><h3>Top opportunities</h3><p>Ranked by Opportunity OS confidence score <InfoHint label="About confidence scores">Confidence combines evidence quality, recurrence, clarity, and ranking factors. Review source evidence before acting.</InfoHint></p></div>
-          <a href="/rankings">View full rankings <ChevronRight aria-hidden="true" size={16} /></a>
+          <Link href="/rankings">View full rankings <ChevronRight aria-hidden="true" size={16} /></Link>
         </div>
         <ActiveTopOpportunityList />
       </section>

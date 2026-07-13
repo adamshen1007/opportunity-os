@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart3, FileSearch, Home, Lightbulb, ScanSearch, Settings } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { DashboardNavItem } from "../../navigation";
 import { useActiveScan } from "../../features/scans";
@@ -31,17 +32,17 @@ export function Sidebar({ items }: SidebarProps) {
             const active = item.href === "/" ? pathname === "/" : item.label === "Detail" ? pathname.startsWith("/opportunities/") : pathname === item.href;
             return (
             <li key={item.label}>
-              <a href={href} aria-current={active ? "page" : undefined}>
+              <Link href={href} aria-current={active ? "page" : undefined}>
                 <Icon aria-hidden="true" size={18} strokeWidth={1.7} />
                 <span>{item.label}</span>
-              </a>
+              </Link>
             </li>
             );
           })}
         </ul>
       </nav>
       <div className="sidebar-footer">
-        <a href="/#beta-tools"><Settings aria-hidden="true" size={18} strokeWidth={1.7} /><span>Beta tools</span></a>
+        <Link href="/#beta-tools"><Settings aria-hidden="true" size={18} strokeWidth={1.7} /><span>Beta tools</span></Link>
         <div className="operator-chip"><span>AD</span><div><strong>Adam</strong><small>Research workspace</small></div></div>
       </div>
     </aside>

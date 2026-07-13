@@ -1,7 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
+import {
+  createDashboardApiClient,
+  createFeedback,
+  type DashboardApiCreateFeedbackRequestBody
+} from "../../api";
 import { EmptyState, ErrorState, LoadingState } from "../../components/states";
 import { Panel } from "../../components/ui";
 import { EvidenceView } from "../evidence/evidence-view";
@@ -56,6 +61,15 @@ export function ActiveTopOpportunityList() {
 
 export function ActiveOpportunityDetail() {
   const params = useParams<{ opportunityId: string }>();
+  const submitFeedback = useCallback((body: DashboardApiCreateFeedbackRequestBody) => {
+    const client = createDashboardApiClient({
+      baseUrl: process.env.NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL ?? "http://127.0.0.1:4000",
+      correlationId: `dashboard-feedback-${Date.now().toString(36)}`,
+      fetch: window.fetch.bind(window)
+    });
+    return createFeedback(client, body);
+  }, []);
+
   return (
     <ActiveScanState>
       {(scan) => {
@@ -65,7 +79,7 @@ export function ActiveOpportunityDetail() {
         }
         const evidenceIds = new Set(opportunity.evidenceIds);
         const evidence = mapScanEvidence(scan).filter((item) => evidenceIds.has(item.evidenceId));
-        return <OpportunityDetail opportunity={opportunity} evidence={evidence} />;
+        return <OpportunityDetail opportunity={opportunity} evidence={evidence} submitFeedback={submitFeedback} />;
       }}
     </ActiveScanState>
   );

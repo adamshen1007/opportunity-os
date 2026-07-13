@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import Link from "next/link";
 
 export interface TopbarProps {
   readonly title: string;
@@ -13,7 +14,7 @@ export function Topbar({ title, subtitle }: TopbarProps) {
         <p>{subtitle}</p>
       </div>
       <div className="topbar-actions">
-        <a className="primary-action" href="/#run-scan"><Plus aria-hidden="true" size={17} />New scan</a>
+        <Link className="primary-action" href="/#run-scan"><Plus aria-hidden="true" size={17} />New scan</Link>
       </div>
     </header>
   );

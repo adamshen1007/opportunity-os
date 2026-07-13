@@ -26,6 +26,7 @@ const ratingTargets: readonly DashboardApiFeedbackRatingTarget[] = [
   "ranking-quality"
 ] as const;
 const ratingValues: readonly DashboardApiFeedbackRatingValue[] = [1, 2, 3, 4, 5] as const;
+type FeedbackSubmissionState = "idle" | "submitting" | "success" | "error";
 
 export function OpportunityFeedbackPanel({
   opportunityId,
@@ -43,7 +44,12 @@ export function OpportunityFeedbackPanel({
       "ranking-quality": findInitialRating(initialFeedback, "ranking-quality")
     })
   );
-  const [message, setMessage] = useState("Feedback is local and deterministic for validation.");
+  const [submissionState, setSubmissionState] = useState<FeedbackSubmissionState>(initialFeedback ? "success" : "idle");
+  const [message, setMessage] = useState(
+    initialFeedback
+      ? "Saved feedback is attached to this opportunity."
+      : "Choose ratings or reasons, then submit your feedback."
+  );
 
   const selectedReasons = useMemo(() => new Set(reasonCategories), [reasonCategories]);
 
@@ -57,12 +63,31 @@ export function OpportunityFeedbackPanel({
         value: ratings[target]
       })),
       safeMetadata: {
-        validationMode: "deterministic"
+        validationMode: "dashboard-feedback"
       }
     };
-    const result = await submitFeedback(body);
-    setStatus(statusOverride);
-    setMessage(result.ok ? `Feedback captured: ${result.data.status}.` : "Feedback could not be captured safely.");
+    setSubmissionState("submitting");
+    setMessage("Saving feedback...");
+    try {
+      const result = await submitFeedback(body);
+      if (!result.ok) {
+        setSubmissionState("error");
+        setMessage("Feedback was not saved. Check your session and try again.");
+        return;
+      }
+      setStatus(result.data.status);
+      setSubmissionState("success");
+      setMessage(successMessage(result.data.status));
+    } catch {
+      setSubmissionState("error");
+      setMessage("Feedback was not saved. Check your session and try again.");
+    }
+  }
+
+  function markDraft(nextStatus: DashboardApiFeedbackStatus) {
+    setStatus(nextStatus);
+    setSubmissionState("idle");
+    setMessage("Changes are ready to submit.");
   }
 
   return (
@@ -70,11 +95,13 @@ export function OpportunityFeedbackPanel({
       <div className="feedback-panel">
         <div className="feedback-status-row">
           <span>Current validation status</span>
-          <Badge tone={status === "dismissed" ? "warning" : "success"}>{formatFeedbackStatus(status)}</Badge>
+          <Badge tone={submissionState === "success" ? (status === "dismissed" ? "warning" : "success") : "neutral"}>
+            {submissionState === "success" ? formatFeedbackStatus(status) : "Not submitted"}
+          </Badge>
         </div>
         <div className="feedback-actions" aria-label="Save or dismiss opportunity">
-          <Button type="button" onClick={() => submit("saved")}>Save</Button>
-          <Button type="button" onClick={() => submit("dismissed")}>Dismiss</Button>
+          <Button type="button" disabled={submissionState === "submitting"} onClick={() => submit("saved")}>Save</Button>
+          <Button type="button" disabled={submissionState === "submitting"} onClick={() => submit("dismissed")}>Dismiss</Button>
         </div>
         <div className="feedback-ratings" aria-label="Opportunity ratings">
           {ratingTargets.map((target) => (
@@ -87,9 +114,10 @@ export function OpportunityFeedbackPanel({
                     type="button"
                     className={ratings[target] === value ? "rating-button rating-button-selected" : "rating-button"}
                     aria-pressed={ratings[target] === value}
+                    disabled={submissionState === "submitting"}
                     onClick={() => {
                       setRatings((current) => ({ ...current, [target]: value }));
-                      setStatus("rated");
+                      markDraft(reasonCategories.length > 0 ? "reason-provided" : "rated");
                     }}
                   >
                     {value}
@@ -107,9 +135,11 @@ export function OpportunityFeedbackPanel({
                 <input
                   type="checkbox"
                   checked={selectedReasons.has(category)}
+                  disabled={submissionState === "submitting"}
                   onChange={() => {
-                    setReasonCategories((current) => toggleReason(current, category));
-                    setStatus("reason-provided");
+                    const next = toggleReason(reasonCategories, category);
+                    setReasonCategories(next);
+                    markDraft(next.length > 0 ? "reason-provided" : "rated");
                   }}
                 />
                 <span>{dashboardFeedbackReasonLabels[category]}</span>
@@ -117,8 +147,12 @@ export function OpportunityFeedbackPanel({
             ))}
           </div>
         </fieldset>
-        <Button type="button" onClick={() => submit()}>Submit feedback</Button>
-        <p className="feedback-message" aria-live="polite">{message}</p>
+        <Button type="button" disabled={submissionState === "submitting"} onClick={() => submit()}>
+          {submissionState === "submitting" ? "Saving feedback" : "Submit feedback"}
+        </Button>
+        <p className="feedback-message" aria-live="polite" role={submissionState === "error" ? "alert" : "status"}>
+          {message}
+        </p>
       </div>
     </Panel>
   );
@@ -143,6 +177,13 @@ function formatFeedbackStatus(status: DashboardApiFeedbackStatus): string {
     .split("-")
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
     .join(" ");
+}
+
+function successMessage(status: DashboardApiFeedbackStatus): string {
+  if (status === "saved") return "Opportunity saved. Your feedback is attached to this opportunity.";
+  if (status === "dismissed") return "Opportunity dismissed. Your feedback is attached to this opportunity.";
+  if (status === "reason-provided") return "Feedback submitted. Your ratings and reasons are saved.";
+  return "Feedback submitted. Your ratings are saved.";
 }
 
 async function createDeterministicFeedbackSubmission(

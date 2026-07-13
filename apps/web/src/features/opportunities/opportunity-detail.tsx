@@ -1,5 +1,6 @@
 import { Badge, Panel } from "../../components/ui";
 import { OpportunityFeedbackPanel } from "../feedback";
+import type { DashboardApiCreateFeedbackRequestBody, DashboardApiFeedbackDto, DashboardApiResult } from "../../api";
 import type { DashboardEvidenceFixture, DashboardFeedbackFixture, DashboardOpportunityFixture } from "../../testing";
 import { EvidenceView } from "../evidence/evidence-view";
 import { formatConfidence, formatDisplayDateTime } from "./opportunity-utils";
@@ -8,9 +9,10 @@ export interface OpportunityDetailProps {
   readonly opportunity: DashboardOpportunityFixture;
   readonly evidence: readonly DashboardEvidenceFixture[];
   readonly feedback?: DashboardFeedbackFixture;
+  readonly submitFeedback?: (body: DashboardApiCreateFeedbackRequestBody) => Promise<DashboardApiResult<DashboardApiFeedbackDto>>;
 }
 
-export function OpportunityDetail({ opportunity, evidence, feedback }: OpportunityDetailProps) {
+export function OpportunityDetail({ opportunity, evidence, feedback, submitFeedback }: OpportunityDetailProps) {
   return (
     <div className="detail-layout">
       <Panel title="Opportunity Detail">
@@ -54,7 +56,11 @@ export function OpportunityDetail({ opportunity, evidence, feedback }: Opportuni
           </p>
         </div>
       </Panel>
-      <OpportunityFeedbackPanel opportunityId={opportunity.opportunityId} initialFeedback={feedback} />
+      <OpportunityFeedbackPanel
+        opportunityId={opportunity.opportunityId}
+        initialFeedback={feedback}
+        submitFeedback={submitFeedback}
+      />
       <EvidenceView evidence={evidence} />
     </div>
   );
