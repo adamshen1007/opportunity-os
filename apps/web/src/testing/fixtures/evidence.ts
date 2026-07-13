@@ -1,8 +1,9 @@
 export interface DashboardEvidenceFixture {
   readonly evidenceId: string;
-  readonly sourceType: "reddit-post" | "reddit-comment" | "analysis";
+  readonly sourceType: string;
   readonly summary: string;
   readonly confidence: number;
+  readonly permalink?: string;
   readonly provenance: {
     readonly sourceName: string;
     readonly collectedAt: string;

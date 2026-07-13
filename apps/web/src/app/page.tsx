@@ -1,10 +1,9 @@
 import { AppShell } from "../components/layout";
 import { ChevronRight } from "lucide-react";
-import { InfoHint, Panel } from "../components/ui";
+import { InfoHint } from "../components/ui";
 import { BetaAccessPanel, BugReportPanel } from "../features/beta";
 import { ValidationSessionSummary } from "../features/feedback";
-import { OpportunityList } from "../features/opportunities/opportunity-list";
-import { RedditScanWorkbench } from "../features/scans";
+import { ActiveTopOpportunityList, RedditScanWorkbench } from "../features/scans";
 import { loadDashboardLocalData } from "../api";
 import {
   dashboardBetaInviteWorkflowFixture,
@@ -29,9 +28,7 @@ export default async function DashboardHomePage() {
           <div><h3>Top opportunities</h3><p>Ranked by Opportunity OS confidence score <InfoHint label="About confidence scores">Confidence combines evidence quality, recurrence, clarity, and ranking factors. Review source evidence before acting.</InfoHint></p></div>
           <a href="/rankings">View full rankings <ChevronRight aria-hidden="true" size={16} /></a>
         </div>
-        <Panel title="Opportunity List" className="table-panel">
-          <OpportunityList opportunities={opportunities} />
-        </Panel>
+        <ActiveTopOpportunityList />
       </section>
       <details className="beta-tools" id="beta-tools">
         <summary>Beta session and support tools</summary>

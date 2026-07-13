@@ -13,7 +13,7 @@ describe("Dashboard MVP foundation", () => {
     expect(dashboardRoutes.map((route) => route.href)).toEqual([
       "/",
       "/opportunities",
-      "/opportunities/synthetic-opportunity-001",
+      "/opportunities",
       "/rankings",
       "/evidence"
     ]);

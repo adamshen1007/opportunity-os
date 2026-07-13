@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   createDashboardApiClient,
   createScan,
-  getScan,
   listScans,
   type DashboardApiScanMode,
   type DashboardApiScanResultDto,
@@ -14,6 +13,7 @@ import { ErrorState, LoadingState } from "../../components/states";
 import { safeDashboardErrorMessage } from "../../components/states/state-copy";
 import { Badge, Button, Input, Panel, Select } from "../../components/ui";
 import { getDashboardScanFixture } from "../../testing";
+import { useActiveScan } from "./active-scan-context";
 
 type ScanStatus = "ready" | "running" | "completed" | "fallback" | "error";
 
@@ -169,6 +169,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
 }
 
 export function RedditScanWorkbench() {
+  const { scan: activeScan, setActiveScan } = useActiveScan();
   const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
   const [scanState, setScanState] = useState<ScanState>({
     status: "ready",
@@ -179,26 +180,22 @@ export function RedditScanWorkbench() {
   const isRunning = scanState.status === "running";
 
   useEffect(() => {
-    const scanId = window.localStorage.getItem("opportunity-os:last-scan-id");
     const client = createDashboardApiClient({
       baseUrl: apiBaseUrl,
       correlationId: createCorrelationId(),
       fetch: window.fetch.bind(window)
     });
-    if (scanId) {
-      void getScan(client, scanId).then((result) => {
-        if (!result.ok) return;
-        setScanState({
-          status: "completed",
-          result: result.data,
-          message: "Restored the last persisted scan. Review its evidence and feedback below."
-        });
-      }).catch(() => undefined);
+    if (activeScan) {
+      setScanState({
+        status: "completed",
+        result: activeScan,
+        message: "Restored the last persisted scan. Review its evidence and feedback below."
+      });
     }
     void listScans(client, 5).then((result) => {
       if (result.ok) setRecentScans(result.data.scans);
     }).catch(() => undefined);
-  }, [apiBaseUrl]);
+  }, [activeScan, apiBaseUrl]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -230,7 +227,7 @@ export function RedditScanWorkbench() {
     try {
       const result = await createScan(client, request);
       if (result.ok) {
-        window.localStorage.setItem("opportunity-os:last-scan-id", result.data.scanId);
+        setActiveScan(result.data);
         setRecentScans((current) => [result.data, ...current.filter((scan) => scan.scanId !== result.data.scanId)].slice(0, 5));
         setScanState({
           status: "completed",
@@ -331,7 +328,10 @@ export function RedditScanWorkbench() {
             <ul>
               {recentScans.map((scan) => (
                 <li key={scan.scanId}>
-                  <button type="button" onClick={() => setScanState({ status: "completed", result: scan, message: "Restored a persisted scan from your recent history." })}>
+                  <button type="button" onClick={() => {
+                    setActiveScan(scan);
+                    setScanState({ status: "completed", result: scan, message: "Restored a persisted scan from your recent history." });
+                  }}>
                     <strong>{scan.source.attribution}</strong>
                     <span>{scan.opportunities.length} opportunities</span>
                     <span>{scan.mode}</span>

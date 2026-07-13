@@ -17,6 +17,7 @@ export function EvidenceView({ evidence }: EvidenceViewProps) {
               <span>{formatConfidence(item.confidence)}</span>
             </div>
             <p>{item.summary}</p>
+            {item.permalink ? <a href={item.permalink} rel="noreferrer" target="_blank">Open source context</a> : null}
             <dl className="provenance-list">
               <div>
                 <dt>Source</dt>

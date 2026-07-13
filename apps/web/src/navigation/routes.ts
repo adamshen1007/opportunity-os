@@ -31,7 +31,7 @@ export const dashboardRoutes = [
   {
     id: DASHBOARD_ROUTE_IDS.opportunityDetail,
     label: "Detail",
-    href: "/opportunities/synthetic-opportunity-001",
+    href: "/opportunities",
     description: "Inspect evidence and confidence for one opportunity."
   },
   {

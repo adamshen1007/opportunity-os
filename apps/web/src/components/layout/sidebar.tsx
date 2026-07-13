@@ -3,6 +3,7 @@
 import { BarChart3, FileSearch, Home, Lightbulb, ScanSearch, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { DashboardNavItem } from "../../navigation";
+import { useActiveScan } from "../../features/scans";
 
 export interface SidebarProps {
   readonly items: readonly DashboardNavItem[];
@@ -10,6 +11,10 @@ export interface SidebarProps {
 
 export function Sidebar({ items }: SidebarProps) {
   const pathname = usePathname();
+  const { scan } = useActiveScan();
+  const detailHref = scan?.opportunities[0]
+    ? `/opportunities/${encodeURIComponent(scan.opportunities[0].opportunityId)}`
+    : "/opportunities";
   const icons = { Overview: Home, Opportunities: Lightbulb, Detail: ScanSearch, Rankings: BarChart3, Evidence: FileSearch } as const;
 
   return (
@@ -22,10 +27,11 @@ export function Sidebar({ items }: SidebarProps) {
         <ul>
           {items.map((item) => {
             const Icon = icons[item.label as keyof typeof icons] ?? Lightbulb;
-            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const href = item.label === "Detail" ? detailHref : item.href;
+            const active = item.href === "/" ? pathname === "/" : item.label === "Detail" ? pathname.startsWith("/opportunities/") : pathname === item.href;
             return (
-            <li key={item.href}>
-              <a href={item.href} aria-current={active ? "page" : undefined}>
+            <li key={item.label}>
+              <a href={href} aria-current={active ? "page" : undefined}>
                 <Icon aria-hidden="true" size={18} strokeWidth={1.7} />
                 <span>{item.label}</span>
               </a>

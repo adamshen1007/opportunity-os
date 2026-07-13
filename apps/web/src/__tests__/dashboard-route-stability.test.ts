@@ -14,7 +14,7 @@ describe("Dashboard route stability", () => {
     expect(dashboardRoutes.map((route) => route.href)).toEqual([
       "/",
       "/opportunities",
-      "/opportunities/synthetic-opportunity-001",
+      "/opportunities",
       "/rankings",
       "/evidence"
     ]);

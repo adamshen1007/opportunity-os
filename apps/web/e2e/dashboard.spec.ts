@@ -1,6 +1,29 @@
 import { expect, test } from "@playwright/test";
+import { dashboardStackExchangeScanFixture } from "../src/testing";
+
+async function prepareActiveScan(page: import("@playwright/test").Page) {
+  const scan = dashboardStackExchangeScanFixture;
+  await page.addInitScript(({ scanId }) => {
+    window.localStorage.setItem("opportunity-os:last-scan-id", scanId);
+  }, { scanId: scan.scanId });
+  await page.route(`**/scans/${scan.scanId}`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: scan, meta: { correlationId: "e2e-active-scan" } })
+    });
+  });
+  await page.route("**/scans?*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: { scans: [scan] }, meta: { correlationId: "e2e-scan-history" } })
+    });
+  });
+}
 
 test("dashboard loads with navigation and state coverage", async ({ page }) => {
+  await prepareActiveScan(page);
   await page.goto("/");
 
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity dashboard" })).toBeVisible();
@@ -12,6 +35,7 @@ test("dashboard loads with navigation and state coverage", async ({ page }) => {
   await expect(page.getByLabel("Query")).toBeVisible();
   await expect(page.getByRole("button", { name: "Run scan" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Prioritize repeated manual review workflows" })).toBeVisible();
+  await expect(page.getByText("Opportunity List · Stack Exchange")).toBeVisible();
   await expect(page.getByText("Beta session and support tools")).toBeVisible();
   const navigation = page.getByRole("navigation", { name: "Dashboard navigation" });
   await expect(navigation).toBeVisible();
@@ -66,6 +90,7 @@ test("live scan failures never masquerade as fixture results", async ({ page }) 
 });
 
 test("opportunity list supports search filters pagination and detail navigation", async ({ page }) => {
+  await prepareActiveScan(page);
   await page.goto("/opportunities");
 
   await expect(page.getByRole("heading", { name: "Opportunities" })).toBeVisible();
@@ -80,7 +105,7 @@ test("opportunity list supports search filters pagination and detail navigation"
   await expect(page.getByRole("link", { name: "Next" })).toBeVisible();
 
   await page.getByRole("link", { name: "Prioritize repeated manual review workflows" }).click();
-  await expect(page).toHaveURL(/\/opportunities\/synthetic-opportunity-001$/u);
+  await expect(page).toHaveURL(/\/opportunities\/stack-exchange-opportunity-1$/u);
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Opportunity detail" })).toBeVisible();
   await expect(page.getByRole("heading", { exact: true, level: 3, name: "Opportunity Detail" })).toBeVisible();
   await expect(page.getByText("Explanation", { exact: true })).toBeVisible();
@@ -93,7 +118,8 @@ test("opportunity list supports search filters pagination and detail navigation"
 });
 
 test("validation workflow supports save dismiss ratings and reasons", async ({ page }) => {
-  await page.goto("/opportunities/synthetic-opportunity-001");
+  await prepareActiveScan(page);
+  await page.goto("/opportunities/stack-exchange-opportunity-1");
 
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Feedback captured: saved.")).toBeVisible();
@@ -121,7 +147,8 @@ test("private beta flow covers protected access onboarding feedback and bug repo
   await expect(page.getByText("Review ranked opportunities")).toBeVisible();
   await expect(page.getByText("Share validation feedback")).toBeVisible();
 
-  await page.goto("/opportunities/synthetic-opportunity-001");
+  await prepareActiveScan(page);
+  await page.goto("/opportunities/stack-exchange-opportunity-1");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Feedback captured: saved.")).toBeVisible();
   await page.getByRole("button", { name: "Dismiss" }).click();
@@ -138,17 +165,19 @@ test("private beta flow covers protected access onboarding feedback and bug repo
   await expect(page.getByText("Bug report captured: open.")).toBeVisible();
 });
 
-test("ranking and evidence views expose safe fixture content", async ({ page }) => {
+test("ranking and evidence views follow the active persisted scan", async ({ page }) => {
+  await prepareActiveScan(page);
   await page.goto("/rankings");
 
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Ranking View" })).toBeVisible();
-  await expect(page.getByText("synthetic-ranking-001")).toBeVisible();
+  await expect(page.getByText("ranking-fixture-001")).toBeVisible();
   await expect(page.getByText("Score 87")).toBeVisible();
   await expect(page.getByText("Confidence 81%")).toBeVisible();
 
   await page.goto("/evidence");
   await expect(page.getByRole("heading", { exact: true, level: 2, name: "Evidence View" })).toBeVisible();
-  await expect(page.getByText("Synthetic Reddit contract fixture")).toBeVisible();
+  await expect(page.getByText("Stack Exchange · stackoverflow").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open source context" }).first()).toBeVisible();
   await expect(page.getByText("Collected").first()).toBeVisible();
   await expect(page.getByText("Prepared").first()).toBeVisible();
 });
