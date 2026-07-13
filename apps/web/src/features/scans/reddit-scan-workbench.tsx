@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   createDashboardApiClient,
   createScan,
@@ -170,6 +170,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
 
 export function RedditScanWorkbench() {
   const { scan: activeScan, setActiveScan } = useActiveScan();
+  const didHydrateScanState = useRef(false);
   const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
   const [scanState, setScanState] = useState<ScanState>({
     status: "ready",
@@ -185,7 +186,8 @@ export function RedditScanWorkbench() {
       correlationId: createCorrelationId(),
       fetch: window.fetch.bind(window)
     });
-    if (activeScan) {
+    if (activeScan && !didHydrateScanState.current) {
+      didHydrateScanState.current = true;
       setScanState({
         status: "completed",
         result: activeScan,
@@ -227,6 +229,7 @@ export function RedditScanWorkbench() {
     try {
       const result = await createScan(client, request);
       if (result.ok) {
+        didHydrateScanState.current = true;
         setActiveScan(result.data);
         setRecentScans((current) => [result.data, ...current.filter((scan) => scan.scanId !== result.data.scanId)].slice(0, 5));
         setScanState({
@@ -237,21 +240,31 @@ export function RedditScanWorkbench() {
         return;
       }
 
+      const fallbackResult = getDashboardScanFixture(source);
       setScanState({
         status: mode === "live" ? "error" : "fallback",
-        ...(mode === "live" ? {} : { result: getDashboardScanFixture(source) }),
-        message: mode === "live"
+        ...(mode === "live" ? {} : { result: fallbackResult }),
+          message: mode === "live"
           ? `${toSafeScanMessage(result.error.message)} No demo results were substituted.`
           : `${toSafeScanMessage(result.error.message)} Showing deterministic fixture results instead.`
-      });
+        });
+      if (mode !== "live") {
+        didHydrateScanState.current = true;
+        setActiveScan(fallbackResult);
+      }
     } catch {
+      const fallbackResult = getDashboardScanFixture(source);
       setScanState({
         status: mode === "live" ? "error" : "fallback",
-        ...(mode === "live" ? {} : { result: getDashboardScanFixture(source) }),
+        ...(mode === "live" ? {} : { result: fallbackResult }),
         message: mode === "live"
           ? "The live API is not reachable. No demo results were substituted."
           : "The API is not reachable from this browser session. Showing deterministic fixture results instead."
       });
+      if (mode !== "live") {
+        didHydrateScanState.current = true;
+        setActiveScan(fallbackResult);
+      }
     }
   }
 
@@ -315,7 +328,12 @@ export function RedditScanWorkbench() {
         {scanState.status === "error" ? (
           <div className="scan-error-actions">
             <ErrorState title="Live scan unavailable" message={scanState.message ?? safeDashboardErrorMessage} />
-            <Button onClick={() => setScanState({ status: "fallback", result: getDashboardScanFixture(source), message: "Showing explicit demo data. These are not live results." })}>Try demo data</Button>
+            <Button onClick={() => {
+              const fallbackResult = getDashboardScanFixture(source);
+              didHydrateScanState.current = true;
+              setActiveScan(fallbackResult);
+              setScanState({ status: "fallback", result: fallbackResult, message: "Showing explicit demo data. These are not live results." });
+            }}>Try demo data</Button>
           </div>
         ) : null}
         {scanState.result ? <ScanResultView result={scanState.result} /> : null}
@@ -329,6 +347,7 @@ export function RedditScanWorkbench() {
               {recentScans.map((scan) => (
                 <li key={scan.scanId}>
                   <button type="button" onClick={() => {
+                    didHydrateScanState.current = true;
                     setActiveScan(scan);
                     setScanState({ status: "completed", result: scan, message: "Restored a persisted scan from your recent history." });
                   }}>

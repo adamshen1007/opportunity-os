@@ -2,6 +2,7 @@ import { dashboardEvidenceFixtures } from "./evidence";
 
 export interface DashboardOpportunityFixture {
   readonly opportunityId: string;
+  readonly detailHref?: string;
   readonly title: string;
   readonly summary: string;
   readonly status: "candidate" | "generated" | "ranked" | "validated";

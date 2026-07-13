@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import Link from "next/link";
 import { Badge, Table } from "../../components/ui";
 import type { DashboardOpportunityFixture } from "../../testing";
 import { formatConfidence } from "./opportunity-utils";
@@ -23,7 +24,7 @@ export function OpportunityList({ opportunities }: OpportunityListProps) {
           header: "Opportunity",
           render: (row) => (
             <div className="table-title">
-              <a href={`/opportunities/${row.opportunityId}`}>{row.title}</a>
+              <Link href={row.detailHref ?? `/opportunities/${row.opportunityId}`}>{row.title}</Link>
               <span>{row.summary}</span>
             </div>
           )

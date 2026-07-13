@@ -89,6 +89,106 @@ test("live scan failures never masquerade as fixture results", async ({ page }) 
   await expect(page.getByLabel("Scan results")).toBeVisible();
 });
 
+test("live scan results replace synthetic top opportunities", async ({ page }) => {
+  const liveOpportunityTitle = "Reduce repeated deployment rollback diagnosis";
+  const liveResult = {
+    scanId: "scan-live-stack-exchange-e2e",
+    mode: "live",
+    status: "completed",
+    source: {
+      provider: "stack-exchange",
+      community: "stackoverflow",
+      site: "stackoverflow",
+      query: "deployment rollback diagnosis",
+      attribution: "Stack Exchange",
+      itemCount: 1,
+      quota: { remaining: 291, maximum: 300, hasMore: false }
+    },
+    stages: [
+      { name: "source", status: "completed", safeMessage: "Retrieved public Stack Exchange evidence." },
+      { name: "raw-content", status: "completed", safeMessage: "Mapped source content." },
+      { name: "normalization", status: "completed", safeMessage: "Normalized source content." },
+      { name: "llm-analysis", status: "completed", safeMessage: "Analyzed normalized content." },
+      { name: "candidate-generation", status: "completed", safeMessage: "Created a candidate." },
+      { name: "opportunity-generation", status: "completed", safeMessage: "Generated an opportunity." },
+      { name: "ranking", status: "completed", safeMessage: "Ranked the opportunity." }
+    ],
+    opportunities: [{
+      opportunityId: "live-opportunity-e2e",
+      title: liveOpportunityTitle,
+      summary: "Teams repeatedly reconstruct deployment failures across disconnected logs and runbooks.",
+      confidence: 0.86,
+      rank: { position: 1, score: 89, explanation: "Repeated evidence and high operational urgency." },
+      evidence: [{
+        evidenceId: "live-evidence-e2e",
+        sourceType: "stack-exchange",
+        summary: "A public question describes repeated manual rollback diagnosis.",
+        permalink: "https://stackoverflow.com/questions/12345678/deployment-rollback-diagnosis",
+        confidence: 0.88,
+        provenance: {
+          sourcePlatform: "stack-exchange",
+          sourceId: "question-12345678",
+          sourceUrl: "https://stackoverflow.com/questions/12345678/deployment-rollback-diagnosis",
+          normalizedContentId: "normalized-live-e2e",
+          analysisRequestId: "analysis-live-e2e"
+        }
+      }],
+      provenance: {
+        scanId: "scan-live-stack-exchange-e2e",
+        sourceItemId: "question-12345678",
+        rawContentId: "raw-live-e2e",
+        normalizedContentId: "normalized-live-e2e",
+        analysisRequestId: "analysis-live-e2e",
+        candidateId: "candidate-live-e2e",
+        generationOutputId: "generation-live-e2e",
+        rankingRunId: "ranking-live-e2e"
+      }
+    }],
+    validationMetrics: {
+      retrievedItems: 1,
+      generatedOpportunities: 1,
+      evidenceBackedOpportunities: 1,
+      evidenceCoverage: 1,
+      averageConfidence: 0.86,
+      reviewStatus: "ready-for-human-review"
+    },
+    safeMetadata: { deterministic: false, liveEnabled: true, rawProviderPayloadStored: false }
+  };
+
+  await page.route("**/scans*", async (route) => {
+    if (route.request().method() === "POST") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, data: liveResult, meta: { correlationId: "e2e-live-result" } })
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, data: { scans: [] }, meta: { correlationId: "e2e-live-history" } })
+    });
+  });
+
+  await page.goto("/");
+  await page.locator('select[name="mode"]').selectOption("live");
+  await page.getByRole("button", { name: "Run scan" }).click();
+
+  const topOpportunities = page.getByRole("region", { name: "Top opportunities" });
+  await expect(topOpportunities.getByRole("link", { name: liveOpportunityTitle })).toBeVisible();
+  await expect(topOpportunities.getByText("Stack Exchange live scan")).toHaveCount(1);
+  await expect(topOpportunities.getByText("Prioritize repeated manual review workflows")).toHaveCount(0);
+  await expect(topOpportunities.getByText("Repeated evidence and high operational urgency.")).toHaveCount(1);
+
+  await topOpportunities.getByRole("link", { name: liveOpportunityTitle }).click();
+  await expect(page).toHaveURL(/\/opportunities\/live-opportunity-e2e$/u);
+  await expect(page.getByRole("heading", { name: liveOpportunityTitle })).toBeVisible();
+  await expect(
+    page.getByLabel("Evidence View").getByText("A public question describes repeated manual rollback diagnosis.")
+  ).toBeVisible();
+});
+
 test("opportunity list supports search filters pagination and detail navigation", async ({ page }) => {
   await prepareActiveScan(page);
   await page.goto("/opportunities");
