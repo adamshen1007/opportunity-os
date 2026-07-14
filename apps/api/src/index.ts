@@ -11,6 +11,7 @@ export * from "./feedback/index.js";
 export * from "./filtering/index.js";
 export * from "./http/index.js";
 export * from "./openapi/index.js";
+export * from "./operations/index.js";
 export * from "./pagination/index.js";
 export * from "./persistence/index.js";
 export * from "./pipeline/index.js";

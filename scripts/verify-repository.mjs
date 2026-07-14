@@ -145,7 +145,11 @@ const phaseExternalUserAliases = new Set([
   "phase-4-milestone-48", "phase-4-milestone-49", "phase-4-milestone-50",
   "phase-4-milestone-51", "external-user-runtime", "closed-beta-launch"
 ]);
-const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp", ...phaseMultiSourceAliases, ...phaseHostedPilotAliases, ...phaseExternalUserAliases]);
+const phaseExternalScaleAliases = new Set([
+  "phase-4-milestone-53", "phase-4-milestone-54", "phase-4-milestone-55",
+  "phase-4-milestone-56", "phase-4-milestone-57", "external-user-scale-readiness"
+]);
+const phaseThirtyFourAliases = new Set(["phase-4-milestone-34", "external-mvp-runtime", "hosted-external-mvp", ...phaseMultiSourceAliases, ...phaseHostedPilotAliases, ...phaseExternalUserAliases, ...phaseExternalScaleAliases]);
 const isHostedPilotPhase = phaseHostedPilotAliases.has(phase) || phase === "review";
 const isMultiSourcePhase = phaseMultiSourceAliases.has(phase) || isHostedPilotPhase;
 const isPhaseThirtyFour = phaseThirtyFourAliases.has(phase) || phase === "review";

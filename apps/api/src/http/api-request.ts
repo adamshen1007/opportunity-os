@@ -1,6 +1,7 @@
 export interface ApiRequestContext {
   readonly correlationId: string;
   readonly requestId?: string;
+  readonly sessionId?: string;
   readonly method: string;
   readonly path: string;
 }

@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   createDashboardApiClient,
-  createScan,
+  createScanJob,
+  deleteScan,
+  getScanJob,
   listScans,
   type DashboardApiScanMode,
   type DashboardApiScanResultDto,
@@ -32,6 +34,12 @@ const sourceOptions = [
   { label: "Stack Exchange", value: "stack-exchange" },
   { label: "Reddit (approval required for live)", value: "reddit" }
 ] as const;
+
+const ACTIVE_SCAN_JOB_STORAGE_KEY = "opportunity-os:active-scan-job";
+
+function waitForPoll(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 750));
+}
 
 function getDashboardApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL ?? "http://127.0.0.1:4000";
@@ -127,6 +135,15 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
               <span>{opportunity.rank.explanation}</span>
             </div>
 
+            {opportunity.trust ? (
+              <details className="opportunity-trust-details">
+                <summary>Why this rank and what to verify</summary>
+                <p><strong>{opportunity.trust.confidenceBand} confidence</strong> from {opportunity.trust.evidenceCount} evidence item(s).</p>
+                <ul>{opportunity.trust.rankingFactors.map((factor) => <li key={factor.label}><strong>{factor.label}:</strong> {factor.contribution}</li>)}</ul>
+                <ul>{opportunity.trust.limitations.map((limitation) => <li key={limitation}>{limitation}</li>)}</ul>
+              </details>
+            ) : null}
+
             <div className="scan-evidence-list" aria-label={`${opportunity.title} evidence`}>
               {opportunity.evidence.map((evidence) => (
                 <div className="scan-evidence-item" key={evidence.evidenceId}>
@@ -171,6 +188,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
 export function RedditScanWorkbench() {
   const { scan: activeScan, setActiveScan } = useActiveScan();
   const didHydrateScanState = useRef(false);
+  const didResumeScanJob = useRef(false);
   const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
   const [scanState, setScanState] = useState<ScanState>({
     status: "ready",
@@ -179,6 +197,25 @@ export function RedditScanWorkbench() {
   const [recentScans, setRecentScans] = useState<readonly DashboardApiScanResultDto[]>([]);
   const apiBaseUrl = useMemo(() => getDashboardApiBaseUrl(), []);
   const isRunning = scanState.status === "running";
+
+  async function pollScanJob(client: ReturnType<typeof createDashboardApiClient>, jobId: string): Promise<DashboardApiScanResultDto> {
+    window.localStorage.setItem(ACTIVE_SCAN_JOB_STORAGE_KEY, jobId);
+    for (let attempt = 0; attempt < 160; attempt += 1) {
+      const response = await getScanJob(client, jobId);
+      if (!response.ok) throw new Error(response.error.message);
+      setScanState({ status: "running", message: response.data.safeMessage });
+      if (response.data.status === "completed" && response.data.result) {
+        window.localStorage.removeItem(ACTIVE_SCAN_JOB_STORAGE_KEY);
+        return response.data.result;
+      }
+      if (response.data.status === "failed" || response.data.status === "cancelled") {
+        window.localStorage.removeItem(ACTIVE_SCAN_JOB_STORAGE_KEY);
+        throw new Error(response.data.safeMessage);
+      }
+      await waitForPoll();
+    }
+    throw new Error("Scan is taking longer than expected. It remains available in recent scan history.");
+  }
 
   useEffect(() => {
     const client = createDashboardApiClient({
@@ -198,6 +235,26 @@ export function RedditScanWorkbench() {
       if (result.ok) setRecentScans(result.data.scans);
     }).catch(() => undefined);
   }, [activeScan, apiBaseUrl]);
+
+  useEffect(() => {
+    if (didResumeScanJob.current) return;
+    didResumeScanJob.current = true;
+    const jobId = window.localStorage.getItem(ACTIVE_SCAN_JOB_STORAGE_KEY);
+    if (!jobId) return;
+    const client = createDashboardApiClient({
+      baseUrl: apiBaseUrl,
+      correlationId: createCorrelationId(),
+      fetch: window.fetch.bind(window)
+    });
+    setScanState({ status: "running", message: "Restoring the durable scan that was running in this workspace." });
+    void pollScanJob(client, jobId).then((result) => {
+      didHydrateScanState.current = true;
+      setActiveScan(result);
+      setScanState({ status: "completed", result, message: "Recovered scan completed. Review the persisted results below." });
+    }).catch((error: unknown) => {
+      setScanState({ status: "error", message: toSafeScanMessage(error instanceof Error ? error.message : undefined) });
+    });
+  }, [apiBaseUrl, setActiveScan]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -227,14 +284,15 @@ export function RedditScanWorkbench() {
     });
 
     try {
-      const result = await createScan(client, request);
-      if (result.ok) {
+      const job = await createScanJob(client, request);
+      if (job.ok) {
+        const completed = await pollScanJob(client, job.data.jobId);
         didHydrateScanState.current = true;
-        setActiveScan(result.data);
-        setRecentScans((current) => [result.data, ...current.filter((scan) => scan.scanId !== result.data.scanId)].slice(0, 5));
+        setActiveScan(completed);
+        setRecentScans((current) => [completed, ...current.filter((scan) => scan.scanId !== completed.scanId)].slice(0, 5));
         setScanState({
           status: "completed",
-          result: result.data,
+          result: completed,
           message: "Scan completed. Review ranked opportunities, evidence, and provenance below."
         });
         return;
@@ -245,8 +303,8 @@ export function RedditScanWorkbench() {
         status: mode === "live" ? "error" : "fallback",
         ...(mode === "live" ? {} : { result: fallbackResult }),
           message: mode === "live"
-          ? `${toSafeScanMessage(result.error.message)} No demo results were substituted.`
-          : `${toSafeScanMessage(result.error.message)} Showing deterministic fixture results instead.`
+          ? `${toSafeScanMessage(job.error.message)} No demo results were substituted.`
+          : `${toSafeScanMessage(job.error.message)} Showing deterministic fixture results instead.`
         });
       if (mode !== "live") {
         didHydrateScanState.current = true;
@@ -345,7 +403,7 @@ export function RedditScanWorkbench() {
             </div>
             <ul>
               {recentScans.map((scan) => (
-                <li key={scan.scanId}>
+                <li className="scan-history-item" key={scan.scanId}>
                   <button type="button" onClick={() => {
                     didHydrateScanState.current = true;
                     setActiveScan(scan);
@@ -355,6 +413,11 @@ export function RedditScanWorkbench() {
                     <span>{scan.opportunities.length} opportunities</span>
                     <span>{scan.mode}</span>
                   </button>
+                  <button className="scan-delete-button" type="button" aria-label={`Delete scan ${scan.scanId}`} onClick={async () => {
+                    const client = createDashboardApiClient({ baseUrl: apiBaseUrl, correlationId: createCorrelationId(), fetch: window.fetch.bind(window) });
+                    const deleted = await deleteScan(client, scan.scanId);
+                    if (deleted.ok) setRecentScans((current) => current.filter((item) => item.scanId !== scan.scanId));
+                  }}>Delete</button>
                 </li>
               ))}
             </ul>

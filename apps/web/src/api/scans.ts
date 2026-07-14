@@ -1,7 +1,7 @@
 import { generatedApiRoutes } from "./generated/routes";
 import type { DashboardApiResult } from "./client";
 import type { DashboardApiRequester } from "./opportunities";
-import type { DashboardApiRedditScanRequestBody, DashboardApiScanRequestBody, DashboardApiScanResultDto } from "./types";
+import type { DashboardApiRedditScanRequestBody, DashboardApiScanJobDto, DashboardApiScanRequestBody, DashboardApiScanResultDto } from "./types";
 
 export interface DashboardApiScanHistoryDto {
   readonly scans: readonly DashboardApiScanResultDto[];
@@ -16,6 +16,18 @@ export function createScan(
     path: generatedApiRoutes.createScan.path,
     body
   });
+}
+
+export function createScanJob(client: DashboardApiRequester, body: DashboardApiScanRequestBody): Promise<DashboardApiResult<DashboardApiScanJobDto>> {
+  return client.request<DashboardApiScanJobDto, DashboardApiScanRequestBody>({ method: "POST", path: "/scan-jobs", body });
+}
+
+export function getScanJob(client: DashboardApiRequester, jobId: string): Promise<DashboardApiResult<DashboardApiScanJobDto>> {
+  return client.request<DashboardApiScanJobDto>({ method: "GET", path: `/scan-jobs/${encodeURIComponent(jobId)}` });
+}
+
+export function cancelScanJob(client: DashboardApiRequester, jobId: string): Promise<DashboardApiResult<DashboardApiScanJobDto>> {
+  return client.request<DashboardApiScanJobDto>({ method: "POST", path: `/scan-jobs/${encodeURIComponent(jobId)}/cancel` });
 }
 
 export function createRedditScan(
@@ -48,4 +60,8 @@ export function listScans(
     path: "/scans",
     query: { limit }
   });
+}
+
+export function deleteScan(client: DashboardApiRequester, scanId: string): Promise<DashboardApiResult<{ readonly deleted: true }>> {
+  return client.request<{ readonly deleted: true }>({ method: "DELETE", path: `/scans/${encodeURIComponent(scanId)}` });
 }

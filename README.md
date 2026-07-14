@@ -75,6 +75,8 @@ Phase 4 Milestone 34: External MVP Runtime has an explicit `phase-4-milestone-34
 
 The final External MVP readiness checklist, Reddit setup guide, LLM setup guide, dashboard walkthrough, smoke test report, and Go / No-Go criteria live in `docs/04_IMPLEMENTATION/04-022_EXTERNAL_MVP_READINESS_GATE.md`.
 
+Phase 4 Milestones 53-57 add active-session inspection and logout, durable scan jobs with reload/restart recovery, evidence quality gates and trust explanations, scan/feedback deletion controls, and a safe authenticated operations summary. The implementation and deployment gate are documented in `docs/04_IMPLEMENTATION/04-027_EXTERNAL_USER_SCALE_READINESS.md`.
+
 ## Local Product Runtime
 
 Install dependencies:

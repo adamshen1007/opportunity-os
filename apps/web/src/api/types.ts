@@ -28,6 +28,22 @@ export type DashboardApiResponse<TData, TError> =
   | DashboardApiSuccessResponse<TData>
   | DashboardApiFailureResponse<TError>;
 
+export interface DashboardApiSessionDto {
+  readonly sessionId: string;
+  readonly status: "active" | "expired" | "revoked";
+  readonly principal: {
+    readonly principalId: string;
+    readonly displayName?: string;
+    readonly permissions: readonly string[];
+  };
+  readonly createdAt: string;
+  readonly expiresAt: string;
+}
+
+export interface DashboardApiLogoutDto {
+  readonly loggedOut: true;
+}
+
 export interface DashboardApiOpportunityEvidenceDto {
   readonly evidenceId: string;
   readonly sourceType: string;
@@ -164,6 +180,19 @@ export interface DashboardApiScanRequestBody {
   readonly mode?: DashboardApiScanMode;
 }
 
+export type DashboardApiScanJobStatus = "queued" | "running" | "completed" | "failed" | "cancelled";
+
+export interface DashboardApiScanJobDto {
+  readonly jobId: string;
+  readonly status: DashboardApiScanJobStatus;
+  readonly request: DashboardApiScanRequestBody;
+  readonly requestedAt: string;
+  readonly updatedAt: string;
+  readonly resultScanId?: string;
+  readonly safeMessage: string;
+  readonly result?: DashboardApiScanResultDto;
+}
+
 export interface DashboardApiRedditScanRequestBody {
   readonly subreddit?: string;
   readonly query?: string;
@@ -214,6 +243,12 @@ export interface DashboardApiScanOpportunityDto {
     readonly explanation: string;
   };
   readonly evidence: readonly DashboardApiScanEvidenceDto[];
+  readonly trust?: {
+    readonly evidenceCount: number;
+    readonly confidenceBand: "low" | "moderate" | "high";
+    readonly limitations: readonly string[];
+    readonly rankingFactors: readonly { readonly label: string; readonly contribution: string }[];
+  };
   readonly provenance: {
     readonly scanId: string;
     readonly sourceItemId: string;
@@ -260,5 +295,7 @@ export interface DashboardApiScanResultDto {
     readonly deterministic: boolean;
     readonly liveEnabled: boolean;
     readonly rawProviderPayloadStored: false;
+    readonly rejectedSourceItems?: number;
+    readonly duplicateSourceItems?: number;
   };
 }

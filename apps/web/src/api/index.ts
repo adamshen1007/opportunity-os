@@ -1,4 +1,5 @@
 export * from "./client";
+export * from "./auth";
 export * from "./errors";
 export * from "./feedback";
 export * from "./generated/routes";

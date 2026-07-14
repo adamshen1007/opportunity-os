@@ -51,3 +51,7 @@ export function createPrivateBetaBugReport(
     body
   });
 }
+
+export function deleteFeedback(client: DashboardApiRequester, feedbackId: string): Promise<DashboardApiResult<{ readonly deleted: true }>> {
+  return client.request<{ readonly deleted: true }>({ method: "DELETE", path: `/feedback/${encodeURIComponent(feedbackId)}` });
+}

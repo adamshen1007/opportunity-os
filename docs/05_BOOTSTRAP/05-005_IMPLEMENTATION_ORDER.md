@@ -1054,3 +1054,7 @@ Production database composition precedes API access controls. Security controls 
 ## Phase 4 Milestones 45-51 - External User Launch
 
 Production connectivity precedes durable invite sessions. Durable access precedes external-user routes. Honest live/fixture UX precedes persisted scan history. Persistence continuity precedes security and operational hardening. The closed-beta launch gate is last and must pass before external invitations are issued. See `docs/04_IMPLEMENTATION/04-026_EXTERNAL_USER_LAUNCH.md`.
+
+## Phase 4 Milestones 53-57 - External User Scale Readiness
+
+User-controlled session recovery and revocation precede durable background scan state. Durable execution precedes opportunity quality gates. Explainable quality output precedes user data deletion controls. Safe operations metrics complete the sequence. See `docs/04_IMPLEMENTATION/04-027_EXTERNAL_USER_SCALE_READINESS.md`.

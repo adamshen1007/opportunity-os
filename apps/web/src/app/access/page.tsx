@@ -9,6 +9,7 @@ function getApiBaseUrl(): string {
 
 export default function BetaAccessPage() {
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
+  const [message, setMessage] = useState("The invitation could not be accepted. Check the code or ask the operator for a new invitation.");
 
   async function acceptInvite(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,6 +23,8 @@ export default function BetaAccessPage() {
         body: JSON.stringify({ inviteCode: String(data.get("inviteCode") ?? ""), displayName: String(data.get("displayName") ?? "") })
       });
       if (!response.ok) {
+        const envelope = await response.json().catch(() => undefined) as { error?: { message?: unknown } } | undefined;
+        if (typeof envelope?.error?.message === "string") setMessage(envelope.error.message);
         setStatus("error");
         return;
       }
@@ -37,13 +40,13 @@ export default function BetaAccessPage() {
         <span className="access-icon"><KeyRound aria-hidden="true" size={21} /></span>
         <p className="access-eyebrow">Opportunity OS private beta</p>
         <h1>Enter your workspace</h1>
-        <p>Use the invitation code provided by the Opportunity OS operator. Your session expires automatically after eight hours.</p>
+        <p>Use the invitation code provided by the Opportunity OS operator. After sign-in, start with a focused Stack Exchange scan, inspect the evidence, then save or dismiss the opportunities that are useful to you. Your session expires automatically after eight hours.</p>
         <form onSubmit={acceptInvite}>
           <label className="field"><span>Display name</span><input name="displayName" autoComplete="name" required /></label>
           <label className="field"><span>Invite code</span><input name="inviteCode" type="password" autoComplete="one-time-code" required /></label>
           <button className="button" type="submit" disabled={status === "submitting"}>{status === "submitting" ? "Checking invite" : "Continue"}<ArrowRight aria-hidden="true" size={17} /></button>
         </form>
-        {status === "error" ? <p className="access-error" role="alert">The invitation could not be accepted. Check the code or ask the operator for a new invitation.</p> : null}
+        {status === "error" ? <p className="access-error" role="alert">{message}</p> : null}
       </section>
     </main>
   );

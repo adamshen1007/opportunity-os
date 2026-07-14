@@ -4,14 +4,20 @@ import {
   API_CREATE_INVITE_ROUTE,
   API_ERROR_CODES,
   API_GET_SESSION_ROUTE,
+  API_GET_CURRENT_SESSION_ROUTE,
+  API_LOGOUT_ROUTE,
+  ApiInviteConflictError,
   API_INVITE_STATUSES,
   API_SESSION_STATUSES,
+  createDatabaseInviteStore,
   createInMemoryInviteStore,
   createSyntheticApiInviteStore,
   createSyntheticApiRequest,
   handleAcceptInviteRequest,
   handleCreateInviteRequest,
   handleGetSessionRequest,
+  handleGetCurrentSessionRequest,
+  handleLogoutRequest,
   syntheticApiCreateInviteRequestBody,
   syntheticApiInvite,
   syntheticApiSession,
@@ -41,6 +47,47 @@ describe("Private Beta invite-only auth", () => {
       expect(response.data.status).toBe(API_INVITE_STATUSES.pending);
       expect(JSON.stringify(response.data)).not.toContain(syntheticPrivateBetaInviteCode);
     }
+  });
+
+  it("returns a safe conflict when an invite email or code already exists", async () => {
+    const store = createInMemoryInviteStore();
+    const request = createSyntheticApiRequest({
+      context: { method: "POST", path: "/v1/auth/invites" },
+      body: syntheticApiCreateInviteRequestBody
+    });
+
+    expect((await handleCreateInviteRequest(request, store)).ok).toBe(true);
+    const response = await handleCreateInviteRequest(request, store);
+
+    expect(response.ok).toBe(false);
+    if (!response.ok) {
+      expect(response.error.code).toBe(API_ERROR_CODES.conflict);
+      expect(response.error.statusCode).toBe(409);
+      expect(response.error.details).toEqual(["invite:already_exists"]);
+      expect(JSON.stringify(response.error)).not.toContain(syntheticPrivateBetaInviteCode);
+    }
+    expect(new ApiInviteConflictError().message).not.toContain(syntheticPrivateBetaInviteCode);
+  });
+
+  it("normalizes database uniqueness failures without exposing database details", async () => {
+    const store = createDatabaseInviteStore({
+      client: {
+        privateBetaInvite: {
+          create: async () => {
+            throw { code: "P2002", meta: { target: "inviteCodeHash", value: syntheticPrivateBetaInviteCode } };
+          }
+        }
+      } as never,
+      inviteCodePepper: "test-only-pepper"
+    });
+
+    await expect(store.createInvite({
+      email: syntheticApiCreateInviteRequestBody.email ?? "partner@example.com",
+      inviteCode: syntheticApiCreateInviteRequestBody.inviteCode ?? "test-only-invite-code",
+      expiresAt: syntheticApiCreateInviteRequestBody.expiresAt,
+      safeMetadata: syntheticApiCreateInviteRequestBody.safeMetadata,
+      correlationId: "invite-conflict-test"
+    })).rejects.toEqual(new ApiInviteConflictError());
   });
 
   it("accepts valid invites and creates active sessions", async () => {
@@ -113,5 +160,25 @@ describe("Private Beta invite-only auth", () => {
       expect(response.data.sessionId).toBe(syntheticApiSession.sessionId);
       expect(response.data.principal.principalId).toBe(syntheticApiInvite.email);
     }
+  });
+
+  it("reads and revokes the current session without exposing session internals", async () => {
+    const store = createSyntheticApiInviteStore();
+    const request = createSyntheticApiRequest({
+      context: { sessionId: syntheticApiSession.sessionId }
+    });
+
+    const current = await handleGetCurrentSessionRequest(request, store);
+    expect(API_GET_CURRENT_SESSION_ROUTE.path).toBe("/auth/session");
+    expect(current.ok).toBe(true);
+
+    const logout = await handleLogoutRequest(request, store);
+    expect(API_LOGOUT_ROUTE.path).toBe("/auth/logout");
+    expect(logout).toMatchObject({ ok: true, data: { loggedOut: true } });
+    expect(await store.getSession(syntheticApiSession.sessionId)).toBeUndefined();
+
+    const afterLogout = await handleGetCurrentSessionRequest(request, store);
+    expect(afterLogout.ok).toBe(false);
+    expect(JSON.stringify(afterLogout)).not.toContain("stack");
   });
 });

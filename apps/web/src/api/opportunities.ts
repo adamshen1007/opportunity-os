@@ -12,7 +12,7 @@ export interface OpportunityListQuery {
 
 export interface DashboardApiRequester {
   request<TData, TBody = unknown>(options: {
-    readonly method: "GET" | "POST";
+    readonly method: "DELETE" | "GET" | "POST";
     readonly path: string;
     readonly query?: Readonly<Record<string, string | number | boolean | undefined>>;
     readonly body?: TBody;

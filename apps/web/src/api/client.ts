@@ -10,7 +10,7 @@ export interface DashboardApiClientOptions {
 }
 
 export interface DashboardApiRequestOptions<TBody = unknown> {
-  readonly method: "GET" | "POST";
+  readonly method: "DELETE" | "GET" | "POST";
   readonly path: string;
   readonly query?: Readonly<Record<string, string | number | boolean | undefined>>;
   readonly body?: TBody;

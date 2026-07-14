@@ -80,6 +80,14 @@ Run the active review boundary check with:
 node scripts/verify-repository.mjs --phase review
 ```
 
+External-user scale readiness can also be verified explicitly with:
+
+```sh
+node scripts/verify-repository.mjs --phase phase-4-milestone-57
+```
+
+The M53-M57 aliases retain the active application/package boundaries while checking the same repository, documentation, environment, and secret-safety policies used by the current review gate.
+
 Phase 1 Milestone 3 adds the logging foundation inside `packages/shared/`. It uses the same shared infrastructure implementation roots and keeps all application, API, connector, AI workflow, frontend, database, domain, intelligence, and business implementation blocked.
 
 Run the active review boundary check with:

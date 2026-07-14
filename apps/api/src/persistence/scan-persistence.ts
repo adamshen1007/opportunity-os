@@ -1,4 +1,24 @@
-import type { ApiScanOpportunityDto, ApiScanResultDto } from "../pipeline/index.js";
+import type { ApiScanOpportunityDto, ApiScanRequest, ApiScanResultDto } from "../pipeline/index.js";
+
+export const API_SCAN_JOB_STATUSES = {
+  queued: "queued",
+  running: "running",
+  completed: "completed",
+  failed: "failed",
+  cancelled: "cancelled"
+} as const;
+
+export type ApiScanJobStatus = (typeof API_SCAN_JOB_STATUSES)[keyof typeof API_SCAN_JOB_STATUSES];
+
+export interface ApiScanJobRecord {
+  readonly jobId: string;
+  readonly status: ApiScanJobStatus;
+  readonly request: ApiScanRequest;
+  readonly requestedAt: string;
+  readonly updatedAt: string;
+  readonly resultScanId?: string;
+  readonly safeMessage: string;
+}
 
 export interface ApiScanPersistenceInput {
   readonly result: ApiScanResultDto;
@@ -10,6 +30,11 @@ export interface ApiScanPersistenceStore {
   readonly resolveOpportunityRecordId: (opportunityId: string) => Promise<string | undefined>;
   readonly getScanResult: (scanId: string) => Promise<ApiScanResultDto | undefined>;
   readonly listScanResults: (limit?: number) => Promise<readonly ApiScanResultDto[]>;
+  readonly createScanJob: (job: ApiScanJobRecord) => Promise<void>;
+  readonly updateScanJob: (job: ApiScanJobRecord) => Promise<void>;
+  readonly getScanJob: (jobId: string) => Promise<ApiScanJobRecord | undefined>;
+  readonly listRecoverableScanJobs: () => Promise<readonly ApiScanJobRecord[]>;
+  readonly deleteScanResult: (scanId: string) => Promise<boolean>;
 }
 
 export interface ApiScanPersistenceRecord {
@@ -38,6 +63,21 @@ export function createNoopScanPersistenceStore(): ApiScanPersistenceStore {
     },
     async listScanResults() {
       return [];
+    },
+    async createScanJob() {
+      return undefined;
+    },
+    async updateScanJob() {
+      return undefined;
+    },
+    async getScanJob() {
+      return undefined;
+    },
+    async listRecoverableScanJobs() {
+      return [];
+    },
+    async deleteScanResult() {
+      return false;
     }
   };
 }
@@ -46,6 +86,7 @@ export function createInMemoryScanPersistenceStore(input: InMemoryScanPersistenc
   const records = new Map<string, ApiScanPersistenceRecord>();
   const opportunityRecordIds = new Map<string, string>();
   const results = new Map<string, ApiScanResultDto>();
+  const jobs = new Map<string, ApiScanJobRecord>();
 
   for (const record of input.initialRecords ?? []) {
     records.set(record.scanId, cloneRecord(record));
@@ -73,6 +114,31 @@ export function createInMemoryScanPersistenceStore(input: InMemoryScanPersistenc
     },
     async listScanResults(limit = 10) {
       return [...results.values()].slice(-Math.max(1, Math.min(limit, 25))).reverse().map((result) => structuredClone(result));
+    },
+    async createScanJob(job) {
+      assertSafePersistencePayload(job);
+      jobs.set(job.jobId, structuredClone(job));
+    },
+    async updateScanJob(job) {
+      assertSafePersistencePayload(job);
+      jobs.set(job.jobId, structuredClone(job));
+    },
+    async getScanJob(jobId) {
+      const job = jobs.get(jobId);
+      return job ? structuredClone(job) : undefined;
+    },
+    async listRecoverableScanJobs() {
+      return [...jobs.values()]
+        .filter((job) => job.status === API_SCAN_JOB_STATUSES.queued || job.status === API_SCAN_JOB_STATUSES.running)
+        .map((job) => structuredClone(job));
+    },
+    async deleteScanResult(scanId) {
+      const existed = results.delete(scanId);
+      const record = records.get(scanId);
+      records.delete(scanId);
+      jobs.delete(scanId);
+      for (const opportunityId of record?.opportunityIds ?? []) opportunityRecordIds.delete(opportunityId);
+      return existed || record !== undefined;
     }
   };
 }
@@ -106,6 +172,8 @@ export interface ApiScanPersistenceDatabaseDelegate<TArgs = unknown> {
   readonly upsert: (args: TArgs) => Promise<unknown>;
   readonly findUnique?: (args: unknown) => Promise<unknown>;
   readonly findMany?: (args: unknown) => Promise<readonly unknown[]>;
+  readonly delete?: (args: unknown) => Promise<unknown>;
+  readonly deleteMany?: (args: unknown) => Promise<unknown>;
 }
 
 export interface ApiScanPersistenceDatabaseClient {
@@ -149,7 +217,106 @@ export function createDatabaseScanPersistenceStore(database: ApiScanPersistenceD
         assertSafePersistencePayload(record.result);
         return [record.result as ApiScanResultDto];
       });
+    },
+    async createScanJob(job) {
+      assertSafePersistencePayload(job);
+      await upsertScanJob(database, job);
+      await memory.createScanJob(job);
+    },
+    async updateScanJob(job) {
+      assertSafePersistencePayload(job);
+      await upsertScanJob(database, job);
+      await memory.updateScanJob(job);
+    },
+    async getScanJob(jobId) {
+      const memoryJob = await memory.getScanJob(jobId);
+      if (memoryJob) return memoryJob;
+      const record = await database.scanRunRecord.findUnique?.({
+        where: { id: jobId },
+        select: { id: true, status: true, source: true, safeMetadata: true, startedAt: true, updatedAt: true }
+      });
+      return toScanJobRecord(record);
+    },
+    async listRecoverableScanJobs() {
+      const records = await database.scanRunRecord.findMany?.({
+        where: { status: { in: [API_SCAN_JOB_STATUSES.queued, API_SCAN_JOB_STATUSES.running] }, result: null },
+        orderBy: { startedAt: "asc" },
+        take: 25,
+        select: { id: true, status: true, source: true, safeMetadata: true, startedAt: true, updatedAt: true }
+      }) ?? [];
+      return records.flatMap((record) => {
+        const job = toScanJobRecord(record);
+        return job ? [job] : [];
+      });
+    },
+    async deleteScanResult(scanId) {
+      const result = await this.getScanResult(scanId);
+      if (!result || !database.scanRunRecord.delete) return false;
+      const rankingIds = [...new Set(result.opportunities.map((item) => item.provenance.rankingRunId))];
+      const generatedIds = result.opportunities.map((item) => item.provenance.generationOutputId);
+      const candidateIds = result.opportunities.map((item) => item.provenance.candidateId);
+      const analysisIds = result.opportunities.map((item) => item.provenance.analysisRequestId);
+      const normalizedIds = result.opportunities.map((item) => item.provenance.normalizedContentId);
+      const rawIds = result.opportunities.map((item) => item.provenance.rawContentId);
+      await database.opportunityRankingItem.deleteMany?.({ where: { rankingResultId: { in: rankingIds } } });
+      await database.opportunityRankingResult.deleteMany?.({ where: { id: { in: rankingIds } } });
+      await database.generatedOpportunityRecord.deleteMany?.({ where: { id: { in: generatedIds } } });
+      await database.candidateOpportunityRecord.deleteMany?.({ where: { id: { in: candidateIds } } });
+      await database.analysisResult.deleteMany?.({ where: { id: { in: analysisIds } } });
+      await database.normalizedContent.deleteMany?.({ where: { id: { in: normalizedIds } } });
+      await database.rawSourceContent.deleteMany?.({ where: { id: { in: rawIds } } });
+      await database.scanRunRecord.delete({ where: { id: scanId } });
+      await memory.deleteScanResult(scanId);
+      return true;
     }
+  };
+}
+
+async function upsertScanJob(database: ApiScanPersistenceDatabaseClient, job: ApiScanJobRecord): Promise<void> {
+  const startedAt = new Date(job.requestedAt);
+  const completedAt = [API_SCAN_JOB_STATUSES.completed, API_SCAN_JOB_STATUSES.failed, API_SCAN_JOB_STATUSES.cancelled].includes(job.status as never)
+    ? new Date(job.updatedAt)
+    : null;
+  await database.scanRunRecord.upsert({
+    where: { id: job.jobId },
+    update: {
+      mode: job.request.mode,
+      status: job.status,
+      source: { request: job.request },
+      stages: [],
+      safeMetadata: { job: true, safeMessage: job.safeMessage, ...(job.resultScanId ? { resultScanId: job.resultScanId } : {}) },
+      completedAt
+    },
+    create: {
+      id: job.jobId,
+      mode: job.request.mode,
+      status: job.status,
+      source: { request: job.request },
+      stages: [],
+      safeMetadata: { job: true, safeMessage: job.safeMessage, ...(job.resultScanId ? { resultScanId: job.resultScanId } : {}) },
+      result: null,
+      startedAt,
+      completedAt
+    }
+  });
+}
+
+function toScanJobRecord(record: unknown): ApiScanJobRecord | undefined {
+  if (!record || typeof record !== "object") return undefined;
+  const value = record as Record<string, unknown>;
+  const source = value.source as { request?: ApiScanRequest } | undefined;
+  const metadata = value.safeMetadata as { safeMessage?: unknown; resultScanId?: unknown } | undefined;
+  if (typeof value.id !== "string" || !source?.request || typeof value.status !== "string") return undefined;
+  const startedAt = value.startedAt instanceof Date ? value.startedAt.toISOString() : String(value.startedAt ?? "");
+  const updatedAt = value.updatedAt instanceof Date ? value.updatedAt.toISOString() : String(value.updatedAt ?? startedAt);
+  return {
+    jobId: value.id,
+    status: value.status as ApiScanJobStatus,
+    request: source.request,
+    requestedAt: startedAt,
+    updatedAt,
+    resultScanId: typeof metadata?.resultScanId === "string" ? metadata.resultScanId : undefined,
+    safeMessage: typeof metadata?.safeMessage === "string" ? metadata.safeMessage : "Scan job state is available."
   };
 }
 

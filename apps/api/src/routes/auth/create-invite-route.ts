@@ -3,6 +3,7 @@ import {
   type ApiCreateInviteRequestBody,
   type ApiInviteDto,
   type ApiInviteStore,
+  ApiInviteConflictError,
   validateCreateInviteBody
 } from "../../auth/index.js";
 import { createApiFailureResponse, createApiSuccessResponse, type ApiRequest, type ApiResponse } from "../../http/index.js";
@@ -41,11 +42,27 @@ export async function handleCreateInviteRequest(
     );
   }
 
-  const invite = await store.createInvite({
-    ...parsed.value,
-    correlationId: meta.correlationId,
-    requestId: meta.requestId
-  });
+  let invite: ApiInviteDto;
+  try {
+    invite = await store.createInvite({
+      ...parsed.value,
+      correlationId: meta.correlationId,
+      requestId: meta.requestId
+    });
+  } catch (error) {
+    if (!(error instanceof ApiInviteConflictError)) throw error;
+    return createApiFailureResponse(
+      createApiError({
+        code: API_ERROR_CODES.conflict,
+        statusCode: 409,
+        message: "An invite already exists for this email or invite code. Use a unique email and code.",
+        correlationId: meta.correlationId,
+        requestId: meta.requestId,
+        details: ["invite:already_exists"]
+      }),
+      meta
+    );
+  }
 
   return createApiSuccessResponse(invite, meta);
 }

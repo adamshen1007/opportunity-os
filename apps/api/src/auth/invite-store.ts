@@ -26,10 +26,18 @@ export interface ApiInviteStoreCreateInput extends ValidatedApiInviteCreationInp
   readonly requestId?: string;
 }
 
+export class ApiInviteConflictError extends Error {
+  constructor() {
+    super("An invite already exists for this email or invite code.");
+    this.name = "ApiInviteConflictError";
+  }
+}
+
 export interface ApiInviteStore {
   readonly createInvite: (input: ApiInviteStoreCreateInput) => Promise<ApiInviteDto>;
   readonly acceptInvite: (input: ValidatedApiInviteAcceptanceInput) => Promise<ApiInviteAcceptanceResult>;
   readonly getSession: (sessionId: string) => Promise<ApiSessionDto | undefined>;
+  readonly revokeSession: (sessionId: string) => Promise<boolean>;
 }
 
 export interface InMemoryInviteStoreInput {
@@ -53,6 +61,9 @@ export function createInMemoryInviteStore(input: InMemoryInviteStoreInput = {}):
 
   return {
     async createInvite(createInput) {
+      if (invites.some((invite) => invite.email === createInput.email || invite.inviteCode === createInput.inviteCode)) {
+        throw new ApiInviteConflictError();
+      }
       const invite: ApiInviteRecord = {
         inviteId: inviteIdFactory(),
         inviteCode: createInput.inviteCode,
@@ -130,7 +141,17 @@ export function createInMemoryInviteStore(input: InMemoryInviteStoreInput = {}):
     },
     async getSession(sessionId) {
       const session = sessions.find((candidate) => candidate.sessionId === sessionId);
-      return session ? cloneSession(session) : undefined;
+      if (!session || session.status !== API_SESSION_STATUSES.active || Date.parse(session.expiresAt) <= Date.parse(clock())) {
+        return undefined;
+      }
+      return cloneSession(session);
+    },
+    async revokeSession(sessionId) {
+      const sessionIndex = sessions.findIndex((candidate) => candidate.sessionId === sessionId);
+      const session = sessions[sessionIndex];
+      if (sessionIndex < 0 || session === undefined) return false;
+      sessions[sessionIndex] = { ...session, status: API_SESSION_STATUSES.revoked };
+      return true;
     }
   };
 }

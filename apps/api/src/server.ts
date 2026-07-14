@@ -17,26 +17,42 @@ import {
   handleGetRankingRequest,
   handleRankOpportunitiesRequest
 } from "./routes/rankings/index.js";
-import { handleCreateRedditScanRequest, handleCreateScanRequest, handleGetScanRequest, handleListScansRequest } from "./routes/scans/index.js";
+import {
+  handleCancelScanJobRequest,
+  handleCreateRedditScanRequest,
+  handleCreateScanJobRequest,
+  handleCreateScanRequest,
+  handleDeleteScanRequest,
+  handleGetScanJobRequest,
+  handleGetScanRequest,
+  handleListScansRequest,
+  handleRetryScanJobRequest
+} from "./routes/scans/index.js";
 import {
   handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
+  handleDeleteFeedbackRequest,
   handleGetFeedbackRequest,
   handleListFeedbackRequest
 } from "./routes/feedback/index.js";
 import {
   handleAcceptInviteRequest,
   handleCreateInviteRequest,
+  handleGetCurrentSessionRequest,
+  handleLogoutRequest,
   handleGetSessionRequest
 } from "./routes/auth/index.js";
 import { createInMemoryScanPersistenceStore, type ApiScanPersistenceStore } from "./persistence/index.js";
 import type { ApiFeedbackStore } from "./feedback/index.js";
 import type { ApiInviteStore } from "./auth/index.js";
 import { createApiProductionRuntime } from "./runtime/index.js";
+import { createApiScanJobService } from "./runtime/index.js";
 import { createFixedWindowRateLimiter, type FixedWindowRateLimiter } from "./security/index.js";
 import type { ApiRequest, ApiResponse } from "./http/index.js";
 import { API_ERROR_CODES, createApiError } from "./errors/index.js";
 import type { ApiHealthDependencyDto } from "./routes/health/index.js";
+import { createApiMetricsRegistry, type ApiMetricsRegistry } from "./operations/index.js";
+import { handleGetOperationsRequest } from "./routes/operations/index.js";
 
 export interface LocalApiServerOptions {
   readonly serviceName?: string;
@@ -54,6 +70,7 @@ export interface LocalApiServerOptions {
   readonly scanRateLimiter?: FixedWindowRateLimiter;
   readonly requireAuthentication?: boolean;
   readonly adminAccessToken?: string;
+  readonly metricsRegistry?: ApiMetricsRegistry;
 }
 
 export interface LocalApiDispatchInput {
@@ -86,12 +103,25 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
   const inviteStore = options.inviteStore ?? createSyntheticApiInviteStore();
   const scanPersistence = options.scanPersistence ?? createInMemoryScanPersistenceStore();
   const scanRateLimiter = options.scanRateLimiter ?? createFixedWindowRateLimiter({ limit: 10, windowMs: 60_000 });
+  const metrics = options.metricsRegistry ?? createApiMetricsRegistry(clock);
+  const scanJobService = createApiScanJobService({ persistence: scanPersistence, clock, onTransition: metrics.recordScanTransition });
+  void scanJobService.recover();
 
   const routeTable: readonly {
     readonly method: string;
     readonly path: string;
     readonly handler: LocalApiHandler;
   }[] = [
+    {
+      method: "GET",
+      path: "/auth/session",
+      handler: (request) => handleGetCurrentSessionRequest(asHandlerRequest(request), inviteStore)
+    },
+    {
+      method: "POST",
+      path: "/auth/logout",
+      handler: (request) => handleLogoutRequest(asHandlerRequest(request), inviteStore)
+    },
     {
       method: "GET",
       path: "/health",
@@ -119,6 +149,11 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     },
     {
       method: "GET",
+      path: "/operations",
+      handler: (request) => handleGetOperationsRequest(request, metrics)
+    },
+    {
+      method: "GET",
       path: "/opportunities/:opportunityId",
       handler: (request) => handleGetOpportunityRequest(asHandlerRequest(request), syntheticApiOpportunityPort)
     },
@@ -136,6 +171,31 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       method: "GET",
       path: "/scans/:scanId",
       handler: (request) => handleGetScanRequest(asHandlerRequest(request), scanPersistence)
+    },
+    {
+      method: "DELETE",
+      path: "/scans/:scanId",
+      handler: (request) => handleDeleteScanRequest(asHandlerRequest(request), scanPersistence)
+    },
+    {
+      method: "POST",
+      path: "/scan-jobs",
+      handler: (request) => handleCreateScanJobRequest(asHandlerRequest(request), scanJobService)
+    },
+    {
+      method: "GET",
+      path: "/scan-jobs/:jobId",
+      handler: (request) => handleGetScanJobRequest(asHandlerRequest(request), scanJobService)
+    },
+    {
+      method: "POST",
+      path: "/scan-jobs/:jobId/cancel",
+      handler: (request) => handleCancelScanJobRequest(asHandlerRequest(request), scanJobService)
+    },
+    {
+      method: "POST",
+      path: "/scan-jobs/:jobId/retry",
+      handler: (request) => handleRetryScanJobRequest(asHandlerRequest(request), scanJobService)
     },
     {
       method: "POST",
@@ -174,6 +234,11 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       method: "GET",
       path: "/feedback/:feedbackId",
       handler: (request) => handleGetFeedbackRequest(asHandlerRequest(request), feedbackStore)
+    },
+    {
+      method: "DELETE",
+      path: "/feedback/:feedbackId",
+      handler: (request) => handleDeleteFeedbackRequest(asHandlerRequest(request), feedbackStore)
     },
     {
       method: "POST",
@@ -218,7 +283,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       }
     }
 
-    if (input.method === "POST" && requestUrl.pathname.startsWith("/scans")) {
+    if (input.method === "POST" && (requestUrl.pathname.startsWith("/scans") || requestUrl.pathname.startsWith("/scan-jobs"))) {
       const rate = scanRateLimiter.consume(input.headers?.["x-forwarded-for"] ?? input.headers?.["x-request-id"] ?? "anonymous");
       if (!rate.allowed) {
         return createFailureResponseFromInput(input, requestUrl.pathname, "Scan rate limit exceeded. Try again shortly.", 429);
@@ -238,6 +303,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       context: {
         correlationId: input.headers?.["x-correlation-id"] ?? randomUUID(),
         requestId: input.headers?.["x-request-id"],
+        sessionId: input.headers?.["x-opportunity-os-session-id"],
         method: input.method,
         path: requestUrl.pathname
       },
@@ -255,7 +321,8 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
 }
 
 export function createLocalApiServer(options: LocalApiServerOptions = {}): Server {
-  const dispatchLocalApiRequest = createLocalApiDispatcher(options);
+  const metrics = options.metricsRegistry ?? createApiMetricsRegistry(options.clock);
+  const dispatchLocalApiRequest = createLocalApiDispatcher({ ...options, metricsRegistry: metrics });
 
   return createServer(async (incoming, outgoing) => {
     const startedAt = Date.now();
@@ -317,6 +384,9 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
         outgoing.setHeader("set-cookie", createSessionCookie(sessionId, options.environment === "production"));
       }
     }
+    if (requestUrl.pathname === "/auth/logout" && response.ok) {
+      outgoing.setHeader("set-cookie", createExpiredSessionCookie(options.environment === "production"));
+    }
     writeOperationalLog({
       method: incoming.method ?? "GET",
       path: requestUrl.pathname,
@@ -324,6 +394,7 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
       durationMs: Date.now() - startedAt,
       correlationId: response.meta.correlationId
     });
+    metrics.recordRequest(getResponseStatus(response), Date.now() - startedAt);
     writeJson(outgoing, getResponseStatus(response), response);
   });
 }
@@ -466,7 +537,7 @@ export function applyCorsHeaders(response: ServerResponse, requestOrigin: string
     response.setHeader("access-control-allow-origin", requestOrigin ?? allowedOrigins[0] ?? "*");
   }
   response.setHeader("access-control-allow-credentials", "true");
-  response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
+  response.setHeader("access-control-allow-methods", "DELETE,GET,POST,OPTIONS");
   response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token,x-opportunity-os-session-id,x-opportunity-os-admin-token");
   return originAllowed;
 }
@@ -493,6 +564,10 @@ function readCookie(request: IncomingMessage, name: string): string | undefined 
 
 function createSessionCookie(sessionId: string, secure: boolean): string {
   return [`opportunity_os_session=${encodeURIComponent(sessionId)}`, "HttpOnly", "Path=/", "SameSite=None", "Max-Age=28800", ...(secure ? ["Secure"] : [])].join("; ");
+}
+
+function createExpiredSessionCookie(secure: boolean): string {
+  return ["opportunity_os_session=", "HttpOnly", "Path=/", "SameSite=None", "Max-Age=0", ...(secure ? ["Secure"] : [])].join("; ");
 }
 
 function safeTokenEquals(provided: string | undefined, expected: string): boolean {

@@ -10,6 +10,7 @@ export interface ApiFeedbackPersistenceDelegate {
   readonly create: (args: unknown) => Promise<ApiPersistedFeedbackRecord>;
   readonly findUnique: (args: unknown) => Promise<ApiPersistedFeedbackRecord | null>;
   readonly findMany: (args: unknown) => Promise<readonly ApiPersistedFeedbackRecord[]>;
+  readonly delete?: (args: unknown) => Promise<unknown>;
 }
 
 export interface ApiFeedbackPersistenceDatabaseClient {
@@ -55,6 +56,13 @@ export function createDatabaseFeedbackStore(database: ApiFeedbackPersistenceData
         where: toFeedbackWhere(input)
       });
       return records.map(toFeedbackDto);
+    },
+    async deleteFeedback(feedbackId) {
+      if (!database.privateBetaFeedback.delete) return false;
+      const existing = await database.privateBetaFeedback.findUnique({ where: { id: feedbackId } });
+      if (!existing) return false;
+      await database.privateBetaFeedback.delete({ where: { id: feedbackId } });
+      return true;
     }
   };
 }

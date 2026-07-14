@@ -14,6 +14,7 @@ export interface ApiFeedbackStore {
   readonly createFeedback: (input: ApiFeedbackStoreCreateInput) => Promise<ApiFeedbackDto>;
   readonly getFeedback: (feedbackId: string) => Promise<ApiFeedbackDto | undefined>;
   readonly listFeedback: (input?: ApiFeedbackStoreListInput) => Promise<readonly ApiFeedbackDto[]>;
+  readonly deleteFeedback: (feedbackId: string) => Promise<boolean>;
 }
 
 export interface InMemoryFeedbackStoreInput {
@@ -51,6 +52,12 @@ export function createInMemoryFeedbackStore(input: InMemoryFeedbackStoreInput = 
       return feedback
         .filter((item) => listInput.opportunityId === undefined || item.opportunityId === listInput.opportunityId)
         .map((item) => cloneFeedback(item));
+    },
+    async deleteFeedback(feedbackId) {
+      const index = feedback.findIndex((item) => item.feedbackId === feedbackId);
+      if (index < 0) return false;
+      feedback.splice(index, 1);
+      return true;
     }
   };
 }

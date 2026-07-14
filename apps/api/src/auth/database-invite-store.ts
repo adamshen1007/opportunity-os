@@ -4,6 +4,7 @@ import { createAuthenticatedAuthContext } from "./auth-context.js";
 import type { ApiInviteDto, ApiSessionDto } from "./invite-dto.js";
 import {
   API_INVITE_ACCEPTANCE_FAILURE_REASONS,
+  ApiInviteConflictError,
   type ApiInviteAcceptanceResult,
   type ApiInviteStore
 } from "./invite-store.js";
@@ -26,16 +27,21 @@ export function createDatabaseInviteStore(options: DatabaseInviteStoreOptions): 
 
   return {
     async createInvite(input) {
-      const invite = await options.client.privateBetaInvite.create({
-        data: {
-          id: idFactory(),
-          email: input.email,
-          inviteCodeHash: hashInviteCode(input.inviteCode),
-          status: API_INVITE_STATUSES.pending,
-          expiresAt: input.expiresAt ? new Date(input.expiresAt) : null
-        }
-      });
-      return toInviteDto(invite);
+      try {
+        const invite = await options.client.privateBetaInvite.create({
+          data: {
+            id: idFactory(),
+            email: input.email,
+            inviteCodeHash: hashInviteCode(input.inviteCode),
+            status: API_INVITE_STATUSES.pending,
+            expiresAt: input.expiresAt ? new Date(input.expiresAt) : null
+          }
+        });
+        return toInviteDto(invite);
+      } catch (error) {
+        if (isUniqueConstraintError(error)) throw new ApiInviteConflictError();
+        throw error;
+      }
     },
 
     async acceptInvite(input): Promise<ApiInviteAcceptanceResult> {
@@ -86,8 +92,23 @@ export function createDatabaseInviteStore(options: DatabaseInviteStoreOptions): 
         return undefined;
       }
       return toSessionDto(session);
+    },
+
+    async revokeSession(sessionId) {
+      const session = await options.client.privateBetaSession.findUnique({ where: { id: sessionId } });
+      if (!session || session.status !== API_SESSION_STATUSES.active) return false;
+      const now = clock();
+      await options.client.privateBetaSession.update({
+        where: { id: sessionId },
+        data: { status: API_SESSION_STATUSES.revoked, revokedAt: now }
+      });
+      return true;
     }
   };
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
 }
 
 function rejected(reason: typeof API_INVITE_ACCEPTANCE_FAILURE_REASONS[keyof typeof API_INVITE_ACCEPTANCE_FAILURE_REASONS], safeMessage: string): ApiInviteAcceptanceResult {

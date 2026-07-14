@@ -61,6 +61,15 @@ export type ApiScanOpportunityDto = {
     readonly explanation: string;
   };
   readonly evidence: readonly ApiScanEvidenceDto[];
+  readonly trust: {
+    readonly evidenceCount: number;
+    readonly confidenceBand: "low" | "moderate" | "high";
+    readonly limitations: readonly string[];
+    readonly rankingFactors: readonly {
+      readonly label: string;
+      readonly contribution: string;
+    }[];
+  };
   readonly provenance: {
     readonly scanId: string;
     readonly sourceItemId: string;
@@ -100,5 +109,7 @@ export type ApiScanResultDto = {
     readonly deterministic: boolean;
     readonly liveEnabled: boolean;
     readonly rawProviderPayloadStored: false;
+    readonly rejectedSourceItems: number;
+    readonly duplicateSourceItems: number;
   };
 };

@@ -116,6 +116,10 @@ test("live scan failures never masquerade as fixture results", async ({ page }) 
 });
 
 test("live scan results replace synthetic top opportunities", async ({ page }) => {
+  const corsHeaders = {
+    "access-control-allow-credentials": "true",
+    "access-control-allow-origin": "http://127.0.0.1:3100"
+  };
   const liveOpportunityTitle = "Reduce repeated deployment rollback diagnosis";
   const liveResult = {
     scanId: "scan-live-stack-exchange-e2e",
@@ -178,18 +182,34 @@ test("live scan results replace synthetic top opportunities", async ({ page }) =
       averageConfidence: 0.86,
       reviewStatus: "ready-for-human-review"
     },
-    safeMetadata: { deterministic: false, liveEnabled: true, rawProviderPayloadStored: false }
+    safeMetadata: { deterministic: false, liveEnabled: true, rawProviderPayloadStored: false, rejectedSourceItems: 0, duplicateSourceItems: 0 }
   };
 
-  await page.route("**/scans*", async (route) => {
-    if (route.request().method() === "POST") {
+  await page.route(/\/scan-jobs(?:\/.*)?$/u, async (route) => {
+    if (route.request().method() === "OPTIONS") {
       await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ ok: true, data: liveResult, meta: { correlationId: "e2e-live-result" } })
+        status: 204,
+        headers: {
+          "access-control-allow-credentials": "true",
+          "access-control-allow-headers": "content-type,x-correlation-id,x-opportunity-os-access-token",
+          "access-control-allow-methods": "GET,POST,OPTIONS",
+          "access-control-allow-origin": "http://127.0.0.1:3100"
+        }
       });
       return;
     }
+    if (route.request().method() === "POST" && route.request().url().endsWith("/scan-jobs")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        headers: corsHeaders,
+        body: JSON.stringify({ ok: true, data: { jobId: "scan-job-live-e2e", status: "queued", request: { source: "stack-exchange", mode: "live" }, requestedAt: "2026-07-13T00:00:00.000Z", updatedAt: "2026-07-13T00:00:00.000Z", safeMessage: "Scan is queued for processing." }, meta: { correlationId: "e2e-live-job" } })
+      });
+      return;
+    }
+    await route.fulfill({ status: 200, contentType: "application/json", headers: corsHeaders, body: JSON.stringify({ ok: true, data: { jobId: "scan-job-live-e2e", status: "completed", request: { source: "stack-exchange", mode: "live" }, requestedAt: "2026-07-13T00:00:00.000Z", updatedAt: "2026-07-13T00:00:01.000Z", resultScanId: liveResult.scanId, safeMessage: "Scan completed and results are ready.", result: liveResult }, meta: { correlationId: "e2e-live-job-status" } }) });
+  });
+  await page.route("**/scans*", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",

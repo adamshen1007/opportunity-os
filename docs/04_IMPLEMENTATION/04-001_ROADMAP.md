@@ -3159,6 +3159,19 @@ Readiness:
 - Private Beta deployment readiness remains intact
 - new backend features, AI features, payments, CRM integrations, notifications, analytics platforms, mobile apps, schedulers, workers, and unscoped product systems remain absent
 
+## Phase 4 Milestones 53-57 - External User Scale Readiness
+
+Completed deliverables:
+
+- current-session inspection, durable session revocation, cookie clearing, and first-login guidance
+- durable queued/running/completed/failed/cancelled scan jobs with API restart and browser reload recovery
+- malformed-evidence rejection, source deduplication, confidence limitations, and explainable ranking factors
+- scan and feedback deletion endpoints plus a user-facing privacy and data-controls page
+- safe authenticated operations counters for request health, latency, and scan outcomes
+- repository verification support through `phase-4-milestone-57`
+
+Readiness is defined in `docs/04_IMPLEMENTATION/04-027_EXTERNAL_USER_SCALE_READINESS.md`. Broad self-service registration, horizontal scan execution, and durable third-party metrics are future work.
+
 Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 
 

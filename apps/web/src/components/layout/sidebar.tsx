@@ -1,10 +1,11 @@
 "use client";
 
-import { BarChart3, FileSearch, Home, Lightbulb, ScanSearch, Settings } from "lucide-react";
+import { BarChart3, FileSearch, Home, Lightbulb, ScanSearch, Settings, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { DashboardNavItem } from "../../navigation";
 import { useActiveScan } from "../../features/scans";
+import { SessionControls } from "./session-controls";
 
 export interface SidebarProps {
   readonly items: readonly DashboardNavItem[];
@@ -43,7 +44,8 @@ export function Sidebar({ items }: SidebarProps) {
       </nav>
       <div className="sidebar-footer">
         <Link href="/#beta-tools"><Settings aria-hidden="true" size={18} strokeWidth={1.7} /><span>Beta tools</span></Link>
-        <div className="operator-chip"><span>AD</span><div><strong>Adam</strong><small>Research workspace</small></div></div>
+        <Link href="/privacy"><ShieldCheck aria-hidden="true" size={18} strokeWidth={1.7} /><span>Privacy & data</span></Link>
+        <SessionControls />
       </div>
     </aside>
   );

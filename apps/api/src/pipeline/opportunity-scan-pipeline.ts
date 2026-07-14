@@ -263,6 +263,32 @@ function mapStackExchangeQuestion(question: StackExchangeQuestion): PipelineSour
   };
 }
 
+function prepareSourceItems(items: readonly PipelineSourceItem[]): {
+  readonly accepted: readonly PipelineSourceItem[];
+  readonly rejected: number;
+  readonly duplicates: number;
+} {
+  const accepted: PipelineSourceItem[] = [];
+  const seen = new Set<string>();
+  let rejected = 0;
+  let duplicates = 0;
+  for (const item of items) {
+    const validUrl = /^(https:\/\/|\/)/u.test(item.permalink);
+    if (!item.id.trim() || item.title.trim().length < 8 || !validUrl) {
+      rejected += 1;
+      continue;
+    }
+    const fingerprint = `${item.source}:${item.permalink.toLowerCase()}:${item.title.trim().toLowerCase().replace(/\s+/gu, " ")}`;
+    if (seen.has(fingerprint)) {
+      duplicates += 1;
+      continue;
+    }
+    seen.add(fingerprint);
+    accepted.push(item);
+  }
+  return { accepted, rejected, duplicates };
+}
+
 function mapPostToRawContent(post: PipelineSourceItem, requestedAt: string): PipelineRawContent {
   return {
     id: `raw-post-${safeId(post.id)}`,
@@ -516,6 +542,18 @@ function toDto(input: {
       explanation: "Ranked by deterministic confidence and evidence completeness signals."
     },
     evidence: [evidence],
+    trust: {
+      evidenceCount: 1,
+      confidenceBand: input.generated.candidate.confidence >= 0.8 ? "high" : input.generated.candidate.confidence >= 0.6 ? "moderate" : "low",
+      limitations: [
+        "This candidate is supported by one public source item and requires human validation.",
+        "Confidence reflects evidence completeness and analysis consistency, not market size or commercial feasibility."
+      ],
+      rankingFactors: [
+        { label: "Candidate confidence", contribution: "Weighted deterministic signal" },
+        { label: "Evidence completeness", contribution: "Required source evidence present" }
+      ]
+    },
     provenance: {
       scanId: input.scanId,
       sourceItemId: input.post.id,
@@ -540,7 +578,8 @@ function assertSafeOutput(result: ApiScanResultDto): void {
 export async function runOpportunityScanPipeline(input: OpportunityScanPipelineInput): Promise<ApiScanResultDto> {
   const sourceName = input.source ?? "reddit";
   const source = await readSource({ ...input, source: sourceName });
-  const posts = source.items;
+  const prepared = prepareSourceItems(source.items);
+  const posts = prepared.accepted;
   const scanId = `scan-${safeId(sourceName)}-${safeId(source.community)}-${safeId(input.requestedAt)}`;
   const rawContent = posts.map((post) => mapPostToRawContent(post, input.requestedAt));
   const normalizedContent = rawContent.map((raw) => normalizeRawContent(raw));
@@ -603,7 +642,9 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
     safeMetadata: {
       deterministic: source.mode === API_SCAN_MODES.fixture,
       liveEnabled: source.mode === API_SCAN_MODES.live,
-      rawProviderPayloadStored: false
+      rawProviderPayloadStored: false,
+      rejectedSourceItems: prepared.rejected,
+      duplicateSourceItems: prepared.duplicates
     }
   };
 
