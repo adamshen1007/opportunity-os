@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  API_SCAN_JOB_STATUSES,
   createDatabaseScanPersistenceStore,
   createInMemoryFeedbackStore,
   createInMemoryScanPersistenceStore,
@@ -124,5 +125,37 @@ describe("scan persistence", () => {
       opportunityRankingItem: opportunityRankingItem.calls
     });
     expect(serialized).not.toMatch(/api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret|authorization|bearer|raw provider|stack trace/iu);
+  });
+
+  it("queries recoverable jobs without an invalid nullable JSON filter", async () => {
+    const scanRunRecord = {
+      ...createDelegate(),
+      async findMany(args: unknown) {
+        scanRunRecord.calls.push(args);
+        return [];
+      }
+    };
+    const database: ApiScanPersistenceDatabaseClient = {
+      scanRunRecord,
+      rawSourceContent: createDelegate(),
+      normalizedContent: createDelegate(),
+      analysisResult: createDelegate(),
+      candidateOpportunityRecord: createDelegate(),
+      generatedOpportunityRecord: createDelegate(),
+      opportunityRankingResult: createDelegate(),
+      opportunityRankingItem: createDelegate()
+    };
+
+    await createDatabaseScanPersistenceStore(database).listRecoverableScanJobs();
+
+    expect(scanRunRecord.calls).toHaveLength(1);
+    expect(scanRunRecord.calls[0]).toMatchObject({
+      where: {
+        status: {
+          in: [API_SCAN_JOB_STATUSES.queued, API_SCAN_JOB_STATUSES.running]
+        }
+      }
+    });
+    expect(JSON.stringify(scanRunRecord.calls[0])).not.toContain('"result":null');
   });
 });

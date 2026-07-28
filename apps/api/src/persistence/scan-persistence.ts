@@ -239,7 +239,7 @@ export function createDatabaseScanPersistenceStore(database: ApiScanPersistenceD
     },
     async listRecoverableScanJobs() {
       const records = await database.scanRunRecord.findMany?.({
-        where: { status: { in: [API_SCAN_JOB_STATUSES.queued, API_SCAN_JOB_STATUSES.running] }, result: null },
+        where: { status: { in: [API_SCAN_JOB_STATUSES.queued, API_SCAN_JOB_STATUSES.running] } },
         orderBy: { startedAt: "asc" },
         take: 25,
         select: { id: true, status: true, source: true, safeMetadata: true, startedAt: true, updatedAt: true }
