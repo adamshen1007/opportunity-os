@@ -4,9 +4,7 @@ import { fileURLToPath } from "node:url";
 import {
   createSyntheticApiBugReportStore,
   createSyntheticApiFeedbackStore,
-  createSyntheticApiInviteStore,
-  syntheticApiOpportunityPort,
-  syntheticApiRankingPort
+  createSyntheticApiInviteStore
 } from "./testing/index.js";
 import { handleApiHealthRequest } from "./routes/health/index.js";
 import {
@@ -54,6 +52,14 @@ import { API_ERROR_CODES, createApiError } from "./errors/index.js";
 import type { ApiHealthDependencyDto } from "./routes/health/index.js";
 import { createApiMetricsRegistry, type ApiMetricsRegistry } from "./operations/index.js";
 import { handleGetOperationsRequest } from "./routes/operations/index.js";
+import {
+  createOwnerScope,
+  createOwnerScopedOpportunityPort,
+  createOwnerScopedRankingPort,
+  LOCAL_DEVELOPMENT_PRINCIPAL_ID,
+  requireOwnershipScope,
+  type ApiOwnershipScope
+} from "./ownership/index.js";
 
 export interface LocalApiServerOptions {
   readonly serviceName?: string;
@@ -149,7 +155,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "GET",
       path: "/opportunities",
-      handler: (request) => handleListOpportunitiesRequest(asHandlerRequest(request), syntheticApiOpportunityPort)
+      handler: (request) => handleListOpportunitiesRequest(asHandlerRequest(request), createOwnerScopedOpportunityPort(scanPersistence, requireOwnershipScope(request.context)))
     },
     {
       method: "GET",
@@ -159,7 +165,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "GET",
       path: "/opportunities/:opportunityId",
-      handler: (request) => handleGetOpportunityRequest(asHandlerRequest(request), syntheticApiOpportunityPort)
+      handler: (request) => handleGetOpportunityRequest(asHandlerRequest(request), createOwnerScopedOpportunityPort(scanPersistence, requireOwnershipScope(request.context)))
     },
     {
       method: "GET",
@@ -204,7 +210,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "POST",
       path: "/rankings",
-      handler: (request) => handleRankOpportunitiesRequest(asHandlerRequest(request), syntheticApiRankingPort)
+      handler: (request) => handleRankOpportunitiesRequest(asHandlerRequest(request), createOwnerScopedRankingPort(scanPersistence, requireOwnershipScope(request.context)))
     },
     {
       method: "POST",
@@ -214,14 +220,14 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "GET",
       path: "/rankings/:rankingId",
-      handler: (request) => handleGetRankingRequest(asHandlerRequest(request), syntheticApiRankingPort)
+      handler: (request) => handleGetRankingRequest(asHandlerRequest(request), createOwnerScopedRankingPort(scanPersistence, requireOwnershipScope(request.context)))
     },
     {
       method: "POST",
       path: "/feedback",
       handler: (request) =>
         handleCreateFeedbackRequest(asHandlerRequest(request), feedbackStore, {
-          resolveOpportunityRecordId: (opportunityId) => scanPersistence.resolveOpportunityRecordId(opportunityId)
+          resolveOpportunityRecordId: (opportunityId) => scanPersistence.resolveOpportunityRecordId(requireOwnershipScope(request.context), opportunityId)
         })
     },
     {
@@ -284,7 +290,15 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       }
     }
 
-    if (options.requireAuthentication && adminRoute) {
+    let ownership: ApiOwnershipScope = createOwnerScope(LOCAL_DEVELOPMENT_PRINCIPAL_ID);
+    const adminOverrideRequested = input.headers?.["x-opportunity-os-admin-override"] === "true";
+    if (adminOverrideRequested) {
+      if (input.method !== "GET" || !options.adminAccessToken || !safeTokenEquals(input.headers?.["x-opportunity-os-admin-token"], options.adminAccessToken)) {
+        return createFailureResponseFromInput(input, requestUrl.pathname, "Administrative ownership override is not authorized.", 401);
+      }
+      ownership = { mode: "administrator", principalId: "system-administrator", reason: "support-read" };
+      writeOwnershipOverrideLog(requestUrl.pathname, input.headers?.["x-correlation-id"] ?? randomUUID());
+    } else if (options.requireAuthentication && adminRoute) {
       if (!options.adminAccessToken || !safeTokenEquals(input.headers?.["x-opportunity-os-admin-token"], options.adminAccessToken)) {
         return createFailureResponseFromInput(input, requestUrl.pathname, "Administrative access is not authorized.", 401);
       }
@@ -294,6 +308,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       if (!session) {
         return createFailureResponseFromInput(input, requestUrl.pathname, "An active beta session is required.", 401);
       }
+      ownership = createOwnerScope(session.principal.principalId);
     }
 
     if (input.method === "POST" && (requestUrl.pathname.startsWith("/scans") || requestUrl.pathname.startsWith("/scan-jobs"))) {
@@ -317,6 +332,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
         correlationId: input.headers?.["x-correlation-id"] ?? randomUUID(),
         requestId: input.headers?.["x-request-id"],
         sessionId: input.headers?.["x-opportunity-os-session-id"],
+        ownership,
         method: input.method,
         path: requestUrl.pathname
       },
@@ -388,6 +404,7 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
         "x-forwarded-for": getHeaderValue(incoming, "x-forwarded-for"),
         "x-opportunity-os-access-token": getHeaderValue(incoming, "x-opportunity-os-access-token"),
         "x-opportunity-os-admin-token": getHeaderValue(incoming, "x-opportunity-os-admin-token"),
+        "x-opportunity-os-admin-override": getHeaderValue(incoming, "x-opportunity-os-admin-override"),
         "x-opportunity-os-session-id": getHeaderValue(incoming, "x-opportunity-os-session-id") ?? readCookie(incoming, "opportunity_os_session")
           ?? readCookie(incoming, "__Host-opportunity_os_session"),
         origin: getHeaderValue(incoming, "origin")
@@ -555,7 +572,7 @@ export function applyCorsHeaders(response: ServerResponse, requestOrigin: string
   }
   response.setHeader("access-control-allow-credentials", "true");
   response.setHeader("access-control-allow-methods", "DELETE,GET,POST,OPTIONS");
-  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token,x-opportunity-os-admin-token");
+  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token,x-opportunity-os-admin-token,x-opportunity-os-admin-override");
   return originAllowed;
 }
 
@@ -619,6 +636,17 @@ function writeOperationalLog(input: {
     eventName: "api.request.completed",
     ...input,
     path: sanitizeOperationalPath(input.path)
+  })}\n`);
+}
+
+function writeOwnershipOverrideLog(path: string, correlationId: string): void {
+  process.stdout.write(`${JSON.stringify({
+    timestamp: new Date().toISOString(),
+    service: "opportunity-os-api",
+    severity: "warn",
+    eventName: "ownership.administrator_override",
+    correlationId,
+    path: sanitizeOperationalPath(path)
   })}\n`);
 }
 

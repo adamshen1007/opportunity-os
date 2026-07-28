@@ -21,15 +21,15 @@ model PrivateBetaInvite {
 }
 
 model PrivateBetaSession {
-  id          String            @id
-  tokenHash   String            @unique
+  id          String                 @id
+  tokenHash   String                 @unique
   inviteId    String
   principalId String
   status      String
-  createdAt   DateTime          @default(now())
+  createdAt   DateTime               @default(now())
   expiresAt   DateTime
   revokedAt   DateTime?
-  invite      PrivateBetaInvite @relation(fields: [inviteId], references: [id])
+  invite      PrivateBetaInvite      @relation(fields: [inviteId], references: [id])
   feedback    PrivateBetaFeedback[]
   bugReports  PrivateBetaBugReport[]
 
@@ -43,6 +43,7 @@ model PrivateBetaFeedback {
   sessionId           String?
   opportunityId       String
   opportunityRecordId String?
+  ownerPrincipalId    String
   status              String
   reasonCategories    Json
   ratings             Json
@@ -54,6 +55,7 @@ model PrivateBetaFeedback {
   @@index([sessionId])
   @@index([opportunityId])
   @@index([opportunityRecordId])
+  @@index([ownerPrincipalId])
   @@map("private_beta_feedback")
 }
 
@@ -73,26 +75,31 @@ model PrivateBetaBugReport {
 }
 
 model ScanRunRecord {
-  id           String   @id
-  mode         String
-  status       String
-  source       Json
-  stages       Json
-  safeMetadata Json?
-  result       Json?
-  startedAt    DateTime
-  completedAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String                     @id
+  ownerPrincipalId String
+  mode             String
+  status           String
+  source           Json
+  stages           Json
+  safeMetadata     Json?
+  result           Json?
+  startedAt        DateTime
+  completedAt      DateTime?
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+  rawSourceContent RawSourceContent[]
+  rankingResults   OpportunityRankingResult[]
 
   @@index([mode])
   @@index([status])
   @@index([startedAt])
+  @@index([ownerPrincipalId])
   @@map("scan_run_records")
 }
 
 model RawSourceContent {
   id                 String              @id
+  scanId             String
   sourcePlatform     String
   sourceId           String
   sourceType         String
@@ -108,8 +115,10 @@ model RawSourceContent {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   normalizedContent  NormalizedContent[]
+  scan               ScanRunRecord       @relation(fields: [scanId], references: [id])
 
-  @@unique([sourcePlatform, sourceId])
+  @@unique([scanId, sourcePlatform, sourceId])
+  @@index([scanId])
   @@index([sourcePlatform])
   @@index([sourceType])
   @@index([contentHash])
@@ -117,7 +126,7 @@ model RawSourceContent {
 }
 
 model NormalizedContent {
-  id                 String            @id
+  id                 String           @id
   rawSourceContentId String
   canonicalText      String
   languageCode       String?
@@ -125,9 +134,9 @@ model NormalizedContent {
   textSegments       Json
   safeMetadata       Json?
   provenance         Json?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  rawSourceContent   RawSourceContent  @relation(fields: [rawSourceContentId], references: [id], onDelete: Cascade)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  rawSourceContent   RawSourceContent @relation(fields: [rawSourceContentId], references: [id], onDelete: Cascade)
   analysisResults    AnalysisResult[]
 
   @@index([rawSourceContentId])
@@ -137,20 +146,20 @@ model NormalizedContent {
 }
 
 model AnalysisResult {
-  id                       String                       @id
-  normalizedContentId      String
-  analysisType             String
-  analysisVersion          String
-  status                   String
-  structuredOutput         Json
-  evidence                 Json?
-  confidence               Json?
-  safeMetadata             Json?
-  provenance               Json?
-  createdAt                DateTime                     @default(now())
-  updatedAt                DateTime                     @updatedAt
-  normalizedContent        NormalizedContent            @relation(fields: [normalizedContentId], references: [id], onDelete: Cascade)
-  candidateOpportunities   CandidateOpportunityRecord[]
+  id                     String                       @id
+  normalizedContentId    String
+  analysisType           String
+  analysisVersion        String
+  status                 String
+  structuredOutput       Json
+  evidence               Json?
+  confidence             Json?
+  safeMetadata           Json?
+  provenance             Json?
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+  normalizedContent      NormalizedContent            @relation(fields: [normalizedContentId], references: [id], onDelete: Cascade)
+  candidateOpportunities CandidateOpportunityRecord[]
 
   @@index([normalizedContentId])
   @@index([analysisType])
@@ -180,7 +189,7 @@ model CandidateOpportunityRecord {
 }
 
 model GeneratedOpportunityRecord {
-  id                     String                       @id
+  id                     String                      @id
   candidateOpportunityId String?
   title                  String
   summary                String
@@ -192,9 +201,9 @@ model GeneratedOpportunityRecord {
   lifecycleStatus        String
   safeMetadata           Json?
   provenance             Json?
-  createdAt              DateTime                     @default(now())
-  updatedAt              DateTime                     @updatedAt
-  candidateOpportunity   CandidateOpportunityRecord?  @relation(fields: [candidateOpportunityId], references: [id], onDelete: SetNull)
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @updatedAt
+  candidateOpportunity   CandidateOpportunityRecord? @relation(fields: [candidateOpportunityId], references: [id], onDelete: SetNull)
   rankingItems           OpportunityRankingItem[]
   feedback               PrivateBetaFeedback[]
 
@@ -206,6 +215,7 @@ model GeneratedOpportunityRecord {
 
 model OpportunityRankingResult {
   id             String                   @id
+  scanId         String
   rankingVersion String
   status         String
   generatedAt    DateTime
@@ -214,22 +224,24 @@ model OpportunityRankingResult {
   createdAt      DateTime                 @default(now())
   updatedAt      DateTime                 @updatedAt
   items          OpportunityRankingItem[]
+  scan           ScanRunRecord            @relation(fields: [scanId], references: [id])
 
+  @@index([scanId])
   @@index([rankingVersion])
   @@index([status])
   @@map("opportunity_ranking_results")
 }
 
 model OpportunityRankingItem {
-  id                     String                    @id
+  id                     String                     @id
   rankingResultId        String
   generatedOpportunityId String
   rankPosition           Int
   score                  Json
   explanation            Json
   safeMetadata           Json?
-  createdAt              DateTime                  @default(now())
-  rankingResult          OpportunityRankingResult  @relation(fields: [rankingResultId], references: [id], onDelete: Cascade)
+  createdAt              DateTime                   @default(now())
+  rankingResult          OpportunityRankingResult   @relation(fields: [rankingResultId], references: [id], onDelete: Cascade)
   generatedOpportunity   GeneratedOpportunityRecord @relation(fields: [generatedOpportunityId], references: [id], onDelete: Cascade)
 
   @@unique([rankingResultId, generatedOpportunityId])

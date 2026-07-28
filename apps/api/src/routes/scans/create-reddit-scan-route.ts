@@ -8,6 +8,7 @@ import {
 } from "../../pipeline/index.js";
 import { createNoopScanPersistenceStore, type ApiScanPersistenceStore } from "../../persistence/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
+import { requireOwnershipScope } from "../../ownership/index.js";
 
 export const API_CREATE_REDDIT_SCAN_ROUTE = createApiRouteDefinition({
   method: API_HTTP_METHODS.post,
@@ -51,7 +52,12 @@ export async function handleCreateRedditScanRequest(
     });
     await persistence.persistScanResult({
       result,
-      persistedAt: "2026-07-07T00:00:00.000Z"
+      persistedAt: "2026-07-07T00:00:00.000Z",
+      ownerPrincipalId: (() => {
+        const ownership = requireOwnershipScope(request.context);
+        if (ownership.mode !== "owner") throw new Error("Administrator override cannot create user records.");
+        return ownership.principalId;
+      })()
     });
 
     return createApiSuccessResponse(result, meta);

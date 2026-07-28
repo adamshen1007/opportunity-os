@@ -28,12 +28,14 @@ import {
   type ApiFeedbackStore
 } from "../feedback/index.js";
 import { createInMemoryScanPersistenceStore, type ApiScanPersistenceStore } from "../persistence/index.js";
+import { createOwnerScope, LOCAL_DEVELOPMENT_PRINCIPAL_ID } from "../ownership/index.js";
 
 export const syntheticApiRequestContext: ApiRequestContext = {
   correlationId: "correlation-synthetic-1",
   requestId: "request-synthetic-1",
   method: "GET",
-  path: "/v1/opportunities"
+  path: "/v1/opportunities",
+  ownership: createOwnerScope(LOCAL_DEVELOPMENT_PRINCIPAL_ID)
 } as const;
 
 export const syntheticApiOpportunity: ApiOpportunityDto = {

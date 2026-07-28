@@ -78,9 +78,13 @@ describe("database schema policy", () => {
       expect(schema).toContain(tableMapping);
     }
     expect(schema).toContain("inviteCodeHash String");
-    expect(schema).toContain("tokenHash   String            @unique");
+    expect(schema).toMatch(/tokenHash\s+String\s+@unique/u);
     expect(schema).toContain("safeDescription String");
     expect(schema).toContain("opportunityRecordId String?");
+    expect(schema).toMatch(/model ScanRunRecord[\s\S]*ownerPrincipalId\s+String/u);
+    expect(schema).toMatch(/model PrivateBetaFeedback[\s\S]*ownerPrincipalId\s+String/u);
+    expect(schema).toMatch(/model RawSourceContent[\s\S]*scanId\s+String/u);
+    expect(schema).toMatch(/model OpportunityRankingResult[\s\S]*scanId\s+String/u);
     expect(schema).not.toContain("inviteCode String");
   });
 

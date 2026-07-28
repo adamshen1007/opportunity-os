@@ -3,6 +3,7 @@ import type { ApiFeedbackDto, ApiFeedbackStore } from "../../feedback/index.js";
 import { createApiFailureResponse, createApiSuccessResponse, type ApiRequest, type ApiResponse } from "../../http/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
 import { parseFeedbackIdParam, type ApiFeedbackIdParams } from "./feedback-id-param.js";
+import { requireOwnershipScope } from "../../ownership/index.js";
 
 export const API_GET_FEEDBACK_ROUTE = createApiRouteDefinition({
   method: API_HTTP_METHODS.get,
@@ -37,7 +38,7 @@ export async function handleGetFeedbackRequest(
     );
   }
 
-  const feedback = await store.getFeedback(parsed.value.feedbackId);
+  const feedback = await store.getFeedback(requireOwnershipScope(request.context), parsed.value.feedbackId);
   if (feedback === undefined) {
     return createApiFailureResponse(
       createApiError({
@@ -53,4 +54,3 @@ export async function handleGetFeedbackRequest(
 
   return createApiSuccessResponse(feedback, meta);
 }
-

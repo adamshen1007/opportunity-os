@@ -115,7 +115,7 @@ Estimated size: M, 2-3 engineering days.
 #### Slice A1 implementation record
 
 - Repository controls implemented by Slice A1 are documented in `04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md`.
-- Slice A1 established `20260712000000_persist_scan_result`; Slice A2 advances the baseline additively to `20260728093000_harden_private_beta_auth`.
+- Slice A1 established `20260712000000_persist_scan_result`; Slice A2 advanced the baseline to `20260728093000_harden_private_beta_auth`; Slice A3 advances it additively to `20260728120000_add_user_ownership`.
 - The A2 migration revokes legacy sessions and introduces a unique session-token hash. Ownership and evidence-cluster migrations must build additively after this baseline.
 - CI proves the migration chain against an empty PostgreSQL 16 database and repeats migration deployment for idempotency.
 - Render executes migration deployment and status before release promotion.
@@ -208,6 +208,17 @@ Required tests:
 - identifier-guessing and cross-user feedback tests
 - cross-user retry, cancellation, and deletion tests
 - ownership backfill tests
+
+Implementation status:
+
+- repository implementation complete; hosted promotion requires applying `20260728120000_add_user_ownership`
+- `ScanRunRecord.ownerPrincipalId` is the ownership root; raw content and ranking roots reference their scan, and all other generated records remain reachable through that chain
+- feedback stores its owner explicitly and validates the referenced opportunity through an owner-scoped scan result
+- legacy records are assigned to `__legacy_unowned__`, invisible to authenticated users, and readable only through the authorized read-only administrator override
+- route coverage: scan list/detail/create/delete, opportunity list/detail, ranking create/detail, feedback create/list/detail/delete, and scan-job create/detail/retry/cancel are owner-scoped
+- no general update route exists; no ownership-unsafe update behavior is exposed
+- administrator override is GET-only, requires the administrator token plus explicit override header, and emits `ownership.administrator_override`
+- evidence clustering and broader deletion-correctness work remain deferred to their approved slices
 
 Estimated size: XL, 6-8 engineering days.
 

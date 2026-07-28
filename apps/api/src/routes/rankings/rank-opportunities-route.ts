@@ -44,5 +44,18 @@ export async function handleRankOpportunitiesRequest(
     requestId: meta.requestId
   });
 
+  if (ranking.rankedOpportunities.length !== parsed.value.opportunityIds.length) {
+    return createApiFailureResponse(
+      createApiError({
+        code: API_ERROR_CODES.notFound,
+        statusCode: 404,
+        message: "One or more opportunities were not found.",
+        correlationId: meta.correlationId,
+        requestId: meta.requestId
+      }),
+      meta
+    );
+  }
+
   return createApiSuccessResponse(ranking, meta);
 }

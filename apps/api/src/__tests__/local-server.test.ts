@@ -44,9 +44,7 @@ describe("local API server", () => {
     });
 
     expect(opportunities.ok).toBe(true);
-    expect(opportunities.ok ? opportunities.data : undefined).toMatchObject({
-      opportunities: [{ opportunityId: "opportunity-synthetic-1" }]
-    });
+    expect(opportunities.ok ? opportunities.data : undefined).toMatchObject({ opportunities: [] });
   });
 
   it("restores a persisted scan through its stable scan id", async () => {

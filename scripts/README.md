@@ -408,7 +408,7 @@ Database migration verification is owned by `packages/database/scripts/verify-pr
 - `verify:migrations:clean` requires an explicitly confirmed empty disposable target, applies migrations twice, and proves the current baseline is idempotent.
 - `verify:migrations:backup` requires an explicitly confirmed isolated restored backup and rejects missing tables or reduced record counts after upgrade.
 
-The current Phase 4.5 migration baseline is `20260728093000_harden_private_beta_auth`. These commands suppress Prisma output and never print database connection details.
+The current Phase 4.5 migration baseline is `20260728120000_add_user_ownership`. These commands suppress Prisma output and never print database connection details.
 
 The verifier compares variable names only. It does not print or inspect secret values.
 

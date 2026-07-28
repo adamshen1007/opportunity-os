@@ -1,16 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { runOpportunityScanPipeline, type ApiScanRequest, type ApiScanResultDto } from "../pipeline/index.js";
 import { API_SCAN_JOB_STATUSES, type ApiScanJobRecord, type ApiScanPersistenceStore } from "../persistence/index.js";
+import { createOwnerScope, type ApiOwnershipScope } from "../ownership/index.js";
 
-export interface ApiScanJobDto extends ApiScanJobRecord {
+export interface ApiScanJobDto extends Omit<ApiScanJobRecord, "ownerPrincipalId"> {
   readonly result?: ApiScanResultDto;
 }
 
 export interface ApiScanJobService {
-  readonly enqueue: (input: { readonly request: ApiScanRequest; readonly correlationId: string; readonly requestId?: string }) => Promise<ApiScanJobDto>;
-  readonly get: (jobId: string) => Promise<ApiScanJobDto | undefined>;
-  readonly cancel: (jobId: string) => Promise<ApiScanJobDto | undefined>;
-  readonly retry: (jobId: string, correlationId: string, requestId?: string) => Promise<ApiScanJobDto | undefined>;
+  readonly enqueue: (input: { readonly request: ApiScanRequest; readonly correlationId: string; readonly requestId?: string; readonly ownerPrincipalId: string }) => Promise<ApiScanJobDto>;
+  readonly get: (scope: ApiOwnershipScope, jobId: string) => Promise<ApiScanJobDto | undefined>;
+  readonly cancel: (scope: ApiOwnershipScope, jobId: string) => Promise<ApiScanJobDto | undefined>;
+  readonly retry: (scope: ApiOwnershipScope, jobId: string, correlationId: string, requestId?: string) => Promise<ApiScanJobDto | undefined>;
   readonly recover: () => Promise<void>;
 }
 
@@ -29,8 +30,10 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
   const executionContext = new Map<string, { correlationId: string; requestId?: string }>();
 
   async function hydrate(job: ApiScanJobRecord): Promise<ApiScanJobDto> {
-    const result = job.resultScanId ? await options.persistence.getScanResult(job.resultScanId) : undefined;
-    return { ...job, ...(result ? { result } : {}) };
+    const scope = createOwnerScope(job.ownerPrincipalId);
+    const result = job.resultScanId ? await options.persistence.getScanResult(scope, job.resultScanId) : undefined;
+    const { ownerPrincipalId: _ownerPrincipalId, ...safeJob } = job;
+    return { ...safeJob, ...(result ? { result } : {}) };
   }
 
   function scheduleExecution(jobId: string): void {
@@ -38,7 +41,7 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
   }
 
   async function execute(jobId: string): Promise<void> {
-    const current = await options.persistence.getScanJob(jobId);
+    const current = (await options.persistence.listRecoverableScanJobs()).find((job) => job.jobId === jobId);
     if (!current || current.status !== API_SCAN_JOB_STATUSES.queued) return;
     const context = executionContext.get(jobId) ?? { correlationId: `recovered-${jobId}` };
     const running: ApiScanJobRecord = {
@@ -57,7 +60,7 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
         requestId: context.requestId,
         requestedAt: current.requestedAt
       });
-      await options.persistence.persistScanResult({ result, persistedAt: clock() });
+      await options.persistence.persistScanResult({ result, persistedAt: clock(), ownerPrincipalId: current.ownerPrincipalId });
       await options.persistence.updateScanJob({
         ...running,
         status: API_SCAN_JOB_STATUSES.completed,
@@ -79,10 +82,11 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
     }
   }
 
-  async function enqueue(input: { readonly request: ApiScanRequest; readonly correlationId: string; readonly requestId?: string }): Promise<ApiScanJobDto> {
+  async function enqueue(input: { readonly request: ApiScanRequest; readonly correlationId: string; readonly requestId?: string; readonly ownerPrincipalId: string }): Promise<ApiScanJobDto> {
     const now = clock();
     const job: ApiScanJobRecord = {
       jobId: idFactory(),
+      ownerPrincipalId: input.ownerPrincipalId,
       status: API_SCAN_JOB_STATUSES.queued,
       request: input.request,
       requestedAt: now,
@@ -98,12 +102,12 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
 
   return {
     enqueue,
-    async get(jobId) {
-      const job = await options.persistence.getScanJob(jobId);
+    async get(scope, jobId) {
+      const job = await options.persistence.getScanJob(scope, jobId);
       return job ? hydrate(job) : undefined;
     },
-    async cancel(jobId) {
-      const job = await options.persistence.getScanJob(jobId);
+    async cancel(scope, jobId) {
+      const job = await options.persistence.getScanJob(scope, jobId);
       if (!job || job.status !== API_SCAN_JOB_STATUSES.queued) return job ? hydrate(job) : undefined;
       const cancelled: ApiScanJobRecord = {
         ...job,
@@ -116,10 +120,10 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
       executionContext.delete(jobId);
       return hydrate(cancelled);
     },
-    async retry(jobId, correlationId, requestId) {
-      const job = await options.persistence.getScanJob(jobId);
+    async retry(scope, jobId, correlationId, requestId) {
+      const job = await options.persistence.getScanJob(scope, jobId);
       if (!job || (job.status !== API_SCAN_JOB_STATUSES.failed && job.status !== API_SCAN_JOB_STATUSES.cancelled)) return undefined;
-      return enqueue({ request: job.request, correlationId, requestId });
+      return enqueue({ request: job.request, correlationId, requestId, ownerPrincipalId: job.ownerPrincipalId });
     },
     async recover() {
       const jobs = await options.persistence.listRecoverableScanJobs();

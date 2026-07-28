@@ -57,18 +57,24 @@ function parsePositiveInteger(value: string | undefined): number | undefined {
 
 type RuntimeClient = PrismaDatabaseRuntime["client"];
 
-function toScanPersistenceClient(client: RuntimeClient): ApiScanPersistenceDatabaseClient {
+function toScanPersistenceClient(client: RuntimeClient, includeTransaction = true): ApiScanPersistenceDatabaseClient {
   const delegate = (model: {
     upsert: (args: never) => Promise<unknown>;
     findUnique?: (args: never) => Promise<unknown>;
     findMany?: (args: never) => Promise<readonly unknown[]>;
+    delete?: (args: never) => Promise<unknown>;
+    deleteMany?: (args: never) => Promise<unknown>;
   }) => {
     const findUnique = model.findUnique;
     const findMany = model.findMany;
+    const deleteRecord = model.delete;
+    const deleteMany = model.deleteMany;
     return {
       upsert: (args: unknown) => model.upsert(args as never),
       ...(findUnique ? { findUnique: (args: unknown) => findUnique(args as never) } : {}),
       ...(findMany ? { findMany: (args: unknown) => findMany(args as never) } : {})
+      ,...(deleteRecord ? { delete: (args: unknown) => deleteRecord(args as never) } : {})
+      ,...(deleteMany ? { deleteMany: (args: unknown) => deleteMany(args as never) } : {})
     };
   };
   return {
@@ -79,7 +85,11 @@ function toScanPersistenceClient(client: RuntimeClient): ApiScanPersistenceDatab
     candidateOpportunityRecord: delegate(client.candidateOpportunityRecord as never),
     generatedOpportunityRecord: delegate(client.generatedOpportunityRecord as never),
     opportunityRankingResult: delegate(client.opportunityRankingResult as never),
-    opportunityRankingItem: delegate(client.opportunityRankingItem as never)
+    opportunityRankingItem: delegate(client.opportunityRankingItem as never),
+    ...(includeTransaction ? {
+      transaction: <T>(operation: (database: ApiScanPersistenceDatabaseClient) => Promise<T>) =>
+        client.$transaction((transaction) => operation(toScanPersistenceClient(transaction as RuntimeClient, false)))
+    } : {})
   };
 }
 
@@ -89,6 +99,7 @@ function toFeedbackPersistenceClient(client: RuntimeClient): ApiFeedbackPersiste
       create: async (args) => client.privateBetaFeedback.create(args as never),
       findUnique: async (args) => client.privateBetaFeedback.findUnique(args as never),
       findMany: async (args) => client.privateBetaFeedback.findMany(args as never)
+      ,delete: async (args) => client.privateBetaFeedback.delete(args as never)
     }
   } as ApiFeedbackPersistenceDatabaseClient;
 }

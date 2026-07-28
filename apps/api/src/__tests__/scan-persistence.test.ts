@@ -4,6 +4,8 @@ import {
   createDatabaseScanPersistenceStore,
   createInMemoryFeedbackStore,
   createInMemoryScanPersistenceStore,
+  createOwnerScope,
+  LOCAL_DEVELOPMENT_PRINCIPAL_ID,
   createSyntheticApiRequest,
   handleCreateFeedbackRequest,
   handleCreateRedditScanRequest,
@@ -24,6 +26,7 @@ function createDelegate() {
 }
 
 describe("scan persistence", () => {
+  const scope = createOwnerScope(LOCAL_DEVELOPMENT_PRINCIPAL_ID);
   it("persists scan outputs in memory and resolves generated opportunity records for feedback", async () => {
     const persistence = createInMemoryScanPersistenceStore();
     const response = await handleCreateRedditScanRequest(
@@ -42,11 +45,11 @@ describe("scan persistence", () => {
     if (!response.ok) return;
 
     const opportunity = response.data.opportunities[0]!;
-    await expect(persistence.resolveOpportunityRecordId(opportunity.opportunityId)).resolves.toBe(
-      opportunity.provenance.generationOutputId
+    await expect(persistence.resolveOpportunityRecordId(scope, opportunity.opportunityId)).resolves.toBe(
+      `${response.data.scanId}:${opportunity.provenance.generationOutputId}`
     );
-    await expect(persistence.getScanResult(response.data.scanId)).resolves.toEqual(response.data);
-    await expect(persistence.listScanResults()).resolves.toEqual([response.data]);
+    await expect(persistence.getScanResult(scope, response.data.scanId)).resolves.toEqual(response.data);
+    await expect(persistence.listScanResults(scope)).resolves.toEqual([response.data]);
 
     const feedbackStore = createInMemoryFeedbackStore({
       clock: () => "2026-07-07T00:00:00.000Z",
@@ -62,13 +65,13 @@ describe("scan persistence", () => {
       }),
       feedbackStore,
       {
-        resolveOpportunityRecordId: (opportunityId) => persistence.resolveOpportunityRecordId(opportunityId)
+        resolveOpportunityRecordId: (opportunityId) => persistence.resolveOpportunityRecordId(scope, opportunityId)
       }
     );
 
     expect(feedback.ok).toBe(true);
     if (feedback.ok) {
-      expect(feedback.data.opportunityRecordId).toBe(opportunity.provenance.generationOutputId);
+      expect(feedback.data.opportunityRecordId).toBe(`${response.data.scanId}:${opportunity.provenance.generationOutputId}`);
     }
   });
 
@@ -103,7 +106,8 @@ describe("scan persistence", () => {
 
     await persistence.persistScanResult({
       result,
-      persistedAt: "2026-07-07T00:00:00.000Z"
+      persistedAt: "2026-07-07T00:00:00.000Z",
+      ownerPrincipalId: scope.principalId
     });
 
     expect(scanRunRecord.calls).toHaveLength(1);
@@ -114,8 +118,8 @@ describe("scan persistence", () => {
     expect(generatedOpportunityRecord.calls).toHaveLength(1);
     expect(opportunityRankingResult.calls).toHaveLength(1);
     expect(opportunityRankingItem.calls).toHaveLength(1);
-    await expect(persistence.resolveOpportunityRecordId(result.opportunities[0]!.opportunityId)).resolves.toBe(
-      result.opportunities[0]!.provenance.generationOutputId
+    await expect(persistence.resolveOpportunityRecordId(scope, result.opportunities[0]!.opportunityId)).resolves.toBe(
+      `${result.scanId}:${result.opportunities[0]!.provenance.generationOutputId}`
     );
 
     const serialized = JSON.stringify({

@@ -3,6 +3,7 @@ import { createApiFailureResponse, createApiSuccessResponse, type ApiRequest, ty
 import { runOpportunityScanPipeline, validateScanRequestBody, type ApiScanRequestBody, type ApiScanResultDto } from "../../pipeline/index.js";
 import { createNoopScanPersistenceStore, type ApiScanPersistenceStore } from "../../persistence/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
+import { requireOwnershipScope } from "../../ownership/index.js";
 
 export const API_CREATE_SCAN_ROUTE = createApiRouteDefinition({
   method: API_HTTP_METHODS.post,
@@ -36,7 +37,9 @@ export async function handleCreateScanRequest(
       requestId: meta.requestId,
       requestedAt: new Date().toISOString()
     });
-    await persistence.persistScanResult({ result, persistedAt: new Date().toISOString() });
+    const ownership = requireOwnershipScope(request.context);
+    if (ownership.mode !== "owner") throw new Error("Administrator override cannot create user records.");
+    await persistence.persistScanResult({ result, persistedAt: new Date().toISOString(), ownerPrincipalId: ownership.principalId });
     return createApiSuccessResponse(result, meta);
   } catch {
     return createApiFailureResponse(createApiError({

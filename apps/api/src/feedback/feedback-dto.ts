@@ -25,7 +25,6 @@ export interface ApiFeedbackCollectionDto {
 
 export interface ApiCreateFeedbackRequestBody {
   readonly opportunityId?: string;
-  readonly opportunityRecordId?: string;
   readonly status?: ApiFeedbackStatus;
   readonly reasonCategories?: readonly ApiFeedbackReasonCategory[];
   readonly ratings?: readonly ApiFeedbackRatingDto[];

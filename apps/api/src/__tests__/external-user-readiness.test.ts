@@ -3,10 +3,12 @@ import {
   createApiMetricsRegistry,
   createInMemoryFeedbackStore,
   createInMemoryScanPersistenceStore,
+  createOwnerScope,
   runOpportunityScanPipeline
 } from "../index.js";
 
 describe("M53-M57 external-user readiness", () => {
+  const scope = createOwnerScope("principal-readiness");
   it("adds explainable trust metadata and safe quality counters", async () => {
     const result = await runOpportunityScanPipeline({
       source: "stack-exchange",
@@ -37,20 +39,22 @@ describe("M53-M57 external-user readiness", () => {
       correlationId: "privacy-test",
       requestedAt: "2026-07-13T00:00:00.000Z"
     });
-    await scanStore.persistScanResult({ result, persistedAt: "2026-07-13T00:01:00.000Z" });
-    expect(await scanStore.deleteScanResult(result.scanId)).toBe(true);
-    expect(await scanStore.getScanResult(result.scanId)).toBeUndefined();
+    await scanStore.persistScanResult({ result, persistedAt: "2026-07-13T00:01:00.000Z", ownerPrincipalId: scope.principalId });
+    expect(await scanStore.deleteScanResult(scope, result.scanId)).toBe(true);
+    expect(await scanStore.getScanResult(scope, result.scanId)).toBeUndefined();
 
     const feedbackStore = createInMemoryFeedbackStore({ idFactory: () => "feedback-delete-1" });
     await feedbackStore.createFeedback({
       opportunityId: "opportunity-1",
+      opportunityRecordId: "opportunity-record-1",
+      ownerPrincipalId: scope.principalId,
       status: "saved",
       reasonCategories: [],
       ratings: [],
       correlationId: "privacy-feedback-test"
     });
-    expect(await feedbackStore.deleteFeedback("feedback-delete-1")).toBe(true);
-    expect(await feedbackStore.getFeedback("feedback-delete-1")).toBeUndefined();
+    expect(await feedbackStore.deleteFeedback(scope, "feedback-delete-1")).toBe(true);
+    expect(await feedbackStore.getFeedback(scope, "feedback-delete-1")).toBeUndefined();
   });
 
   it("aggregates safe request and scan operations without request data", () => {

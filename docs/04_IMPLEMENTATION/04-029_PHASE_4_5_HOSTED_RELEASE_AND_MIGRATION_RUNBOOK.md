@@ -13,7 +13,7 @@ This runbook closes `TASK-P45-A01` and `TASK-P45-A02`. It verifies one hosted we
 
 ## Recorded Baseline
 
-- Current migration baseline: `20260728093000_harden_private_beta_auth`
+- Current migration baseline: `20260728120000_add_user_ownership`
 - Migration directories at baseline: six
 - New migrations in Slice A1: none
 - Later ownership and evidence-cluster migrations must be additive and must build after this baseline.

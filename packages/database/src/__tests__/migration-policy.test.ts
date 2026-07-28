@@ -8,16 +8,29 @@ const migrationPath = path.join(
 );
 
 describe("foundation baseline migration", () => {
-  it("records the current Phase 4.5 authentication migration baseline", () => {
+  it("records the current Phase 4.5 ownership migration baseline", () => {
     const packageRoot = path.join(import.meta.dirname, "../..");
     const migrationDirectories = fs.readdirSync(path.join(packageRoot, "prisma/migrations")).sort();
     const verifier = fs.readFileSync(path.join(packageRoot, "scripts/verify-production-migrations.mjs"), "utf8");
 
-    expect(migrationDirectories.at(-1)).toBe("20260728093000_harden_private_beta_auth");
-    expect(verifier).toContain('CURRENT_MIGRATION_BASELINE = "20260728093000_harden_private_beta_auth"');
+    expect(migrationDirectories.at(-1)).toBe("20260728120000_add_user_ownership");
+    expect(verifier).toContain('CURRENT_MIGRATION_BASELINE = "20260728120000_add_user_ownership"');
     expect(verifier).toContain("MIGRATION_CLEAN_DATABASE_CONFIRMED_EMPTY");
     expect(verifier).toContain("MIGRATION_BACKUP_DATABASE_CONFIRMED_SAFE");
     expect(verifier).not.toMatch(/console\.(?:log|error)\([^\n]*(?:DATABASE_URL|connectionString)/u);
+  });
+
+  it("backfills legacy records without assigning them to an authenticated user", () => {
+    const migration = fs.readFileSync(
+      path.join(import.meta.dirname, "../../prisma/migrations/20260728120000_add_user_ownership/migration.sql"),
+      "utf8"
+    );
+    expect(migration).toContain("__legacy_unowned__");
+    expect(migration).toContain('ALTER TABLE "scan_run_records" ADD COLUMN "ownerPrincipalId" TEXT');
+    expect(migration).toContain('ALTER TABLE "private_beta_feedback" ADD COLUMN "ownerPrincipalId" TEXT');
+    expect(migration).toContain('FOREIGN KEY ("scanId") REFERENCES "scan_run_records"');
+    expect(migration.indexOf('ADD COLUMN "ownerPrincipalId"')).toBeLessThan(migration.indexOf('ALTER COLUMN "ownerPrincipalId" SET NOT NULL'));
+    expect(migration).not.toMatch(/evidence[_-]?cluster/iu);
   });
 
   it("stores only session token hashes and revokes legacy sessions", () => {

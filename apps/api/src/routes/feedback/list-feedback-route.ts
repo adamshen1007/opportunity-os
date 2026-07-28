@@ -2,6 +2,7 @@ import { type ApiFeedbackCollectionDto, type ApiFeedbackStore } from "../../feed
 import { createApiSuccessResponse, type ApiRequest, type ApiSuccessResponse } from "../../http/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
 import { parseFeedbackListQuery, type ApiFeedbackListQuery } from "./feedback-query.js";
+import { requireOwnershipScope } from "../../ownership/index.js";
 
 export const API_LIST_FEEDBACK_ROUTE = createApiRouteDefinition({
   method: API_HTTP_METHODS.get,
@@ -17,7 +18,7 @@ export async function handleListFeedbackRequest(
   store: ApiFeedbackStore
 ): Promise<ApiSuccessResponse<ApiFeedbackCollectionDto>> {
   const query = parseFeedbackListQuery(request.query);
-  const feedback = await store.listFeedback(query);
+  const feedback = await store.listFeedback({ ...query, scope: requireOwnershipScope(request.context) });
 
   return createApiSuccessResponse(
     {
@@ -30,4 +31,3 @@ export async function handleListFeedbackRequest(
     }
   );
 }
-

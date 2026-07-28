@@ -17,7 +17,6 @@ import type { ApiCreateFeedbackRequestBody, ApiFeedbackRatingDto } from "./feedb
 
 export interface ValidatedApiFeedbackInput {
   readonly opportunityId: string;
-  readonly opportunityRecordId?: string;
   readonly status: ApiFeedbackStatus;
   readonly reasonCategories: readonly ApiFeedbackReasonCategory[];
   readonly ratings: readonly ApiFeedbackRatingDto[];
@@ -87,10 +86,6 @@ export function validateCreateFeedbackBody(
 
   return createApiValidationSuccess({
     opportunityId: body.opportunityId,
-    opportunityRecordId:
-      body.opportunityRecordId !== undefined && body.opportunityRecordId.trim().length > 0
-        ? body.opportunityRecordId
-        : undefined,
     status: body.status,
     reasonCategories: [...reasonCategories],
     ratings: ratings.map((rating) => ({ ...rating })),

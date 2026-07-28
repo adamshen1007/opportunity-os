@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   API_SCAN_JOB_STATUSES,
   createApiScanJobService,
-  createInMemoryScanPersistenceStore
+  createInMemoryScanPersistenceStore,
+  createOwnerScope
 } from "../index.js";
 
 const request = {
@@ -15,6 +16,7 @@ const request = {
 } as const;
 
 describe("durable scan jobs", () => {
+  const scope = createOwnerScope("principal-jobs");
   it("persists queued state, supports cancellation, and never stores credentials", async () => {
     const persistence = createInMemoryScanPersistenceStore();
     const scheduled: Array<() => void> = [];
@@ -25,23 +27,24 @@ describe("durable scan jobs", () => {
       schedule: (work) => scheduled.push(work)
     });
 
-    const queued = await service.enqueue({ request, correlationId: "correlation-job-1" });
+    const queued = await service.enqueue({ request, correlationId: "correlation-job-1", ownerPrincipalId: scope.principalId });
     expect(queued.status).toBe(API_SCAN_JOB_STATUSES.queued);
     expect(scheduled).toHaveLength(1);
 
-    const cancelled = await service.cancel(queued.jobId);
+    const cancelled = await service.cancel(scope, queued.jobId);
     expect(cancelled?.status).toBe(API_SCAN_JOB_STATUSES.cancelled);
     expect(JSON.stringify(cancelled)).not.toMatch(/token|authorization|credential|stack trace/iu);
 
     scheduled[0]?.();
     await Promise.resolve();
-    expect((await service.get(queued.jobId))?.status).toBe(API_SCAN_JOB_STATUSES.cancelled);
+    expect((await service.get(scope, queued.jobId))?.status).toBe(API_SCAN_JOB_STATUSES.cancelled);
   });
 
   it("recovers interrupted running jobs by returning them to the queue", async () => {
     const persistence = createInMemoryScanPersistenceStore();
     await persistence.createScanJob({
       jobId: "scan-job-recovered",
+      ownerPrincipalId: scope.principalId,
       status: API_SCAN_JOB_STATUSES.running,
       request,
       requestedAt: "2026-07-13T00:00:00.000Z",
@@ -53,7 +56,7 @@ describe("durable scan jobs", () => {
 
     await service.recover();
 
-    expect((await service.get("scan-job-recovered"))?.status).toBe(API_SCAN_JOB_STATUSES.queued);
+    expect((await service.get(scope, "scan-job-recovered"))?.status).toBe(API_SCAN_JOB_STATUSES.queued);
     expect(scheduled).toHaveLength(1);
   });
 });

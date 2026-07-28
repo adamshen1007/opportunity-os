@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createLocalApiDispatcher,
   createInMemoryScanPersistenceStore,
+  createOwnerScope,
   handleCreateRedditScanRequest,
   runOpportunityScanPipeline,
   type ApiScanResultDto
@@ -11,7 +12,8 @@ const requestContext = {
   correlationId: "correlation-scan-test",
   requestId: "request-scan-test",
   method: "POST",
-  path: "/scans/reddit"
+  path: "/scans/reddit",
+  ownership: createOwnerScope("principal-reddit-test")
 };
 
 describe("Reddit end-to-end opportunity scan pipeline", () => {
@@ -104,8 +106,8 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
     expect(routeResponse.ok).toBe(true);
     expect(routeResponse.ok ? routeResponse.data.opportunities.length : 0).toBe(1);
     if (routeResponse.ok) {
-      await expect(persistence.resolveOpportunityRecordId(routeResponse.data.opportunities[0]!.opportunityId)).resolves.toBe(
-        routeResponse.data.opportunities[0]!.provenance.generationOutputId
+      await expect(persistence.resolveOpportunityRecordId(requestContext.ownership!, routeResponse.data.opportunities[0]!.opportunityId)).resolves.toBe(
+        `${routeResponse.data.scanId}:${routeResponse.data.opportunities[0]!.provenance.generationOutputId}`
       );
     }
 
