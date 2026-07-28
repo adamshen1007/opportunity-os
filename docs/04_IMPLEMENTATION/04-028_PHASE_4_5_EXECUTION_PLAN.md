@@ -115,7 +115,7 @@ Estimated size: M, 2-3 engineering days.
 #### Slice A1 implementation record
 
 - Repository controls implemented by Slice A1 are documented in `04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md`.
-- Slice A1 established `20260712000000_persist_scan_result`; Slice A2 advanced the baseline to `20260728093000_harden_private_beta_auth`; Slice A3 advances it additively to `20260728120000_add_user_ownership`.
+- Slice A1 established `20260712000000_persist_scan_result`; Slice A2 advanced the baseline to `20260728093000_harden_private_beta_auth`; Slice A3 advances it additively through `20260728120000_add_user_ownership` and the forward-only `20260728123000_fix_raw_source_scan_uniqueness` correction.
 - The A2 migration revokes legacy sessions and introduces a unique session-token hash. Ownership and evidence-cluster migrations must build additively after this baseline.
 - CI proves the migration chain against an empty PostgreSQL 16 database and repeats migration deployment for idempotency.
 - Render executes migration deployment and status before release promotion.
@@ -211,7 +211,7 @@ Required tests:
 
 Implementation status:
 
-- repository implementation complete; hosted promotion requires applying `20260728120000_add_user_ownership`
+- repository implementation complete; hosted promotion requires applying both `20260728120000_add_user_ownership` and `20260728123000_fix_raw_source_scan_uniqueness`
 - `ScanRunRecord.ownerPrincipalId` is the ownership root; raw content and ranking roots reference their scan, and all other generated records remain reachable through that chain
 - feedback stores its owner explicitly and validates the referenced opportunity through an owner-scoped scan result
 - legacy records are assigned to `__legacy_unowned__`, invisible to authenticated users, and readable only through the authorized read-only administrator override

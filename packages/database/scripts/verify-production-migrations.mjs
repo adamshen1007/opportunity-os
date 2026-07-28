@@ -3,7 +3,7 @@ import process from "node:process";
 import pg from "pg";
 
 const { Pool } = pg;
-const CURRENT_MIGRATION_BASELINE = "20260728120000_add_user_ownership";
+const CURRENT_MIGRATION_BASELINE = "20260728123000_fix_raw_source_scan_uniqueness";
 
 async function main() {
   let pool;

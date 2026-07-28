@@ -13,8 +13,8 @@ describe("foundation baseline migration", () => {
     const migrationDirectories = fs.readdirSync(path.join(packageRoot, "prisma/migrations")).sort();
     const verifier = fs.readFileSync(path.join(packageRoot, "scripts/verify-production-migrations.mjs"), "utf8");
 
-    expect(migrationDirectories.at(-1)).toBe("20260728120000_add_user_ownership");
-    expect(verifier).toContain('CURRENT_MIGRATION_BASELINE = "20260728120000_add_user_ownership"');
+    expect(migrationDirectories.at(-1)).toBe("20260728123000_fix_raw_source_scan_uniqueness");
+    expect(verifier).toContain('CURRENT_MIGRATION_BASELINE = "20260728123000_fix_raw_source_scan_uniqueness"');
     expect(verifier).toContain("MIGRATION_CLEAN_DATABASE_CONFIRMED_EMPTY");
     expect(verifier).toContain("MIGRATION_BACKUP_DATABASE_CONFIRMED_SAFE");
     expect(verifier).not.toMatch(/console\.(?:log|error)\([^\n]*(?:DATABASE_URL|connectionString)/u);
@@ -30,6 +30,17 @@ describe("foundation baseline migration", () => {
     expect(migration).toContain('ALTER TABLE "private_beta_feedback" ADD COLUMN "ownerPrincipalId" TEXT');
     expect(migration).toContain('FOREIGN KEY ("scanId") REFERENCES "scan_run_records"');
     expect(migration.indexOf('ADD COLUMN "ownerPrincipalId"')).toBeLessThan(migration.indexOf('ALTER COLUMN "ownerPrincipalId" SET NOT NULL'));
+    expect(migration).not.toMatch(/evidence[_-]?cluster/iu);
+  });
+
+  it("completes scan ownership by replacing global raw-source uniqueness", () => {
+    const migration = fs.readFileSync(
+      path.join(import.meta.dirname, "../../prisma/migrations/20260728123000_fix_raw_source_scan_uniqueness/migration.sql"),
+      "utf8"
+    );
+    expect(migration).toContain('DROP INDEX IF EXISTS "raw_source_content_sourcePlatform_sourceId_key"');
+    expect(migration).toContain('"raw_source_content_scanId_sourcePlatform_sourceId_key"');
+    expect(migration).toContain('("scanId", "sourcePlatform", "sourceId")');
     expect(migration).not.toMatch(/evidence[_-]?cluster/iu);
   });
 
