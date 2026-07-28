@@ -30,3 +30,5 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md` defines Phase 4 Milestones 40-43 production composition, API controls, host deployment, smoke testing, monitoring, backup, and rollback.
 - `04-025_DESIGN_PARTNER_PILOT.md` defines the Phase 4 Milestone 44 pilot cohort, session workflow, metrics, and Go gates.
 - `04-026_EXTERNAL_USER_LAUNCH.md` defines M45-M51 production connectivity, durable access, honest scan UX, persistence continuity, security hardening, and closed-beta launch gate.
+- `04-028_PHASE_4_5_EXECUTION_PLAN.md` defines the approved Phase 4.5 safety and intelligence workstreams.
+- `04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md` defines Slice A1 hosted release, rollback, migration baseline, clean-database, and restored-backup verification.

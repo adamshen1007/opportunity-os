@@ -57,6 +57,7 @@ import { handleGetOperationsRequest } from "./routes/operations/index.js";
 export interface LocalApiServerOptions {
   readonly serviceName?: string;
   readonly version?: string;
+  readonly releaseSha?: string;
   readonly environment?: string;
   readonly clock?: () => string;
   readonly scanPersistence?: ApiScanPersistenceStore;
@@ -96,6 +97,7 @@ const DEFAULT_PORT = 4000;
 export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
   const serviceName = options.serviceName ?? DEFAULT_SERVICE_NAME;
   const version = options.version ?? DEFAULT_VERSION;
+  const releaseSha = options.releaseSha ?? "local";
   const environment = options.environment ?? "local";
   const clock = options.clock ?? (() => new Date().toISOString());
   const feedbackStore = options.feedbackStore ?? createSyntheticApiFeedbackStore();
@@ -131,6 +133,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
         return handleApiHealthRequest(request, {
           serviceName,
           version,
+          releaseSha,
           environment,
           clock,
           dependencies: [
@@ -615,6 +618,7 @@ async function startConfiguredApiServer(): Promise<void> {
   const runtime = useDatabase ? await createApiProductionRuntime() : undefined;
   const server = startLocalApiServer({
     environment: process.env.NODE_ENV,
+    releaseSha: process.env.OPPORTUNITY_OS_RELEASE_SHA ?? process.env.RENDER_GIT_COMMIT ?? process.env.GITHUB_SHA ?? "unavailable",
     scanPersistence: runtime?.scanPersistence,
     feedbackStore: runtime?.feedbackStore,
     inviteStore: runtime?.inviteStore,

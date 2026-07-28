@@ -8,6 +8,18 @@ const migrationPath = path.join(
 );
 
 describe("foundation baseline migration", () => {
+  it("records the current Phase 4.5 migration baseline without adding a new migration", () => {
+    const packageRoot = path.join(import.meta.dirname, "../..");
+    const migrationDirectories = fs.readdirSync(path.join(packageRoot, "prisma/migrations")).sort();
+    const verifier = fs.readFileSync(path.join(packageRoot, "scripts/verify-production-migrations.mjs"), "utf8");
+
+    expect(migrationDirectories.at(-1)).toBe("20260712000000_persist_scan_result");
+    expect(verifier).toContain('CURRENT_MIGRATION_BASELINE = "20260712000000_persist_scan_result"');
+    expect(verifier).toContain("MIGRATION_CLEAN_DATABASE_CONFIRMED_EMPTY");
+    expect(verifier).toContain("MIGRATION_BACKUP_DATABASE_CONFIRMED_SAFE");
+    expect(verifier).not.toMatch(/console\.(?:log|error)\([^\n]*(?:DATABASE_URL|connectionString)/u);
+  });
+
   it("creates no database tables", () => {
     const migration = fs.readFileSync(migrationPath, "utf8");
 

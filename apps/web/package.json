@@ -10,7 +10,8 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "start": "next start --hostname 127.0.0.1",
     "test": "vitest run src --passWithNoTests",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:hosted": "playwright test --config=playwright.hosted.config.ts"
   },
   "engines": {
     "node": ">=24 <25",

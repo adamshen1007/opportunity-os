@@ -24,7 +24,10 @@
     "migrate:status": "prisma --config=./prisma.config.ts migrate status",
     "prisma": "prisma --config=./prisma.config.ts",
     "test": "prisma --config=./prisma.config.ts generate && vitest run src --passWithNoTests",
-    "verify:local": "prisma --config=./prisma.config.ts migrate status"
+    "verify:local": "prisma --config=./prisma.config.ts migrate status",
+    "verify:migrations:staging": "node scripts/verify-production-migrations.mjs staging",
+    "verify:migrations:clean": "node scripts/verify-production-migrations.mjs clean",
+    "verify:migrations:backup": "node scripts/verify-production-migrations.mjs backup"
   },
   "engines": {
     "node": ">=24 <25",

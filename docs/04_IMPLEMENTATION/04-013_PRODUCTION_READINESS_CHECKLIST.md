@@ -34,6 +34,22 @@ This checklist confirms readiness; it does not add deployment providers, backend
 - [ ] No real secrets are committed.
 - [ ] No release artifact includes `.env`, logs with secrets, database dumps, or participant exports.
 - [ ] Deployment verification procedure in `docs/04_IMPLEMENTATION/04-008_BETA_OPERATIONS_VERIFICATION.md` is complete.
+- [x] Canonical API and web HTTPS origins are recorded without secrets.
+- [ ] API and web expose the same full release commit SHA.
+- [ ] `pnpm verify:hosted-release` passes for the promoted release.
+- [ ] CORS allows the canonical dashboard origin and rejects an unapproved origin.
+- [ ] The hosted fixture-mode Playwright journey passes and is visibly labeled as fixture mode.
+- [ ] The previous known-good API and web release can be restored and passes hosted verification.
+
+## Database Migration Readiness
+
+- [ ] Prisma schema validation passes.
+- [ ] Protected staging migration status reaches `20260712000000_persist_scan_result` or a reviewed additive successor.
+- [ ] Confirmed-empty migration rehearsal passes using migrations only.
+- [ ] Repeated migration deployment is idempotent.
+- [ ] An isolated restored-backup upgrade preserves all existing tables and record counts.
+- [ ] Render pre-deploy migration failure prevents release promotion.
+- [ ] Migration evidence contains no connection string, credential, or secret value.
 
 ## Product Readiness
 
@@ -71,4 +87,3 @@ This checklist confirms readiness; it does not add deployment providers, backend
 ## Readiness Decision
 
 Production readiness is approved only when each required item is complete or explicitly waived by the release owner with a documented safe reason.
-

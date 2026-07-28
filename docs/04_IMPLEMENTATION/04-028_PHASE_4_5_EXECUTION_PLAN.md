@@ -112,6 +112,16 @@ Required tests:
 
 Estimated size: M, 2-3 engineering days.
 
+#### Slice A1 implementation record
+
+- Repository controls implemented by Slice A1 are documented in `04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md`.
+- The migration baseline is `20260712000000_persist_scan_result` with six migration directories.
+- Slice A1 adds no Prisma migration. Ownership and evidence-cluster migrations must build additively after this baseline.
+- CI proves the migration chain against an empty PostgreSQL 16 database and repeats migration deployment for idempotency.
+- Render executes migration deployment and status before release promotion.
+- Canonical hosted URLs, shared release SHA, staging status, restored-backup upgrade, hosted fixture journey, and rollback rehearsal remain `MANUAL ACTION REQUIRED` until protected operator access is available.
+- A01 and A02 must not be marked externally complete from repository-only evidence.
+
 ### TASK-P45-A03 - Production Authentication Hardening
 
 Objective:

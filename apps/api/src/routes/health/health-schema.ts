@@ -12,6 +12,7 @@ export interface ApiHealthDto {
   readonly status: ApiHealthStatus;
   readonly serviceName: string;
   readonly version: string;
+  readonly releaseSha: string;
   readonly environment: string;
   readonly checkedAt: string;
   readonly dependencies: readonly ApiHealthDependencyDto[];

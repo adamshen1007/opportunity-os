@@ -400,6 +400,16 @@ For Phase 1 Milestone 2, the verifier also checks shared foundation package depe
 
 Phase 4 Milestone 44 adds `node scripts/verify-repository.mjs --phase phase-4-milestone-44` for hosted pilot composition, deployment assets, and pilot documentation. `pnpm smoke:external` checks configured hosted API health, dashboard availability, and one safe fixture or explicitly enabled live scan.
 
+Phase 4.5 Slice A1 adds `pnpm verify:hosted-release`. It requires canonical HTTPS `OPPORTUNITY_OS_API_URL` and `OPPORTUNITY_OS_WEB_URL` values plus the full `OPPORTUNITY_OS_RELEASE_SHA`. It verifies API/database health, exact CORS origin, same-origin redirects, dashboard API binding, and matching API/web release identity. It prints no token, invite, credential, or database value.
+
+Database migration verification is owned by `packages/database/scripts/verify-production-migrations.mjs` and exposes three guarded package commands:
+
+- `verify:migrations:staging` checks protected staging status without applying migrations.
+- `verify:migrations:clean` requires an explicitly confirmed empty disposable target, applies migrations twice, and proves the current baseline is idempotent.
+- `verify:migrations:backup` requires an explicitly confirmed isolated restored backup and rejects missing tables or reduced record counts after upgrade.
+
+The current Phase 4.5 migration baseline is `20260712000000_persist_scan_result`. These commands suppress Prisma output and never print database connection details.
+
 The verifier compares variable names only. It does not print or inspect secret values.
 
 It fails when:

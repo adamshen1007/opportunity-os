@@ -22,6 +22,20 @@ jobs:
     name: external MVP deployment readiness
     runs-on: ubuntu-latest
     environment: external-mvp
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: opportunity_os_migration_check
+          POSTGRES_USER: opportunity_os
+          POSTGRES_PASSWORD: migration-check-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U opportunity_os -d opportunity_os_migration_check"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Checkout
@@ -41,6 +55,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify clean-database migrations
+        env:
+          MIGRATION_CLEAN_DATABASE_URL: postgresql://opportunity_os:migration-check-only@127.0.0.1:5432/opportunity_os_migration_check
+          MIGRATION_CLEAN_DATABASE_CONFIRMED_EMPTY: "true"
+        run: pnpm --filter @opportunity-os/database verify:migrations:clean
+
       - name: Verify external MVP policy
         run: node scripts/verify-repository.mjs --phase phase-4-milestone-34
 
@@ -55,6 +75,18 @@ jobs:
 
       - name: Validate Docker Compose
         run: docker compose config
+
+      - name: Verify hosted release when targets are configured
+        env:
+          OPPORTUNITY_OS_API_URL: ${{ vars.OPPORTUNITY_OS_API_URL }}
+          OPPORTUNITY_OS_WEB_URL: ${{ vars.OPPORTUNITY_OS_WEB_URL }}
+          OPPORTUNITY_OS_RELEASE_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$OPPORTUNITY_OS_API_URL" ] || [ -z "$OPPORTUNITY_OS_WEB_URL" ]; then
+            echo "MANUAL ACTION REQUIRED: configure canonical hosted URL variables before release promotion."
+            exit 0
+          fi
+          pnpm verify:hosted-release
 
       - name: Record deployment workflow contract
         run: |

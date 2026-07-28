@@ -14,6 +14,7 @@ export const API_HEALTH_ROUTE = createApiRouteDefinition({
 export interface ApiHealthRouteInput {
   readonly serviceName: string;
   readonly version: string;
+  readonly releaseSha?: string;
   readonly environment?: string;
   readonly dependencies?: readonly ApiHealthDependencyDto[];
   readonly clock: () => string;
@@ -31,6 +32,7 @@ export function handleApiHealthRequest(
       status: dependencies.some((dependency) => dependency.status !== "ok") ? "degraded" : "ok",
       serviceName: input.serviceName,
       version: input.version,
+      releaseSha: input.releaseSha ?? "local",
       environment: input.environment ?? "local",
       checkedAt,
       dependencies

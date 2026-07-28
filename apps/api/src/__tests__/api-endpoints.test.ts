@@ -149,6 +149,7 @@ describe("API auth and endpoint contracts", () => {
       {
         serviceName: "opportunity-api",
         version: "0.0.0",
+        releaseSha: "a".repeat(40),
         environment: "production",
         clock: () => "2026-07-03T00:00:00.000Z"
       }
@@ -158,6 +159,7 @@ describe("API auth and endpoint contracts", () => {
     expect(response.ok).toBe(true);
     expect(response.data.status).toBe("ok");
     expect(response.data.environment).toBe("production");
+    expect(response.data.releaseSha).toBe("a".repeat(40));
     expect(response.data.dependencies).toEqual([]);
     expect(response.data.checkedAt).toBe("2026-07-03T00:00:00.000Z");
   });
