@@ -1,4 +1,5 @@
 export * from "./auth-context.js";
+export * from "./auth-secret.js";
 export * from "./auth-contract.js";
 export * from "./auth-result.js";
 export * from "./database-invite-store.js";
@@ -7,3 +8,4 @@ export * from "./invite-status.js";
 export * from "./invite-store.js";
 export * from "./invite-validation.js";
 export * from "./session-status.js";
+export * from "./session-token-attachment.js";

@@ -3,7 +3,7 @@ import process from "node:process";
 import pg from "pg";
 
 const { Pool } = pg;
-const CURRENT_MIGRATION_BASELINE = "20260712000000_persist_scan_result";
+const CURRENT_MIGRATION_BASELINE = "20260728093000_harden_private_beta_auth";
 
 async function main() {
   let pool;

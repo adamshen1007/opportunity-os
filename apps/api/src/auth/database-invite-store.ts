@@ -1,4 +1,4 @@
-import { createHmac, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import type { PrismaDatabaseRuntime } from "@opportunity-os/database";
 import { createAuthenticatedAuthContext } from "./auth-context.js";
 import type { ApiInviteDto, ApiSessionDto } from "./invite-dto.js";
@@ -10,6 +10,7 @@ import {
 } from "./invite-store.js";
 import { API_INVITE_STATUSES } from "./invite-status.js";
 import { API_SESSION_STATUSES } from "./session-status.js";
+import { generateSessionToken, hashAuthSecret } from "./auth-secret.js";
 
 export interface DatabaseInviteStoreOptions {
   readonly client: PrismaDatabaseRuntime["client"];
@@ -17,13 +18,17 @@ export interface DatabaseInviteStoreOptions {
   readonly clock?: () => Date;
   readonly sessionTtlMs?: number;
   readonly idFactory?: () => string;
+  readonly sessionTokenFactory?: () => string;
+  readonly inviteTtlMs?: number;
 }
 
 export function createDatabaseInviteStore(options: DatabaseInviteStoreOptions): ApiInviteStore {
   const clock = options.clock ?? (() => new Date());
   const sessionTtlMs = options.sessionTtlMs ?? 1000 * 60 * 60 * 8;
   const idFactory = options.idFactory ?? randomUUID;
-  const hashInviteCode = (value: string) => createHmac("sha256", options.inviteCodePepper).update(value).digest("hex");
+  const sessionTokenFactory = options.sessionTokenFactory ?? generateSessionToken;
+  const inviteTtlMs = options.inviteTtlMs ?? 1000 * 60 * 60 * 24 * 7;
+  const hashSecret = (value: string) => hashAuthSecret(value, options.inviteCodePepper);
 
   return {
     async createInvite(input) {
@@ -32,9 +37,9 @@ export function createDatabaseInviteStore(options: DatabaseInviteStoreOptions): 
           data: {
             id: idFactory(),
             email: input.email,
-            inviteCodeHash: hashInviteCode(input.inviteCode),
+            inviteCodeHash: hashSecret(input.inviteCode),
             status: API_INVITE_STATUSES.pending,
-            expiresAt: input.expiresAt ? new Date(input.expiresAt) : null
+            expiresAt: input.expiresAt ? new Date(input.expiresAt) : new Date(clock().getTime() + inviteTtlMs)
           }
         });
         return toInviteDto(invite);
@@ -46,7 +51,7 @@ export function createDatabaseInviteStore(options: DatabaseInviteStoreOptions): 
 
     async acceptInvite(input): Promise<ApiInviteAcceptanceResult> {
       const invite = await options.client.privateBetaInvite.findUnique({
-        where: { inviteCodeHash: hashInviteCode(input.inviteCode) }
+        where: { inviteCodeHash: hashSecret(input.inviteCode) }
       });
       if (!invite) return rejected(API_INVITE_ACCEPTANCE_FAILURE_REASONS.inviteNotFound, "Invite is not valid.");
 
@@ -60,32 +65,41 @@ export function createDatabaseInviteStore(options: DatabaseInviteStoreOptions): 
       }
 
       const sessionId = idFactory();
+      const sessionToken = sessionTokenFactory();
       const expiresAt = new Date(now.getTime() + sessionTtlMs);
-      const [acceptedInvite, session] = await options.client.$transaction([
-        options.client.privateBetaInvite.update({
-          where: { id: invite.id },
+      const accepted = await options.client.$transaction(async (transaction) => {
+        const claim = await transaction.privateBetaInvite.updateMany({
+          where: { id: invite.id, status: API_INVITE_STATUSES.pending },
           data: { status: API_INVITE_STATUSES.accepted, acceptedAt: now }
-        }),
-        options.client.privateBetaSession.create({
+        });
+        if (claim.count !== 1) return undefined;
+        const acceptedInvite = await transaction.privateBetaInvite.findUniqueOrThrow({ where: { id: invite.id } });
+        const session = await transaction.privateBetaSession.create({
           data: {
             id: sessionId,
+            tokenHash: hashSecret(sessionToken),
             inviteId: invite.id,
             principalId: invite.email,
             status: API_SESSION_STATUSES.active,
             expiresAt
           }
-        })
-      ]);
+        });
+        return { acceptedInvite, session };
+      });
+      if (!accepted) {
+        return rejected(API_INVITE_ACCEPTANCE_FAILURE_REASONS.inviteNotPending, "Invite is no longer available.");
+      }
 
       return {
         accepted: true,
-        invite: toInviteDto(acceptedInvite),
-        session: toSessionDto(session, input.displayName)
+        invite: toInviteDto(accepted.acceptedInvite),
+        session: toSessionDto(accepted.session, input.displayName),
+        sessionToken
       };
     },
 
-    async getSession(sessionId) {
-      const session = await options.client.privateBetaSession.findUnique({ where: { id: sessionId } });
+    async getSession(sessionToken) {
+      const session = await options.client.privateBetaSession.findUnique({ where: { tokenHash: hashSecret(sessionToken) } });
       if (!session || session.status !== API_SESSION_STATUSES.active || session.revokedAt) return undefined;
       if (session.expiresAt.getTime() <= clock().getTime()) {
         await options.client.privateBetaSession.update({ where: { id: session.id }, data: { status: API_SESSION_STATUSES.expired } });
@@ -94,14 +108,31 @@ export function createDatabaseInviteStore(options: DatabaseInviteStoreOptions): 
       return toSessionDto(session);
     },
 
-    async revokeSession(sessionId) {
-      const session = await options.client.privateBetaSession.findUnique({ where: { id: sessionId } });
+    async revokeSession(sessionToken) {
+      const session = await options.client.privateBetaSession.findUnique({ where: { tokenHash: hashSecret(sessionToken) } });
       if (!session || session.status !== API_SESSION_STATUSES.active) return false;
       const now = clock();
       await options.client.privateBetaSession.update({
-        where: { id: sessionId },
+        where: { id: session.id },
         data: { status: API_SESSION_STATUSES.revoked, revokedAt: now }
       });
+      return true;
+    },
+
+    async revokeInvite(inviteId) {
+      const invite = await options.client.privateBetaInvite.findUnique({ where: { id: inviteId } });
+      if (!invite || invite.status === API_INVITE_STATUSES.revoked) return false;
+      const now = clock();
+      await options.client.$transaction([
+        options.client.privateBetaInvite.update({
+          where: { id: inviteId },
+          data: { status: API_INVITE_STATUSES.revoked, revokedAt: now }
+        }),
+        options.client.privateBetaSession.updateMany({
+          where: { inviteId, status: API_SESSION_STATUSES.active },
+          data: { status: API_SESSION_STATUSES.revoked, revokedAt: now }
+        })
+      ]);
       return true;
     }
   };
@@ -128,7 +159,6 @@ function toInviteDto(invite: { id: string; email: string; status: string; create
 
 function toSessionDto(session: { id: string; principalId: string; status: string; createdAt: Date; expiresAt: Date }, displayName?: string): ApiSessionDto {
   return {
-    sessionId: session.id,
     status: session.status as ApiSessionDto["status"],
     principal: createAuthenticatedAuthContext({
       principalId: session.principalId,

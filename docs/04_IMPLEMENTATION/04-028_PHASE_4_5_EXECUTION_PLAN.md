@@ -115,8 +115,8 @@ Estimated size: M, 2-3 engineering days.
 #### Slice A1 implementation record
 
 - Repository controls implemented by Slice A1 are documented in `04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md`.
-- The migration baseline is `20260712000000_persist_scan_result` with six migration directories.
-- Slice A1 adds no Prisma migration. Ownership and evidence-cluster migrations must build additively after this baseline.
+- Slice A1 established `20260712000000_persist_scan_result`; Slice A2 advances the baseline additively to `20260728093000_harden_private_beta_auth`.
+- The A2 migration revokes legacy sessions and introduces a unique session-token hash. Ownership and evidence-cluster migrations must build additively after this baseline.
 - CI proves the migration chain against an empty PostgreSQL 16 database and repeats migration deployment for idempotency.
 - Render executes migration deployment and status before release promotion.
 - Canonical hosted URLs, shared release SHA, staging status, restored-backup upgrade, hosted fixture journey, and rollback rehearsal remain `MANUAL ACTION REQUIRED` until protected operator access is available.
@@ -156,6 +156,15 @@ Required tests:
 
 - invite acceptance, replay, expiry, and revocation
 - session expiry and logout
+- secure cookie policy, Origin rejection, malformed tokens, timing-safe comparisons, and secret redaction
+
+Implementation status:
+
+- repository implementation complete; hosted promotion requires the A2 migration and `AUTH_SECRET_PEPPER`
+- invite codes use the generated `inv_...` format, expire by default, and are accepted once
+- session tokens use the generated `ses_...` format and only keyed hashes persist
+- administrative invite revocation invalidates related active sessions
+- no ownership fields or product-record ownership behavior are included in this slice
 - cookie security
 - Origin and CSRF rejection
 - malformed-token and secret-redaction tests

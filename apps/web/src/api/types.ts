@@ -29,7 +29,6 @@ export type DashboardApiResponse<TData, TError> =
   | DashboardApiFailureResponse<TError>;
 
 export interface DashboardApiSessionDto {
-  readonly sessionId: string;
   readonly status: "active" | "expired" | "revoked";
   readonly principal: {
     readonly principalId: string;
@@ -150,7 +149,6 @@ export type DashboardApiBugReportStatus = "open" | "acknowledged" | "closed";
 
 export interface DashboardApiBugReportDto {
   readonly bugReportId: string;
-  readonly sessionId: string;
   readonly title: string;
   readonly safeDescription: string;
   readonly severity: DashboardApiBugReportSeverity;
@@ -160,7 +158,6 @@ export interface DashboardApiBugReportDto {
 }
 
 export interface DashboardApiCreateBugReportRequestBody {
-  readonly sessionId: string;
   readonly title: string;
   readonly safeDescription: string;
   readonly severity: DashboardApiBugReportSeverity;

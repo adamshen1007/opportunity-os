@@ -228,7 +228,7 @@ Required variables are grouped in `.env.example`:
 - Application: `APP_NAME`, `NODE_ENV`, `PORT`
 - Services: `DATABASE_URL`, `REDIS_URL`
 - AI providers: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_MODEL`, `ANTHROPIC_MODEL`, optional `GEMINI_API_KEY`, optional `GEMINI_MODEL`
-- Authentication: `JWT_SECRET`, `JWT_EXPIRES_IN`
+- Authentication: `AUTH_SECRET_PEPPER`, optional `AUTH_INVITE_TTL_MS` / `AUTH_SESSION_TTL_MS`; legacy JWT variables remain reserved for future token formats
 - Observability: `LOG_LEVEL`, `OTEL_EXPORTER_ENDPOINT`
 
 Optional variables:

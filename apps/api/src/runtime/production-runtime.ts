@@ -28,20 +28,31 @@ export async function createApiProductionRuntime(
 
   const database = createPrismaDatabaseRuntime(databaseUrl);
   await database.connect();
-  const inviteCodePepper = env.JWT_SECRET?.trim();
+  const inviteCodePepper = env.AUTH_SECRET_PEPPER?.trim();
   if (!inviteCodePepper) {
     await database.disconnect();
-    throw new Error("JWT_SECRET is required for durable invite authentication.");
+    throw new Error("AUTH_SECRET_PEPPER is required for durable invite authentication.");
   }
 
   return {
     database,
     scanPersistence: createDatabaseScanPersistenceStore(toScanPersistenceClient(database.client)),
     feedbackStore: createDatabaseFeedbackStore(toFeedbackPersistenceClient(database.client)),
-    inviteStore: createDatabaseInviteStore({ client: database.client, inviteCodePepper }),
+    inviteStore: createDatabaseInviteStore({
+      client: database.client,
+      inviteCodePepper,
+      sessionTtlMs: parsePositiveInteger(env.AUTH_SESSION_TTL_MS),
+      inviteTtlMs: parsePositiveInteger(env.AUTH_INVITE_TTL_MS)
+    }),
     close: () => database.disconnect(),
     databaseIsReady: () => database.probe()
   };
+}
+
+function parsePositiveInteger(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 type RuntimeClient = PrismaDatabaseRuntime["client"];

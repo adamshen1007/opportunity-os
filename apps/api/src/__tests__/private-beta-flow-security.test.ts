@@ -12,12 +12,12 @@ import {
   handleAcceptInviteRequest,
   handleCreateBugReportRequest,
   handleCreateFeedbackRequest,
-  handleGetSessionRequest,
+  handleGetCurrentSessionRequest,
   handleListFeedbackRequest,
   syntheticApiBugReportRequestBody,
   syntheticApiOpportunity,
-  syntheticApiSession,
-  syntheticPrivateBetaInviteCode
+  syntheticPrivateBetaInviteCode,
+  takeAttachedSessionToken
 } from "../index.js";
 
 const unsafeFlowSamples = [
@@ -58,12 +58,13 @@ describe("Private Beta security and end-to-end validation flow", () => {
       return;
     }
     expect(acceptedInvite.data.session.status).toBe(API_SESSION_STATUSES.active);
+    const sessionToken = takeAttachedSessionToken(acceptedInvite);
+    expect(sessionToken).toBeDefined();
+    if (!sessionToken) return;
 
-    const session = await handleGetSessionRequest(
+    const session = await handleGetCurrentSessionRequest(
       createSyntheticApiRequest({
-        params: {
-          sessionId: acceptedInvite.data.session.sessionId
-        }
+        context: { sessionId: sessionToken }
       }),
       inviteStore
     );
@@ -110,7 +111,7 @@ describe("Private Beta security and end-to-end validation flow", () => {
             { target: API_FEEDBACK_RATING_TARGETS.rankingQuality, value: 3 }
           ],
           safeMetadata: {
-            sessionId: acceptedInvite.data.session.sessionId
+            validationMode: "private-beta"
           }
         }
       }),
@@ -139,9 +140,7 @@ describe("Private Beta security and end-to-end validation flow", () => {
         context: { method: "POST", path: "/v1/feedback/bug-reports" },
         body: {
           ...syntheticApiBugReportRequestBody,
-          sessionId: syntheticApiSession.sessionId,
           safeMetadata: {
-            sessionId: acceptedInvite.data.session.sessionId,
             validationMode: "private-beta"
           }
         }
@@ -152,7 +151,7 @@ describe("Private Beta security and end-to-end validation flow", () => {
     expect(bugReport.ok).toBe(true);
     if (bugReport.ok) {
       expect(bugReport.data.status).toBe(API_BUG_REPORT_STATUSES.open);
-      expect(bugReport.data.sessionId).toBe(syntheticApiSession.sessionId);
+      expect(bugReport.data).not.toHaveProperty("sessionId");
     }
 
     const serialized = JSON.stringify({

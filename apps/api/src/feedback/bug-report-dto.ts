@@ -3,7 +3,6 @@ import type { ApiBugReportStatus } from "./bug-report-status.js";
 
 export interface ApiBugReportDto {
   readonly bugReportId: string;
-  readonly sessionId: string;
   readonly title: string;
   readonly safeDescription: string;
   readonly severity: ApiBugReportSeverity;
@@ -13,10 +12,8 @@ export interface ApiBugReportDto {
 }
 
 export interface ApiCreateBugReportRequestBody {
-  readonly sessionId?: string;
   readonly title?: string;
   readonly safeDescription?: string;
   readonly severity?: ApiBugReportSeverity;
   readonly safeMetadata?: Readonly<Record<string, string | number | boolean>>;
 }
-

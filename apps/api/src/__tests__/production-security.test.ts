@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createLocalApiDispatcher } from "../server.js";
 import { createFixedWindowRateLimiter } from "../security/index.js";
-import { createSyntheticApiInviteStore } from "../testing/index.js";
+import { createSyntheticApiInviteStore, syntheticPrivateBetaSessionToken } from "../testing/index.js";
 
 describe("production API controls", () => {
   it("requires the configured access token for live scans", async () => {
@@ -34,7 +34,7 @@ describe("production API controls", () => {
     const allowed = await dispatch({
       method: "GET",
       path: "/opportunities",
-      headers: { "x-opportunity-os-session-id": "session-synthetic-1" }
+      headers: { "x-opportunity-os-session-id": syntheticPrivateBetaSessionToken }
     });
     expect(allowed.ok).toBe(true);
     const inviteDenied = await dispatch({ method: "POST", path: "/auth/invites", body: {} });
@@ -43,7 +43,7 @@ describe("production API controls", () => {
       method: "POST",
       path: "/auth/invites",
       headers: { "x-opportunity-os-admin-token": "admin-only-token" },
-      body: { email: "new.partner@example.com", inviteCode: "safe-one-time-code" }
+      body: { email: "new.partner@example.com", inviteCode: `inv_${"c".repeat(43)}` }
     });
     expect(inviteAllowed.ok).toBe(true);
   });

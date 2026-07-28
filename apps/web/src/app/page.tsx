@@ -36,7 +36,7 @@ export default async function DashboardHomePage() {
         <div className="beta-tools-grid">
           <BetaAccessPanel session={dashboardBetaSessionFixture} invite={dashboardBetaInviteWorkflowFixture} />
           <ValidationSessionSummary opportunities={opportunities} feedback={dashboardFeedbackFixtures} />
-          <BugReportPanel sessionId={dashboardBetaSessionFixture.sessionId} />
+          <BugReportPanel />
         </div>
       </details>
     </AppShell>

@@ -25,6 +25,16 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: AUTH_SECRET_PEPPER
+        sync: false
+      - key: AUTH_INVITE_TTL_MS
+        value: "604800000"
+      - key: AUTH_SESSION_TTL_MS
+        value: "28800000"
+      - key: API_AUTH_REQUIRED
+        value: "true"
+      - key: API_ADMIN_ACCESS_TOKEN
+        sync: false
       - key: API_LIVE_SCAN_ACCESS_TOKEN
         sync: false
       - key: OPPORTUNITY_OS_WEB_URL

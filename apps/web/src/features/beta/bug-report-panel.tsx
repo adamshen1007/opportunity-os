@@ -10,19 +10,17 @@ import { Button, Input, Panel, Select } from "../../components/ui";
 import { dashboardBugReportFixture, dashboardBugReportRequestFixture } from "../../testing";
 
 export interface BugReportPanelProps {
-  readonly sessionId: string;
   readonly submitBugReport?: (
     body: DashboardApiCreateBugReportRequestBody
   ) => Promise<DashboardApiResult<DashboardApiBugReportDto>>;
 }
 
-export function BugReportPanel({ sessionId, submitBugReport = createDeterministicBugReportSubmission }: BugReportPanelProps) {
+export function BugReportPanel({ submitBugReport = createDeterministicBugReportSubmission }: BugReportPanelProps) {
   const [message, setMessage] = useState("Bug reports are captured deterministically for the beta validation loop.");
 
   async function submit() {
     const result = await submitBugReport({
       ...dashboardBugReportRequestFixture,
-      sessionId,
       safeMetadata: {
         validationMode: "private-beta"
       }
@@ -63,7 +61,6 @@ async function createDeterministicBugReportSubmission(
     ok: true,
     data: {
       ...dashboardBugReportFixture,
-      sessionId: body.sessionId,
       title: body.title,
       safeDescription: body.safeDescription,
       severity: body.severity,

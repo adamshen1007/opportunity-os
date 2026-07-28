@@ -15,7 +15,6 @@ import {
   API_FEEDBACK_REASON_CATEGORIES,
   API_FEEDBACK_STATUSES,
   API_GET_FEEDBACK_ROUTE,
-  API_GET_SESSION_ROUTE,
   API_GET_OPPORTUNITY_ROUTE,
   API_GET_RANKING_ROUTE,
   API_HEALTH_ROUTE,
@@ -49,7 +48,6 @@ describe("API contract stability", () => {
       API_GET_RANKING_ROUTE.operationId,
       API_CREATE_INVITE_ROUTE.operationId,
       API_ACCEPT_INVITE_ROUTE.operationId,
-      API_GET_SESSION_ROUTE.operationId,
       API_CREATE_FEEDBACK_ROUTE.operationId,
       API_LIST_FEEDBACK_ROUTE.operationId,
       API_GET_FEEDBACK_ROUTE.operationId,
@@ -62,7 +60,6 @@ describe("API contract stability", () => {
       "getRanking",
       "createPrivateBetaInvite",
       "acceptPrivateBetaInvite",
-      "getPrivateBetaSession",
       "createFeedback",
       "listFeedback",
       "getFeedback",
@@ -157,7 +154,6 @@ describe("API contract stability", () => {
       "createdAt",
       "safeDescription",
       "safeMetadata",
-      "sessionId",
       "severity",
       "status",
       "title"
@@ -166,7 +162,7 @@ describe("API contract stability", () => {
       "createdAt",
       "email",
       "expiresAt",
-      "inviteCode",
+      "inviteCodeHash",
       "inviteId",
       "safeMetadata",
       "status"
@@ -175,7 +171,6 @@ describe("API contract stability", () => {
       "createdAt",
       "expiresAt",
       "principal",
-      "sessionId",
       "status"
     ]);
   });

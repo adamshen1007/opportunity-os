@@ -6,6 +6,7 @@ import {
   type ApiInviteStore,
   validateAcceptInviteBody
 } from "../../auth/index.js";
+import { attachSessionToken } from "../../auth/index.js";
 import { createApiFailureResponse, createApiSuccessResponse, type ApiRequest, type ApiResponse } from "../../http/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
 
@@ -61,11 +62,13 @@ export async function handleAcceptInviteRequest(
     );
   }
 
-  return createApiSuccessResponse(
+  const response = createApiSuccessResponse(
     {
       invite: acceptance.invite,
       session: acceptance.session
     },
     meta
   );
+  attachSessionToken(response, acceptance.sessionToken);
+  return response;
 }

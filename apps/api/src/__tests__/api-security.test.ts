@@ -108,7 +108,6 @@ describe("API security contracts", () => {
       createSyntheticApiRequest({
         context: { method: "POST", path: "/v1/feedback/bug-reports" },
         body: {
-          sessionId: "",
           title: "",
           safeDescription: "token=unsafe-value password=unsafe-value stack trace",
           severity: "api_key=unsafe-value" as never

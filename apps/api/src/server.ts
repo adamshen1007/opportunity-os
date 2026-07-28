@@ -1,4 +1,4 @@
-import { randomUUID, timingSafeEqual } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
 import {
@@ -40,8 +40,9 @@ import {
   handleCreateInviteRequest,
   handleGetCurrentSessionRequest,
   handleLogoutRequest,
-  handleGetSessionRequest
+  handleRevokeInviteRequest
 } from "./routes/auth/index.js";
+import { isWellFormedSessionToken, takeAttachedSessionToken, timingSafeStringEqual } from "./auth/index.js";
 import { createInMemoryScanPersistenceStore, type ApiScanPersistenceStore } from "./persistence/index.js";
 import type { ApiFeedbackStore } from "./feedback/index.js";
 import type { ApiInviteStore } from "./auth/index.js";
@@ -254,9 +255,9 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       handler: (request) => handleAcceptInviteRequest(asHandlerRequest(request), inviteStore)
     },
     {
-      method: "GET",
-      path: "/auth/sessions/:sessionId",
-      handler: (request) => handleGetSessionRequest(asHandlerRequest(request), inviteStore)
+      method: "POST",
+      path: "/auth/invites/:inviteId/revoke",
+      handler: (request) => handleRevokeInviteRequest(asHandlerRequest(request), inviteStore)
     }
   ];
 
@@ -274,13 +275,22 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       return createFailureResponseFromInput(input, requestUrl.pathname, "Route was not found.", 404);
     }
 
-    if (options.requireAuthentication && input.method === "POST" && requestUrl.pathname === "/auth/invites") {
+    const adminRoute = isAdministrativeAuthRoute(input.method, requestUrl.pathname);
+    if (options.requireAuthentication && isStateChanging(input.method)) {
+      const origin = input.headers?.origin;
+      const originApproved = isApprovedOrigin(origin, options.allowedOrigins ?? parseAllowedOrigins(options.allowedOrigin));
+      if ((!adminRoute && !originApproved) || (origin !== undefined && !originApproved)) {
+        return createFailureResponseFromInput(input, requestUrl.pathname, "Request origin is not authorized.", 403);
+      }
+    }
+
+    if (options.requireAuthentication && adminRoute) {
       if (!options.adminAccessToken || !safeTokenEquals(input.headers?.["x-opportunity-os-admin-token"], options.adminAccessToken)) {
         return createFailureResponseFromInput(input, requestUrl.pathname, "Administrative access is not authorized.", 401);
       }
     } else if (options.requireAuthentication && requiresSession(input.method, requestUrl.pathname)) {
-      const sessionId = input.headers?.["x-opportunity-os-session-id"];
-      const session = sessionId ? await inviteStore.getSession(sessionId) : undefined;
+      const sessionToken = input.headers?.["x-opportunity-os-session-id"];
+      const session = sessionToken && isWellFormedSessionToken(sessionToken) ? await inviteStore.getSession(sessionToken) : undefined;
       if (!session) {
         return createFailureResponseFromInput(input, requestUrl.pathname, "An active beta session is required.", 401);
       }
@@ -379,12 +389,14 @@ export function createLocalApiServer(options: LocalApiServerOptions = {}): Serve
         "x-opportunity-os-access-token": getHeaderValue(incoming, "x-opportunity-os-access-token"),
         "x-opportunity-os-admin-token": getHeaderValue(incoming, "x-opportunity-os-admin-token"),
         "x-opportunity-os-session-id": getHeaderValue(incoming, "x-opportunity-os-session-id") ?? readCookie(incoming, "opportunity_os_session")
+          ?? readCookie(incoming, "__Host-opportunity_os_session"),
+        origin: getHeaderValue(incoming, "origin")
       }
     });
     if (requestUrl.pathname === "/auth/invites/accept" && response.ok) {
-      const sessionId = (response.data as { session?: { sessionId?: unknown } }).session?.sessionId;
-      if (typeof sessionId === "string") {
-        outgoing.setHeader("set-cookie", createSessionCookie(sessionId, options.environment === "production"));
+      const sessionToken = takeAttachedSessionToken(response);
+      if (sessionToken) {
+        outgoing.setHeader("set-cookie", createSessionCookie(sessionToken, options.environment === "production"));
       }
     }
     if (requestUrl.pathname === "/auth/logout" && response.ok) {
@@ -499,6 +511,8 @@ function createFailureResponseFromInput(
           ? API_ERROR_CODES.notFound
           : statusCode === 401
             ? API_ERROR_CODES.unauthorized
+            : statusCode === 403
+              ? API_ERROR_CODES.forbidden
             : statusCode === 429
               ? API_ERROR_CODES.forbidden
           : statusCode === 400
@@ -508,7 +522,7 @@ function createFailureResponseFromInput(
       message,
       correlationId,
       requestId,
-      details: [`path:${path}`]
+      details: [`path:${sanitizeOperationalPath(path)}`]
     }),
     meta: {
       correlationId,
@@ -541,7 +555,7 @@ export function applyCorsHeaders(response: ServerResponse, requestOrigin: string
   }
   response.setHeader("access-control-allow-credentials", "true");
   response.setHeader("access-control-allow-methods", "DELETE,GET,POST,OPTIONS");
-  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token,x-opportunity-os-session-id,x-opportunity-os-admin-token");
+  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id,x-request-id,x-opportunity-os-access-token,x-opportunity-os-admin-token");
   return originAllowed;
 }
 
@@ -555,6 +569,18 @@ function requiresSession(method: string, pathname: string): boolean {
   return true;
 }
 
+function isAdministrativeAuthRoute(method: string, pathname: string): boolean {
+  return method === "POST" && (pathname === "/auth/invites" || /^\/auth\/invites\/[^/]+\/revoke$/u.test(pathname));
+}
+
+function isStateChanging(method: string): boolean {
+  return method !== "GET" && method !== "HEAD" && method !== "OPTIONS";
+}
+
+function isApprovedOrigin(origin: string | undefined, allowedOrigins: readonly string[]): boolean {
+  return origin !== undefined && allowedOrigins.includes(origin.replace(/\/$/u, ""));
+}
+
 function readCookie(request: IncomingMessage, name: string): string | undefined {
   const cookieHeader = request.headers.cookie;
   if (!cookieHeader) return undefined;
@@ -565,19 +591,18 @@ function readCookie(request: IncomingMessage, name: string): string | undefined 
   return undefined;
 }
 
-function createSessionCookie(sessionId: string, secure: boolean): string {
-  return [`opportunity_os_session=${encodeURIComponent(sessionId)}`, "HttpOnly", "Path=/", "SameSite=None", "Max-Age=28800", ...(secure ? ["Secure"] : [])].join("; ");
+export function createSessionCookie(sessionToken: string, secure: boolean): string {
+  const name = secure ? "__Host-opportunity_os_session" : "opportunity_os_session";
+  return [`${name}=${encodeURIComponent(sessionToken)}`, "HttpOnly", "Path=/", secure ? "SameSite=None" : "SameSite=Lax", "Max-Age=28800", ...(secure ? ["Secure"] : [])].join("; ");
 }
 
-function createExpiredSessionCookie(secure: boolean): string {
-  return ["opportunity_os_session=", "HttpOnly", "Path=/", "SameSite=None", "Max-Age=0", ...(secure ? ["Secure"] : [])].join("; ");
+export function createExpiredSessionCookie(secure: boolean): string {
+  const name = secure ? "__Host-opportunity_os_session" : "opportunity_os_session";
+  return [`${name}=`, "HttpOnly", "Path=/", secure ? "SameSite=None" : "SameSite=Lax", "Max-Age=0", ...(secure ? ["Secure"] : [])].join("; ");
 }
 
 function safeTokenEquals(provided: string | undefined, expected: string): boolean {
-  if (!provided) return false;
-  const left = Buffer.from(provided);
-  const right = Buffer.from(expected);
-  return left.length === right.length && timingSafeEqual(left, right);
+  return timingSafeStringEqual(provided, expected);
 }
 
 function writeOperationalLog(input: {
@@ -592,8 +617,14 @@ function writeOperationalLog(input: {
     service: "opportunity-os-api",
     severity: input.statusCode >= 500 ? "error" : input.statusCode >= 400 ? "warn" : "info",
     eventName: "api.request.completed",
-    ...input
+    ...input,
+    path: sanitizeOperationalPath(input.path)
   })}\n`);
+}
+
+function sanitizeOperationalPath(path: string): string {
+  if (path.startsWith("/auth/sessions/")) return "/auth/sessions/[redacted]";
+  return path;
 }
 
 function parsePort(value: string | undefined): number | undefined {

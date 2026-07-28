@@ -3,6 +3,7 @@ import type { ApiInviteDto, ApiSessionDto } from "./invite-dto.js";
 import { API_INVITE_STATUSES } from "./invite-status.js";
 import { API_SESSION_STATUSES } from "./session-status.js";
 import type { ValidatedApiInviteAcceptanceInput, ValidatedApiInviteCreationInput } from "./invite-validation.js";
+import { generateSessionToken, hashAuthSecret, timingSafeStringEqual } from "./auth-secret.js";
 
 export const API_INVITE_ACCEPTANCE_FAILURE_REASONS = {
   inviteNotFound: "invite_not_found",
@@ -14,11 +15,18 @@ export type ApiInviteAcceptanceFailureReason =
   (typeof API_INVITE_ACCEPTANCE_FAILURE_REASONS)[keyof typeof API_INVITE_ACCEPTANCE_FAILURE_REASONS];
 
 export type ApiInviteAcceptanceResult =
-  | { readonly accepted: true; readonly invite: ApiInviteDto; readonly session: ApiSessionDto }
+  | { readonly accepted: true; readonly invite: ApiInviteDto; readonly session: ApiSessionDto; readonly sessionToken: string }
   | { readonly accepted: false; readonly reason: ApiInviteAcceptanceFailureReason; readonly safeMessage: string };
 
 export interface ApiInviteRecord extends ApiInviteDto {
-  readonly inviteCode: string;
+  readonly inviteCodeHash: string;
+}
+
+export interface ApiSessionRecord {
+  readonly internalId: string;
+  readonly inviteId: string;
+  readonly tokenHash: string;
+  readonly session: ApiSessionDto;
 }
 
 export interface ApiInviteStoreCreateInput extends ValidatedApiInviteCreationInput {
@@ -36,48 +44,57 @@ export class ApiInviteConflictError extends Error {
 export interface ApiInviteStore {
   readonly createInvite: (input: ApiInviteStoreCreateInput) => Promise<ApiInviteDto>;
   readonly acceptInvite: (input: ValidatedApiInviteAcceptanceInput) => Promise<ApiInviteAcceptanceResult>;
-  readonly getSession: (sessionId: string) => Promise<ApiSessionDto | undefined>;
-  readonly revokeSession: (sessionId: string) => Promise<boolean>;
+  readonly getSession: (sessionToken: string) => Promise<ApiSessionDto | undefined>;
+  readonly revokeSession: (sessionToken: string) => Promise<boolean>;
+  readonly revokeInvite: (inviteId: string) => Promise<boolean>;
 }
 
 export interface InMemoryInviteStoreInput {
   readonly initialInvites?: readonly ApiInviteRecord[];
-  readonly initialSessions?: readonly ApiSessionDto[];
+  readonly initialSessions?: readonly ApiSessionRecord[];
   readonly clock?: () => string;
   readonly inviteIdFactory?: () => string;
   readonly sessionIdFactory?: () => string;
+  readonly sessionTokenFactory?: () => string;
   readonly sessionTtlMs?: number;
+  readonly inviteTtlMs?: number;
+  readonly secretPepper?: string;
 }
 
 export function createInMemoryInviteStore(input: InMemoryInviteStoreInput = {}): ApiInviteStore {
   const invites = [...(input.initialInvites ?? [])].map(cloneInviteRecord);
-  const sessions = [...(input.initialSessions ?? [])].map(cloneSession);
+  const sessions = [...(input.initialSessions ?? [])].map(cloneSessionRecord);
   let inviteSequence = invites.length;
   let sessionSequence = sessions.length;
   const clock = input.clock ?? (() => new Date().toISOString());
   const inviteIdFactory = input.inviteIdFactory ?? (() => `invite-${++inviteSequence}`);
   const sessionIdFactory = input.sessionIdFactory ?? (() => `session-${++sessionSequence}`);
+  const sessionTokenFactory = input.sessionTokenFactory ?? generateSessionToken;
   const sessionTtlMs = input.sessionTtlMs ?? 1000 * 60 * 60 * 8;
+  const inviteTtlMs = input.inviteTtlMs ?? 1000 * 60 * 60 * 24 * 7;
+  const secretPepper = input.secretPepper ?? "in-memory-auth-pepper";
 
   return {
     async createInvite(createInput) {
-      if (invites.some((invite) => invite.email === createInput.email || invite.inviteCode === createInput.inviteCode)) {
+      const inviteCodeHash = hashAuthSecret(createInput.inviteCode, secretPepper);
+      if (invites.some((invite) => invite.email === createInput.email || timingSafeStringEqual(invite.inviteCodeHash, inviteCodeHash))) {
         throw new ApiInviteConflictError();
       }
       const invite: ApiInviteRecord = {
         inviteId: inviteIdFactory(),
-        inviteCode: createInput.inviteCode,
+        inviteCodeHash,
         email: createInput.email,
         status: API_INVITE_STATUSES.pending,
         createdAt: clock(),
-        expiresAt: createInput.expiresAt,
+        expiresAt: createInput.expiresAt ?? new Date(Date.parse(clock()) + inviteTtlMs).toISOString(),
         safeMetadata: createInput.safeMetadata ? { ...createInput.safeMetadata } : undefined
       };
       invites.push(invite);
       return toInviteDto(invite);
     },
     async acceptInvite(acceptInput) {
-      const inviteIndex = invites.findIndex((candidate) => candidate.inviteCode === acceptInput.inviteCode);
+      const inviteCodeHash = hashAuthSecret(acceptInput.inviteCode, secretPepper);
+      const inviteIndex = invites.findIndex((candidate) => timingSafeStringEqual(candidate.inviteCodeHash, inviteCodeHash));
       if (inviteIndex < 0) {
         return {
           accepted: false,
@@ -120,8 +137,8 @@ export function createInMemoryInviteStore(input: InMemoryInviteStoreInput = {}):
       };
       invites[inviteIndex] = acceptedInvite;
 
+      const sessionToken = sessionTokenFactory();
       const session: ApiSessionDto = {
-        sessionId: sessionIdFactory(),
         status: API_SESSION_STATUSES.active,
         principal: createAuthenticatedAuthContext({
           principalId: acceptedInvite.email,
@@ -131,26 +148,47 @@ export function createInMemoryInviteStore(input: InMemoryInviteStoreInput = {}):
         createdAt: now,
         expiresAt: new Date(Date.parse(now) + sessionTtlMs).toISOString()
       };
-      sessions.push(session);
+      sessions.push({
+        internalId: sessionIdFactory(),
+        inviteId: acceptedInvite.inviteId,
+        tokenHash: hashAuthSecret(sessionToken, secretPepper),
+        session
+      });
 
       return {
         accepted: true,
         invite: toInviteDto(acceptedInvite),
-        session: cloneSession(session)
+        session: cloneSession(session),
+        sessionToken
       };
     },
-    async getSession(sessionId) {
-      const session = sessions.find((candidate) => candidate.sessionId === sessionId);
+    async getSession(sessionToken) {
+      const tokenHash = hashAuthSecret(sessionToken, secretPepper);
+      const record = sessions.find((candidate) => timingSafeStringEqual(candidate.tokenHash, tokenHash));
+      const session = record?.session;
       if (!session || session.status !== API_SESSION_STATUSES.active || Date.parse(session.expiresAt) <= Date.parse(clock())) {
         return undefined;
       }
       return cloneSession(session);
     },
-    async revokeSession(sessionId) {
-      const sessionIndex = sessions.findIndex((candidate) => candidate.sessionId === sessionId);
-      const session = sessions[sessionIndex];
-      if (sessionIndex < 0 || session === undefined) return false;
-      sessions[sessionIndex] = { ...session, status: API_SESSION_STATUSES.revoked };
+    async revokeSession(sessionToken) {
+      const tokenHash = hashAuthSecret(sessionToken, secretPepper);
+      const sessionIndex = sessions.findIndex((candidate) => timingSafeStringEqual(candidate.tokenHash, tokenHash));
+      const record = sessions[sessionIndex];
+      if (sessionIndex < 0 || record === undefined) return false;
+      sessions[sessionIndex] = { ...record, session: { ...record.session, status: API_SESSION_STATUSES.revoked } };
+      return true;
+    },
+    async revokeInvite(inviteId) {
+      const inviteIndex = invites.findIndex((candidate) => candidate.inviteId === inviteId);
+      const invite = invites[inviteIndex];
+      if (inviteIndex < 0 || invite === undefined || invite.status === API_INVITE_STATUSES.revoked) return false;
+      invites[inviteIndex] = { ...invite, status: API_INVITE_STATUSES.revoked };
+      for (const [index, record] of sessions.entries()) {
+        if (record.inviteId === inviteId && record.session.status === API_SESSION_STATUSES.active) {
+          sessions[index] = { ...record, session: { ...record.session, status: API_SESSION_STATUSES.revoked } };
+        }
+      }
       return true;
     }
   };
@@ -173,6 +211,10 @@ function cloneInviteRecord(invite: ApiInviteRecord): ApiInviteRecord {
     ...invite,
     safeMetadata: invite.safeMetadata ? { ...invite.safeMetadata } : undefined
   };
+}
+
+function cloneSessionRecord(record: ApiSessionRecord): ApiSessionRecord {
+  return { ...record, session: cloneSession(record.session) };
 }
 
 function cloneSession(session: ApiSessionDto): ApiSessionDto {

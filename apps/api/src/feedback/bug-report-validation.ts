@@ -3,7 +3,6 @@ import type { ApiCreateBugReportRequestBody } from "./bug-report-dto.js";
 import { API_BUG_REPORT_SEVERITIES, type ApiBugReportSeverity } from "./bug-report-severity.js";
 
 export interface ValidatedApiBugReportInput {
-  readonly sessionId: string;
   readonly title: string;
   readonly safeDescription: string;
   readonly severity: ApiBugReportSeverity;
@@ -16,15 +15,10 @@ export type ApiBugReportValidationResult =
 
 export function validateCreateBugReportBody(body: ApiCreateBugReportRequestBody | undefined): ApiBugReportValidationResult {
   const issues: ApiValidationIssue[] = [];
-  const sessionId = typeof body?.sessionId === "string" ? body.sessionId.trim() : "";
   const title = typeof body?.title === "string" ? body.title.trim() : "";
   const safeDescription = typeof body?.safeDescription === "string" ? body.safeDescription.trim() : "";
   const severity = body?.severity;
   const supportedSeverity = Object.values(API_BUG_REPORT_SEVERITIES).find((value) => value === severity);
-
-  if (!sessionId) {
-    issues.push({ field: "sessionId", code: "missing-required-field", message: "Session ID is required." });
-  }
 
   if (!title) {
     issues.push({ field: "title", code: "missing-required-field", message: "Bug report title is required." });
@@ -47,7 +41,6 @@ export function validateCreateBugReportBody(body: ApiCreateBugReportRequestBody 
   return {
     valid: true,
     value: {
-      sessionId,
       title,
       safeDescription,
       severity: supportedSeverity as ApiBugReportSeverity,

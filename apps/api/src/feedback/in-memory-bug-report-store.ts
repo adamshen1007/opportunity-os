@@ -28,7 +28,6 @@ export function createInMemoryBugReportStore(input: InMemoryBugReportStoreInput 
     async createBugReport(createInput) {
       const item: ApiBugReportDto = {
         bugReportId: idFactory(),
-        sessionId: createInput.sessionId,
         title: createInput.title,
         safeDescription: createInput.safeDescription,
         severity: createInput.severity,
@@ -51,4 +50,3 @@ function cloneBugReport(report: ApiBugReportDto): ApiBugReportDto {
     safeMetadata: report.safeMetadata ? { ...report.safeMetadata } : undefined
   };
 }
-

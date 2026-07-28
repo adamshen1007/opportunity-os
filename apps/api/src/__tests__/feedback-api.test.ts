@@ -137,7 +137,7 @@ describe("Feedback API behavior", () => {
     expect(response.ok).toBe(true);
     if (response.ok) {
       expect(response.data.bugReportId).toBe("bug-report-synthetic-created-1");
-      expect(response.data.sessionId).toBe(syntheticApiSession.sessionId);
+      expect(response.data).not.toHaveProperty("sessionId");
       expect(response.data.severity).toBe(API_BUG_REPORT_SEVERITIES.medium);
       expect(response.data.status).toBe(API_BUG_REPORT_STATUSES.open);
     }
@@ -148,7 +148,6 @@ describe("Feedback API behavior", () => {
   it("validates beta bug reports with safe details", async () => {
     const unsafeDescription = "raw token secret stack provider payload";
     const validation = validateCreateBugReportBody({
-      sessionId: "",
       title: "",
       safeDescription: unsafeDescription,
       severity: "critical" as never
@@ -157,7 +156,6 @@ describe("Feedback API behavior", () => {
       createSyntheticApiRequest({
         context: { method: "POST", path: "/v1/feedback/bug-reports" },
         body: {
-          sessionId: "",
           title: "",
           safeDescription: unsafeDescription,
           severity: "critical" as never
@@ -170,7 +168,6 @@ describe("Feedback API behavior", () => {
     expect(response.ok).toBe(false);
     if (!response.ok) {
       expect(response.error.details).toEqual([
-        "sessionId:missing-required-field",
         "title:missing-required-field",
         "severity:unsupported-value"
       ]);

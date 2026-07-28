@@ -54,7 +54,6 @@ export const dashboardBetaInviteWorkflowFixture: DashboardBetaInviteWorkflowFixt
 
 export const dashboardBugReportFixture: DashboardApiBugReportDto = {
   bugReportId: "bug-report-synthetic-1",
-  sessionId: dashboardBetaSessionFixture.sessionId,
   title: "Synthetic dashboard issue",
   safeDescription: "Synthetic beta report with safe reproduction notes.",
   severity: "medium",
@@ -66,7 +65,6 @@ export const dashboardBugReportFixture: DashboardApiBugReportDto = {
 };
 
 export const dashboardBugReportRequestFixture: DashboardApiCreateBugReportRequestBody = {
-  sessionId: dashboardBetaSessionFixture.sessionId,
   title: dashboardBugReportFixture.title,
   safeDescription: dashboardBugReportFixture.safeDescription,
   severity: dashboardBugReportFixture.severity,
@@ -74,4 +72,3 @@ export const dashboardBugReportRequestFixture: DashboardApiCreateBugReportReques
     fixture: true
   }
 };
-

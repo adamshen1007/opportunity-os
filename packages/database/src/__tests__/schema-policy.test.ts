@@ -78,6 +78,7 @@ describe("database schema policy", () => {
       expect(schema).toContain(tableMapping);
     }
     expect(schema).toContain("inviteCodeHash String");
+    expect(schema).toContain("tokenHash   String            @unique");
     expect(schema).toContain("safeDescription String");
     expect(schema).toContain("opportunityRecordId String?");
     expect(schema).not.toContain("inviteCode String");

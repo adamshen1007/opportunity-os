@@ -74,6 +74,15 @@ function createOptionalIntegrationConfig(optionalEnvironment: OptionalEnvironmen
     ...(optionalEnvironment.API_ADMIN_ACCESS_TOKEN === undefined
       ? {}
       : { apiAdminAccessToken: optionalEnvironment.API_ADMIN_ACCESS_TOKEN }),
+    ...(optionalEnvironment.AUTH_SECRET_PEPPER === undefined
+      ? {}
+      : { authSecretPepper: optionalEnvironment.AUTH_SECRET_PEPPER }),
+    ...(optionalEnvironment.AUTH_INVITE_TTL_MS === undefined
+      ? {}
+      : { authInviteTtlMs: optionalEnvironment.AUTH_INVITE_TTL_MS }),
+    ...(optionalEnvironment.AUTH_SESSION_TTL_MS === undefined
+      ? {}
+      : { authSessionTtlMs: optionalEnvironment.AUTH_SESSION_TTL_MS }),
     ...(optionalEnvironment.LLM_PROVIDER === undefined ? {} : { llmProvider: optionalEnvironment.LLM_PROVIDER }),
     ...(optionalEnvironment.LLM_MODEL === undefined ? {} : { llmModel: optionalEnvironment.LLM_MODEL }),
     ...(optionalEnvironment.LLM_LIVE_ANALYSIS_ENABLED === undefined

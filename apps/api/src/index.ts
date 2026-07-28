@@ -1,7 +1,7 @@
 // Phase 3 Milestone 26 REST API public export boundary.
 export type { ApiApplication, ApiBootstrapInput } from "./app.js";
 export { createApiApplication } from "./app.js";
-export { createLocalApiDispatcher, createLocalApiServer, startLocalApiServer } from "./server.js";
+export { createExpiredSessionCookie, createLocalApiDispatcher, createLocalApiServer, createSessionCookie, startLocalApiServer } from "./server.js";
 export type { LocalApiDispatchInput, LocalApiServerOptions } from "./server.js";
 export * from "./auth/index.js";
 export * from "./authorization/index.js";

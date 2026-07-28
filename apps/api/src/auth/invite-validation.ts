@@ -1,5 +1,6 @@
 import type { ApiValidationIssue } from "../validation/index.js";
 import type { ApiAcceptInviteRequestBody, ApiCreateInviteRequestBody } from "./invite-dto.js";
+import { isWellFormedInviteCode } from "./auth-secret.js";
 
 export interface ValidatedApiInviteCreationInput {
   readonly email: string;
@@ -34,6 +35,8 @@ export function validateCreateInviteBody(body: ApiCreateInviteRequestBody | unde
 
   if (!inviteCode) {
     issues.push({ field: "inviteCode", code: "missing-required-field", message: "Invite code is required." });
+  } else if (!isWellFormedInviteCode(inviteCode)) {
+    issues.push({ field: "inviteCode", code: "unsupported-value", message: "Invite code must use the generated secure format." });
   }
 
   if (body?.expiresAt !== undefined && Number.isNaN(Date.parse(body.expiresAt))) {
@@ -62,6 +65,13 @@ export function validateAcceptInviteBody(body: ApiAcceptInviteRequestBody | unde
     return {
       valid: false,
       issues: [{ field: "inviteCode", code: "missing-required-field", message: "Invite code is required." }]
+    };
+  }
+
+  if (!isWellFormedInviteCode(inviteCode)) {
+    return {
+      valid: false,
+      issues: [{ field: "inviteCode", code: "unsupported-value", message: "Invite code is malformed." }]
     };
   }
 

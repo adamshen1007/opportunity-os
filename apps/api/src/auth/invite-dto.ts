@@ -25,7 +25,6 @@ export interface ApiAcceptInviteRequestBody {
 }
 
 export interface ApiSessionDto {
-  readonly sessionId: string;
   readonly status: ApiSessionStatus;
   readonly principal: ApiAuthPrincipal;
   readonly createdAt: string;

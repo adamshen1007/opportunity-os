@@ -24,6 +24,28 @@ M45-M51 turn the hosted pilot into a controlled external-user product. Fixture m
 - Invite creation uses the separate `API_ADMIN_ACCESS_TOKEN` gate.
 - Production browser sessions use secure, HttpOnly cookies.
 
+### Phase 4.5 Authentication Hardening
+
+- Generate invite codes with `pnpm --filter @opportunity-os/api auth:generate-invite-code`; only the generated `inv_...` format is accepted.
+- The administrator supplies that code once in the protected invite-creation request and shares it out of band. Invite codes are never returned by the API or written to application logs.
+- Invite codes expire after seven days by default and are single-use. Revoking an invite through `POST /auth/invites/:inviteId/revoke` also revokes every active session created from it.
+- Browser session tokens are 256-bit random secrets. Only keyed hashes are stored in PostgreSQL; public session DTOs contain no token or internal session ID.
+- The Vercel dashboard and Render API are separate sites, so production uses a `__Host-` cookie with `HttpOnly`, `Secure`, `SameSite=None`, and `Path=/`. Local development uses `SameSite=Lax` without `Secure`.
+- Cookie-authenticated state changes require the exact configured web Origin. Administrator routes may be called without an Origin only when the separate administrator bearer secret is valid.
+
+Generate and create an invite without printing secrets in API output:
+
+```bash
+INVITE_CODE="$(pnpm --silent --filter @opportunity-os/api auth:generate-invite-code)"
+curl --fail-with-body --silent --show-error \
+  -X POST "$OPPORTUNITY_OS_API_URL/auth/invites" \
+  -H "content-type: application/json" \
+  -H "x-opportunity-os-admin-token: $API_ADMIN_ACCESS_TOKEN" \
+  --data "{\"email\":\"partner@example.com\",\"inviteCode\":\"$INVITE_CODE\"}"
+```
+
+Share `INVITE_CODE` only through the approved private channel, then run `unset INVITE_CODE`.
+
 ### M47 Honest Live Scan UX
 
 - Live failures render an error and do not substitute fixture results.
@@ -66,7 +88,7 @@ docker compose config
 
 ## Production Configuration
 
-API: `NODE_ENV=production`, `API_PERSISTENCE_MODE=database`, `API_AUTH_REQUIRED=true`, `API_ADMIN_ACCESS_TOKEN`, `API_LIVE_SCAN_ACCESS_TOKEN`, `DATABASE_URL`, `JWT_SECRET`, `OPPORTUNITY_OS_WEB_ORIGINS`, plus the datasource and LLM variables in `.env.example`.
+API: `NODE_ENV=production`, `API_PERSISTENCE_MODE=database`, `API_AUTH_REQUIRED=true`, `API_ADMIN_ACCESS_TOKEN`, `API_LIVE_SCAN_ACCESS_TOKEN`, `DATABASE_URL`, `AUTH_SECRET_PEPPER`, `OPPORTUNITY_OS_WEB_ORIGINS`, plus the datasource and LLM variables in `.env.example`. `AUTH_INVITE_TTL_MS` and `AUTH_SESSION_TTL_MS` are optional bounded-duration overrides.
 
 Web: `NEXT_PUBLIC_OPPORTUNITY_OS_API_BASE_URL=https://<production-api-domain>`.
 

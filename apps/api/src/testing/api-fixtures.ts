@@ -5,9 +5,11 @@ import {
   API_INVITE_STATUSES,
   API_SESSION_STATUSES,
   createInMemoryInviteStore,
+  hashAuthSecret,
   type ApiCreateInviteRequestBody,
   type ApiInviteRecord,
   type ApiInviteStore,
+  type ApiSessionRecord,
   type ApiSessionDto
 } from "../auth/index.js";
 import {
@@ -120,7 +122,6 @@ export const syntheticApiFeedbackRequestBody: ApiCreateFeedbackRequestBody = {
 
 export const syntheticApiBugReport: ApiBugReportDto = {
   bugReportId: "bug-report-synthetic-1",
-  sessionId: "session-synthetic-1",
   title: "Synthetic dashboard issue",
   safeDescription: "Synthetic beta report with safe reproduction notes.",
   severity: API_BUG_REPORT_SEVERITIES.medium,
@@ -132,7 +133,6 @@ export const syntheticApiBugReport: ApiBugReportDto = {
 };
 
 export const syntheticApiBugReportRequestBody: ApiCreateBugReportRequestBody = {
-  sessionId: syntheticApiBugReport.sessionId,
   title: syntheticApiBugReport.title,
   safeDescription: syntheticApiBugReport.safeDescription,
   severity: syntheticApiBugReport.severity,
@@ -141,11 +141,13 @@ export const syntheticApiBugReportRequestBody: ApiCreateBugReportRequestBody = {
   }
 };
 
-export const syntheticPrivateBetaInviteCode = "synthetic-private-beta-code";
+export const syntheticPrivateBetaInviteCode = `inv_${"a".repeat(43)}`;
+export const syntheticPrivateBetaSessionToken = `ses_${"b".repeat(43)}`;
+const syntheticAuthPepper = "synthetic-auth-pepper";
 
 export const syntheticApiInvite: ApiInviteRecord = {
   inviteId: "invite-synthetic-1",
-  inviteCode: syntheticPrivateBetaInviteCode,
+  inviteCodeHash: hashAuthSecret(syntheticPrivateBetaInviteCode, syntheticAuthPepper),
   email: "design.partner@example.com",
   status: API_INVITE_STATUSES.pending,
   createdAt: "2026-07-04T00:00:00.000Z",
@@ -156,7 +158,6 @@ export const syntheticApiInvite: ApiInviteRecord = {
 };
 
 export const syntheticApiSession: ApiSessionDto = {
-  sessionId: "session-synthetic-1",
   status: API_SESSION_STATUSES.active,
   principal: {
     principalId: syntheticApiInvite.email,
@@ -165,6 +166,13 @@ export const syntheticApiSession: ApiSessionDto = {
   },
   createdAt: "2026-07-04T00:00:00.000Z",
   expiresAt: "2026-07-04T08:00:00.000Z"
+};
+
+export const syntheticApiSessionRecord: ApiSessionRecord = {
+  internalId: "session-synthetic-1",
+  inviteId: syntheticApiInvite.inviteId,
+  tokenHash: hashAuthSecret(syntheticPrivateBetaSessionToken, syntheticAuthPepper),
+  session: syntheticApiSession
 };
 
 export const syntheticApiCreateInviteRequestBody: ApiCreateInviteRequestBody = {
@@ -231,10 +239,12 @@ export function createSyntheticApiBugReportStore(): ApiBugReportStore {
 export function createSyntheticApiInviteStore(): ApiInviteStore {
   return createInMemoryInviteStore({
     initialInvites: [syntheticApiInvite],
-    initialSessions: [syntheticApiSession],
+    initialSessions: [syntheticApiSessionRecord],
     clock: () => "2026-07-04T00:00:00.000Z",
     inviteIdFactory: () => "invite-synthetic-created-1",
-    sessionIdFactory: () => "session-synthetic-created-1"
+    sessionIdFactory: () => "session-synthetic-created-1",
+    sessionTokenFactory: () => syntheticPrivateBetaSessionToken,
+    secretPepper: syntheticAuthPepper
   });
 }
 

@@ -3,7 +3,6 @@ import {
   API_ACCEPT_INVITE_ROUTE,
   API_CREATE_INVITE_ROUTE,
   API_ERROR_CODES,
-  API_GET_SESSION_ROUTE,
   API_GET_CURRENT_SESSION_ROUTE,
   API_LOGOUT_ROUTE,
   ApiInviteConflictError,
@@ -15,13 +14,13 @@ import {
   createSyntheticApiRequest,
   handleAcceptInviteRequest,
   handleCreateInviteRequest,
-  handleGetSessionRequest,
   handleGetCurrentSessionRequest,
   handleLogoutRequest,
   syntheticApiCreateInviteRequestBody,
   syntheticApiInvite,
   syntheticApiSession,
   syntheticPrivateBetaInviteCode,
+  syntheticPrivateBetaSessionToken,
   validateAcceptInviteBody,
   validateCreateInviteBody
 } from "../index.js";
@@ -137,35 +136,17 @@ describe("Private Beta invite-only auth", () => {
 
     expect(response.ok).toBe(false);
     if (!response.ok) {
-      expect(response.error.code).toBe(API_ERROR_CODES.unauthorized);
-      expect(response.error.details).toEqual(["invite:invite_not_found"]);
+      expect(response.error.code).toBe(API_ERROR_CODES.validationFailed);
+      expect(response.error.details).toEqual(["inviteCode:unsupported-value"]);
       expect(JSON.stringify(response.error)).not.toContain("raw-invalid-secret-code");
       expect(JSON.stringify(response.error)).not.toContain("stack");
-    }
-  });
-
-  it("reads sessions through the session route", async () => {
-    const response = await handleGetSessionRequest(
-      createSyntheticApiRequest({
-        params: {
-          sessionId: syntheticApiSession.sessionId
-        }
-      }),
-      createSyntheticApiInviteStore()
-    );
-
-    expect(API_GET_SESSION_ROUTE.path).toBe("/auth/sessions/:sessionId");
-    expect(response.ok).toBe(true);
-    if (response.ok) {
-      expect(response.data.sessionId).toBe(syntheticApiSession.sessionId);
-      expect(response.data.principal.principalId).toBe(syntheticApiInvite.email);
     }
   });
 
   it("reads and revokes the current session without exposing session internals", async () => {
     const store = createSyntheticApiInviteStore();
     const request = createSyntheticApiRequest({
-      context: { sessionId: syntheticApiSession.sessionId }
+      context: { sessionId: syntheticPrivateBetaSessionToken }
     });
 
     const current = await handleGetCurrentSessionRequest(request, store);
@@ -175,7 +156,7 @@ describe("Private Beta invite-only auth", () => {
     const logout = await handleLogoutRequest(request, store);
     expect(API_LOGOUT_ROUTE.path).toBe("/auth/logout");
     expect(logout).toMatchObject({ ok: true, data: { loggedOut: true } });
-    expect(await store.getSession(syntheticApiSession.sessionId)).toBeUndefined();
+    expect(await store.getSession(syntheticPrivateBetaSessionToken)).toBeUndefined();
 
     const afterLogout = await handleGetCurrentSessionRequest(request, store);
     expect(afterLogout.ok).toBe(false);

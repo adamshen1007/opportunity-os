@@ -29,6 +29,9 @@ export interface OptionalEnvironment {
   readonly API_LIVE_SCAN_ACCESS_TOKEN?: string;
   readonly API_AUTH_REQUIRED?: "true" | "false";
   readonly API_ADMIN_ACCESS_TOKEN?: string;
+  readonly AUTH_SECRET_PEPPER?: string;
+  readonly AUTH_INVITE_TTL_MS?: number;
+  readonly AUTH_SESSION_TTL_MS?: number;
   readonly LLM_PROVIDER?: "openai" | "anthropic" | "gemini";
   readonly LLM_MODEL?: string;
   readonly LLM_LIVE_ANALYSIS_ENABLED?: "true" | "false";
@@ -89,6 +92,9 @@ export interface OptionalIntegrationConfig {
   readonly apiLiveScanAccessToken?: string;
   readonly apiAuthRequired?: boolean;
   readonly apiAdminAccessToken?: string;
+  readonly authSecretPepper?: string;
+  readonly authInviteTtlMs?: number;
+  readonly authSessionTtlMs?: number;
   readonly llmProvider?: "openai" | "anthropic" | "gemini";
   readonly llmModel?: string;
   readonly liveLlmAnalysisEnabled?: boolean;

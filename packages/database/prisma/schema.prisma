@@ -22,6 +22,7 @@ model PrivateBetaInvite {
 
 model PrivateBetaSession {
   id          String            @id
+  tokenHash   String            @unique
   inviteId    String
   principalId String
   status      String
