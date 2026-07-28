@@ -2,7 +2,7 @@
 
 
 **Document ID:** 04-001
-**Version:** 3.0.0
+**Version:** 3.1.0
 **Status:** Approved (Implementation)
 **Layer:** 3 – Implementation
 **Owner:** Engineering Team
@@ -3174,6 +3174,49 @@ Readiness is defined in `docs/04_IMPLEMENTATION/04-027_EXTERNAL_USER_SCALE_READI
 
 Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 
+## Phase 4.5 - Design-Partner Readiness
+
+Phase 4.5 is the active execution boundary after Phase 4 Milestones 53-57. It prepares Opportunity OS for a safe, valuable design-partner pilot through two parallel workstreams defined in `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md`.
+
+Workstream A - Production Safety Before Design Partners:
+
+- `TASK-P45-A01` Hosted Deployment Verification
+- `TASK-P45-A02` Database Migration Verification
+- `TASK-P45-A03` Production Authentication Hardening
+- `TASK-P45-A04` User Ownership Isolation
+- `TASK-P45-A05` Deletion Correctness
+- `TASK-P45-A06` Monitoring And Alerting
+- `TASK-P45-A07` Backup And Restore Verification
+
+Workstream B - Opportunity Intelligence Quality:
+
+- `TASK-P45-B01` Opportunity Quality Benchmark
+- `TASK-P45-B02` Evidence Clustering
+- `TASK-P45-B03` Opportunity Synthesis
+- `TASK-P45-B04` Ranking Improvement
+- `TASK-P45-B05` LLM Output Validation
+
+Convergence gate:
+
+- `TASK-P45-G01` Safe And Valuable Design-Partner Pilot Gate
+
+The workstreams execute in parallel but must converge before external invitations are issued. Workstream A alone would produce a safe but insufficiently valuable pilot. Workstream B alone would produce higher-quality output without adequate user and operational protection.
+
+Phase 4.5 must not add enterprise identity, multi-tenancy, payments, subscriptions, CRM integrations, notifications, new connectors, schedulers, workers, or infrastructure that is not required for the design-partner pilot.
+
+Readiness requires:
+
+- verified hosted deployment, migration, rollback, monitoring, and restore procedures
+- hardened invite-only authentication and per-user ownership isolation
+- transactional owner-scoped deletion
+- a frozen opportunity-quality benchmark
+- deterministic evidence clustering and cluster-based opportunity synthesis
+- opportunity-specific demand and ranking signals
+- schema-validated, citation-grounded live LLM output
+- one passing two-user hosted pilot rehearsal
+
+No Phase 4.5 task may bypass the existing ownership boundaries of `packages/database`, `packages/analysis`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, `packages/opportunity-ranking`, `packages/llm-analysis`, `apps/api`, or `apps/web`.
+
 
 # Quality Gates
 
@@ -3280,3 +3323,4 @@ Referenced by:
 | 3.0.6       | 2026-07-04                      | Added Phase 3 Milestone 30 operator, beta user, invite, onboarding, and support documentation. |
 | 3.0.7       | 2026-07-04                      | Added Phase 3 Milestone 30 bug triage, feature request, feedback review, readiness, release, launch, and troubleshooting documentation. |
 | 3.0.8       | 2026-07-04                      | Added Phase 3 Milestone 30 PR governance and documentation consistency verification. |
+| 3.1.0       | 2026-07-28                      | Added the Phase 4.5 parallel production-safety and opportunity-intelligence workstreams with stable task identifiers and a shared design-partner pilot gate. |

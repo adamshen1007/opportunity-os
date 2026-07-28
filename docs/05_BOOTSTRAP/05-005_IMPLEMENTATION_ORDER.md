@@ -1,14 +1,14 @@
 # 05-005_IMPLEMENTATION_ORDER.md
 
 **Document ID:** 05-005
-**Version:** 3.0.0
+**Version:** 3.1.0
 **Status:** Approved (Engineering Kit v3.0)
 **Layer:** 4 - Repository Bootstrap
 **Owner:** Architecture Team
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS through Phase 4 Milestone 34 External MVP Runtime work.
+This document is the authoritative build sequence for Opportunity OS through the Phase 4.5 Design-Partner Readiness workstreams.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -1058,3 +1058,51 @@ Production connectivity precedes durable invite sessions. Durable access precede
 ## Phase 4 Milestones 53-57 - External User Scale Readiness
 
 User-controlled session recovery and revocation precede durable background scan state. Durable execution precedes opportunity quality gates. Explainable quality output precedes user data deletion controls. Safe operations metrics complete the sequence. See `docs/04_IMPLEMENTATION/04-027_EXTERNAL_USER_SCALE_READINESS.md`.
+
+## Phase 4.5 - Design-Partner Readiness
+
+Phase 4.5 begins only from a clean, fully local checkout of `origin/main`. Its canonical plan is `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md`.
+
+Two workstreams execute in parallel:
+
+Workstream A - Production Safety Before Design Partners:
+
+1. `TASK-P45-A01` Hosted Deployment Verification
+2. `TASK-P45-A02` Database Migration Verification
+3. `TASK-P45-A03` Production Authentication Hardening
+4. `TASK-P45-A04` User Ownership Isolation
+5. `TASK-P45-A05` Deletion Correctness
+6. `TASK-P45-A06` Monitoring And Alerting, beginning after A01 and proceeding alongside A02-A05
+7. `TASK-P45-A07` Backup And Restore Verification after the final Phase 4.5 schema is available
+
+Workstream B - Opportunity Intelligence Quality:
+
+1. `TASK-P45-B01` Opportunity Quality Benchmark, beginning in parallel with A01
+2. `TASK-P45-B02` Evidence Clustering
+3. `TASK-P45-B03` Opportunity Synthesis
+4. `TASK-P45-B04` Ranking Improvement
+5. `TASK-P45-B05` LLM Output Validation, proceeding alongside B04 after B03
+
+Convergence:
+
+1. `TASK-P45-G01` Safe And Valuable Design-Partner Pilot Gate begins only after A01-A07 and B01-B05 pass.
+
+Cross-workstream ordering rules:
+
+- ownership, deletion, and evidence-cluster schema changes must be additive and migration-ordered
+- final database migration verification follows the last Phase 4.5 schema migration
+- monitoring must be active before live provider smoke testing
+- backup restore verification must cover the final ownership and intelligence schema
+- live LLM output cannot bypass analysis validation, evidence citations, or deterministic ranking inputs
+- no design-partner invitation is authorized until G01 passes
+
+Phase 4.5 does not authorize enterprise identity, multi-tenancy, billing, payments, subscriptions, CRM integrations, notifications, new connectors, schedulers, workers, or unrelated infrastructure.
+
+Required documentation-slice verification:
+
+```sh
+node scripts/verify-repository.mjs --phase review
+pnpm lint
+```
+
+Phase 4.5 documentation is established only when the roadmap, canonical execution plan, and implementation order contain the same stable task identifiers and dependency direction.
