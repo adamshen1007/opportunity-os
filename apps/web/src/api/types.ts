@@ -248,7 +248,7 @@ export interface DashboardApiScanOpportunityDto {
     readonly score: number;
     readonly explanation: string;
   };
-  readonly synthesis: {
+  readonly synthesis?: {
     readonly synthesisId: string;
     readonly clusterId: string;
     readonly clusterFingerprint: string;
@@ -281,11 +281,11 @@ export interface DashboardApiScanOpportunityDto {
     readonly sourceItemIds: readonly string[];
     readonly redditPostId?: string;
     readonly rawContentId: string;
-    readonly rawContentIds: readonly string[];
+    readonly rawContentIds?: readonly string[];
     readonly normalizedContentId: string;
-    readonly normalizedContentIds: readonly string[];
+    readonly normalizedContentIds?: readonly string[];
     readonly analysisRequestId: string;
-    readonly analysisRequestIds: readonly string[];
+    readonly analysisRequestIds?: readonly string[];
     readonly candidateId: string;
     readonly generationOutputId: string;
     readonly rankingRunId: string;

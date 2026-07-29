@@ -61,6 +61,42 @@ describe("durable scan jobs", () => {
     expect(scheduled).toHaveLength(1);
   });
 
+  it("reports persistence failures without exposing database details", async () => {
+    const memory = createInMemoryScanPersistenceStore();
+    const persistence = {
+      ...memory,
+      async persistScanResult() {
+        throw new Error("P2028 transaction expired with database details");
+      }
+    };
+    const scheduled: Array<() => void> = [];
+    let resolveFailure: (() => void) | undefined;
+    const failure = new Promise<void>((resolve) => { resolveFailure = resolve; });
+    const service = createApiScanJobService({
+      persistence,
+      idFactory: () => "scan-job-persistence-failure",
+      schedule: (work) => scheduled.push(work),
+      onTransition: (status) => {
+        if (status === API_SCAN_JOB_STATUSES.failed) resolveFailure?.();
+      }
+    });
+
+    const queued = await service.enqueue({
+      request: { ...request, limit: 1 },
+      correlationId: "correlation-persistence-failure",
+      ownerPrincipalId: scope.principalId
+    });
+    scheduled[0]?.();
+    await failure;
+
+    const failed = await service.get(scope, queued.jobId);
+    expect(failed).toMatchObject({
+      status: API_SCAN_JOB_STATUSES.failed,
+      safeMessage: "Scan results could not be saved. Retry after the database recovers."
+    });
+    expect(JSON.stringify(failed)).not.toContain("P2028");
+  });
+
   it("preserves only approved safe live LLM failure messages", () => {
     expect(toSafeScanJobFailureMessage(
       new Error("Live LLM output failed structured citation validation. No result was saved.")
@@ -71,6 +107,9 @@ describe("durable scan jobs", () => {
     expect(toSafeScanJobFailureMessage(
       new Error("The live datasource was unavailable. No result was saved.")
     )).toBe("The live datasource was unavailable. No result was saved.");
+    expect(toSafeScanJobFailureMessage(
+      new Error("Scan results could not be saved. Retry after the database recovers.")
+    )).toBe("Scan results could not be saved. Retry after the database recovers.");
     expect(toSafeScanJobFailureMessage(
       new Error("secret token raw provider response")
     )).toBe("Scan failed before safe output was produced. Retry when the datasource is available.");

@@ -30,7 +30,8 @@ export function toSafeScanJobFailureMessage(error: unknown): string {
     error.message === "Live analysis configuration is unavailable; the live scan failed closed." ||
     error.message === "Live analysis configuration does not match the approved pilot provider and model." ||
     error.message === "The live datasource is rate-limited. Retry after the provider recovers." ||
-    error.message === "The live datasource was unavailable. No result was saved."
+    error.message === "The live datasource was unavailable. No result was saved." ||
+    error.message === "Scan results could not be saved. Retry after the database recovers."
   )) {
     return error.message;
   }
@@ -75,7 +76,11 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
         requestId: context.requestId,
         requestedAt: current.requestedAt
       });
-      await options.persistence.persistScanResult({ result, persistedAt: clock(), ownerPrincipalId: current.ownerPrincipalId });
+      try {
+        await options.persistence.persistScanResult({ result, persistedAt: clock(), ownerPrincipalId: current.ownerPrincipalId });
+      } catch {
+        throw new Error("Scan results could not be saved. Retry after the database recovers.");
+      }
       await options.persistence.updateScanJob({
         ...running,
         status: API_SCAN_JOB_STATUSES.completed,

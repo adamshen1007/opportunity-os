@@ -18,6 +18,14 @@ export interface ApiProductionRuntime {
   readonly databaseIsReady: () => Promise<boolean>;
 }
 
+// A hosted scan persists several related records atomically. Prisma's five-second
+// interactive-transaction default is too short for multi-item writes over a
+// remote database connection.
+export const API_SCAN_PERSISTENCE_TRANSACTION_OPTIONS = Object.freeze({
+  maxWait: 10_000,
+  timeout: 60_000
+});
+
 export async function createApiProductionRuntime(
   env: NodeJS.ProcessEnv = process.env
 ): Promise<ApiProductionRuntime> {
@@ -90,7 +98,10 @@ function toScanPersistenceClient(client: RuntimeClient, includeTransaction = tru
     opportunityRankingItem: delegate(client.opportunityRankingItem as never),
     ...(includeTransaction ? {
       transaction: <T>(operation: (database: ApiScanPersistenceDatabaseClient) => Promise<T>) =>
-        client.$transaction((transaction) => operation(toScanPersistenceClient(transaction as RuntimeClient, false)))
+        client.$transaction(
+          (transaction) => operation(toScanPersistenceClient(transaction as RuntimeClient, false)),
+          API_SCAN_PERSISTENCE_TRANSACTION_OPTIONS
+        )
     } : {})
   };
 }

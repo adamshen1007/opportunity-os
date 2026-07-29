@@ -53,6 +53,10 @@ function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
+function countProvenanceRecords(ids: readonly string[] | undefined, legacyId: string | undefined): number {
+  return ids?.length ?? (legacyId ? 1 : 0);
+}
+
 function CitedClaim({ label, claim }: {
   readonly label: string;
   readonly claim: { readonly text: string; readonly citationIds: readonly string[] };
@@ -139,7 +143,11 @@ export function ScanResultView({ result }: { readonly result: DashboardApiScanRe
           <article className="scan-result-card" key={opportunity.opportunityId}>
             <div className="scan-result-heading">
               <Badge tone="success">{`Rank #${opportunity.rank.position}`}</Badge>
-              <span>{opportunity.synthesis.exploratory ? "Exploratory cluster" : "Qualified cluster"} · Score {opportunity.rank.score}</span>
+              <span>
+                {opportunity.synthesis
+                  ? opportunity.synthesis.exploratory ? "Exploratory cluster" : "Qualified cluster"
+                  : "Evidence-backed opportunity"} · Score {opportunity.rank.score}
+              </span>
             </div>
             <h4>{opportunity.title}</h4>
             <p>{opportunity.summary}</p>
@@ -148,17 +156,19 @@ export function ScanResultView({ result }: { readonly result: DashboardApiScanRe
               <span>{opportunity.rank.explanation}</span>
             </div>
 
-            <details className="opportunity-trust-details">
-              <summary>View synthesized problem and citations</summary>
-              <dl className="scan-synthesis-grid">
-                <CitedClaim label="Target user" claim={opportunity.synthesis.targetUser} />
-                <CitedClaim label="Pain" claim={opportunity.synthesis.pain} />
-                <CitedClaim label="Context" claim={opportunity.synthesis.context} />
-                <CitedClaim label="Current workaround" claim={opportunity.synthesis.currentWorkaround} />
-                <CitedClaim label="Desired outcome" claim={opportunity.synthesis.desiredOutcome} />
-              </dl>
-              {opportunity.synthesis.assumptions.length > 0 ? <p><strong>Assumptions:</strong> {opportunity.synthesis.assumptions.join(" ")}</p> : null}
-            </details>
+            {opportunity.synthesis ? (
+              <details className="opportunity-trust-details">
+                <summary>View synthesized problem and citations</summary>
+                <dl className="scan-synthesis-grid">
+                  <CitedClaim label="Target user" claim={opportunity.synthesis.targetUser} />
+                  <CitedClaim label="Pain" claim={opportunity.synthesis.pain} />
+                  <CitedClaim label="Context" claim={opportunity.synthesis.context} />
+                  <CitedClaim label="Current workaround" claim={opportunity.synthesis.currentWorkaround} />
+                  <CitedClaim label="Desired outcome" claim={opportunity.synthesis.desiredOutcome} />
+                </dl>
+                {opportunity.synthesis.assumptions.length > 0 ? <p><strong>Assumptions:</strong> {opportunity.synthesis.assumptions.join(" ")}</p> : null}
+              </details>
+            ) : null}
 
             {opportunity.trust ? (
               <details className="opportunity-trust-details">
@@ -198,15 +208,18 @@ export function ScanResultView({ result }: { readonly result: DashboardApiScanRe
               </div>
               <div>
                 <dt>Raw content records</dt>
-                <dd>{opportunity.provenance.rawContentIds.length}</dd>
+                <dd>{countProvenanceRecords(opportunity.provenance.rawContentIds, opportunity.provenance.rawContentId)}</dd>
               </div>
               <div>
                 <dt>Normalized records</dt>
-                <dd>{opportunity.provenance.normalizedContentIds.length}</dd>
+                <dd>{countProvenanceRecords(opportunity.provenance.normalizedContentIds, opportunity.provenance.normalizedContentId)}</dd>
               </div>
               <div>
                 <dt>Analysis records</dt>
-                <dd>{opportunity.provenance.analysisRequestIds.length}</dd>
+                <dd>
+                  {countProvenanceRecords(opportunity.provenance.analysisRequestIds, opportunity.provenance.analysisRequestId)}
+                  {opportunity.provenance.analysisRequestId ? <small>{opportunity.provenance.analysisRequestId}</small> : null}
+                </dd>
               </div>
               <div>
                 <dt>Ranking</dt>
