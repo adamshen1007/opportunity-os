@@ -86,11 +86,16 @@ export async function searchStackExchange(input: {
       signal: controller.signal
     });
     if (!response.ok) {
+      const retryAfterHeader = response.headers.get("retry-after");
+      const retryAfterSeconds = retryAfterHeader === null ? undefined : Number(retryAfterHeader);
       return {
         ok: false,
         error: {
           code: response.status === 429 ? "rate-limited" : "request-failed",
-          message: "Stack Exchange request was not successful."
+          message: "Stack Exchange request was not successful.",
+          ...(retryAfterSeconds !== undefined && Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0
+            ? { retryAfterSeconds }
+            : {})
         }
       };
     }
@@ -98,7 +103,12 @@ export async function searchStackExchange(input: {
     if (!Array.isArray(payload.items)) {
       return { ok: false, error: { code: "response-invalid", message: "Stack Exchange returned an invalid response." } };
     }
-    const items = payload.items.map((item) => mapQuestion(item, input.request.site ?? input.config.defaultSite));
+    let items: readonly StackExchangeQuestion[];
+    try {
+      items = payload.items.map((item) => mapQuestion(item, input.request.site ?? input.config.defaultSite));
+    } catch {
+      return { ok: false, error: { code: "response-invalid", message: "Stack Exchange returned an invalid response." } };
+    }
     const result = {
       mode: "live" as const,
       items,
@@ -111,8 +121,13 @@ export async function searchStackExchange(input: {
       attribution: { sourceName: "Stack Exchange" as const, required: true as const }
     };
     return { ok: true, result };
-  } catch {
-    return { ok: false, error: { code: "request-failed", message: "Stack Exchange request failed safely." } };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof DOMException && error.name === "AbortError"
+        ? { code: "timeout", message: "Stack Exchange request timed out safely." }
+        : { code: "request-failed", message: "Stack Exchange request failed safely." }
+    };
   } finally {
     clearTimeout(timeout);
   }

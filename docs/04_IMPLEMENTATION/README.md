@@ -32,3 +32,5 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-026_EXTERNAL_USER_LAUNCH.md` defines M45-M51 production connectivity, durable access, honest scan UX, persistence continuity, security hardening, and closed-beta launch gate.
 - `04-028_PHASE_4_5_EXECUTION_PLAN.md` defines the approved Phase 4.5 safety and intelligence workstreams.
 - `04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md` defines Slice A1 hosted release, rollback, migration baseline, clean-database, and restored-backup verification.
+- `04-030_OPPORTUNITY_QUALITY_VALIDATION.md` defines the approved and frozen Phase 4.5 quality benchmark, clustering, synthesis, and ranking results.
+- `04-031_PHASE_4_5_LIVE_DATASOURCE_VERIFICATION.md` records the source-neutral live datasource gate, Stack Exchange fallback verification, and conditional Reddit readiness requirements.

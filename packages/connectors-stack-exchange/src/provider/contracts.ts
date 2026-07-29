@@ -59,7 +59,7 @@ export interface StackExchangeSearchResult {
 }
 
 export interface StackExchangeSafeError {
-  readonly code: "configuration-invalid" | "request-failed" | "response-invalid" | "rate-limited";
+  readonly code: "configuration-invalid" | "request-failed" | "response-invalid" | "rate-limited" | "timeout";
   readonly message: string;
   readonly retryAfterSeconds?: number;
 }

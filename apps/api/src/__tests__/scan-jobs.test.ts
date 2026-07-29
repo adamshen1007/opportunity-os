@@ -108,6 +108,9 @@ describe("durable scan jobs", () => {
       new Error("The live datasource was unavailable. No result was saved.")
     )).toBe("The live datasource was unavailable. No result was saved.");
     expect(toSafeScanJobFailureMessage(
+      new Error("Live Reddit configuration is unavailable. No result was saved.")
+    )).toBe("Live Reddit configuration is unavailable. No result was saved.");
+    expect(toSafeScanJobFailureMessage(
       new Error("Scan results could not be saved. Retry after the database recovers.")
     )).toBe("Scan results could not be saved. Retry after the database recovers.");
     expect(toSafeScanJobFailureMessage(

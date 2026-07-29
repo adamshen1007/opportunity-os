@@ -60,8 +60,8 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
     expect(result.safeMetadata.evidenceClusterCount).toBe(result.opportunities.length);
   });
 
-  it("keeps live mode env-gated and falls back to deterministic fixtures when disabled", async () => {
-    const result = await runOpportunityScanPipeline({
+  it("keeps live mode env-gated and fails closed instead of relabeling fixtures as live", async () => {
+    await expect(runOpportunityScanPipeline({
       subreddit: "opportunity",
       limit: 1,
       mode: "live",
@@ -71,14 +71,7 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
         REDDIT_LIVE_TEST_ENABLED: "false",
         LLM_LIVE_ANALYSIS_ENABLED: "false"
       }
-    });
-
-    expect(result.mode).toBe("fixture");
-    expect(result.safeMetadata).toMatchObject({
-      deterministic: true,
-      liveEnabled: false,
-      rawProviderPayloadStored: false
-    });
+    })).rejects.toThrow("Live Reddit configuration is unavailable. No result was saved.");
   });
 
   it("does not leak unsafe provider, credential, or runtime details", async () => {

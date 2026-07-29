@@ -23,11 +23,13 @@ describe("Stack Exchange provider", () => {
     const url = buildStackExchangeSearchUrl(config, {
       query: "manual deployment",
       tags: ["typescript", "deployment"],
+      page: 2,
       pageSize: 100
     });
     expect(url.pathname).toBe("/2.3/search/advanced");
     expect(url.searchParams.get("q")).toBe("manual deployment");
     expect(url.searchParams.get("pagesize")).toBe("25");
+    expect(url.searchParams.get("page")).toBe("2");
     expect(url.searchParams.get("tagged")).toBe("typescript;deployment");
     expect(url.toString()).not.toContain("test-key");
   });
@@ -48,14 +50,14 @@ describe("Stack Exchange provider", () => {
       has_more: false,
       quota_remaining: 99,
       quota_max: 100
-    }), { status: 200 })) as unknown as typeof globalThis.fetch;
+    }), { status: 200 }));
     const result = await searchStackExchange({
       config: createStackExchangeProviderConfigFromEnv({
         STACK_EXCHANGE_LIVE_SCAN_ENABLED: "true",
         STACK_EXCHANGE_API_KEY: "unsafe-secret-key"
       }),
       request: { query: "workflow" },
-      fetch
+      fetch: fetch as unknown as typeof globalThis.fetch
     });
     expect(result.ok).toBe(true);
     expect(result.ok ? result.result.items[0]?.title : undefined).toBe("Manual & fragile workflow");
@@ -73,12 +75,12 @@ describe("Stack Exchange provider", () => {
       }],
       quota_remaining: 98,
       quota_max: 100
-    }), { status: 200 })) as unknown as typeof globalThis.fetch;
+    }), { status: 200 }));
 
     const result = await searchStackExchange({
       config: createStackExchangeProviderConfigFromEnv({ STACK_EXCHANGE_LIVE_SCAN_ENABLED: "true" }),
       request: { query: "deployment authorization" },
-      fetch
+      fetch: fetch as unknown as typeof globalThis.fetch
     });
 
     expect(result.ok).toBe(true);
@@ -90,13 +92,65 @@ describe("Stack Exchange provider", () => {
     expect(result.result.items[0]?.bodyText).toContain("[REDACTED]");
   });
 
-  it("returns safe errors for throttling and malformed responses", async () => {
+  it("preserves pagination, backoff, and exhausted quota metadata", async () => {
+    const config = createStackExchangeProviderConfigFromEnv({ STACK_EXCHANGE_LIVE_SCAN_ENABLED: "true" });
+    const fetch = vi.fn(async () => new Response(JSON.stringify({
+      items: [{
+        question_id: 44,
+        title: "Deployment workflow",
+        link: "https://stackoverflow.com/questions/44/example",
+        creation_date: 1_700_000_000
+      }],
+      has_more: true,
+      quota_remaining: 0,
+      quota_max: 300,
+      backoff: 30
+    }), { status: 200 }));
+
+    const result = await searchStackExchange({
+      config,
+      request: { query: "deployment", page: 2, pageSize: 5 },
+      fetch: fetch as unknown as typeof globalThis.fetch
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.result.quota).toEqual({ remaining: 0, maximum: 300, backoffSeconds: 30, hasMore: true });
+    expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it("returns safe errors for throttling, malformed responses, timeouts, and downtime", async () => {
     const config = createStackExchangeProviderConfigFromEnv({ STACK_EXCHANGE_LIVE_SCAN_ENABLED: "true" });
     const throttled = await searchStackExchange({
       config,
       request: { query: "workflow" },
-      fetch: vi.fn(async () => new Response("limited", { status: 429 })) as unknown as typeof globalThis.fetch
+      fetch: vi.fn(async () => new Response("limited", { status: 429, headers: { "retry-after": "45" } })) as unknown as typeof globalThis.fetch
     });
-    expect(throttled).toEqual({ ok: false, error: { code: "rate-limited", message: "Stack Exchange request was not successful." } });
+    expect(throttled).toEqual({
+      ok: false,
+      error: { code: "rate-limited", message: "Stack Exchange request was not successful.", retryAfterSeconds: 45 }
+    });
+
+    const malformed = await searchStackExchange({
+      config,
+      request: { query: "workflow" },
+      fetch: vi.fn(async () => new Response(JSON.stringify({ items: [{ title: "missing required fields" }] }), { status: 200 })) as unknown as typeof globalThis.fetch
+    });
+    expect(malformed).toEqual({ ok: false, error: { code: "response-invalid", message: "Stack Exchange returned an invalid response." } });
+
+    const timedOut = await searchStackExchange({
+      config,
+      request: { query: "workflow" },
+      fetch: vi.fn(async () => { throw new DOMException("aborted", "AbortError"); }) as unknown as typeof globalThis.fetch
+    });
+    expect(timedOut).toEqual({ ok: false, error: { code: "timeout", message: "Stack Exchange request timed out safely." } });
+
+    const unavailable = await searchStackExchange({
+      config,
+      request: { query: "workflow" },
+      fetch: vi.fn(async () => { throw new Error("provider response and secret-token"); }) as unknown as typeof globalThis.fetch
+    });
+    expect(unavailable).toEqual({ ok: false, error: { code: "request-failed", message: "Stack Exchange request failed safely." } });
+    expect(JSON.stringify({ timedOut, unavailable })).not.toContain("secret-token");
   });
 });

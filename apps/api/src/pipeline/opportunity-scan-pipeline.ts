@@ -180,10 +180,7 @@ async function readReddit(input: OpportunityScanPipelineInput): Promise<{
   const env = input.env ?? process.env;
   const redditConfig = createRedditLiveProviderConfigFromEnv(env);
   if (!redditConfig.ok || !redditConfig.config.enabled) {
-    return {
-      mode: API_SCAN_MODES.fixture,
-      envelope: createRedditRuntimeHarness().connector.read("reddit.read.posts")
-    };
+    throw new Error("Live Reddit configuration is unavailable. No result was saved.");
   }
 
   const result = await fetchRedditLivePublicPosts({
@@ -203,10 +200,7 @@ async function readReddit(input: OpportunityScanPipelineInput): Promise<{
   });
 
   if (!result.ok) {
-    return {
-      mode: API_SCAN_MODES.fixture,
-      envelope: createRedditRuntimeHarness().connector.read("reddit.read.posts")
-    };
+    throw new Error("The live datasource was unavailable. No result was saved.");
   }
 
   return {

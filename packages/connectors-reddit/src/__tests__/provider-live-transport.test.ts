@@ -128,6 +128,23 @@ describe("reddit live provider transport", () => {
     expect(JSON.stringify(result)).not.toContain("raw provider response");
   });
 
+  it("distinguishes safe timeout and provider downtime failures", async () => {
+    const timeoutTransport = createRedditLiveHttpTransport({
+      now: () => "2026-07-05T00:00:00.000Z",
+      fetch: async () => { throw new DOMException("aborted with secret-token", "AbortError"); }
+    });
+    const timeout = await timeoutTransport.send({ method: "GET", url: "https://oauth.reddit.example/r/startups/new" });
+    expect(timeout).toMatchObject({ ok: false, safeMessage: "Reddit provider request timed out before a safe response was received." });
+
+    const downtimeTransport = createRedditLiveHttpTransport({
+      now: () => "2026-07-05T00:00:00.000Z",
+      fetch: async () => { throw new Error("provider down with secret-token"); }
+    });
+    const downtime = await downtimeTransport.send({ method: "GET", url: "https://oauth.reddit.example/r/startups/new" });
+    expect(downtime).toMatchObject({ ok: false, safeMessage: "Reddit provider request failed before a safe response was received." });
+    expect(JSON.stringify({ timeout, downtime })).not.toContain("secret-token");
+  });
+
   it("maps Reddit listing responses into safe provider contracts", () => {
     const mapped = mapRedditLiveListingResponse({
       kind: "posts",
@@ -172,6 +189,18 @@ describe("reddit live provider transport", () => {
       if (parsed.ok) {
         expect(parsed.envelope.kind).toBe("posts");
         expect(parsed.envelope.items).toHaveLength(1);
+        expect(parsed.envelope.metadata.pagination).toMatchObject({
+          cursor: {
+            nextCursor: { value: "safe_cursor" },
+            createdAt: "2026-07-05T00:00:00.000Z"
+          },
+          limit: { returnedCount: 1 },
+          page: { hasNextPage: true }
+        });
+        expect(parsed.envelope.metadata.rateLimit).toMatchObject({
+          remaining: 99,
+          resetAt: "2026-07-05T00:01:00.000Z"
+        });
       }
     }
   });
