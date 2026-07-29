@@ -109,4 +109,10 @@ pnpm --filter @opportunity-os/llm-analysis dev:llm:live
 
 The command prints only the provider/model and returned output field names. It must not print API keys, authorization headers, raw provider payloads, prompts, stack traces, or raw causes.
 
+## Phase 4.5 Pilot Validation
+
+The selected pilot configuration is Gemini with `gemini-2.5-flash`. OpenAI support remains available at the package boundary, but the pilot API live path fails closed unless `LLM_PROVIDER=gemini` and `GEMINI_MODEL=gemini-2.5-flash` are configured explicitly.
+
+Live output is validated by `citation-validator-v1` against `opportunity-analysis-schema-v2`. Required fields and kinds must match exactly, factual claims must cite evidence IDs supplied with the request, fabricated or missing citations are rejected, and unsupported statements must be marked as assumptions. Provider timeout, refusal, quota, malformed output, and unsafe output remain failures; none may become a successful fixture result. Fixture mode remains the default for tests and CI.
+
 Slice C does not add provider SDKs, dashboard behavior, persistence, schedulers, workers, billing, recommendation logic, or new product workflows.

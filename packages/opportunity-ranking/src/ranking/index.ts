@@ -69,3 +69,13 @@ export type {
 export { createOpportunityRankingExplanation } from "./explanation.js";
 export { rankOpportunities } from "./ranking-pipeline.js";
 export type { OpportunityRankingPipelineOptions } from "./ranking-pipeline.js";
+export { EVIDENCE_RANKING_SIGNAL_IDS, EVIDENCE_RANKING_VERSIONS, rankEvidenceDerivedOpportunities } from "./evidence-derived-ranking.js";
+export type {
+  EvidenceDerivedRankedOpportunity,
+  EvidenceDerivedRankingExplanation,
+  EvidenceDerivedRankingResult,
+  EvidenceDerivedSignal,
+  EvidenceRankingEvidence,
+  EvidenceRankingOpportunity,
+  EvidenceRankingSignalId
+} from "./evidence-derived-ranking.js";

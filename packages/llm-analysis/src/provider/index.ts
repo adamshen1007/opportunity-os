@@ -16,6 +16,12 @@ export {
 export {
   createOpenAiLiveLlmProviderAdapter
 } from "./openai-live-adapter.js";
+export {
+  LIVE_LLM_VALIDATION_VERSIONS,
+  PILOT_LLM_MODEL,
+  PILOT_LLM_PROVIDER,
+  validateLiveLlmOutput
+} from "./live-output-validation.js";
 export type {
   LlmModelId,
   LlmProviderCapability,
@@ -46,3 +52,4 @@ export type {
   OpenAiLiveLlmProviderAdapter,
   OpenAiLiveLlmProviderAdapterOptions
 } from "./openai-live-adapter.js";
+export type { LiveLlmOutputValidationResult } from "./live-output-validation.js";

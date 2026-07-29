@@ -10,6 +10,7 @@ import {
 } from "../results/index.js";
 import type { StructuredOutputValue } from "../structured-output/index.js";
 import { createLiveLlmPromptBoundary } from "./live-prompt-boundary.js";
+import { LIVE_LLM_VALIDATION_VERSIONS, validateLiveLlmOutput } from "./live-output-validation.js";
 import type { LiveLlmProviderConfig } from "./live-config.js";
 
 export type LiveLlmFetch = (
@@ -162,10 +163,11 @@ export function createOpenAiLiveLlmProviderAdapter(
         const outputText = extractOutputText(body);
         const values = outputText ? parseJsonObject(outputText) : undefined;
 
-        if (!values || unsafePattern.test(JSON.stringify(values))) {
+        const validation = values ? validateLiveLlmOutput(values, request) : undefined;
+        if (!values || !validation?.valid || unsafePattern.test(JSON.stringify(values))) {
           return {
             status: ANALYSIS_RESULT_STATUSES.unsafeOutput,
-            issues: [
+            issues: validation && !validation.valid ? validation.issues : [
               {
                 code: "unsafe-payload",
                 path: ["provider", "output"],
@@ -197,7 +199,8 @@ export function createOpenAiLiveLlmProviderAdapter(
                 outputUnits: numberOrUndefined(body.usage?.output_tokens),
                 totalUnits: numberOrUndefined(body.usage?.total_tokens)
               },
-              validationIssues: []
+              validationIssues: [],
+              executionVersions: LIVE_LLM_VALIDATION_VERSIONS
             }
           }
         };

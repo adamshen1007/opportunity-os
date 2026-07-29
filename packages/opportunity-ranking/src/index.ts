@@ -26,6 +26,9 @@ export {
   compareOpportunityRankingReferences,
   createOpportunityRankingExplanation,
   explainOpportunityRankingTieBreak,
+  EVIDENCE_RANKING_SIGNAL_IDS,
+  EVIDENCE_RANKING_VERSIONS,
+  rankEvidenceDerivedOpportunities,
   rankOpportunities,
   validateOpportunityRankingInput
 } from "./ranking/index.js";
@@ -62,6 +65,13 @@ export type {
   OpportunityRankingVersion,
   RankedOpportunity,
   RankedOpportunityId,
+  EvidenceDerivedRankedOpportunity,
+  EvidenceDerivedRankingExplanation,
+  EvidenceDerivedRankingResult,
+  EvidenceDerivedSignal,
+  EvidenceRankingEvidence,
+  EvidenceRankingOpportunity,
+  EvidenceRankingSignalId,
   SafeOpportunityRankingError
 } from "./ranking/index.js";
 export {

@@ -47,6 +47,10 @@ The Slice C ranking pipeline:
 
 Tie breaking is deterministic and documented in result metadata. It is not personalized and does not infer user preference.
 
+Phase 4.5 adds `evidence-ranking-formula-v1` for scan runtime rankings. It derives opportunity-specific recurrence, source diversity, pain severity, urgency, workaround, engagement, recency, action-intent, and contradiction signals from traceable evidence. Demand strength is the versioned weighted signal total; confidence is calculated separately from evidence recurrence, diversity, and available-signal coverage. Final scores reconcile to 80 percent demand strength plus 20 percent confidence, less the explicit contradiction penalty. Missing data receives no inferred signal credit and lowers confidence.
+
+On the frozen Phase 4.5 benchmark, the formula improves approved pairwise agreement from 50 percent to 75 percent while remaining deterministic. The weights are recorded as `evidence-ranking-weights-v1`; changing signals, formulas, or weights requires a new version and benchmark comparison.
+
 ## Stability And Security
 
 Slice D adds synthetic fixtures for repeatable test coverage. Fixtures must remain synthetic and must not contain provider payloads, prompts, secrets, credentials, tokens, or production examples.

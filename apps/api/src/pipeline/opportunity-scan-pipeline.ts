@@ -17,14 +17,17 @@ import {
   ANALYSIS_RESULT_STATUSES,
   createGeminiLiveLlmProviderAdapter,
   createLiveLlmProviderConfigFromEnv,
-  createOpenAiLiveLlmProviderAdapter,
   llmAnalysisFixturePrompt,
   llmAnalysisFixtureProvider,
   llmAnalysisFixtureRequest,
   llmAnalysisFixtureResult,
+  PILOT_LLM_MODEL,
+  PILOT_LLM_PROVIDER,
   type AnalysisResult,
+  type AnalysisRequest,
   type LlmModelId,
-  type LlmProviderId
+  type LlmProviderId,
+  type PromptVersion
 } from "@opportunity-os/llm-analysis";
 import { CANONICAL_TEXT_VERSION, NORMALIZATION_STAGES } from "@opportunity-os/normalization";
 import { CANDIDATE_OPPORTUNITY_STATUSES } from "@opportunity-os/opportunity-candidates";
@@ -39,22 +42,9 @@ import {
   type EvidenceClusterMember
 } from "@opportunity-os/opportunity-pipeline";
 import {
-  DEFAULT_OPPORTUNITY_RANKING_WEIGHT_SET,
-  OPPORTUNITY_RANKING_FACTOR_IDS,
-  OPPORTUNITY_RANKING_FACTOR_KINDS,
-  OPPORTUNITY_RANKING_MODES,
-  OPPORTUNITY_RANKING_SIGNAL_IDS,
-  OPPORTUNITY_RANKING_SIGNAL_SOURCES,
-  rankOpportunities,
-  type OpportunityRankingFactor,
-  type OpportunityRankingFieldPath,
-  type OpportunityRankingRequestId,
-  type OpportunityRankingRunId,
-  type OpportunityRankingScoreValue,
-  type OpportunityRankingSignal,
-  type OpportunityRankingTimestamp,
-  type OpportunityRankingUpstreamReference,
-  type OpportunityRankingVersion
+  EVIDENCE_RANKING_VERSIONS,
+  rankEvidenceDerivedOpportunities,
+  type EvidenceDerivedRankedOpportunity
 } from "@opportunity-os/opportunity-ranking";
 import { RAW_CONTENT_ENVELOPE_VERSION } from "@opportunity-os/raw-content";
 import type {
@@ -367,18 +357,21 @@ async function analyzeContent(
 
   const config = createLiveLlmProviderConfigFromEnv(input.env ?? process.env);
   if (!config.ok || !config.config.enabled) {
-    return llmAnalysisFixtureResult;
+    throw new Error("Live analysis configuration is unavailable; the live scan failed closed.");
+  }
+  if (config.config.provider !== PILOT_LLM_PROVIDER || config.config.model !== PILOT_LLM_MODEL) {
+    throw new Error("Live analysis configuration does not match the approved pilot provider and model.");
   }
 
-  const adapter = config.config.provider === "gemini"
-    ? createGeminiLiveLlmProviderAdapter({ config: config.config })
-    : createOpenAiLiveLlmProviderAdapter({ config: config.config });
-  return adapter.analyze({
+  const adapter = createGeminiLiveLlmProviderAdapter({ config: config.config });
+  const evidenceId = `evidence-${safeId(normalized.provenance.sourceId)}`;
+  const request: AnalysisRequest = {
     ...llmAnalysisFixtureRequest,
     input: {
       ...llmAnalysisFixtureRequest.input,
       variables: {
-        canonicalText: normalized.text
+        canonicalText: normalized.text,
+        evidenceCatalog: [{ evidenceId, text: normalized.text }]
       }
     },
     provider: {
@@ -393,12 +386,37 @@ async function analyzeContent(
         }
       ]
     },
-    prompt: llmAnalysisFixturePrompt,
+    prompt: {
+      ...llmAnalysisFixturePrompt,
+      name: "Pilot Opportunity Evidence Analysis",
+      version: "2.0.0" as PromptVersion,
+      purpose: "Identify cited opportunity evidence and explicit assumptions from normalized public content.",
+      outputShape: {
+        schema: {
+          schemaName: "PilotOpportunityAnalysis",
+          schemaVersion: "2.0.0",
+          fields: [
+            { name: "summary", kind: "string", required: true, validationMetadata: { minLength: 1, maxLength: 280 } },
+            { name: "confidence", kind: "number", required: true, validationMetadata: {} },
+            { name: "claims", kind: "array", required: true, validationMetadata: {} },
+            { name: "assumptions", kind: "array", required: true, validationMetadata: {} }
+          ],
+          requiredFields: ["summary", "confidence", "claims", "assumptions"],
+          optionalFields: [],
+          validationMetadata: { allowAdditionalFields: false, issueCodes: ["invalid-prompt-output", "unsafe-payload"] }
+        }
+      }
+    },
     context: {
       correlationId: input.correlationId,
       requestId: input.requestId
     }
-  });
+  };
+  const result = await adapter.analyze(request);
+  if (result.status !== ANALYSIS_RESULT_STATUSES.success) {
+    throw new Error("Live analysis did not produce a validated cited result; the live scan failed closed.");
+  }
+  return result;
 }
 
 function analysisSummary(result: AnalysisResult, fallback: string): string {
@@ -450,93 +468,21 @@ function generateOpportunity(candidate: PipelineCandidate, requestedAt: string):
   };
 }
 
-function rankingReference(packageName: string, entityKind: string, entityId: string): OpportunityRankingUpstreamReference {
-  return {
-    packageName,
-    entityKind,
-    entityId,
-    version: "mvp-v1"
-  };
-}
-
 function rankGeneratedOpportunities(input: {
   readonly opportunities: readonly PipelineGeneratedOpportunity[];
-  readonly requestedAt: string;
-  readonly requestId?: string;
 }) {
-  const signals: readonly OpportunityRankingSignal[] = [
-    {
-      signalId: OPPORTUNITY_RANKING_SIGNAL_IDS.candidateConfidence,
-      source: OPPORTUNITY_RANKING_SIGNAL_SOURCES.candidate,
-      fieldPath: "candidate.confidence" as OpportunityRankingFieldPath,
-      value: 0.82 as OpportunityRankingScoreValue,
-      normalizedValue: 0.82 as OpportunityRankingScoreValue,
-      explanation: "Candidate confidence is present and traceable."
-    },
-    {
-      signalId: OPPORTUNITY_RANKING_SIGNAL_IDS.evidenceCompleteness,
-      source: OPPORTUNITY_RANKING_SIGNAL_SOURCES.evidence,
-      fieldPath: "candidate.evidence" as OpportunityRankingFieldPath,
-      value: 0.88 as OpportunityRankingScoreValue,
-      normalizedValue: 0.88 as OpportunityRankingScoreValue,
-      explanation: "Every generated opportunity includes source evidence."
-    }
-  ];
-  const factors: readonly OpportunityRankingFactor[] = [
-    {
-      factorId: OPPORTUNITY_RANKING_FACTOR_IDS.confidenceStrength,
-      kind: OPPORTUNITY_RANKING_FACTOR_KINDS.confidence,
-      signalIds: [OPPORTUNITY_RANKING_SIGNAL_IDS.candidateConfidence],
-      value: 0.82 as OpportunityRankingScoreValue,
-      explanation: "Confidence contributes deterministically."
-    },
-    {
-      factorId: OPPORTUNITY_RANKING_FACTOR_IDS.evidenceCompleteness,
-      kind: OPPORTUNITY_RANKING_FACTOR_KINDS.evidence,
-      signalIds: [OPPORTUNITY_RANKING_SIGNAL_IDS.evidenceCompleteness],
-      value: 0.88 as OpportunityRankingScoreValue,
-      explanation: "Evidence completeness contributes deterministically."
-    }
-  ];
-  const safeMetadata = input.requestId ? { requestId: input.requestId } : undefined;
-
-  return rankOpportunities(
-    {
-      requestId: "mvp-scan-ranking-request" as OpportunityRankingRequestId,
-      generatedOpportunities: input.opportunities.map((item) =>
-        rankingReference("@opportunity-os/opportunity-generation", "generated-opportunity", item.opportunityId)
-      ),
-      generationOutputs: input.opportunities.map((item) =>
-        rankingReference("@opportunity-os/opportunity-generation", "generation-output", item.outputId)
-      ),
-      candidates: input.opportunities.map((item) =>
-        rankingReference("@opportunity-os/opportunity-candidates", "candidate-opportunity", item.candidate.candidateId)
-      ),
-      signals: {
-        signals,
-        deterministic: true,
-        providerIndependent: true,
-        explainable: true
-      },
-      factors: {
-        factors,
-        deterministic: true,
-        explainable: true
-      },
-      weights: DEFAULT_OPPORTUNITY_RANKING_WEIGHT_SET,
-      context: {
-        requestedAt: input.requestedAt as OpportunityRankingTimestamp,
-        requestedBy: "api-scan",
-        mode: OPPORTUNITY_RANKING_MODES.deterministic,
-        version: "ranking-v1" as OpportunityRankingVersion,
-        ...(safeMetadata ? { safeMetadata } : {})
-      }
-    },
-    {
-      runId: "mvp-scan-ranking-run" as OpportunityRankingRunId,
-      rankedAt: input.requestedAt as OpportunityRankingTimestamp
-    }
-  );
+  return rankEvidenceDerivedOpportunities(input.opportunities.map((item) => ({
+    opportunityId: item.opportunityId,
+    title: item.candidate.title,
+    evidence: item.candidate.evidence.map((bundle) => ({
+      evidenceId: bundle.member.evidenceId,
+      text: `${bundle.post.title}\n${bundle.normalized.text}`,
+      sourceType: bundle.post.source,
+      connectorId: bundle.post.connectorId,
+      observedAt: bundle.post.observedAt,
+      stance: bundle.member.stance
+    }))
+  })));
 }
 
 function toDto(input: {
@@ -544,6 +490,8 @@ function toDto(input: {
   readonly scanId: string;
   readonly rank: number;
   readonly score: number;
+  readonly confidence: number;
+  readonly ranking: EvidenceDerivedRankedOpportunity;
   readonly rankingRunId: string;
 }): ApiScanOpportunityDto {
   const evidence: ApiScanEvidenceDto[] = input.generated.candidate.evidence.map((bundle) => ({
@@ -571,22 +519,22 @@ function toDto(input: {
     opportunityId: input.generated.opportunityId,
     title: input.generated.candidate.title,
     summary: input.generated.candidate.evidenceSummary,
-    confidence: input.generated.candidate.confidence,
+    confidence: input.confidence,
     rank: {
       position: input.rank,
       score: input.score,
-      explanation: "Ranked by deterministic confidence and evidence completeness signals."
+      explanation: input.ranking.explanation.summary
     },
     synthesis: input.generated.candidate.synthesis,
     evidence,
     trust: {
       evidenceCount: input.generated.candidate.cluster.demandCount,
-      confidenceBand: input.generated.candidate.confidence >= 0.8 ? "high" : input.generated.candidate.confidence >= 0.6 ? "moderate" : "low",
+      confidenceBand: input.confidence >= 0.8 ? "high" : input.confidence >= 0.6 ? "moderate" : "low",
       limitations: input.generated.candidate.synthesis.limitations,
-      rankingFactors: [
-        { label: "Candidate confidence", contribution: "Weighted deterministic signal" },
-        { label: "Evidence completeness", contribution: "Required source evidence present" }
-      ]
+      rankingFactors: input.ranking.explanation.contributions.map((factor) => ({
+        label: factor.signalId,
+        contribution: `${factor.contribution.toFixed(3)} (${factor.value.toFixed(3)} x ${factor.weight.toFixed(2)})`
+      }))
     },
     provenance: {
       scanId: input.scanId,
@@ -663,21 +611,19 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
     return [createCandidate({ cluster, synthesis: synthesisResult.opportunity, bundles })];
   });
   const generated = candidates.map((candidate) => generateOpportunity(candidate, input.requestedAt));
-  const ranking = rankGeneratedOpportunities({
-    opportunities: generated,
-    requestedAt: input.requestedAt,
-    requestId: input.requestId
-  });
-  const rankedOutput = ranking.status === "success" ? ranking.output : undefined;
-  const ranked = rankedOutput?.rankedOpportunities ?? [];
+  const ranking = rankGeneratedOpportunities({ opportunities: generated });
+  const ranked = ranking.rankedOpportunities;
   const opportunities = generated.map((item, index) => {
-    const matchingRank = ranked.find((rank) => rank.opportunity.entityId === item.opportunityId);
+    const matchingRank = ranked.find((rank) => rank.opportunityId === item.opportunityId);
+    if (!matchingRank) throw new Error("Generated opportunity is missing an evidence-derived ranking.");
     return toDto({
       generated: item,
       scanId,
-      rank: matchingRank?.rank ?? index + 1,
-      score: matchingRank?.score ?? 0,
-      rankingRunId: rankedOutput?.runId ?? "mvp-scan-ranking-run"
+      rank: matchingRank.position ?? index + 1,
+      score: matchingRank.score,
+      confidence: matchingRank.confidence,
+      ranking: matchingRank,
+      rankingRunId: "mvp-scan-ranking-run"
     });
   });
   const result: ApiScanResultDto = {
@@ -699,10 +645,10 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
       stage("source", source.mode === API_SCAN_MODES.live ? `Fetched ${source.attribution} content through the live provider.` : `Loaded deterministic ${source.attribution} fixture content.`),
       stage("raw-content", `Mapped ${source.attribution} content into safe Raw Content envelopes.`),
       stage("normalization", "Normalized text while preserving source provenance."),
-      stage("llm-analysis", source.mode === API_SCAN_MODES.live ? "Ran env-gated live LLM analysis or safe fixture fallback." : "Used deterministic LLM analysis fixture output."),
+      stage("llm-analysis", source.mode === API_SCAN_MODES.live ? "Validated env-gated live LLM output against the cited evidence schema." : "Used deterministic LLM analysis fixture output."),
       stage("candidate-generation", `Clustered ${posts.length} source item(s) into ${clusters.length} traceable evidence cluster(s).`),
       stage("opportunity-generation", `Synthesized ${opportunities.length} cited opportunity candidate(s) from qualified clusters.`),
-      stage("ranking", "Ranked generated opportunities with explainable deterministic ranking.")
+      stage("ranking", `Ranked generated opportunities with ${EVIDENCE_RANKING_VERSIONS.formula} evidence-derived signals.`)
     ],
     opportunities,
     validationMetrics: createScanValidationMetrics({ retrievedItems: posts.length, opportunities }),

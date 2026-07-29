@@ -171,6 +171,12 @@ Implementation status:
 
 Estimated size: L, 4-6 engineering days.
 
+Implementation record (2026-07-29):
+
+- completed with `evidence-signals-v1`, `evidence-ranking-formula-v1`, and `evidence-ranking-weights-v1`
+- runtime rankings now use opportunity-specific evidence rather than fixed candidate confidence and completeness values
+- frozen benchmark pairwise agreement improved from 50 percent to 75 percent; all Phase 4.5 quality thresholds pass
+
 ### TASK-P45-A04 - User Ownership Isolation
 
 Objective:
@@ -301,6 +307,13 @@ Required tests:
 - log-redaction tests
 
 Estimated size: M, 3-4 engineering days.
+
+Implementation record (2026-07-29):
+
+- deterministic implementation complete with Gemini `gemini-2.5-flash` selected for the pilot
+- `opportunity-analysis-schema-v2` and `citation-validator-v1` fail closed on malformed output, unresolved citations, unsupported factual claims, timeout, refusal, and quota failure
+- fixture mode remains the CI default and live failure cannot silently become fixture success
+- live staging verification remains a protected manual provider gate
 
 ### TASK-P45-A07 - Backup And Restore Verification
 

@@ -68,7 +68,11 @@ export {
   createGeminiLiveLlmProviderAdapter,
   createLiveLlmProviderConfigFromEnv,
   createLiveLlmPromptBoundary,
-  createOpenAiLiveLlmProviderAdapter
+  createOpenAiLiveLlmProviderAdapter,
+  LIVE_LLM_VALIDATION_VERSIONS,
+  PILOT_LLM_MODEL,
+  PILOT_LLM_PROVIDER,
+  validateLiveLlmOutput
 } from "./provider/index.js";
 export type {
   GeminiLiveLlmProviderAdapter,
@@ -88,7 +92,8 @@ export type {
   LlmProviderModel,
   LlmProviderStabilityStatus,
   OpenAiLiveLlmProviderAdapter,
-  OpenAiLiveLlmProviderAdapterOptions
+  OpenAiLiveLlmProviderAdapterOptions,
+  LiveLlmOutputValidationResult
 } from "./provider/index.js";
 export {
   PROMPT_SAFETY_CLASSIFICATIONS,

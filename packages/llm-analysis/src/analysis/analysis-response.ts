@@ -22,6 +22,11 @@ export type AnalysisResponseMetadata = {
   readonly modelName?: string;
   readonly usage?: AnalysisUsageMetadata;
   readonly validationIssues: readonly AnalysisValidationIssue[];
+  readonly executionVersions?: {
+    readonly prompt: string;
+    readonly schema: string;
+    readonly validator: string;
+  };
 };
 
 export type AnalysisResponse = {

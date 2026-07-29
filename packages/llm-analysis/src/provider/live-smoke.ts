@@ -43,6 +43,9 @@ async function main() {
 
   if (result.status !== "success") {
     console.error(`Live LLM analysis failed safely: ${result.error?.message ?? result.status}`);
+    for (const issue of result.issues) {
+      console.error(`Validation issue: ${issue.path.join(".")} - ${issue.message}`);
+    }
     process.exitCode = 1;
     return;
   }

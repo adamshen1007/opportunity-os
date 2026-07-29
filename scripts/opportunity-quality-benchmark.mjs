@@ -195,9 +195,10 @@ const measureBenchmark = (benchmark) => {
 const measureClusteredBehavior = async (benchmark) => {
   const validation = validateBenchmark(benchmark);
   assert(validation.frozen, "The clustered benchmark requires a frozen approved corpus.");
-  const [{ clusterEvidence }, { synthesizeEvidenceClusters }] = await Promise.all([
+  const [{ clusterEvidence }, { synthesizeEvidenceClusters }, { rankEvidenceDerivedOpportunities }] = await Promise.all([
     import("../packages/opportunity-pipeline/dist/index.js"),
-    import("../packages/opportunity-generation/dist/index.js")
+    import("../packages/opportunity-generation/dist/index.js"),
+    import("../packages/opportunity-ranking/dist/index.js")
   ]);
   const records = benchmark.sourceRecords.records;
   const clusteringInputs = records.map((record) => ({
@@ -217,6 +218,35 @@ const measureClusteredBehavior = async (benchmark) => {
   const repeatedClusters = clusterEvidence([...clusteringInputs].reverse());
   const synthesis = synthesizeEvidenceClusters(firstClusters);
   const opportunities = synthesis.flatMap((result) => result.status === "synthesized" ? [result.opportunity] : []);
+  const expectedOpportunityByCluster = new Map(benchmark.expectedClusters.clusters.map((cluster) => [cluster.id, cluster.opportunityId]));
+  const expectedClusterBySource = new Map(records.map((record) => [record.id, record.expectedClusterId]));
+  const rankingInputs = opportunities.map((opportunity) => {
+    const cluster = firstClusters.find((item) => item.clusterId === opportunity.clusterId);
+    const expectedClusterId = cluster?.supportingEvidence.map((item) => expectedClusterBySource.get(item.sourceId)).find(Boolean);
+    const opportunityId = expectedClusterId ? expectedOpportunityByCluster.get(expectedClusterId) : undefined;
+    assert(cluster && opportunityId, `Unable to map synthesized cluster ${opportunity.clusterId} to an approved opportunity.`);
+    return {
+      opportunityId,
+      title: opportunity.title,
+      evidence: [...cluster.supportingEvidence, ...cluster.contradictoryEvidence, ...cluster.excludedEvidence].map((member) => ({
+        evidenceId: member.evidenceId,
+        text: `${member.title}\n${member.text}`,
+        sourceType: member.sourceType,
+        connectorId: member.connectorId,
+        observedAt: member.observedAt,
+        stance: member.stance
+      }))
+    };
+  });
+  const ranking = rankEvidenceDerivedOpportunities(rankingInputs);
+  const rankByOpportunity = new Map(ranking.rankedOpportunities.map((item) => [item.opportunityId, item.position]));
+  const rankingMatchCount = benchmark.rankingComparisons.comparisons.filter((comparison) => {
+    const leftRank = rankByOpportunity.get(comparison.leftOpportunityId);
+    const rightRank = rankByOpportunity.get(comparison.rightOpportunityId);
+    assert(leftRank && rightRank, `Missing ranked benchmark opportunity for ${comparison.id}.`);
+    const winner = leftRank < rightRank ? comparison.leftOpportunityId : comparison.rightOpportunityId;
+    return winner === comparison.preferredOpportunityId;
+  }).length;
   const predictedClusterBySource = new Map();
   for (const cluster of firstClusters) {
     for (const member of [...cluster.supportingEvidence, ...cluster.contradictoryEvidence, ...cluster.excludedEvidence]) {
@@ -245,7 +275,7 @@ const measureClusteredBehavior = async (benchmark) => {
     clusteringPrecision: predictedPairs.size === 0 ? 0 : round(truePositiveCount / predictedPairs.size),
     clusteringRecall: expectedPairs.size === 0 ? 0 : round(truePositiveCount / expectedPairs.size),
     rankingComparisonCount: benchmark.rankingComparisons.comparisons.length,
-    rankingAgreement: benchmark.baseline.measurements.rankingAgreement,
+    rankingAgreement: round(rankingMatchCount / benchmark.rankingComparisons.comparisons.length),
     repeatability: JSON.stringify(firstClusters) === JSON.stringify(repeatedClusters) ? 1 : 0
   };
   const targets = benchmark.rubric.draftTargetsForLaterSlices;
@@ -254,12 +284,13 @@ const measureClusteredBehavior = async (benchmark) => {
     citationCoverage: measurements.citationCoverage >= targets.citationCoverageMinimum,
     clusteringPrecision: measurements.clusteringPrecision >= targets.clusteringPrecisionMinimum,
     clusteringRecall: measurements.clusteringRecall >= targets.clusteringRecallMinimum,
+    rankingAgreement: measurements.rankingAgreement >= targets.rankingAgreementMinimum && measurements.rankingAgreement - benchmark.baseline.measurements.rankingAgreement >= 0.15,
     repeatability: measurements.repeatability >= targets.repeatabilityMinimum
   };
   const resultCore = {
     schemaVersion: "opportunity-quality-benchmark-comparison-v1",
     benchmarkVersion: benchmark.manifest.benchmarkVersion,
-    behaviorVersion: "deterministic-cluster-synthesis-v1",
+    behaviorVersion: "evidence-ranking-formula-v1",
     baseline: benchmark.baseline.measurements,
     measurements,
     thresholdResults,
