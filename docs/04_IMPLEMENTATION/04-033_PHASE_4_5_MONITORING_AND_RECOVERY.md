@@ -182,10 +182,35 @@ The convergence gate requires:
 
 Repository controls: **PASS**
 
-External alert delivery: **MANUAL ACTION REQUIRED**
+External alert delivery: **PASS - Render failure notification received 2026-07-28**
 
-Hosted backup retention: **MANUAL ACTION REQUIRED**
+Alert evidence:
 
-Isolated restore rehearsal: **MANUAL ACTION REQUIRED**
+- the named operator received an email from Render's official notification sender
+- the message identified a failed deploy for the `opportunity-os` service
+- the message referenced the Slice A1 release commit and linked to the corresponding Render deploy logs
+- no recipient address, message identifier, token, or credential is recorded in repository evidence
 
-Pilot convergence gate: **NO-GO** until all three manual gates have evidence.
+Hosted backup retention: **DEFERRED BY OPERATOR FOR LIMITED PILOT - Supabase Free does not provide automated project backups**
+
+The operator accepted this gap for the limited design-partner pilot on 2026-07-29. The verified manual logical backup is the current recovery point. This acceptance does not satisfy the 24-hour automated-backup RPO and must not be represented as full production recovery readiness.
+
+Manual logical backup: **PASS - 2026-07-29 UTC**
+
+Isolated restore rehearsal: **PASS - 2026-07-29 UTC**
+
+Restore evidence:
+
+- the production PostgreSQL database was captured as a private custom-format logical backup outside the repository with owner and ACL restoration disabled
+- the archive structure was validated before restore
+- Supabase refused a second active Free project because the organization had reached its active-project limit; no project was paused, deleted, or upgraded
+- the backup was restored into an isolated temporary PostgreSQL 18 database that was never connected to Render or Vercel
+- `pnpm verify:restore` passed at migration baseline `20260729110000_add_evidence_clusters`
+- users/invites, sessions, scans, clusters and memberships, opportunities, rankings, feedback, and relational integrity were verified
+- a temporary API runtime reported the restored database dependency as `ok`
+- live datasource and live LLM execution remained disabled during the restore smoke test
+- the temporary API and restored database were stopped and removed after verification; the private backup was retained with owner-only file permissions
+
+Limited design-partner pilot: **CONDITIONAL GO** under the recorded backup-risk acceptance.
+
+Full production recovery readiness: **NO-GO** until an automated backup process meeting the 24-hour RPO is enabled and evidenced.
