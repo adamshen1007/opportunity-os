@@ -5,6 +5,7 @@ import {
   createInMemoryScanPersistenceStore,
   createOwnerScope
 } from "../index.js";
+import { toSafeScanJobFailureMessage } from "../runtime/scan-job-service.js";
 
 const request = {
   source: "stack-exchange",
@@ -58,5 +59,14 @@ describe("durable scan jobs", () => {
 
     expect((await service.get(scope, "scan-job-recovered"))?.status).toBe(API_SCAN_JOB_STATUSES.queued);
     expect(scheduled).toHaveLength(1);
+  });
+
+  it("preserves only approved safe live LLM failure messages", () => {
+    expect(toSafeScanJobFailureMessage(
+      new Error("Live LLM output failed structured citation validation. No result was saved.")
+    )).toBe("Live LLM output failed structured citation validation. No result was saved.");
+    expect(toSafeScanJobFailureMessage(
+      new Error("secret token raw provider response")
+    )).toBe("Scan failed before safe output was produced. Retry when the datasource is available.");
   });
 });

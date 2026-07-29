@@ -414,7 +414,11 @@ async function analyzeContent(
   };
   const result = await adapter.analyze(request);
   if (result.status !== ANALYSIS_RESULT_STATUSES.success) {
-    throw new Error("Live analysis did not produce a validated cited result; the live scan failed closed.");
+    throw new Error(
+      result.status === ANALYSIS_RESULT_STATUSES.unsafeOutput
+        ? "Live LLM output failed structured citation validation. No result was saved."
+        : "The live LLM provider was unavailable or rejected the request. No result was saved."
+    );
   }
   return result;
 }

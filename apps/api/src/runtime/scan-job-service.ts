@@ -23,6 +23,19 @@ export interface ApiScanJobServiceOptions {
   readonly onTransition?: (status: ApiScanJobRecord["status"]) => void;
 }
 
+export function toSafeScanJobFailureMessage(error: unknown): string {
+  if (error instanceof Error && (
+    error.message === "Live LLM output failed structured citation validation. No result was saved." ||
+    error.message === "The live LLM provider was unavailable or rejected the request. No result was saved." ||
+    error.message === "Live analysis configuration is unavailable; the live scan failed closed." ||
+    error.message === "Live analysis configuration does not match the approved pilot provider and model."
+  )) {
+    return error.message;
+  }
+
+  return "Scan failed before safe output was produced. Retry when the datasource is available.";
+}
+
 export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiScanJobService {
   const clock = options.clock ?? (() => new Date().toISOString());
   const idFactory = options.idFactory ?? (() => `scan-job-${randomUUID()}`);
@@ -69,12 +82,13 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
         safeMessage: "Scan completed and results are ready."
       });
       options.onTransition?.(API_SCAN_JOB_STATUSES.completed);
-    } catch {
+    } catch (error) {
+      const failureMessage = toSafeScanJobFailureMessage(error);
       await options.persistence.updateScanJob({
         ...running,
         status: API_SCAN_JOB_STATUSES.failed,
         updatedAt: clock(),
-        safeMessage: "Scan failed before safe output was produced. Retry when the datasource is available."
+        safeMessage: failureMessage
       });
       options.onTransition?.(API_SCAN_JOB_STATUSES.failed);
     } finally {

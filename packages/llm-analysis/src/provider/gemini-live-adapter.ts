@@ -91,6 +91,47 @@ function parseJsonObject(text: string): Readonly<Record<string, StructuredOutput
 
 function createRequestBody(request: AnalysisRequest): string {
   const boundary = createLiveLlmPromptBoundary(request);
+  const evidenceCatalog = request.input.variables.evidenceCatalog;
+  const evidenceIds = Array.isArray(evidenceCatalog)
+    ? evidenceCatalog.flatMap((entry) => {
+        if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+        const evidenceId = (entry as { readonly evidenceId?: unknown }).evidenceId;
+        return typeof evidenceId === "string" && evidenceId.length > 0 ? [evidenceId] : [];
+      })
+    : [];
+
+  const responseJsonSchema = evidenceIds.length > 0
+    ? {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          summary: { type: "string", minLength: 1, maxLength: 280 },
+          confidence: { type: "number", minimum: 0, maximum: 1 },
+          claims: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                text: { type: "string", minLength: 1 },
+                citationIds: {
+                  type: "array",
+                  items: { type: "string", enum: evidenceIds }
+                },
+                assumption: { type: "boolean" }
+              },
+              required: ["text", "citationIds", "assumption"]
+            }
+          },
+          assumptions: {
+            type: "array",
+            items: { type: "string" }
+          }
+        },
+        required: ["summary", "confidence", "claims", "assumptions"]
+      }
+    : undefined;
 
   return JSON.stringify({
     systemInstruction: {
@@ -103,7 +144,8 @@ function createRequestBody(request: AnalysisRequest): string {
       }
     ],
     generationConfig: {
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
+      ...(responseJsonSchema === undefined ? {} : { responseJsonSchema })
     }
   });
 }

@@ -346,14 +346,15 @@ export function RedditScanWorkbench() {
         didHydrateScanState.current = true;
         setActiveScan(fallbackResult);
       }
-    } catch {
+    } catch (error) {
       const fallbackResult = getDashboardScanFixture(source);
+      const safeMessage = toSafeScanMessage(error instanceof Error ? error.message : undefined);
       setScanState({
         status: mode === "live" ? "error" : "fallback",
         ...(mode === "live" ? {} : { result: fallbackResult }),
         message: mode === "live"
-          ? "The live API is not reachable. No demo results were substituted."
-          : "The API is not reachable from this browser session. Showing deterministic fixture results instead."
+          ? `${safeMessage} No demo results were substituted.`
+          : `${safeMessage} Showing deterministic fixture results instead.`
       });
       if (mode !== "live") {
         didHydrateScanState.current = true;

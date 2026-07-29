@@ -129,4 +129,72 @@ describe("live LLM output validation", () => {
     }).analyze(request);
     expect(result.status).toBe("unsafe-output");
   });
+
+  it("sends an evidence-constrained JSON schema to Gemini", async () => {
+    const config = createLiveLlmProviderConfigFromEnv({
+      LLM_LIVE_ANALYSIS_ENABLED: "true",
+      LLM_PROVIDER: PILOT_LLM_PROVIDER,
+      GEMINI_MODEL: PILOT_LLM_MODEL,
+      GEMINI_API_KEY: "synthetic-secret"
+    });
+    expect(config.ok).toBe(true);
+    if (!config.ok) return;
+
+    let requestBody: unknown;
+    const result = await createGeminiLiveLlmProviderAdapter({
+      config: config.config,
+      fetch: async (_input, init) => {
+        requestBody = JSON.parse(String(init?.body));
+        return new Response(JSON.stringify({
+          candidates: [{
+            content: {
+              parts: [{
+                text: JSON.stringify({
+                  summary: "Safe cited summary",
+                  confidence: 0.8,
+                  claims: [{ text: "Supported fact", citationIds: ["evidence-1"], assumption: false }],
+                  assumptions: []
+                })
+              }]
+            }
+          }]
+        }), { status: 200 });
+      }
+    }).analyze({
+      ...request,
+      prompt: {
+        ...request.prompt,
+        outputShape: {
+          schema: {
+            ...request.prompt.outputShape.schema,
+            fields: [
+              ...request.prompt.outputShape.schema.fields,
+              { name: "confidence", kind: "number", required: true, validationMetadata: {} },
+              { name: "assumptions", kind: "array", required: true, validationMetadata: {} }
+            ],
+            requiredFields: ["summary", "claims", "confidence", "assumptions"]
+          }
+        }
+      }
+    });
+
+    expect(result.status).toBe("success");
+    expect(requestBody).toMatchObject({
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseJsonSchema: {
+          required: ["summary", "confidence", "claims", "assumptions"],
+          properties: {
+            claims: {
+              items: {
+                properties: {
+                  citationIds: { items: { enum: ["evidence-1"] } }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  });
 });
