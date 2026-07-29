@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   API_SCAN_JOB_STATUSES,
+  assertSafePersistencePayload,
   createDatabaseScanPersistenceStore,
   createInMemoryFeedbackStore,
   createInMemoryScanPersistenceStore,
@@ -26,6 +27,20 @@ function createDelegate() {
 }
 
 describe("scan persistence", () => {
+  it("allows legitimate technical evidence while rejecting credential-shaped values", () => {
+    expect(() => assertSafePersistencePayload({
+      title: "Authorization failure during deployment",
+      bodyText: "The stack trace points to a password reset workflow."
+    })).not.toThrow();
+
+    expect(() => assertSafePersistencePayload({
+      bodyText: "Authorization: Bearer abcdefghijklmnop"
+    })).toThrow("Persistence payload contains unsafe operational details.");
+    expect(() => assertSafePersistencePayload({
+      bodyText: "password=supersecretvalue"
+    })).toThrow("Persistence payload contains unsafe operational details.");
+  });
+
   const scope = createOwnerScope(LOCAL_DEVELOPMENT_PRINCIPAL_ID);
   it("persists scan outputs in memory and resolves generated opportunity records for feedback", async () => {
     const persistence = createInMemoryScanPersistenceStore();

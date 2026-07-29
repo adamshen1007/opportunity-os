@@ -53,7 +53,7 @@ export interface InMemoryScanPersistenceInput {
 }
 
 const unsafePersistencePattern =
-  /api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret|credential|authorization|bearer\s+[a-z0-9]|raw provider|provider payload|stack trace|raw cause/iu;
+  /(?:\bsk-[a-z0-9_-]{16,}|\bbearer\s+[a-z0-9._~+\/-]{12,}|\b(?:api[_ -]?key|access[_ -]?token|refresh[_ -]?token|client[_ -]?secret|password|credential)\b\s*[:=]\s*["']?[a-z0-9._~+\/-]{8,})/iu;
 
 export function createNoopScanPersistenceStore(): ApiScanPersistenceStore {
   return {

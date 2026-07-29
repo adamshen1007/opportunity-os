@@ -33,7 +33,18 @@ interface ProviderResponse {
   readonly backoff?: number;
 }
 
-const unsafePattern = /api[_-]?key|access[_-]?token|authorization|bearer|password|secret|stack trace|raw cause/iu;
+const credentialValuePattern =
+  /\b(?:api[_ -]?key|access[_ -]?token|refresh[_ -]?token|client[_ -]?secret|password|credential)\b\s*[:=]\s*["']?[a-z0-9._~+\/-]{8,}/giu;
+const bearerValuePattern = /\bbearer\s+[a-z0-9._~+\/-]{12,}/giu;
+const providerSecretPattern = /\bsk-[a-z0-9_-]{16,}/giu;
+
+function redactCredentialValues(value: string | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  return value
+    .replace(credentialValuePattern, "[REDACTED]")
+    .replace(bearerValuePattern, "[REDACTED]")
+    .replace(providerSecretPattern, "[REDACTED]");
+}
 
 export function buildStackExchangeSearchUrl(
   config: StackExchangeProviderConfig,
@@ -99,9 +110,6 @@ export async function searchStackExchange(input: {
       },
       attribution: { sourceName: "Stack Exchange" as const, required: true as const }
     };
-    if (unsafePattern.test(JSON.stringify(result))) {
-      return { ok: false, error: { code: "response-invalid", message: "Provider output could not be safely normalized." } };
-    }
     return { ok: true, result };
   } catch {
     return { ok: false, error: { code: "request-failed", message: "Stack Exchange request failed safely." } };
@@ -116,8 +124,8 @@ function mapQuestion(item: ProviderQuestion, site: string): StackExchangeQuestio
   }
   return {
     id: String(item.question_id),
-    title: decodeEntities(item.title),
-    bodyText: item.body_markdown,
+    title: redactCredentialValues(decodeEntities(item.title)) ?? "Untitled question",
+    bodyText: redactCredentialValues(item.body_markdown),
     permalink: item.link,
     score: item.score ?? 0,
     answerCount: item.answer_count ?? 0,
@@ -126,7 +134,7 @@ function mapQuestion(item: ProviderQuestion, site: string): StackExchangeQuestio
     updatedAt: item.last_activity_date ? new Date(item.last_activity_date * 1000).toISOString() : undefined,
     author: {
       id: item.owner?.user_id ? String(item.owner.user_id) : undefined,
-      displayName: decodeEntities(item.owner?.display_name ?? "Unknown contributor"),
+      displayName: redactCredentialValues(decodeEntities(item.owner?.display_name ?? "Unknown contributor")) ?? "Unknown contributor",
       profileUrl: item.owner?.link
     },
     site

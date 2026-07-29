@@ -151,7 +151,7 @@ type PipelineGeneratedOpportunity = {
 };
 
 const unsafeOutputPattern =
-  /(sk-[a-z0-9_-]+|bearer\s+[a-z0-9._-]+|authorization|client_secret|refresh_token|access_token|raw provider|stack trace|raw cause)/iu;
+  /(?:\bsk-[a-z0-9_-]{16,}|\bbearer\s+[a-z0-9._~+\/-]{12,}|\b(?:api[_ -]?key|access[_ -]?token|refresh[_ -]?token|client[_ -]?secret|password|credential)\b\s*[:=]\s*["']?[a-z0-9._~+\/-]{8,})/iu;
 
 const stage = (name: ApiScanStageDto["name"], safeMessage: string): ApiScanStageDto => ({
   name,

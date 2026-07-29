@@ -62,6 +62,34 @@ describe("Stack Exchange provider", () => {
     expect(JSON.stringify(result)).not.toContain("unsafe-secret-key");
   });
 
+  it("preserves legitimate security discussions while redacting credential-shaped values", async () => {
+    const fetch = vi.fn(async () => new Response(JSON.stringify({
+      items: [{
+        question_id: 43,
+        title: "Authorization failure during deployment",
+        body_markdown: "The stack trace points to an authorization check. password=supersecretvalue and Authorization: Bearer abcdefghijklmnop must not survive.",
+        link: "https://stackoverflow.com/questions/43/example",
+        creation_date: 1_700_000_000
+      }],
+      quota_remaining: 98,
+      quota_max: 100
+    }), { status: 200 })) as unknown as typeof globalThis.fetch;
+
+    const result = await searchStackExchange({
+      config: createStackExchangeProviderConfigFromEnv({ STACK_EXCHANGE_LIVE_SCAN_ENABLED: "true" }),
+      request: { query: "deployment authorization" },
+      fetch
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.result.items[0]?.title).toContain("Authorization failure");
+    expect(result.result.items[0]?.bodyText).toContain("stack trace");
+    expect(result.result.items[0]?.bodyText).not.toContain("supersecretvalue");
+    expect(result.result.items[0]?.bodyText).not.toContain("abcdefghijklmnop");
+    expect(result.result.items[0]?.bodyText).toContain("[REDACTED]");
+  });
+
   it("returns safe errors for throttling and malformed responses", async () => {
     const config = createStackExchangeProviderConfigFromEnv({ STACK_EXCHANGE_LIVE_SCAN_ENABLED: "true" });
     const throttled = await searchStackExchange({
