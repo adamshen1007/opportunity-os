@@ -212,6 +212,8 @@ export interface ApiScanPersistenceDatabaseClient {
   readonly rawSourceContent: ApiScanPersistenceDatabaseDelegate;
   readonly normalizedContent: ApiScanPersistenceDatabaseDelegate;
   readonly analysisResult: ApiScanPersistenceDatabaseDelegate;
+  readonly evidenceCluster?: ApiScanPersistenceDatabaseDelegate;
+  readonly evidenceClusterMembership?: ApiScanPersistenceDatabaseDelegate;
   readonly candidateOpportunityRecord: ApiScanPersistenceDatabaseDelegate;
   readonly generatedOpportunityRecord: ApiScanPersistenceDatabaseDelegate;
   readonly opportunityRankingResult: ApiScanPersistenceDatabaseDelegate;
@@ -302,13 +304,15 @@ export function createDatabaseScanPersistenceStore(database: ApiScanPersistenceD
       const rankingIds = [...new Set(result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.rankingRunId)))];
       const generatedIds = result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.generationOutputId));
       const candidateIds = result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.candidateId));
-      const analysisIds = result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.analysisRequestId));
-      const normalizedIds = result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.normalizedContentId));
-      const rawIds = result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.rawContentId));
+      const analysisIds = [...new Set(result.opportunities.flatMap((item) => item.provenance.analysisRequestIds).map((id) => toOwnedPersistenceId(scanId, id)))];
+      const normalizedIds = [...new Set(result.opportunities.flatMap((item) => item.provenance.normalizedContentIds).map((id) => toOwnedPersistenceId(scanId, id)))];
+      const rawIds = [...new Set(result.opportunities.flatMap((item) => item.provenance.rawContentIds).map((id) => toOwnedPersistenceId(scanId, id)))];
+      await database.evidenceClusterMembership?.deleteMany?.({ where: { scanId } });
       await database.opportunityRankingItem.deleteMany?.({ where: { rankingResultId: { in: rankingIds } } });
       await database.opportunityRankingResult.deleteMany?.({ where: { id: { in: rankingIds } } });
       await database.generatedOpportunityRecord.deleteMany?.({ where: { id: { in: generatedIds } } });
       await database.candidateOpportunityRecord.deleteMany?.({ where: { id: { in: candidateIds } } });
+      await database.evidenceCluster?.deleteMany?.({ where: { scanId } });
       await database.analysisResult.deleteMany?.({ where: { id: { in: analysisIds } } });
       await database.normalizedContent.deleteMany?.({ where: { id: { in: normalizedIds } } });
       await database.rawSourceContent.deleteMany?.({ where: { id: { in: rawIds } } });
@@ -403,7 +407,7 @@ async function persistToDatabase(database: ApiScanPersistenceDatabaseClient, inp
   });
 
   for (const opportunity of result.opportunities) {
-    await persistOpportunity(database, opportunity, completedAt);
+    await persistOpportunity(database, opportunity, completedAt, input.ownerPrincipalId);
   }
 
   await database.opportunityRankingResult.upsert({
@@ -480,111 +484,105 @@ async function persistToDatabase(database: ApiScanPersistenceDatabaseClient, inp
 async function persistOpportunity(
   database: ApiScanPersistenceDatabaseClient,
   opportunity: ApiScanOpportunityDto,
-  completedAt: Date
+  completedAt: Date,
+  ownerPrincipalId: string
 ): Promise<void> {
   const primaryEvidence = opportunity.evidence[0];
-  const sourceId = primaryEvidence?.provenance.sourceId ?? opportunity.provenance.sourceItemId;
-  const sourcePlatform = primaryEvidence?.provenance.sourcePlatform ?? "reddit";
-  const rawContentId = toOwnedPersistenceId(opportunity.provenance.scanId, opportunity.provenance.rawContentId);
-  const normalizedContentId = toOwnedPersistenceId(opportunity.provenance.scanId, opportunity.provenance.normalizedContentId);
-  const analysisRequestId = toOwnedPersistenceId(opportunity.provenance.scanId, opportunity.provenance.analysisRequestId);
+  if (!primaryEvidence) throw new Error("Cannot persist an opportunity without traceable evidence.");
+  const rawContentId = toOwnedPersistenceId(opportunity.provenance.scanId, primaryEvidence.provenance.rawContentId);
+  const normalizedContentId = toOwnedPersistenceId(opportunity.provenance.scanId, primaryEvidence.provenance.normalizedContentId);
+  const analysisRequestId = toOwnedPersistenceId(opportunity.provenance.scanId, primaryEvidence.provenance.analysisRequestId);
   const candidateId = toOwnedPersistenceId(opportunity.provenance.scanId, opportunity.provenance.candidateId);
   const generationOutputId = toOwnedPersistenceId(opportunity.provenance.scanId, opportunity.provenance.generationOutputId);
+  const clusterId = toOwnedPersistenceId(opportunity.provenance.scanId, opportunity.provenance.clusterId);
 
-  await database.rawSourceContent.upsert({
-    where: {
-      scanId_sourcePlatform_sourceId: {
+  for (const evidence of opportunity.evidence) {
+    const evidenceRawContentId = toOwnedPersistenceId(opportunity.provenance.scanId, evidence.provenance.rawContentId);
+    const evidenceNormalizedContentId = toOwnedPersistenceId(opportunity.provenance.scanId, evidence.provenance.normalizedContentId);
+    const evidenceAnalysisRequestId = toOwnedPersistenceId(opportunity.provenance.scanId, evidence.provenance.analysisRequestId);
+    await database.rawSourceContent.upsert({
+      where: { scanId_sourcePlatform_sourceId: { scanId: opportunity.provenance.scanId, sourcePlatform: evidence.provenance.sourcePlatform, sourceId: evidence.provenance.sourceId } },
+      update: { bodyText: evidence.summary, sourceUrl: evidence.permalink, safeMetadata: { scanId: opportunity.provenance.scanId, evidenceId: evidence.evidenceId }, provenance: evidence.provenance },
+      create: {
+        id: evidenceRawContentId,
         scanId: opportunity.provenance.scanId,
-        sourcePlatform,
-        sourceId
+        sourcePlatform: evidence.provenance.sourcePlatform,
+        sourceId: evidence.provenance.sourceId,
+        sourceType: "post",
+        sourceUrl: evidence.permalink,
+        title: opportunity.title,
+        bodyText: evidence.summary,
+        capturedAt: new Date(evidence.observedAt),
+        safeMetadata: { scanId: opportunity.provenance.scanId, evidenceId: evidence.evidenceId },
+        provenance: evidence.provenance
       }
-    },
+    });
+    await database.normalizedContent.upsert({
+      where: { id: evidenceNormalizedContentId },
+      update: { canonicalText: evidence.summary, textSegments: [evidence.summary], safeMetadata: { scanId: opportunity.provenance.scanId, evidenceId: evidence.evidenceId }, provenance: evidence.provenance },
+      create: { id: evidenceNormalizedContentId, rawSourceContentId: evidenceRawContentId, canonicalText: evidence.summary, textSegments: [evidence.summary], safeMetadata: { scanId: opportunity.provenance.scanId, evidenceId: evidence.evidenceId }, provenance: evidence.provenance }
+    });
+    await database.analysisResult.upsert({
+      where: { id: evidenceAnalysisRequestId },
+      update: { status: "completed", structuredOutput: { summary: evidence.summary }, evidence: [evidence], confidence: { value: evidence.confidence }, provenance: evidence.provenance },
+      create: { id: evidenceAnalysisRequestId, normalizedContentId: evidenceNormalizedContentId, analysisType: "mvp-opportunity-scan", analysisVersion: "phase-4.5-b2", status: "completed", structuredOutput: { summary: evidence.summary }, evidence: [evidence], confidence: { value: evidence.confidence }, provenance: evidence.provenance }
+    });
+  }
+
+  await database.evidenceCluster?.upsert({
+    where: { scanId_fingerprint: { scanId: opportunity.provenance.scanId, fingerprint: opportunity.provenance.clusterFingerprint } },
     update: {
-      title: opportunity.title,
-      bodyText: primaryEvidence?.summary,
-      sourceUrl: primaryEvidence?.permalink,
-      safeMetadata: {
-        scanId: opportunity.provenance.scanId,
-        opportunityId: opportunity.opportunityId
-      },
-      provenance: opportunity.provenance
+      ownerPrincipalId,
+      label: opportunity.title,
+      definition: opportunity.summary,
+      status: opportunity.synthesis.exploratory ? "exploratory" : "qualified",
+      demandCount: opportunity.trust.evidenceCount,
+      exploratory: opportunity.synthesis.exploratory,
+      synthesisProfile: opportunity.synthesis,
+      safeMetadata: { scanId: opportunity.provenance.scanId }
     },
     create: {
-      id: rawContentId,
+      id: clusterId,
       scanId: opportunity.provenance.scanId,
-      sourcePlatform,
-      sourceId,
-      sourceType: "post",
-      sourceUrl: primaryEvidence?.permalink,
-      title: opportunity.title,
-      bodyText: primaryEvidence?.summary,
-      capturedAt: completedAt,
-      safeMetadata: {
-        scanId: opportunity.provenance.scanId,
-        opportunityId: opportunity.opportunityId
-      },
-      provenance: opportunity.provenance
+      ownerPrincipalId,
+      fingerprint: opportunity.provenance.clusterFingerprint,
+      ruleId: opportunity.synthesis.ruleId,
+      label: opportunity.title,
+      definition: opportunity.summary,
+      status: opportunity.synthesis.exploratory ? "exploratory" : "qualified",
+      demandCount: opportunity.trust.evidenceCount,
+      exploratory: opportunity.synthesis.exploratory,
+      synthesisProfile: opportunity.synthesis,
+      safeMetadata: { scanId: opportunity.provenance.scanId }
     }
   });
 
-  await database.normalizedContent.upsert({
-    where: { id: normalizedContentId },
-    update: {
-      canonicalText: opportunity.summary,
-      textSegments: [opportunity.summary],
-      safeMetadata: {
+  for (const evidence of opportunity.evidence) {
+    await database.evidenceClusterMembership?.upsert({
+      where: { clusterId_normalizedContentId: { clusterId, normalizedContentId: toOwnedPersistenceId(opportunity.provenance.scanId, evidence.provenance.normalizedContentId) } },
+      update: { stance: evidence.stance, sourceUrl: evidence.permalink, observedAt: new Date(evidence.observedAt), provenance: evidence.provenance },
+      create: {
+        id: `${clusterId}:${evidence.evidenceId}`,
+        clusterId,
         scanId: opportunity.provenance.scanId,
-        opportunityId: opportunity.opportunityId
-      },
-      provenance: opportunity.provenance
-    },
-    create: {
-      id: normalizedContentId,
-      rawSourceContentId: rawContentId,
-      canonicalText: opportunity.summary,
-      textSegments: [opportunity.summary],
-      safeMetadata: {
-        scanId: opportunity.provenance.scanId,
-        opportunityId: opportunity.opportunityId
-      },
-      provenance: opportunity.provenance
-    }
-  });
-
-  await database.analysisResult.upsert({
-    where: { id: analysisRequestId },
-    update: {
-      status: "completed",
-      structuredOutput: {
-        summary: opportunity.summary
-      },
-      evidence: opportunity.evidence,
-      confidence: {
-        value: opportunity.confidence
-      },
-      provenance: opportunity.provenance
-    },
-    create: {
-      id: analysisRequestId,
-      normalizedContentId,
-      analysisType: "mvp-opportunity-scan",
-      analysisVersion: "phase-4-m34",
-      status: "completed",
-      structuredOutput: {
-        summary: opportunity.summary
-      },
-      evidence: opportunity.evidence,
-      confidence: {
-        value: opportunity.confidence
-      },
-      provenance: opportunity.provenance
-    }
-  });
+        ownerPrincipalId,
+        rawSourceContentId: toOwnedPersistenceId(opportunity.provenance.scanId, evidence.provenance.rawContentId),
+        normalizedContentId: toOwnedPersistenceId(opportunity.provenance.scanId, evidence.provenance.normalizedContentId),
+        analysisResultId: toOwnedPersistenceId(opportunity.provenance.scanId, evidence.provenance.analysisRequestId),
+        stance: evidence.stance,
+        sourceUrl: evidence.permalink,
+        observedAt: new Date(evidence.observedAt),
+        connectorId: evidence.connectorId,
+        provenance: evidence.provenance
+      }
+    });
+  }
 
   await database.candidateOpportunityRecord.upsert({
     where: { id: candidateId },
     update: {
       title: opportunity.title,
+      evidenceClusterId: clusterId,
       summary: opportunity.summary,
       evidence: opportunity.evidence,
       confidence: {
@@ -596,6 +594,7 @@ async function persistOpportunity(
     create: {
       id: candidateId,
       analysisResultId: analysisRequestId,
+      evidenceClusterId: clusterId,
       title: opportunity.title,
       summary: opportunity.summary,
       hypothesis: {

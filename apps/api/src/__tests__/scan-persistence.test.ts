@@ -80,6 +80,8 @@ describe("scan persistence", () => {
     const rawSourceContent = createDelegate();
     const normalizedContent = createDelegate();
     const analysisResult = createDelegate();
+    const evidenceCluster = createDelegate();
+    const evidenceClusterMembership = createDelegate();
     const candidateOpportunityRecord = createDelegate();
     const generatedOpportunityRecord = createDelegate();
     const opportunityRankingResult = createDelegate();
@@ -89,6 +91,8 @@ describe("scan persistence", () => {
       rawSourceContent,
       normalizedContent,
       analysisResult,
+      evidenceCluster,
+      evidenceClusterMembership,
       candidateOpportunityRecord,
       generatedOpportunityRecord,
       opportunityRankingResult,
@@ -114,10 +118,26 @@ describe("scan persistence", () => {
     expect(rawSourceContent.calls).toHaveLength(1);
     expect(normalizedContent.calls).toHaveLength(1);
     expect(analysisResult.calls).toHaveLength(1);
+    expect(evidenceCluster.calls).toHaveLength(1);
+    expect(evidenceClusterMembership.calls).toHaveLength(1);
     expect(candidateOpportunityRecord.calls).toHaveLength(1);
     expect(generatedOpportunityRecord.calls).toHaveLength(1);
     expect(opportunityRankingResult.calls).toHaveLength(1);
     expect(opportunityRankingItem.calls).toHaveLength(1);
+    expect(evidenceCluster.calls[0]).toMatchObject({
+      create: {
+        scanId: result.scanId,
+        ownerPrincipalId: scope.principalId,
+        fingerprint: result.opportunities[0]?.provenance.clusterFingerprint
+      }
+    });
+    expect(evidenceClusterMembership.calls[0]).toMatchObject({
+      create: {
+        scanId: result.scanId,
+        ownerPrincipalId: scope.principalId,
+        normalizedContentId: expect.stringContaining(result.opportunities[0]!.provenance.normalizedContentId)
+      }
+    });
     await expect(persistence.resolveOpportunityRecordId(scope, result.opportunities[0]!.opportunityId)).resolves.toBe(
       `${result.scanId}:${result.opportunities[0]!.provenance.generationOutputId}`
     );
@@ -126,6 +146,8 @@ describe("scan persistence", () => {
       scanRunRecord: scanRunRecord.calls,
       rawSourceContent: rawSourceContent.calls,
       generatedOpportunityRecord: generatedOpportunityRecord.calls,
+      evidenceCluster: evidenceCluster.calls,
+      evidenceClusterMembership: evidenceClusterMembership.calls,
       opportunityRankingItem: opportunityRankingItem.calls
     });
     expect(serialized).not.toMatch(/api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret|authorization|bearer|raw provider|stack trace/iu);

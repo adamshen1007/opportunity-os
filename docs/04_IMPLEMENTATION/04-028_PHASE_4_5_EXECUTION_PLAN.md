@@ -383,6 +383,8 @@ Estimated size: M, 3-4 engineering days.
 
 ### TASK-P45-B02 - Evidence Clustering
 
+Implementation status: complete in Slice B2. The additive migration is `20260729110000_add_evidence_clusters`; it follows the completed ownership baseline and must be applied to hosted environments before deployment promotion.
+
 Objective:
 
 - group related source records before candidate generation using deterministic evidence rules and existing infrastructure
@@ -418,6 +420,8 @@ Required tests:
 Estimated size: L, 5-7 engineering days.
 
 ### TASK-P45-B03 - Opportunity Synthesis
+
+Implementation status: complete in Slice B2-B3. The API now synthesizes one cited opportunity per qualified cluster, persists cluster membership, and exposes cluster evidence and provenance to the dashboard. Ranking formulas remain unchanged.
 
 Objective:
 

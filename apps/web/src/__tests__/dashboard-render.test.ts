@@ -1,4 +1,6 @@
 import { createElement } from "react";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { dashboardFeedbackRatingLabels, dashboardFeedbackReasonLabels } from "../features/feedback/feedback-labels";
 import { mapScanResultToDashboardOpportunities } from "../features/scans/scan-opportunity-adapter";
@@ -87,5 +89,17 @@ describe("Dashboard component test infrastructure", () => {
       dashboardStackExchangeScanFixture.opportunities[0]?.rank.explanation
     );
     expect(opportunities[0]?.evidenceIds).toEqual(["stack-exchange-evidence-1"]);
+  });
+
+  it("renders clustered synthesis, citations, evidence stance, and traceability", () => {
+    const source = readFileSync(path.resolve(import.meta.dirname, "../features/scans/reddit-scan-workbench.tsx"), "utf8");
+
+    expect(source).toContain("Exploratory cluster");
+    expect(source).toContain("View synthesized problem and citations");
+    expect(source).toContain('label="Target user"');
+    expect(source).toContain("citationIds.length");
+    expect(source).toContain("evidence.stance");
+    expect(source).toContain("Evidence cluster");
+    expect(source).toContain("Cluster fingerprint");
   });
 });

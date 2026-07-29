@@ -3,7 +3,7 @@ import process from "node:process";
 import pg from "pg";
 
 const { Pool } = pg;
-const CURRENT_MIGRATION_BASELINE = "20260728123000_fix_raw_source_scan_uniqueness";
+const CURRENT_MIGRATION_BASELINE = "20260729110000_add_evidence_clusters";
 
 async function main() {
   let pool;

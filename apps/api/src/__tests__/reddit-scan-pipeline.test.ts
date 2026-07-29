@@ -43,7 +43,13 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
     expect(result.opportunities[0]?.evidence[0]?.provenance).toMatchObject({
       sourcePlatform: "reddit",
       normalizedContentId: expect.stringContaining("normalized-"),
-      analysisRequestId: expect.stringContaining("analysis_request")
+      analysisRequestId: expect.stringContaining("analysis-")
+    });
+    expect(result.opportunities[0]?.synthesis.targetUser.citationIds.length).toBeGreaterThan(0);
+    expect(result.opportunities[0]?.provenance).toMatchObject({
+      clusterId: expect.stringContaining("evidence-cluster-"),
+      clusterFingerprint: expect.any(String),
+      sourceItemIds: expect.arrayContaining(["post_fixture"])
     });
     expect(result.opportunities[0]?.provenance).toMatchObject({
       sourceItemId: "post_fixture",
@@ -51,6 +57,7 @@ describe("Reddit end-to-end opportunity scan pipeline", () => {
       rawContentId: "raw-post-post_fixture",
       rankingRunId: "mvp-scan-ranking-run"
     });
+    expect(result.safeMetadata.evidenceClusterCount).toBe(result.opportunities.length);
   });
 
   it("keeps live mode env-gated and falls back to deterministic fixtures when disabled", async () => {

@@ -61,6 +61,24 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
         score: 87,
         explanation: "High confidence, repeated evidence, and direct workflow urgency produced the top rank."
       },
+      synthesis: {
+        synthesisId: "synthesis-fixture-001",
+        clusterId: "cluster-fixture-001",
+        clusterFingerprint: "fixture-cluster-fingerprint-001",
+        ruleId: "manual-review-workflow",
+        title: "Prioritize repeated manual review workflows",
+        targetUser: { text: "Operations teams handling repeated approvals", citationIds: ["scan-evidence-001"] },
+        pain: { text: "Manual review and handoffs consume recurring work time", citationIds: ["scan-evidence-001"] },
+        context: { text: "Work moves through approval workflows", citationIds: ["scan-evidence-001"] },
+        currentWorkaround: { text: "Practitioners perform checks and handoffs manually", citationIds: ["scan-evidence-001"] },
+        desiredOutcome: { text: "A focused workflow that reduces repeated review work", citationIds: ["scan-evidence-001"] },
+        supportingEvidenceIds: ["scan-evidence-001"],
+        contradictoryEvidenceIds: [],
+        excludedEvidenceIds: [],
+        assumptions: ["The reported workflow recurs for similar operators."],
+        limitations: ["Fixture evidence requires validation with design partners."],
+        exploratory: true
+      },
       evidence: [
         {
           evidenceId: "scan-evidence-001",
@@ -68,10 +86,14 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
           summary: "A practitioner reports spending hours each week on manual review before approvals.",
           permalink: "https://www.reddit.com/r/opportunity/comments/fixture/manual_review/",
           confidence: 0.84,
+          stance: "supporting",
+          observedAt: "2026-07-03T00:00:00.000Z",
+          connectorId: "reddit-fixture",
           provenance: {
             sourcePlatform: "reddit",
             sourceId: "post_fixture_manual_review",
             sourceUrl: "https://www.reddit.com/r/opportunity/comments/fixture/manual_review/",
+            rawContentId: "raw-fixture-001",
             normalizedContentId: "normalized-fixture-001",
             analysisRequestId: "analysis-fixture-001"
           }
@@ -79,11 +101,17 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
       ],
       provenance: {
         scanId: "scan-opportunity-20260707",
+        clusterId: "cluster-fixture-001",
+        clusterFingerprint: "fixture-cluster-fingerprint-001",
         sourceItemId: "post_fixture_manual_review",
+        sourceItemIds: ["post_fixture_manual_review"],
         redditPostId: "post_fixture_manual_review",
         rawContentId: "raw-fixture-001",
+        rawContentIds: ["raw-fixture-001"],
         normalizedContentId: "normalized-fixture-001",
+        normalizedContentIds: ["normalized-fixture-001"],
         analysisRequestId: "analysis-fixture-001",
+        analysisRequestIds: ["analysis-fixture-001"],
         candidateId: "candidate-fixture-001",
         generationOutputId: "generation-fixture-001",
         rankingRunId: "ranking-fixture-001"
@@ -100,6 +128,24 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
         score: 73,
         explanation: "Moderate confidence and clear evidence quality created a second-ranked candidate."
       },
+      synthesis: {
+        synthesisId: "synthesis-fixture-002",
+        clusterId: "cluster-fixture-002",
+        clusterFingerprint: "fixture-cluster-fingerprint-002",
+        ruleId: "evidence-synthesis-workflow",
+        title: "Summarize support evidence for team decisions",
+        targetUser: { text: "Team leads consolidating product evidence", citationIds: ["scan-evidence-002"] },
+        pain: { text: "Scattered comments slow prioritization decisions", citationIds: ["scan-evidence-002"] },
+        context: { text: "Teams compare evidence before deciding what to build", citationIds: ["scan-evidence-002"] },
+        currentWorkaround: { text: "A lead manually consolidates comments into a brief", citationIds: ["scan-evidence-002"] },
+        desiredOutcome: { text: "A traceable summary that supports a team decision", citationIds: ["scan-evidence-002"] },
+        supportingEvidenceIds: ["scan-evidence-002"],
+        contradictoryEvidenceIds: [],
+        excludedEvidenceIds: [],
+        assumptions: ["The evidence consolidation need recurs across decisions."],
+        limitations: ["Fixture evidence requires validation with design partners."],
+        exploratory: true
+      },
       evidence: [
         {
           evidenceId: "scan-evidence-002",
@@ -107,10 +153,14 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
           summary: "A team lead asks for a better way to consolidate comments into a decision brief.",
           permalink: "https://www.reddit.com/r/opportunity/comments/fixture/evidence_summary/",
           confidence: 0.76,
+          stance: "supporting",
+          observedAt: "2026-07-03T00:10:00.000Z",
+          connectorId: "reddit-fixture",
           provenance: {
             sourcePlatform: "reddit",
             sourceId: "post_fixture_evidence_summary",
             sourceUrl: "https://www.reddit.com/r/opportunity/comments/fixture/evidence_summary/",
+            rawContentId: "raw-fixture-002",
             normalizedContentId: "normalized-fixture-002",
             analysisRequestId: "analysis-fixture-002"
           }
@@ -118,11 +168,17 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
       ],
       provenance: {
         scanId: "scan-opportunity-20260707",
+        clusterId: "cluster-fixture-002",
+        clusterFingerprint: "fixture-cluster-fingerprint-002",
         sourceItemId: "post_fixture_evidence_summary",
+        sourceItemIds: ["post_fixture_evidence_summary"],
         redditPostId: "post_fixture_evidence_summary",
         rawContentId: "raw-fixture-002",
+        rawContentIds: ["raw-fixture-002"],
         normalizedContentId: "normalized-fixture-002",
+        normalizedContentIds: ["normalized-fixture-002"],
         analysisRequestId: "analysis-fixture-002",
+        analysisRequestIds: ["analysis-fixture-002"],
         candidateId: "candidate-fixture-002",
         generationOutputId: "generation-fixture-002",
         rankingRunId: "ranking-fixture-001"
@@ -140,7 +196,10 @@ export const dashboardScanFixture: DashboardApiScanResultDto = {
   safeMetadata: {
     deterministic: true,
     liveEnabled: false,
-    rawProviderPayloadStored: false
+    rawProviderPayloadStored: false,
+    evidenceClusterCount: 2,
+    exploratoryClusterCount: 2,
+    rejectedClusterCount: 0
   }
 };
 

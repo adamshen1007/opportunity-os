@@ -28,7 +28,16 @@ import {
 } from "@opportunity-os/llm-analysis";
 import { CANONICAL_TEXT_VERSION, NORMALIZATION_STAGES } from "@opportunity-os/normalization";
 import { CANDIDATE_OPPORTUNITY_STATUSES } from "@opportunity-os/opportunity-candidates";
-import { OPPORTUNITY_GENERATION_OUTPUT_STATUSES } from "@opportunity-os/opportunity-generation";
+import {
+  OPPORTUNITY_GENERATION_OUTPUT_STATUSES,
+  synthesizeEvidenceClusters,
+  type SynthesizedOpportunity
+} from "@opportunity-os/opportunity-generation";
+import {
+  clusterEvidence,
+  type EvidenceCluster,
+  type EvidenceClusterMember
+} from "@opportunity-os/opportunity-pipeline";
 import {
   DEFAULT_OPPORTUNITY_RANKING_WEIGHT_SET,
   OPPORTUNITY_RANKING_FACTOR_IDS,
@@ -77,6 +86,8 @@ type PipelineSourceItem = {
   readonly permalink: string;
   readonly community: string;
   readonly source: "reddit" | "stack-exchange";
+  readonly observedAt: string;
+  readonly connectorId: "reddit" | "stack-exchange";
 };
 
 type PipelineRawContent = {
@@ -121,12 +132,24 @@ type PipelineCandidate = {
   readonly title: string;
   readonly evidenceSummary: string;
   readonly confidence: number;
+  readonly cluster: EvidenceCluster;
+  readonly synthesis: SynthesizedOpportunity;
+  readonly evidence: readonly PipelineEvidenceBundle[];
   readonly provenance: {
-    readonly sourceItemId: string;
-    readonly rawContentId: string;
-    readonly normalizedContentId: string;
-    readonly analysisRequestId: string;
+    readonly sourceItemIds: readonly string[];
+    readonly rawContentIds: readonly string[];
+    readonly normalizedContentIds: readonly string[];
+    readonly analysisRequestIds: readonly string[];
   };
+};
+
+type PipelineEvidenceBundle = {
+  readonly post: PipelineSourceItem;
+  readonly raw: PipelineRawContent;
+  readonly normalized: PipelineNormalizedContent;
+  readonly analysis: AnalysisResult;
+  readonly analysisRequestId: string;
+  readonly member: EvidenceClusterMember;
 };
 
 type PipelineGeneratedOpportunity = {
@@ -248,7 +271,9 @@ function mapRedditPost(post: RedditPost): PipelineSourceItem {
     bodyText: post.bodyText,
     permalink: post.permalink,
     community: post.subreddit.name,
-    source: "reddit"
+    source: "reddit",
+    observedAt: post.timestamps.createdAt ?? "1970-01-01T00:00:00.000Z",
+    connectorId: "reddit"
   };
 }
 
@@ -259,7 +284,9 @@ function mapStackExchangeQuestion(question: StackExchangeQuestion): PipelineSour
     bodyText: question.bodyText,
     permalink: question.permalink,
     community: question.site,
-    source: "stack-exchange"
+    source: "stack-exchange",
+    observedAt: question.createdAt,
+    connectorId: "stack-exchange"
   };
 }
 
@@ -387,22 +414,28 @@ function analysisConfidence(result: AnalysisResult): number {
 }
 
 function createCandidate(input: {
-  readonly post: PipelineSourceItem;
-  readonly raw: PipelineRawContent;
-  readonly normalized: PipelineNormalizedContent;
-  readonly analysis: AnalysisResult;
+  readonly cluster: EvidenceCluster;
+  readonly synthesis: SynthesizedOpportunity;
+  readonly bundles: readonly PipelineEvidenceBundle[];
 }): PipelineCandidate {
+  const supporting = input.bundles.filter((bundle) => bundle.member.stance === "supporting");
+  const confidence = supporting.length === 0
+    ? 0
+    : supporting.reduce((total, bundle) => total + analysisConfidence(bundle.analysis), 0) / supporting.length;
   return {
-    candidateId: `candidate-${safeId(input.post.id)}`,
+    candidateId: `candidate-${safeId(input.cluster.clusterId)}`,
     status: CANDIDATE_OPPORTUNITY_STATUSES.validationReady,
-    title: `People in ${input.post.community} may need help with: ${input.post.title}`,
-    evidenceSummary: analysisSummary(input.analysis, input.normalized.text.slice(0, 180)),
-    confidence: analysisConfidence(input.analysis),
+    title: input.synthesis.title,
+    evidenceSummary: input.synthesis.pain.text,
+    confidence,
+    cluster: input.cluster,
+    synthesis: input.synthesis,
+    evidence: input.bundles,
     provenance: {
-      sourceItemId: input.post.id,
-      rawContentId: input.raw.id,
-      normalizedContentId: input.normalized.id,
-      analysisRequestId: llmAnalysisFixtureRequest.id
+      sourceItemIds: input.bundles.map((bundle) => bundle.post.id),
+      rawContentIds: input.bundles.map((bundle) => bundle.raw.id),
+      normalizedContentIds: input.bundles.map((bundle) => bundle.normalized.id),
+      analysisRequestIds: input.bundles.map((bundle) => bundle.analysisRequestId)
     }
   };
 }
@@ -508,28 +541,31 @@ function rankGeneratedOpportunities(input: {
 
 function toDto(input: {
   readonly generated: PipelineGeneratedOpportunity;
-  readonly post: PipelineSourceItem;
-  readonly raw: PipelineRawContent;
-  readonly normalized: PipelineNormalizedContent;
   readonly scanId: string;
   readonly rank: number;
   readonly score: number;
   readonly rankingRunId: string;
 }): ApiScanOpportunityDto {
-  const evidence: ApiScanEvidenceDto = {
-    evidenceId: `evidence-${safeId(input.post.id)}`,
-    sourceType: input.post.source,
-    summary: input.generated.candidate.evidenceSummary,
-    permalink: input.post.permalink,
-    confidence: input.generated.candidate.confidence,
+  const evidence: ApiScanEvidenceDto[] = input.generated.candidate.evidence.map((bundle) => ({
+    evidenceId: bundle.member.evidenceId,
+    sourceType: bundle.post.source,
+    summary: bundle.normalized.text.slice(0, 220),
+    permalink: bundle.post.permalink,
+    confidence: analysisConfidence(bundle.analysis),
+    stance: bundle.member.stance,
+    observedAt: bundle.post.observedAt,
+    connectorId: bundle.post.connectorId,
     provenance: {
-      sourcePlatform: input.post.source,
-      sourceId: input.post.id,
-      sourceUrl: input.post.permalink,
-      normalizedContentId: input.normalized.id,
-      analysisRequestId: llmAnalysisFixtureRequest.id
+      sourcePlatform: bundle.post.source,
+      sourceId: bundle.post.id,
+      sourceUrl: bundle.post.permalink,
+      rawContentId: bundle.raw.id,
+      normalizedContentId: bundle.normalized.id,
+      analysisRequestId: bundle.analysisRequestId
     }
-  };
+  }));
+  const primary = input.generated.candidate.evidence[0];
+  if (!primary) throw new Error("Synthesized opportunity has no traceable evidence.");
 
   return {
     opportunityId: input.generated.opportunityId,
@@ -541,14 +577,12 @@ function toDto(input: {
       score: input.score,
       explanation: "Ranked by deterministic confidence and evidence completeness signals."
     },
-    evidence: [evidence],
+    synthesis: input.generated.candidate.synthesis,
+    evidence,
     trust: {
-      evidenceCount: 1,
+      evidenceCount: input.generated.candidate.cluster.demandCount,
       confidenceBand: input.generated.candidate.confidence >= 0.8 ? "high" : input.generated.candidate.confidence >= 0.6 ? "moderate" : "low",
-      limitations: [
-        "This candidate is supported by one public source item and requires human validation.",
-        "Confidence reflects evidence completeness and analysis consistency, not market size or commercial feasibility."
-      ],
+      limitations: input.generated.candidate.synthesis.limitations,
       rankingFactors: [
         { label: "Candidate confidence", contribution: "Weighted deterministic signal" },
         { label: "Evidence completeness", contribution: "Required source evidence present" }
@@ -556,11 +590,17 @@ function toDto(input: {
     },
     provenance: {
       scanId: input.scanId,
-      sourceItemId: input.post.id,
-      ...(input.post.source === "reddit" ? { redditPostId: input.post.id } : {}),
-      rawContentId: input.raw.id,
-      normalizedContentId: input.normalized.id,
-      analysisRequestId: llmAnalysisFixtureRequest.id,
+      clusterId: input.generated.candidate.cluster.clusterId,
+      clusterFingerprint: input.generated.candidate.cluster.fingerprint,
+      sourceItemId: primary.post.id,
+      sourceItemIds: input.generated.candidate.provenance.sourceItemIds,
+      ...(primary.post.source === "reddit" ? { redditPostId: primary.post.id } : {}),
+      rawContentId: primary.raw.id,
+      rawContentIds: input.generated.candidate.provenance.rawContentIds,
+      normalizedContentId: primary.normalized.id,
+      normalizedContentIds: input.generated.candidate.provenance.normalizedContentIds,
+      analysisRequestId: primary.analysisRequestId,
+      analysisRequestIds: input.generated.candidate.provenance.analysisRequestIds,
       candidateId: input.generated.candidate.candidateId,
       generationOutputId: input.generated.outputId,
       rankingRunId: input.rankingRunId
@@ -584,14 +624,44 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
   const rawContent = posts.map((post) => mapPostToRawContent(post, input.requestedAt));
   const normalizedContent = rawContent.map((raw) => normalizeRawContent(raw));
   const analyses = await Promise.all(normalizedContent.map((normalized) => analyzeContent(normalized, input, source.mode)));
-  const candidates = posts.map((post, index) =>
-    createCandidate({
-      post,
-      raw: rawContent[index] as PipelineRawContent,
-      normalized: normalizedContent[index] as PipelineNormalizedContent,
-      analysis: analyses[index] ?? llmAnalysisFixtureResult
-    })
-  );
+  const clusteringInputs = posts.map((post, index) => {
+    const raw = rawContent[index] as PipelineRawContent;
+    const normalized = normalizedContent[index] as PipelineNormalizedContent;
+    return {
+      evidenceId: `evidence-${safeId(post.id)}`,
+      title: post.title,
+      text: normalized.text,
+      sourceType: post.source,
+      sourceId: post.id,
+      sourceUrl: post.permalink,
+      observedAt: post.observedAt,
+      connectorId: post.connectorId,
+      rawContentId: raw.id,
+      normalizedContentId: normalized.id,
+      analysisRequestId: `analysis-${safeId(normalized.id)}`,
+      provenance: raw.provenance
+    };
+  });
+  const clusters = clusterEvidence(clusteringInputs);
+  const synthesisResults = synthesizeEvidenceClusters(clusters);
+  const bundlesByEvidenceId = new Map(clusteringInputs.map((item, index) => [item.evidenceId, {
+    post: posts[index] as PipelineSourceItem,
+    raw: rawContent[index] as PipelineRawContent,
+    normalized: normalizedContent[index] as PipelineNormalizedContent,
+    analysis: analyses[index] ?? llmAnalysisFixtureResult,
+    analysisRequestId: item.analysisRequestId
+  }]));
+  const candidates = synthesisResults.flatMap((synthesisResult) => {
+    if (synthesisResult.status !== "synthesized") return [];
+    const cluster = clusters.find((item) => item.clusterId === synthesisResult.opportunity.clusterId);
+    if (!cluster) return [];
+    const members = [...cluster.supportingEvidence, ...cluster.contradictoryEvidence, ...cluster.excludedEvidence];
+    const bundles = members.flatMap((member) => {
+      const bundle = bundlesByEvidenceId.get(member.evidenceId);
+      return bundle ? [{ ...bundle, member }] : [];
+    });
+    return [createCandidate({ cluster, synthesis: synthesisResult.opportunity, bundles })];
+  });
   const generated = candidates.map((candidate) => generateOpportunity(candidate, input.requestedAt));
   const ranking = rankGeneratedOpportunities({
     opportunities: generated,
@@ -604,9 +674,6 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
     const matchingRank = ranked.find((rank) => rank.opportunity.entityId === item.opportunityId);
     return toDto({
       generated: item,
-      post: posts[index] as PipelineSourceItem,
-      raw: rawContent[index] as PipelineRawContent,
-      normalized: normalizedContent[index] as PipelineNormalizedContent,
       scanId,
       rank: matchingRank?.rank ?? index + 1,
       score: matchingRank?.score ?? 0,
@@ -633,8 +700,8 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
       stage("raw-content", `Mapped ${source.attribution} content into safe Raw Content envelopes.`),
       stage("normalization", "Normalized text while preserving source provenance."),
       stage("llm-analysis", source.mode === API_SCAN_MODES.live ? "Ran env-gated live LLM analysis or safe fixture fallback." : "Used deterministic LLM analysis fixture output."),
-      stage("candidate-generation", "Built evidence-backed candidate opportunities."),
-      stage("opportunity-generation", "Generated opportunities from validated candidates."),
+      stage("candidate-generation", `Clustered ${posts.length} source item(s) into ${clusters.length} traceable evidence cluster(s).`),
+      stage("opportunity-generation", `Synthesized ${opportunities.length} cited opportunity candidate(s) from qualified clusters.`),
       stage("ranking", "Ranked generated opportunities with explainable deterministic ranking.")
     ],
     opportunities,
@@ -644,7 +711,10 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
       liveEnabled: source.mode === API_SCAN_MODES.live,
       rawProviderPayloadStored: false,
       rejectedSourceItems: prepared.rejected,
-      duplicateSourceItems: prepared.duplicates
+      duplicateSourceItems: prepared.duplicates,
+      evidenceClusterCount: clusters.length,
+      exploratoryClusterCount: clusters.filter((cluster) => cluster.exploratory).length,
+      rejectedClusterCount: synthesisResults.filter((item) => item.status === "rejected").length
     }
   };
 

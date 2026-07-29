@@ -192,11 +192,96 @@ const measureBenchmark = (benchmark) => {
   };
 };
 
+const measureClusteredBehavior = async (benchmark) => {
+  const validation = validateBenchmark(benchmark);
+  assert(validation.frozen, "The clustered benchmark requires a frozen approved corpus.");
+  const [{ clusterEvidence }, { synthesizeEvidenceClusters }] = await Promise.all([
+    import("../packages/opportunity-pipeline/dist/index.js"),
+    import("../packages/opportunity-generation/dist/index.js")
+  ]);
+  const records = benchmark.sourceRecords.records;
+  const clusteringInputs = records.map((record) => ({
+    evidenceId: record.citationId,
+    title: record.title,
+    text: record.body,
+    sourceType: record.sourceKind,
+    sourceId: record.id,
+    observedAt: record.observedAt,
+    connectorId: "benchmark-fixture",
+    rawContentId: `raw-${record.id}`,
+    normalizedContentId: `normalized-${record.id}`,
+    analysisRequestId: `analysis-${record.id}`,
+    provenance: { sourceId: record.id, synthetic: true }
+  }));
+  const firstClusters = clusterEvidence(clusteringInputs);
+  const repeatedClusters = clusterEvidence([...clusteringInputs].reverse());
+  const synthesis = synthesizeEvidenceClusters(firstClusters);
+  const opportunities = synthesis.flatMap((result) => result.status === "synthesized" ? [result.opportunity] : []);
+  const predictedClusterBySource = new Map();
+  for (const cluster of firstClusters) {
+    for (const member of [...cluster.supportingEvidence, ...cluster.contradictoryEvidence, ...cluster.excludedEvidence]) {
+      predictedClusterBySource.set(member.sourceId, cluster.clusterId);
+    }
+  }
+  const expectedPairs = countPairs(records, (record) => record.expectedClusterId);
+  const predictedPairs = countPairs(records, (record) => predictedClusterBySource.get(record.id) ?? record.id);
+  const truePositiveCount = [...predictedPairs].filter((pair) => expectedPairs.has(pair)).length;
+  const factualClaims = opportunities.flatMap((opportunity) => [
+    opportunity.targetUser,
+    opportunity.pain,
+    opportunity.context,
+    opportunity.currentWorkaround,
+    opportunity.desiredOutcome
+  ]);
+  const expectedOpportunityCount = benchmark.expectedClusters.clusters.length;
+  const generatedOpportunityCount = opportunities.length;
+  const measurements = {
+    sourceRecordCount: records.length,
+    generatedOpportunityCount,
+    expectedOpportunityCount,
+    duplicateOpportunityRate: generatedOpportunityCount === 0 ? 0 : round(Math.max(0, (generatedOpportunityCount - expectedOpportunityCount) / generatedOpportunityCount)),
+    citationCoverage: factualClaims.length === 0 ? 0 : round(factualClaims.filter((claim) => claim.citationIds.length > 0).length / factualClaims.length),
+    predictedClusterCount: firstClusters.length,
+    clusteringPrecision: predictedPairs.size === 0 ? 0 : round(truePositiveCount / predictedPairs.size),
+    clusteringRecall: expectedPairs.size === 0 ? 0 : round(truePositiveCount / expectedPairs.size),
+    rankingComparisonCount: benchmark.rankingComparisons.comparisons.length,
+    rankingAgreement: benchmark.baseline.measurements.rankingAgreement,
+    repeatability: JSON.stringify(firstClusters) === JSON.stringify(repeatedClusters) ? 1 : 0
+  };
+  const targets = benchmark.rubric.draftTargetsForLaterSlices;
+  const thresholdResults = {
+    duplicateOpportunityRate: measurements.duplicateOpportunityRate <= targets.duplicateOpportunityRateMaximum,
+    citationCoverage: measurements.citationCoverage >= targets.citationCoverageMinimum,
+    clusteringPrecision: measurements.clusteringPrecision >= targets.clusteringPrecisionMinimum,
+    clusteringRecall: measurements.clusteringRecall >= targets.clusteringRecallMinimum,
+    repeatability: measurements.repeatability >= targets.repeatabilityMinimum
+  };
+  const resultCore = {
+    schemaVersion: "opportunity-quality-benchmark-comparison-v1",
+    benchmarkVersion: benchmark.manifest.benchmarkVersion,
+    behaviorVersion: "deterministic-cluster-synthesis-v1",
+    baseline: benchmark.baseline.measurements,
+    measurements,
+    thresholdResults,
+    allSliceThresholdsPassed: Object.values(thresholdResults).every(Boolean)
+  };
+  return {
+    ...resultCore,
+    resultFingerprint: createHash("sha256").update(JSON.stringify(resultCore)).digest("hex")
+  };
+};
+
 const command = process.argv[2] ?? "evaluate";
 
 try {
   const benchmark = loadBenchmark();
-  const output = command === "validate" ? validateBenchmark(benchmark) : command === "evaluate" ? measureBenchmark(benchmark) : null;
+  const output = command === "validate"
+    ? validateBenchmark(benchmark)
+    : command === "evaluate"
+      ? measureBenchmark(benchmark)
+      : command === "evaluate-clustered"
+        ? await measureClusteredBehavior(benchmark)
+        : null;
   assert(output, `Unsupported benchmark command: ${command}`);
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 } catch (error) {

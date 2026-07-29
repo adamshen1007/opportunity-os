@@ -19,7 +19,8 @@ describe("active scan view models", () => {
     const ranking = mapScanRanking(dashboardStackExchangeScanFixture);
 
     expect(evidence[0]?.permalink).toContain("stackoverflow.com/questions/");
-    expect(evidence[0]?.provenance.sourceName).toBe("Stack Exchange · stackoverflow");
+    expect(evidence[0]?.provenance.sourceName).toBe("Stack Exchange · stackoverflow · supporting");
+    expect(evidence[0]?.provenance.transformedAt).toContain("Cluster cluster-fixture-001");
     expect(ranking.rankedOpportunityIds).toEqual([
       "stack-exchange-opportunity-1",
       "stack-exchange-opportunity-2"

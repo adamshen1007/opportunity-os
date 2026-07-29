@@ -41,13 +41,22 @@ export type ApiScanEvidenceDto = {
   readonly summary: string;
   readonly permalink?: string;
   readonly confidence: number;
+  readonly stance: "supporting" | "contradictory" | "excluded";
+  readonly observedAt: string;
+  readonly connectorId: string;
   readonly provenance: {
     readonly sourcePlatform: ApiScanSource;
     readonly sourceId: string;
     readonly sourceUrl?: string;
+    readonly rawContentId: string;
     readonly normalizedContentId: string;
     readonly analysisRequestId: string;
   };
+};
+
+export type ApiScanCitedClaimDto = {
+  readonly text: string;
+  readonly citationIds: readonly string[];
 };
 
 export type ApiScanOpportunityDto = {
@@ -59,6 +68,24 @@ export type ApiScanOpportunityDto = {
     readonly position: number;
     readonly score: number;
     readonly explanation: string;
+  };
+  readonly synthesis: {
+    readonly synthesisId: string;
+    readonly clusterId: string;
+    readonly clusterFingerprint: string;
+    readonly ruleId: string;
+    readonly title: string;
+    readonly targetUser: ApiScanCitedClaimDto;
+    readonly pain: ApiScanCitedClaimDto;
+    readonly context: ApiScanCitedClaimDto;
+    readonly currentWorkaround: ApiScanCitedClaimDto;
+    readonly desiredOutcome: ApiScanCitedClaimDto;
+    readonly supportingEvidenceIds: readonly string[];
+    readonly contradictoryEvidenceIds: readonly string[];
+    readonly excludedEvidenceIds: readonly string[];
+    readonly assumptions: readonly string[];
+    readonly limitations: readonly string[];
+    readonly exploratory: boolean;
   };
   readonly evidence: readonly ApiScanEvidenceDto[];
   readonly trust: {
@@ -72,11 +99,17 @@ export type ApiScanOpportunityDto = {
   };
   readonly provenance: {
     readonly scanId: string;
+    readonly clusterId: string;
+    readonly clusterFingerprint: string;
     readonly sourceItemId: string;
+    readonly sourceItemIds: readonly string[];
     readonly redditPostId?: string;
     readonly rawContentId: string;
+    readonly rawContentIds: readonly string[];
     readonly normalizedContentId: string;
+    readonly normalizedContentIds: readonly string[];
     readonly analysisRequestId: string;
+    readonly analysisRequestIds: readonly string[];
     readonly candidateId: string;
     readonly generationOutputId: string;
     readonly rankingRunId: string;
@@ -111,5 +144,8 @@ export type ApiScanResultDto = {
     readonly rawProviderPayloadStored: false;
     readonly rejectedSourceItems: number;
     readonly duplicateSourceItems: number;
+    readonly evidenceClusterCount: number;
+    readonly exploratoryClusterCount: number;
+    readonly rejectedClusterCount: number;
   };
 };

@@ -88,6 +88,7 @@ model ScanRunRecord {
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
   rawSourceContent RawSourceContent[]
+  evidenceClusters EvidenceCluster[]
   rankingResults   OpportunityRankingResult[]
 
   @@index([mode])
@@ -115,6 +116,7 @@ model RawSourceContent {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   normalizedContent  NormalizedContent[]
+  clusterMemberships EvidenceClusterMembership[]
   scan               ScanRunRecord       @relation(fields: [scanId], references: [id])
 
   @@unique([scanId, sourcePlatform, sourceId])
@@ -138,6 +140,7 @@ model NormalizedContent {
   updatedAt          DateTime         @updatedAt
   rawSourceContent   RawSourceContent @relation(fields: [rawSourceContentId], references: [id], onDelete: Cascade)
   analysisResults    AnalysisResult[]
+  clusterMemberships EvidenceClusterMembership[]
 
   @@index([rawSourceContentId])
   @@index([languageCode])
@@ -160,6 +163,7 @@ model AnalysisResult {
   updatedAt              DateTime                     @updatedAt
   normalizedContent      NormalizedContent            @relation(fields: [normalizedContentId], references: [id], onDelete: Cascade)
   candidateOpportunities CandidateOpportunityRecord[]
+  clusterMemberships     EvidenceClusterMembership[]
 
   @@index([normalizedContentId])
   @@index([analysisType])
@@ -170,6 +174,7 @@ model AnalysisResult {
 model CandidateOpportunityRecord {
   id                     String                       @id
   analysisResultId       String?
+  evidenceClusterId      String?
   title                  String
   summary                String
   hypothesis             Json
@@ -181,11 +186,70 @@ model CandidateOpportunityRecord {
   createdAt              DateTime                     @default(now())
   updatedAt              DateTime                     @updatedAt
   analysisResult         AnalysisResult?              @relation(fields: [analysisResultId], references: [id], onDelete: SetNull)
+  evidenceCluster        EvidenceCluster?             @relation(fields: [evidenceClusterId], references: [id], onDelete: SetNull)
   generatedOpportunities GeneratedOpportunityRecord[]
 
   @@index([analysisResultId])
+  @@index([evidenceClusterId])
   @@index([lifecycleStatus])
   @@map("candidate_opportunity_records")
+}
+
+model EvidenceCluster {
+  id               String                      @id
+  scanId           String
+  ownerPrincipalId String
+  fingerprint      String
+  ruleId           String
+  label            String
+  definition       String
+  status           String
+  demandCount      Int
+  exploratory      Boolean
+  synthesisProfile Json
+  safeMetadata     Json?
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @updatedAt
+  scan             ScanRunRecord               @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  memberships      EvidenceClusterMembership[]
+  candidates       CandidateOpportunityRecord[]
+
+  @@unique([scanId, fingerprint])
+  @@index([scanId])
+  @@index([ownerPrincipalId])
+  @@index([ruleId])
+  @@index([status])
+  @@map("evidence_clusters")
+}
+
+model EvidenceClusterMembership {
+  id                  String            @id
+  clusterId           String
+  scanId              String
+  ownerPrincipalId    String
+  rawSourceContentId  String
+  normalizedContentId String
+  analysisResultId    String?
+  stance              String
+  sourceUrl           String?
+  observedAt          DateTime
+  connectorId         String
+  provenance          Json
+  createdAt           DateTime          @default(now())
+  cluster             EvidenceCluster   @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  rawSourceContent    RawSourceContent   @relation(fields: [rawSourceContentId], references: [id], onDelete: Cascade)
+  normalizedContent   NormalizedContent  @relation(fields: [normalizedContentId], references: [id], onDelete: Cascade)
+  analysisResult      AnalysisResult?    @relation(fields: [analysisResultId], references: [id], onDelete: SetNull)
+
+  @@unique([clusterId, normalizedContentId])
+  @@index([clusterId])
+  @@index([scanId])
+  @@index([ownerPrincipalId])
+  @@index([rawSourceContentId])
+  @@index([normalizedContentId])
+  @@index([analysisResultId])
+  @@index([stance])
+  @@map("evidence_cluster_memberships")
 }
 
 model GeneratedOpportunityRecord {

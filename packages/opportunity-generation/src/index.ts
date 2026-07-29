@@ -115,3 +115,10 @@ export {
   opportunityGenerationFixtureValidationFailure,
   opportunityGenerationFixtureValidationSuccess
 } from "./fixtures/index.js";
+export { synthesizeEvidenceCluster, synthesizeEvidenceClusters } from "./synthesis/index.js";
+export type {
+  OpportunitySynthesisRejection,
+  OpportunitySynthesisResult,
+  SynthesizedCitedClaim,
+  SynthesizedOpportunity
+} from "./synthesis/index.js";

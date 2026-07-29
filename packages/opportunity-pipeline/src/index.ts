@@ -118,3 +118,16 @@ export {
   opportunityPipelineFixtureValidationFailure,
   opportunityPipelineFixtureValidationSuccess
 } from "./fixtures/index.js";
+export {
+  DETERMINISTIC_EVIDENCE_CLUSTERING_RULES,
+  EVIDENCE_CLUSTERING_RULE_VERSION,
+  EVIDENCE_STANCES,
+  clusterEvidence
+} from "./intelligence/index.js";
+export type {
+  EvidenceCluster,
+  EvidenceClusterMember,
+  EvidenceClusterSynthesisProfile,
+  EvidenceClusteringInput,
+  EvidenceStance
+} from "./intelligence/index.js";

@@ -82,6 +82,8 @@ function toScanPersistenceClient(client: RuntimeClient, includeTransaction = tru
     rawSourceContent: delegate(client.rawSourceContent as never),
     normalizedContent: delegate(client.normalizedContent as never),
     analysisResult: delegate(client.analysisResult as never),
+    evidenceCluster: delegate(client.evidenceCluster as never),
+    evidenceClusterMembership: delegate(client.evidenceClusterMembership as never),
     candidateOpportunityRecord: delegate(client.candidateOpportunityRecord as never),
     generatedOpportunityRecord: delegate(client.generatedOpportunityRecord as never),
     opportunityRankingResult: delegate(client.opportunityRankingResult as never),

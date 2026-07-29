@@ -13,8 +13,8 @@ describe("foundation baseline migration", () => {
     const migrationDirectories = fs.readdirSync(path.join(packageRoot, "prisma/migrations")).sort();
     const verifier = fs.readFileSync(path.join(packageRoot, "scripts/verify-production-migrations.mjs"), "utf8");
 
-    expect(migrationDirectories.at(-1)).toBe("20260728123000_fix_raw_source_scan_uniqueness");
-    expect(verifier).toContain('CURRENT_MIGRATION_BASELINE = "20260728123000_fix_raw_source_scan_uniqueness"');
+    expect(migrationDirectories.at(-1)).toBe("20260729110000_add_evidence_clusters");
+    expect(verifier).toContain('CURRENT_MIGRATION_BASELINE = "20260729110000_add_evidence_clusters"');
     expect(verifier).toContain("MIGRATION_CLEAN_DATABASE_CONFIRMED_EMPTY");
     expect(verifier).toContain("MIGRATION_BACKUP_DATABASE_CONFIRMED_SAFE");
     expect(verifier).not.toMatch(/console\.(?:log|error)\([^\n]*(?:DATABASE_URL|connectionString)/u);
@@ -42,6 +42,19 @@ describe("foundation baseline migration", () => {
     expect(migration).toContain('"raw_source_content_scanId_sourcePlatform_sourceId_key"');
     expect(migration).toContain('("scanId", "sourcePlatform", "sourceId")');
     expect(migration).not.toMatch(/evidence[_-]?cluster/iu);
+  });
+
+  it("appends owner-scoped evidence clusters after the ownership baseline", () => {
+    const migration = fs.readFileSync(
+      path.join(import.meta.dirname, "../../prisma/migrations/20260729110000_add_evidence_clusters/migration.sql"),
+      "utf8"
+    );
+    expect(migration).toContain('CREATE TABLE "evidence_clusters"');
+    expect(migration).toContain('CREATE TABLE "evidence_cluster_memberships"');
+    expect(migration).toContain('"ownerPrincipalId" TEXT NOT NULL');
+    expect(migration).toContain('"scanId" TEXT NOT NULL');
+    expect(migration).toContain('FOREIGN KEY ("scanId") REFERENCES "scan_run_records"');
+    expect(migration).toContain('ADD COLUMN "evidenceClusterId" TEXT');
   });
 
   it("stores only session token hashes and revokes legacy sessions", () => {

@@ -26,6 +26,8 @@ const prohibitedModelNames = [
 const allowedModelNames = [
   "AnalysisResult",
   "CandidateOpportunityRecord",
+  "EvidenceCluster",
+  "EvidenceClusterMembership",
   "GeneratedOpportunityRecord",
   "NormalizedContent",
   "OpportunityRankingItem",
@@ -43,6 +45,8 @@ const requiredProductTableMappings = [
   "@@map(\"raw_source_content\")",
   "@@map(\"normalized_content\")",
   "@@map(\"analysis_results\")",
+  "@@map(\"evidence_clusters\")",
+  "@@map(\"evidence_cluster_memberships\")",
   "@@map(\"candidate_opportunity_records\")",
   "@@map(\"generated_opportunity_records\")",
   "@@map(\"opportunity_ranking_results\")",
@@ -85,6 +89,8 @@ describe("database schema policy", () => {
     expect(schema).toMatch(/model PrivateBetaFeedback[\s\S]*ownerPrincipalId\s+String/u);
     expect(schema).toMatch(/model RawSourceContent[\s\S]*scanId\s+String/u);
     expect(schema).toMatch(/model OpportunityRankingResult[\s\S]*scanId\s+String/u);
+    expect(schema).toMatch(/model EvidenceCluster[\s\S]*ownerPrincipalId\s+String/u);
+    expect(schema).toMatch(/model EvidenceClusterMembership[\s\S]*ownerPrincipalId\s+String/u);
     expect(schema).not.toContain("inviteCode String");
   });
 

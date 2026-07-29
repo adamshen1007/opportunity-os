@@ -1077,9 +1077,9 @@ Workstream A - Production Safety Before Design Partners:
 
 Workstream B - Opportunity Intelligence Quality:
 
-1. `TASK-P45-B01` Opportunity Quality Benchmark, beginning in parallel with A01
-2. `TASK-P45-B02` Evidence Clustering
-3. `TASK-P45-B03` Opportunity Synthesis
+1. `TASK-P45-B01` Opportunity Quality Benchmark, completed and frozen as version `1.0.0`
+2. `TASK-P45-B02` Evidence Clustering, completed with migration `20260729110000_add_evidence_clusters`
+3. `TASK-P45-B03` Opportunity Synthesis, completed with cited cluster-based output
 4. `TASK-P45-B04` Ranking Improvement
 5. `TASK-P45-B05` LLM Output Validation, proceeding alongside B04 after B03
 

@@ -220,13 +220,22 @@ export interface DashboardApiScanEvidenceDto {
   readonly summary: string;
   readonly permalink?: string;
   readonly confidence: number;
+  readonly stance: "supporting" | "contradictory" | "excluded";
+  readonly observedAt: string;
+  readonly connectorId: string;
   readonly provenance: {
     readonly sourcePlatform: DashboardApiScanSource;
     readonly sourceId: string;
     readonly sourceUrl?: string;
+    readonly rawContentId: string;
     readonly normalizedContentId: string;
     readonly analysisRequestId: string;
   };
+}
+
+export interface DashboardApiScanCitedClaimDto {
+  readonly text: string;
+  readonly citationIds: readonly string[];
 }
 
 export interface DashboardApiScanOpportunityDto {
@@ -239,6 +248,24 @@ export interface DashboardApiScanOpportunityDto {
     readonly score: number;
     readonly explanation: string;
   };
+  readonly synthesis: {
+    readonly synthesisId: string;
+    readonly clusterId: string;
+    readonly clusterFingerprint: string;
+    readonly ruleId: string;
+    readonly title: string;
+    readonly targetUser: DashboardApiScanCitedClaimDto;
+    readonly pain: DashboardApiScanCitedClaimDto;
+    readonly context: DashboardApiScanCitedClaimDto;
+    readonly currentWorkaround: DashboardApiScanCitedClaimDto;
+    readonly desiredOutcome: DashboardApiScanCitedClaimDto;
+    readonly supportingEvidenceIds: readonly string[];
+    readonly contradictoryEvidenceIds: readonly string[];
+    readonly excludedEvidenceIds: readonly string[];
+    readonly assumptions: readonly string[];
+    readonly limitations: readonly string[];
+    readonly exploratory: boolean;
+  };
   readonly evidence: readonly DashboardApiScanEvidenceDto[];
   readonly trust?: {
     readonly evidenceCount: number;
@@ -248,11 +275,17 @@ export interface DashboardApiScanOpportunityDto {
   };
   readonly provenance: {
     readonly scanId: string;
+    readonly clusterId: string;
+    readonly clusterFingerprint: string;
     readonly sourceItemId: string;
+    readonly sourceItemIds: readonly string[];
     readonly redditPostId?: string;
     readonly rawContentId: string;
+    readonly rawContentIds: readonly string[];
     readonly normalizedContentId: string;
+    readonly normalizedContentIds: readonly string[];
     readonly analysisRequestId: string;
+    readonly analysisRequestIds: readonly string[];
     readonly candidateId: string;
     readonly generationOutputId: string;
     readonly rankingRunId: string;
@@ -294,5 +327,8 @@ export interface DashboardApiScanResultDto {
     readonly rawProviderPayloadStored: false;
     readonly rejectedSourceItems?: number;
     readonly duplicateSourceItems?: number;
+    readonly evidenceClusterCount: number;
+    readonly exploratoryClusterCount: number;
+    readonly rejectedClusterCount: number;
   };
 }

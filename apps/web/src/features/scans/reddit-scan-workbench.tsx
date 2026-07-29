@@ -53,6 +53,19 @@ function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
+function CitedClaim({ label, claim }: {
+  readonly label: string;
+  readonly claim: { readonly text: string; readonly citationIds: readonly string[] };
+}) {
+  return (
+    <div className="scan-synthesis-claim">
+      <dt>{label}</dt>
+      <dd>{claim.text}</dd>
+      <span>{claim.citationIds.length} citation{claim.citationIds.length === 1 ? "" : "s"}</span>
+    </div>
+  );
+}
+
 function normalizeLimit(value: FormDataEntryValue | null): number {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > 25) return 5;
@@ -73,7 +86,7 @@ function toSafeScanMessage(message: string | undefined): string {
   return message;
 }
 
-function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto }) {
+export function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto }) {
   return (
     <div className="scan-output" aria-label="Scan results">
       <div className="scan-status-grid">
@@ -126,7 +139,7 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
           <article className="scan-result-card" key={opportunity.opportunityId}>
             <div className="scan-result-heading">
               <Badge tone="success">{`Rank #${opportunity.rank.position}`}</Badge>
-              <span>Score {opportunity.rank.score}</span>
+              <span>{opportunity.synthesis.exploratory ? "Exploratory cluster" : "Qualified cluster"} · Score {opportunity.rank.score}</span>
             </div>
             <h4>{opportunity.title}</h4>
             <p>{opportunity.summary}</p>
@@ -134,6 +147,18 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
               <span>Confidence {formatPercent(opportunity.confidence)}</span>
               <span>{opportunity.rank.explanation}</span>
             </div>
+
+            <details className="opportunity-trust-details">
+              <summary>View synthesized problem and citations</summary>
+              <dl className="scan-synthesis-grid">
+                <CitedClaim label="Target user" claim={opportunity.synthesis.targetUser} />
+                <CitedClaim label="Pain" claim={opportunity.synthesis.pain} />
+                <CitedClaim label="Context" claim={opportunity.synthesis.context} />
+                <CitedClaim label="Current workaround" claim={opportunity.synthesis.currentWorkaround} />
+                <CitedClaim label="Desired outcome" claim={opportunity.synthesis.desiredOutcome} />
+              </dl>
+              {opportunity.synthesis.assumptions.length > 0 ? <p><strong>Assumptions:</strong> {opportunity.synthesis.assumptions.join(" ")}</p> : null}
+            </details>
 
             {opportunity.trust ? (
               <details className="opportunity-trust-details">
@@ -147,9 +172,12 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
             <div className="scan-evidence-list" aria-label={`${opportunity.title} evidence`}>
               {opportunity.evidence.map((evidence) => (
                 <div className="scan-evidence-item" key={evidence.evidenceId}>
-                  <strong>Evidence</strong>
+                  <div className="scan-evidence-heading">
+                    <strong>Evidence</strong>
+                    <Badge tone={evidence.stance === "supporting" ? "success" : "warning"}>{evidence.stance}</Badge>
+                  </div>
                   <p>{evidence.summary}</p>
-                  <span>Confidence {formatPercent(evidence.confidence)}</span>
+                  <span>Confidence {formatPercent(evidence.confidence)} · {evidence.connectorId} · {new Date(evidence.observedAt).toLocaleDateString()}</span>
                   {evidence.permalink ? (
                     <a href={evidence.permalink} rel="noreferrer" target="_blank">
                       Open source context
@@ -161,16 +189,24 @@ function ScanResultView({ result }: { readonly result: DashboardApiScanResultDto
 
             <dl className="scan-provenance-list">
               <div>
-                <dt>Raw content</dt>
-                <dd>{opportunity.provenance.rawContentId}</dd>
+                <dt>Evidence cluster</dt>
+                <dd>{opportunity.provenance.clusterId}</dd>
               </div>
               <div>
-                <dt>Normalized content</dt>
-                <dd>{opportunity.provenance.normalizedContentId}</dd>
+                <dt>Cluster fingerprint</dt>
+                <dd>{opportunity.provenance.clusterFingerprint}</dd>
               </div>
               <div>
-                <dt>Analysis</dt>
-                <dd>{opportunity.provenance.analysisRequestId}</dd>
+                <dt>Raw content records</dt>
+                <dd>{opportunity.provenance.rawContentIds.length}</dd>
+              </div>
+              <div>
+                <dt>Normalized records</dt>
+                <dd>{opportunity.provenance.normalizedContentIds.length}</dd>
+              </div>
+              <div>
+                <dt>Analysis records</dt>
+                <dd>{opportunity.provenance.analysisRequestIds.length}</dd>
               </div>
               <div>
                 <dt>Ranking</dt>

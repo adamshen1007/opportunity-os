@@ -129,7 +129,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .scan-result-card p { color: var(--ink-soft); font-size: .82rem; }
 .scan-result-metrics { color: var(--ink-faint); font-size: .73rem; }
 .scan-evidence-item { margin-top: 12px; padding: 12px; border-left: 2px solid var(--accent); background: var(--surface); }
+.scan-evidence-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .scan-evidence-item a { color: var(--accent-deep); font-size: .76rem; }
+.scan-synthesis-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 12px 0; }
+.scan-synthesis-claim { min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.scan-synthesis-claim dt { color: var(--ink-faint); font-size: .68rem; font-weight: 700; text-transform: uppercase; }
+.scan-synthesis-claim dd { margin: 5px 0; color: var(--ink-soft); font-size: .78rem; }
+.scan-synthesis-claim span { color: var(--accent-deep); font-size: .7rem; }
 .scan-provenance-list, .provenance-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 12px 0 0; }
 .scan-provenance-list div, .provenance-list div { min-width: 0; }
 .scan-provenance-list dd, .provenance-list dd { margin: 2px 0 0; overflow-wrap: anywhere; color: var(--ink-soft); font-size: .73rem; }
@@ -221,7 +227,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .scan-status-grid { grid-template-columns: 1fr 1fr; }
   .scan-status-grid > div:nth-child(2) { border-right: 0; }
   .scan-status-grid > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-  .scan-results-grid, .detail-layout, .dashboard-grid, .beta-tools-grid { grid-template-columns: 1fr; }
+  .scan-results-grid, .scan-synthesis-grid, .detail-layout, .dashboard-grid, .beta-tools-grid { grid-template-columns: 1fr; }
   .toolbar { grid-template-columns: 1fr; }
   .filter-panel { grid-template-columns: 1fr 1fr 1fr; }
   .table { min-width: 0; display: block; }

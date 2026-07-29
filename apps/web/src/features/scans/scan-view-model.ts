@@ -45,9 +45,9 @@ export function mapScanEvidence(scan: DashboardApiScanResultDto): readonly Dashb
       confidence: evidence.confidence,
       permalink: evidence.permalink,
       provenance: {
-        sourceName: `${scan.source.attribution} · ${scan.source.community}`,
-        collectedAt: `Source item ${evidence.provenance.sourceId}`,
-        transformedAt: `Normalized as ${evidence.provenance.normalizedContentId}`
+        sourceName: `${scan.source.attribution} · ${scan.source.community} · ${evidence.stance}`,
+        collectedAt: `${evidence.observedAt} · ${evidence.connectorId}`,
+        transformedAt: `Cluster ${opportunity.provenance.clusterId} · normalized as ${evidence.provenance.normalizedContentId}`
       }
     }))
   );
