@@ -3215,6 +3215,8 @@ Readiness requires:
 - schema-validated, citation-grounded live LLM output
 - one passing two-user hosted pilot rehearsal
 
+Monitoring and recovery implementation is defined in `docs/04_IMPLEMENTATION/04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md`. Repository controls are complete, but design-partner invitations remain blocked until alert delivery, hosted backup retention, and an isolated restore rehearsal have operator evidence.
+
 No Phase 4.5 task may bypass the existing ownership boundaries of `packages/database`, `packages/analysis`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, `packages/opportunity-ranking`, `packages/llm-analysis`, `apps/api`, or `apps/web`.
 
 

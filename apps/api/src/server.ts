@@ -50,7 +50,11 @@ import { createFixedWindowRateLimiter, type FixedWindowRateLimiter } from "./sec
 import type { ApiRequest, ApiResponse } from "./http/index.js";
 import { API_ERROR_CODES, createApiError } from "./errors/index.js";
 import type { ApiHealthDependencyDto } from "./routes/health/index.js";
-import { createApiMetricsRegistry, type ApiMetricsRegistry } from "./operations/index.js";
+import {
+  API_OPERATION_FAILURE_KINDS,
+  createApiMetricsRegistry,
+  type ApiMetricsRegistry
+} from "./operations/index.js";
 import { handleGetOperationsRequest } from "./routes/operations/index.js";
 import {
   createOwnerScope,
@@ -113,7 +117,12 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
   const scanPersistence = options.scanPersistence ?? createInMemoryScanPersistenceStore();
   const scanRateLimiter = options.scanRateLimiter ?? createFixedWindowRateLimiter({ limit: 10, windowMs: 60_000 });
   const metrics = options.metricsRegistry ?? createApiMetricsRegistry(clock);
-  const scanJobService = createApiScanJobService({ persistence: scanPersistence, clock, onTransition: metrics.recordScanTransition });
+  const scanJobService = createApiScanJobService({
+    persistence: scanPersistence,
+    clock,
+    onTransition: metrics.recordScanTransition,
+    onFailure: metrics.recordFailure
+  });
   void scanJobService.recover();
 
   const routeTable: readonly {
@@ -137,18 +146,26 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
       handler: async (request) => {
         const databaseReady = options.databaseIsReady ? await options.databaseIsReady() : undefined;
         const configuredDependencies = options.healthDependencies ? await options.healthDependencies() : [];
+        const dependencies = [
+          ...(databaseReady === undefined
+            ? []
+            : [{ name: "database", status: databaseReady ? "ok" as const : "degraded" as const, checkedAt: clock(), safeMessage: databaseReady ? "Database is ready." : "Database is unavailable." }]),
+          ...configuredDependencies
+        ];
+        for (const dependency of dependencies) {
+          metrics.recordDependency({
+            name: dependency.name,
+            status: dependency.status,
+            checkedAt: dependency.checkedAt
+          });
+        }
         return handleApiHealthRequest(request, {
           serviceName,
           version,
           releaseSha,
           environment,
           clock,
-          dependencies: [
-            ...(databaseReady === undefined
-              ? []
-              : [{ name: "database", status: databaseReady ? "ok" as const : "degraded" as const, checkedAt: clock(), safeMessage: databaseReady ? "Database is ready." : "Database is unavailable." }]),
-            ...configuredDependencies
-          ]
+          dependencies
         });
       }
     },
@@ -175,7 +192,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "POST",
       path: "/scans",
-      handler: (request) => handleCreateScanRequest(asHandlerRequest(request), scanPersistence)
+      handler: (request) => handleCreateScanRequest(asHandlerRequest(request), scanPersistence, metrics.recordFailure)
     },
     {
       method: "GET",
@@ -215,7 +232,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     {
       method: "POST",
       path: "/scans/reddit",
-      handler: (request) => handleCreateRedditScanRequest(asHandlerRequest(request), scanPersistence)
+      handler: (request) => handleCreateRedditScanRequest(asHandlerRequest(request), scanPersistence, metrics.recordFailure)
     },
     {
       method: "GET",
@@ -282,6 +299,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
     }
 
     const adminRoute = isAdministrativeAuthRoute(input.method, requestUrl.pathname);
+    const operationsRoute = input.method === "GET" && requestUrl.pathname === "/operations";
     if (options.requireAuthentication && isStateChanging(input.method)) {
       const origin = input.headers?.origin;
       const originApproved = isApprovedOrigin(origin, options.allowedOrigins ?? parseAllowedOrigins(options.allowedOrigin));
@@ -292,20 +310,29 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
 
     let ownership: ApiOwnershipScope = createOwnerScope(LOCAL_DEVELOPMENT_PRINCIPAL_ID);
     const adminOverrideRequested = input.headers?.["x-opportunity-os-admin-override"] === "true";
-    if (adminOverrideRequested) {
+    if (operationsRoute) {
+      if (!options.adminAccessToken || !safeTokenEquals(input.headers?.["x-opportunity-os-admin-token"], options.adminAccessToken)) {
+        metrics.recordFailure(API_OPERATION_FAILURE_KINDS.authentication);
+        return createFailureResponseFromInput(input, requestUrl.pathname, "Administrative access is not authorized.", 401);
+      }
+      ownership = { mode: "administrator", principalId: "system-administrator", reason: "operations-read" };
+    } else if (adminOverrideRequested) {
       if (input.method !== "GET" || !options.adminAccessToken || !safeTokenEquals(input.headers?.["x-opportunity-os-admin-token"], options.adminAccessToken)) {
+        metrics.recordFailure(API_OPERATION_FAILURE_KINDS.authentication);
         return createFailureResponseFromInput(input, requestUrl.pathname, "Administrative ownership override is not authorized.", 401);
       }
       ownership = { mode: "administrator", principalId: "system-administrator", reason: "support-read" };
       writeOwnershipOverrideLog(requestUrl.pathname, input.headers?.["x-correlation-id"] ?? randomUUID());
     } else if (options.requireAuthentication && adminRoute) {
       if (!options.adminAccessToken || !safeTokenEquals(input.headers?.["x-opportunity-os-admin-token"], options.adminAccessToken)) {
+        metrics.recordFailure(API_OPERATION_FAILURE_KINDS.authentication);
         return createFailureResponseFromInput(input, requestUrl.pathname, "Administrative access is not authorized.", 401);
       }
     } else if (options.requireAuthentication && requiresSession(input.method, requestUrl.pathname)) {
       const sessionToken = input.headers?.["x-opportunity-os-session-id"];
       const session = sessionToken && isWellFormedSessionToken(sessionToken) ? await inviteStore.getSession(sessionToken) : undefined;
       if (!session) {
+        metrics.recordFailure(API_OPERATION_FAILURE_KINDS.authentication);
         return createFailureResponseFromInput(input, requestUrl.pathname, "An active beta session is required.", 401);
       }
       ownership = createOwnerScope(session.principal.principalId);
@@ -323,6 +350,7 @@ export function createLocalApiDispatcher(options: LocalApiServerOptions = {}) {
         input.headers?.["x-opportunity-os-access-token"],
         options.liveScanAccessToken
       )) {
+        metrics.recordFailure(API_OPERATION_FAILURE_KINDS.authentication);
         return createFailureResponseFromInput(input, requestUrl.pathname, "Live scan access is not authorized.", 401);
       }
     }

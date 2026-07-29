@@ -21,7 +21,8 @@
     "benchmark:quality:clustered": "pnpm --filter @opportunity-os/opportunity-pipeline build && pnpm --filter @opportunity-os/opportunity-generation build && pnpm --filter @opportunity-os/opportunity-ranking build && node scripts/opportunity-quality-benchmark.mjs evaluate-clustered",
     "benchmark:quality:validate": "node scripts/opportunity-quality-benchmark.mjs validate",
     "smoke:external": "node scripts/verify-external-mvp.mjs",
-    "verify:hosted-release": "node scripts/verify-hosted-release.mjs"
+    "verify:hosted-release": "node scripts/verify-hosted-release.mjs",
+    "verify:restore": "pnpm --filter @opportunity-os/database verify:restore"
   },
   "devDependencies": {
     "turbo": "^2.5.4",

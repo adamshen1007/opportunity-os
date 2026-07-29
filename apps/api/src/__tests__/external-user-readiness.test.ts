@@ -67,6 +67,13 @@ describe("M53-M57 external-user readiness", () => {
     const snapshot = metrics.snapshot();
     expect(snapshot.requests).toMatchObject({ total: 2, successful: 1, serverErrors: 1, maximumDurationMs: 11_000 });
     expect(snapshot.scans).toMatchObject({ queued: 1, failed: 1 });
+    expect(snapshot.failures).toEqual({
+      authentication: 0,
+      database: 0,
+      "live-datasource": 0,
+      llm: 0,
+      scan: 0
+    });
     expect(snapshot.readiness.status).toBe("attention-required");
     expect(JSON.stringify(snapshot)).not.toMatch(/body|header|token|credential/iu);
   });

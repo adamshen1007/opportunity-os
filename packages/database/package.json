@@ -27,7 +27,8 @@
     "verify:local": "prisma --config=./prisma.config.ts migrate status",
     "verify:migrations:staging": "node scripts/verify-production-migrations.mjs staging",
     "verify:migrations:clean": "node scripts/verify-production-migrations.mjs clean",
-    "verify:migrations:backup": "node scripts/verify-production-migrations.mjs backup"
+    "verify:migrations:backup": "node scripts/verify-production-migrations.mjs backup",
+    "verify:restore": "node scripts/verify-restored-database.mjs"
   },
   "engines": {
     "node": ">=24 <25",

@@ -407,6 +407,9 @@ Database migration verification is owned by `packages/database/scripts/verify-pr
 - `verify:migrations:staging` checks protected staging status without applying migrations.
 - `verify:migrations:clean` requires an explicitly confirmed empty disposable target, applies migrations twice, and proves the current baseline is idempotent.
 - `verify:migrations:backup` requires an explicitly confirmed isolated restored backup and rejects missing tables or reduced record counts after upgrade.
+- `pnpm verify:restore` requires `RESTORE_DATABASE_URL` and `RESTORE_DATABASE_CONFIRMED_ISOLATED=true`. It rejects the active database, checks the final Phase 4.5 migration baseline and relational integrity, and runs a read-only application smoke transaction without printing database addresses, record contents, or credentials.
+
+Phase 4.5 monitoring and restore operator steps are documented in `docs/04_IMPLEMENTATION/04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md`.
 
 The current Phase 4.5 migration baseline is `20260728123000_fix_raw_source_scan_uniqueness`. It follows the ownership backfill by removing the obsolete global raw-source uniqueness index so independently owned scans can ingest the same provider record. These commands suppress Prisma output and never print database connection details.
 

@@ -1075,6 +1075,12 @@ Workstream A - Production Safety Before Design Partners:
 6. `TASK-P45-A06` Monitoring And Alerting, beginning after A01 and proceeding alongside A02-A05
 7. `TASK-P45-A07` Backup And Restore Verification after the final Phase 4.5 schema is available
 
+Repository implementation status (2026-07-29):
+
+- A06 safe aggregate monitoring and administrator-only operations access are implemented; hosted alert delivery remains a manual operator gate
+- A07 isolated restore verification is implemented as `pnpm verify:restore`; hosted retention and restore execution remain manual operator gates
+- neither task is externally complete until the evidence in `docs/04_IMPLEMENTATION/04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md` is recorded
+
 Workstream B - Opportunity Intelligence Quality:
 
 1. `TASK-P45-B01` Opportunity Quality Benchmark, completed and frozen as version `1.0.0`

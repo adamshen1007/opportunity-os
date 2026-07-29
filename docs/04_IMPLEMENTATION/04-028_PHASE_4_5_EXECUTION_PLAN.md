@@ -310,10 +310,10 @@ Estimated size: M, 3-4 engineering days.
 
 Implementation record (2026-07-29):
 
-- deterministic implementation complete with Gemini `gemini-2.5-flash` selected for the pilot
-- `opportunity-analysis-schema-v2` and `citation-validator-v1` fail closed on malformed output, unresolved citations, unsupported factual claims, timeout, refusal, and quota failure
-- fixture mode remains the CI default and live failure cannot silently become fixture success
-- live staging verification remains a protected manual provider gate
+- repository implementation complete
+- `/operations` requires explicit administrator authorization and exposes only safe aggregate request, scan, dependency, and failure observations
+- `/health` dependency observations, controlled failures, correlation identifiers, and secret redaction are covered by deterministic tests
+- external alert delivery remains `MANUAL ACTION REQUIRED` and must follow `04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md`
 
 ### TASK-P45-A07 - Backup And Restore Verification
 
@@ -350,6 +350,13 @@ Required tests:
 - application smoke test against the restored database
 
 Estimated size: M, 2-3 engineering days.
+
+Implementation record (2026-07-29):
+
+- repository restore verifier complete as `pnpm verify:restore`
+- the verifier requires an explicitly confirmed isolated database, rejects the active database, checks migration baseline and relational integrity, and runs a read-only application smoke transaction
+- hosted backup retention and the isolated restore rehearsal remain `MANUAL ACTION REQUIRED`
+- no migration was added or reordered by this task
 
 ## Workstream B - Opportunity Intelligence Quality
 

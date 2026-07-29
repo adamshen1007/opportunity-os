@@ -9,6 +9,7 @@ import {
 import { createNoopScanPersistenceStore, type ApiScanPersistenceStore } from "../../persistence/index.js";
 import { API_HTTP_METHODS, createApiRouteDefinition } from "../../routing/index.js";
 import { requireOwnershipScope } from "../../ownership/index.js";
+import { classifyApiScanFailure, type ApiOperationFailureKind } from "../../operations/index.js";
 
 export const API_CREATE_REDDIT_SCAN_ROUTE = createApiRouteDefinition({
   method: API_HTTP_METHODS.post,
@@ -21,7 +22,8 @@ export const API_CREATE_REDDIT_SCAN_ROUTE = createApiRouteDefinition({
 
 export async function handleCreateRedditScanRequest(
   request: ApiRequest<ApiRedditScanRequestBody>,
-  persistence: ApiScanPersistenceStore = createNoopScanPersistenceStore()
+  persistence: ApiScanPersistenceStore = createNoopScanPersistenceStore(),
+  onFailure?: (kind: ApiOperationFailureKind) => void
 ): Promise<ApiResponse<ApiScanResultDto, ReturnType<typeof createApiError>>> {
   const meta = {
     correlationId: request.context.correlationId,
@@ -61,7 +63,8 @@ export async function handleCreateRedditScanRequest(
     });
 
     return createApiSuccessResponse(result, meta);
-  } catch {
+  } catch (error) {
+    onFailure?.(classifyApiScanFailure(error));
     return createApiFailureResponse(
       createApiError({
         code: API_ERROR_CODES.internal,

@@ -37,6 +37,8 @@ services:
         sync: false
       - key: API_LIVE_SCAN_ACCESS_TOKEN
         sync: false
+      - key: OPERATIONS_ALERT_OPERATOR
+        value: primary-beta-operator
       - key: OPPORTUNITY_OS_WEB_URL
         sync: false
       - key: OPPORTUNITY_OS_API_URL

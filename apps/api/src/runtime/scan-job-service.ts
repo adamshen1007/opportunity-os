@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { runOpportunityScanPipeline, type ApiScanRequest, type ApiScanResultDto } from "../pipeline/index.js";
 import { API_SCAN_JOB_STATUSES, type ApiScanJobRecord, type ApiScanPersistenceStore } from "../persistence/index.js";
 import { createOwnerScope, type ApiOwnershipScope } from "../ownership/index.js";
+import { classifyApiScanFailure, type ApiOperationFailureKind } from "../operations/index.js";
 
 export interface ApiScanJobDto extends Omit<ApiScanJobRecord, "ownerPrincipalId"> {
   readonly result?: ApiScanResultDto;
@@ -21,6 +22,7 @@ export interface ApiScanJobServiceOptions {
   readonly idFactory?: () => string;
   readonly schedule?: (work: () => void) => void;
   readonly onTransition?: (status: ApiScanJobRecord["status"]) => void;
+  readonly onFailure?: (kind: ApiOperationFailureKind) => void;
 }
 
 export function toSafeScanJobFailureMessage(error: unknown): string {
@@ -92,6 +94,7 @@ export function createApiScanJobService(options: ApiScanJobServiceOptions): ApiS
       options.onTransition?.(API_SCAN_JOB_STATUSES.completed);
     } catch (error) {
       const failureMessage = toSafeScanJobFailureMessage(error);
+      options.onFailure?.(classifyApiScanFailure(error));
       await options.persistence.updateScanJob({
         ...running,
         status: API_SCAN_JOB_STATUSES.failed,
