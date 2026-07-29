@@ -16,6 +16,7 @@ This checklist supports beta launch operations only. It does not add new product
 
 ## Before Inviting Design Partners
 
+- [ ] The Phase 4.5 pilot gate returns `GO` with no unresolved P0 checks.
 - [ ] Production readiness checklist is complete.
 - [ ] Release checklist is complete.
 - [ ] Operator handbook is current.
@@ -60,3 +61,4 @@ This checklist supports beta launch operations only. It does not add new product
 
 Launch is complete when design partners can access the beta, complete onboarding, inspect ranked opportunities, submit feedback, report bugs, and leave the session with safe follow-up expectations.
 
+Do not invite design partners while `pnpm verify:pilot-gate` reports `NO-GO`, even when deterministic tests pass.

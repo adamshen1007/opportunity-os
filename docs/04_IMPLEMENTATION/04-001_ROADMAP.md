@@ -3217,6 +3217,8 @@ Readiness requires:
 
 Monitoring and recovery implementation is defined in `docs/04_IMPLEMENTATION/04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md`. Repository controls are complete, but design-partner invitations remain blocked until alert delivery, hosted backup retention, and an isolated restore rehearsal have operator evidence.
 
+The final convergence decision is recorded in `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md` and validated by `pnpm verify:pilot-gate`. As of 2026-07-29 the decision is `NO-GO`: the canonical services expose different commits, final hosted migration and rollback evidence are incomplete, the two-user hosted journey is incomplete, and automated backups do not meet the required 24-hour RPO.
+
 No Phase 4.5 task may bypass the existing ownership boundaries of `packages/database`, `packages/analysis`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, `packages/opportunity-ranking`, `packages/llm-analysis`, `apps/api`, or `apps/web`.
 
 

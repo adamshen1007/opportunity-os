@@ -411,7 +411,9 @@ Database migration verification is owned by `packages/database/scripts/verify-pr
 
 Phase 4.5 monitoring and restore operator steps are documented in `docs/04_IMPLEMENTATION/04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md`.
 
-The current Phase 4.5 migration baseline is `20260728123000_fix_raw_source_scan_uniqueness`. It follows the ownership backfill by removing the obsolete global raw-source uniqueness index so independently owned scans can ingest the same provider record. These commands suppress Prisma output and never print database connection details.
+The current Phase 4.5 migration baseline is `20260729110000_add_evidence_clusters`. It follows the ownership and raw-source uniqueness migrations and adds owner-scoped evidence clusters and memberships. These commands suppress Prisma output and never print database connection details.
+
+`pnpm verify:pilot-gate` validates the versioned `TASK-P45-G01` evidence manifest. It fails closed when any P0 check is failed, conditional, or still requires manual evidence. The report prints only safe evidence identifiers and summaries; credentials, database URLs, tokens, prompts, and provider payloads are prohibited from the manifest.
 
 The verifier compares variable names only. It does not print or inspect secret values.
 

@@ -35,3 +35,5 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-030_OPPORTUNITY_QUALITY_VALIDATION.md` defines the approved and frozen Phase 4.5 quality benchmark, clustering, synthesis, and ranking results.
 - `04-031_PHASE_4_5_LIVE_DATASOURCE_VERIFICATION.md` records the source-neutral live datasource gate, Stack Exchange fallback verification, and conditional Reddit readiness requirements.
 - `04-032_PHASE_4_5_TRANSACTIONAL_DELETION.md` defines owner-scoped transactional scan deletion, relational coverage, shared-evidence rules, and backup-retention limitations.
+- `04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md` defines safe operations monitoring, alert evidence, backup policy, and the isolated restore rehearsal.
+- `04-034_PHASE_4_5_PILOT_GATE.md` records the fail-closed final design-partner pilot decision and safe evidence identifiers.

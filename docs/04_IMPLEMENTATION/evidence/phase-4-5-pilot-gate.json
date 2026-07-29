@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "TASK-P45-G01",
+  "recordedAt": "2026-07-29",
+  "checks": [
+    {
+      "id": "production.hosted-release",
+      "area": "production",
+      "priority": "P0",
+      "status": "fail",
+      "evidenceId": "hosted-release-sha-mismatch-20260729",
+      "safeSummary": "The canonical API and web origins are healthy but expose different release commits."
+    },
+    {
+      "id": "production.migrations",
+      "area": "production",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "production-migration-status-required-20260729",
+      "safeSummary": "The final hosted migration status must be rerun with the protected production database environment."
+    },
+    {
+      "id": "production.rollback",
+      "area": "production",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "hosted-rollback-rehearsal-required-20260729",
+      "safeSummary": "A same-release Render and Vercel rollback rehearsal has not been recorded."
+    },
+    {
+      "id": "identity.auth-and-isolation",
+      "area": "identity-and-privacy",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "auth-ownership-deterministic-suite-20260729",
+      "safeSummary": "Invite, session, revocation, ownership, identifier-guessing, and two-user isolation controls pass deterministically."
+    },
+    {
+      "id": "identity.hosted-two-user-journey",
+      "area": "identity-and-privacy",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "hosted-two-user-journey-required-20260729",
+      "safeSummary": "Two complete isolated hosted user journeys have not been recorded against one release."
+    },
+    {
+      "id": "privacy.transactional-deletion",
+      "area": "identity-and-privacy",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "transactional-deletion-suite-20260729",
+      "safeSummary": "Owner-scoped graph deletion, rollback, idempotency, stale identifiers, and orphan checks pass deterministically."
+    },
+    {
+      "id": "intelligence.quality-benchmark",
+      "area": "opportunity-intelligence",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "quality-benchmark-v1-approved-20260729",
+      "safeSummary": "The approved frozen benchmark passes clustering, duplication, citation, repeatability, and ranking thresholds."
+    },
+    {
+      "id": "providers.live-datasource",
+      "area": "external-providers",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "stack-exchange-live-fallback-20260729",
+      "safeSummary": "The official Stack Exchange read-only API path passed the opt-in source-neutral live pipeline smoke test; Reddit remains unverified."
+    },
+    {
+      "id": "providers.live-llm",
+      "area": "external-providers",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "gemini-live-schema-validated-scan-20260729",
+      "safeSummary": "An operator-observed hosted live scan completed the schema and citation validated Gemini stage without fixture substitution."
+    },
+    {
+      "id": "providers.fail-closed-mode",
+      "area": "external-providers",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "provider-mode-security-suite-20260729",
+      "safeSummary": "Fixture mode is explicit and failed live execution does not become a successful fixture-labeled-as-live scan."
+    },
+    {
+      "id": "operations.monitoring-alerts",
+      "area": "monitoring-and-recovery",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "render-alert-delivery-20260728",
+      "safeSummary": "The named operator received an official Render deployment failure notification."
+    },
+    {
+      "id": "operations.restore-rehearsal",
+      "area": "monitoring-and-recovery",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "isolated-postgresql-restore-20260729",
+      "safeSummary": "A private logical backup restored into isolated PostgreSQL and passed migration, integrity, and API health checks."
+    },
+    {
+      "id": "operations.automated-backup-rpo",
+      "area": "monitoring-and-recovery",
+      "priority": "P0",
+      "status": "fail",
+      "evidenceId": "automated-backup-rpo-gap-20260729",
+      "safeSummary": "The hosted database plan does not currently provide an evidenced automated backup process meeting the 24-hour RPO."
+    }
+  ]
+}

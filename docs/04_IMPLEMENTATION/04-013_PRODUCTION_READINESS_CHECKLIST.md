@@ -87,3 +87,19 @@ This checklist confirms readiness; it does not add deployment providers, backend
 ## Readiness Decision
 
 Production readiness is approved only when each required item is complete or explicitly waived by the release owner with a documented safe reason.
+
+## Phase 4.5 Pilot Convergence
+
+- [ ] Canonical web and API expose the same full commit SHA.
+- [ ] Final hosted migration status reaches `20260729110000_add_evidence_clusters`.
+- [ ] The previous known-good web and API release is restored and reverified.
+- [x] Invite/session hardening and deterministic two-user isolation pass.
+- [ ] Two isolated users complete the full hosted journey against one release.
+- [x] Transactional owner-scoped deletion passes.
+- [x] The approved opportunity-quality benchmark passes all thresholds.
+- [x] One controlled live datasource and one controlled live LLM path have safe evidence.
+- [x] Alert delivery and isolated restore evidence are recorded.
+- [ ] Automated backups meet and evidence the 24-hour RPO.
+- [ ] `pnpm verify:pilot-gate` returns `GO`.
+
+No waiver may convert an unresolved P0 check into a pass. The authoritative decision is recorded in `04-034_PHASE_4_5_PILOT_GATE.md`.

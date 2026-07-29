@@ -13,10 +13,10 @@ This runbook closes `TASK-P45-A01` and `TASK-P45-A02`. It verifies one hosted we
 
 ## Recorded Baseline
 
-- Current migration baseline: `20260728123000_fix_raw_source_scan_uniqueness`
-- Migration directories at baseline: six
+- Current Phase 4.5 migration baseline: `20260729110000_add_evidence_clusters`
+- Migration directories at baseline: ten
 - New migrations in Slice A1: none
-- Later ownership and evidence-cluster migrations must be additive and must build after this baseline.
+- Slice A1 originally verified six migrations through `20260712000000_persist_scan_result`; authentication, ownership, raw-source uniqueness, and evidence-cluster migrations were added later without modifying the verified history.
 - Render release promotion runs `migrate deploy` followed by `migrate status`; either failure stops promotion.
 - GitHub readiness runs the full migration chain twice against a confirmed-empty PostgreSQL 16 service.
 
@@ -32,7 +32,7 @@ This runbook closes `TASK-P45-A01` and `TASK-P45-A02`. It verifies one hosted we
 | Hosted fixture browser journey | Passed against the current hosted release on 2026-07-28; repeat after deploying this slice so release identity is also verified |
 | Rollback rehearsal | **MANUAL ACTION REQUIRED** - requires Render and Vercel rollback permission |
 | Staging migration status | **MANUAL ACTION REQUIRED** - requires the protected staging `DATABASE_URL` |
-| Confirmed-empty migration rehearsal | Passed on 2026-07-28 against an isolated disposable PostgreSQL 16 database; all six migrations reached the recorded baseline and repeat deployment was idempotent |
+| Confirmed-empty migration rehearsal | Passed on 2026-07-28 for the six-migration Slice A1 baseline; the final ten-migration Phase 4.5 chain must be rerun before pilot admission |
 | Backup upgrade rehearsal | **MANUAL ACTION REQUIRED** - requires an isolated restored staging backup |
 
 Do not mark either task externally complete until every applicable item above has dated evidence and an operator name. Public URLs and commit SHAs may be recorded. Secrets, connection strings, invite codes, and tokens must not be recorded.
