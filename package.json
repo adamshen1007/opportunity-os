@@ -17,6 +17,8 @@
     "lint": "node scripts/verify-repository.mjs --phase review && turbo run lint",
     "build": "node scripts/verify-repository.mjs --phase review && turbo run build",
     "test": "node scripts/verify-repository.mjs --phase review && node --test scripts/verify-hosted-release.test.mjs && turbo run test --concurrency=1 -- --testTimeout=90000",
+    "benchmark:quality": "node scripts/opportunity-quality-benchmark.mjs evaluate",
+    "benchmark:quality:validate": "node scripts/opportunity-quality-benchmark.mjs validate",
     "smoke:external": "node scripts/verify-external-mvp.mjs",
     "verify:hosted-release": "node scripts/verify-hosted-release.mjs"
   },

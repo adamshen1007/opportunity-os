@@ -372,6 +372,13 @@ Required tests:
 - deterministic benchmark execution
 - repeat baseline comparison
 
+Implementation status:
+
+- benchmark `1.0.0` is implemented under `research/fixtures/opportunity-quality/v1`
+- Adam approved all cluster memberships, cluster labels, and pairwise comparisons exactly as drafted on 2026-07-29
+- the approval is recorded in `v1/approval.json`, all judgments are `APPROVED`, and the benchmark is frozen
+- the `TASK-P45-B02` benchmark dependency is satisfied; clustering remains a separate future slice
+
 Estimated size: M, 3-4 engineering days.
 
 ### TASK-P45-B02 - Evidence Clustering

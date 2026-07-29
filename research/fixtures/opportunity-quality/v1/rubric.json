@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "opportunity-quality-rubric-v1",
+  "benchmarkVersion": "1.0.0",
+  "status": "APPROVED",
+  "metrics": {
+    "duplicateOpportunityRate": "One minus unique expected pain-point clusters divided by generated opportunities. Lower is better.",
+    "citationCoverage": "Generated opportunities with at least one traceable citation divided by all generated opportunities. Higher is better.",
+    "clusteringPrecision": "Correct predicted same-cluster source pairs divided by all predicted same-cluster source pairs. A system predicting no pairs scores zero.",
+    "clusteringRecall": "Correct predicted same-cluster source pairs divided by all expected same-cluster source pairs.",
+    "rankingAgreement": "Pairwise comparisons where current ordering matches the approved preference divided by all comparisons.",
+    "repeatability": "Identical deterministic result fingerprints divided by repeated executions."
+  },
+  "draftTargetsForLaterSlices": {
+    "duplicateOpportunityRateMaximum": 0.1,
+    "citationCoverageMinimum": 1,
+    "clusteringPrecisionMinimum": 0.85,
+    "clusteringRecallMinimum": 0.75,
+    "rankingAgreementMinimum": 0.75,
+    "repeatabilityMinimum": 1
+  },
+  "humanReviewPolicy": {
+    "clusterLabelsRequireApproval": true,
+    "clusterMembershipsRequireApproval": true,
+    "rankingComparisonsRequireApproval": true,
+    "unapprovedStatus": "REVIEW_REQUIRED",
+    "approvedStatus": "APPROVED"
+  }
+}

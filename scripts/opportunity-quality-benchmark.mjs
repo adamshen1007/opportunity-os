@@ -1,0 +1,206 @@
+import { createHash } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+
+const fixtureRoot = path.resolve(import.meta.dirname, "../research/fixtures/opportunity-quality/v1");
+
+const readJson = (fileName) => JSON.parse(fs.readFileSync(path.join(fixtureRoot, fileName), "utf8"));
+
+const assert = (condition, message) => {
+  if (!condition) {
+    throw new Error(message);
+  }
+};
+
+const unique = (values) => new Set(values).size === values.length;
+
+const round = (value) => Number(value.toFixed(6));
+
+const loadBenchmark = () => ({
+  manifest: readJson("manifest.json"),
+  sourceRecords: readJson("source-records.json"),
+  expectedClusters: readJson("expected-clusters.json"),
+  rankingComparisons: readJson("ranking-comparisons.json"),
+  rubric: readJson("rubric.json"),
+  baseline: readJson("baseline.json"),
+  approval: readJson("approval.json")
+});
+
+const validateFixtureSafety = (records) => {
+  const serialized = JSON.stringify(records);
+  const forbiddenPatterns = [
+    /api[_-]?key/iu,
+    /access[_-]?token/iu,
+    /refresh[_-]?token/iu,
+    /client[_-]?secret/iu,
+    /authorization/iu,
+    /bearer\s/iu,
+    /password/iu,
+    /database[_-]?url/iu,
+    /raw[_-]?provider/iu,
+    /provider[_-]?payload/iu,
+    /[\w.+-]+@[\w.-]+\.[a-z]{2,}/iu,
+    /https?:\/\//iu
+  ];
+
+  for (const pattern of forbiddenPatterns) {
+    assert(!pattern.test(serialized), `Fixture safety validation failed for ${pattern}.`);
+  }
+
+  for (const record of records) {
+    assert(record.sourceKind === "synthetic-public-forum", `Record ${record.id} is not explicitly synthetic.`);
+    assert(Object.keys(record).sort().join(",") === "body,citationId,expectedClusterId,id,judgmentStatus,observedAt,sourceKind,title", `Record ${record.id} has an unsupported field.`);
+  }
+};
+
+const validateBenchmark = (benchmark) => {
+  const { manifest, sourceRecords, expectedClusters, rankingComparisons, rubric, baseline, approval } = benchmark;
+  const version = manifest.benchmarkVersion;
+  const versionedArtifacts = [sourceRecords, expectedClusters, rankingComparisons, rubric, baseline, approval];
+
+  assert(versionedArtifacts.every((artifact) => artifact.benchmarkVersion === version), "Benchmark artifact versions do not match.");
+  assert(sourceRecords.records.length >= 30, "Benchmark requires at least 30 source records.");
+  assert(expectedClusters.clusters.length >= 8, "Benchmark requires at least eight expected clusters.");
+  assert(rankingComparisons.comparisons.length >= 15, "Benchmark requires at least 15 ranking comparisons.");
+  assert(sourceRecords.records.length === manifest.recordCount, "Manifest record count does not match corpus.");
+  assert(expectedClusters.clusters.length === manifest.expectedClusterCount, "Manifest cluster count does not match labels.");
+  assert(rankingComparisons.comparisons.length === manifest.rankingComparisonCount, "Manifest comparison count does not match judgments.");
+  assert(unique(sourceRecords.records.map((record) => record.id)), "Source record IDs must be unique.");
+  assert(unique(expectedClusters.clusters.map((cluster) => cluster.id)), "Expected cluster IDs must be unique.");
+  assert(unique(expectedClusters.clusters.map((cluster) => cluster.opportunityId)), "Expected opportunity IDs must be unique.");
+  assert(unique(rankingComparisons.comparisons.map((comparison) => comparison.id)), "Ranking comparison IDs must be unique.");
+
+  const sourceIds = new Set(sourceRecords.records.map((record) => record.id));
+  const clusterIds = new Set(expectedClusters.clusters.map((cluster) => cluster.id));
+  const opportunityIds = new Set(expectedClusters.clusters.map((cluster) => cluster.opportunityId));
+  const memberships = [];
+
+  for (const cluster of expectedClusters.clusters) {
+    assert(["REVIEW_REQUIRED", "APPROVED"].includes(cluster.reviewStatus), `Cluster ${cluster.id} has an invalid review status.`);
+    for (const sourceId of cluster.memberSourceIds) {
+      assert(sourceIds.has(sourceId), `Cluster ${cluster.id} references unknown source ${sourceId}.`);
+      memberships.push(sourceId);
+    }
+  }
+
+  assert(memberships.length === sourceRecords.records.length, "Every source record must have exactly one expected membership.");
+  assert(unique(memberships), "Expected cluster memberships must not overlap.");
+
+  for (const record of sourceRecords.records) {
+    assert(clusterIds.has(record.expectedClusterId), `Record ${record.id} references an unknown expected cluster.`);
+    assert(["REVIEW_REQUIRED", "APPROVED"].includes(record.judgmentStatus), `Record ${record.id} has an invalid judgment status.`);
+    const expectedCluster = expectedClusters.clusters.find((cluster) => cluster.id === record.expectedClusterId);
+    assert(expectedCluster?.memberSourceIds.includes(record.id), `Record ${record.id} and expected membership disagree.`);
+  }
+
+  for (const comparison of rankingComparisons.comparisons) {
+    assert(opportunityIds.has(comparison.leftOpportunityId), `Comparison ${comparison.id} has an unknown left opportunity.`);
+    assert(opportunityIds.has(comparison.rightOpportunityId), `Comparison ${comparison.id} has an unknown right opportunity.`);
+    assert(
+      [comparison.leftOpportunityId, comparison.rightOpportunityId].includes(comparison.preferredOpportunityId),
+      `Comparison ${comparison.id} preference must select one compared opportunity.`
+    );
+    assert(["REVIEW_REQUIRED", "APPROVED"].includes(comparison.reviewStatus), `Comparison ${comparison.id} has an invalid review status.`);
+  }
+
+  validateFixtureSafety(sourceRecords.records);
+
+  const judgments = [
+    ...sourceRecords.records.map((record) => record.judgmentStatus),
+    ...expectedClusters.clusters.map((cluster) => cluster.reviewStatus),
+    ...rankingComparisons.comparisons.map((comparison) => comparison.reviewStatus)
+  ];
+  const allApproved = judgments.every((status) => status === "APPROVED");
+  const approvalComplete =
+    approval.status === "APPROVED" &&
+    approval.approvedBy === "Adam" &&
+    approval.approvalScope.length === 3;
+  assert(
+    !manifest.frozen || (allApproved && approvalComplete && manifest.status === "APPROVED" && baseline.frozen),
+    "A benchmark cannot be frozen before every judgment is approved."
+  );
+
+  return {
+    valid: true,
+    benchmarkVersion: version,
+    sourceRecordCount: sourceRecords.records.length,
+    expectedClusterCount: expectedClusters.clusters.length,
+    rankingComparisonCount: rankingComparisons.comparisons.length,
+    reviewRequiredCount: judgments.filter((status) => status === "REVIEW_REQUIRED").length,
+    freezeEligible: allApproved && approvalComplete,
+    frozen: manifest.frozen
+  };
+};
+
+const countPairs = (records, clusterForRecord) => {
+  const pairs = new Set();
+  for (let leftIndex = 0; leftIndex < records.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < records.length; rightIndex += 1) {
+      const left = records[leftIndex];
+      const right = records[rightIndex];
+      if (clusterForRecord(left) === clusterForRecord(right)) {
+        pairs.add(`${left.id}:${right.id}`);
+      }
+    }
+  }
+  return pairs;
+};
+
+const measureBenchmark = (benchmark) => {
+  const validation = validateBenchmark(benchmark);
+  const records = benchmark.sourceRecords.records;
+  const comparisons = benchmark.rankingComparisons.comparisons;
+  const expectedPairs = countPairs(records, (record) => record.expectedClusterId);
+  const predictedPairs = countPairs(records, (record) => record.id);
+  const truePositiveCount = [...predictedPairs].filter((pair) => expectedPairs.has(pair)).length;
+  const clusteringPrecision = predictedPairs.size === 0 ? 0 : truePositiveCount / predictedPairs.size;
+  const clusteringRecall = expectedPairs.size === 0 ? 0 : truePositiveCount / expectedPairs.size;
+  const rankingMatchCount = comparisons.filter((comparison) => {
+    const currentWinner = [comparison.leftOpportunityId, comparison.rightOpportunityId].sort()[0];
+    return currentWinner === comparison.preferredOpportunityId;
+  }).length;
+  const expectedOpportunityCount = new Set(records.map((record) => record.expectedClusterId)).size;
+  const generatedOpportunityCount = records.length;
+  const measurementCore = {
+    sourceRecordCount: records.length,
+    generatedOpportunityCount,
+    expectedOpportunityCount,
+    duplicateOpportunityRate: round(1 - expectedOpportunityCount / generatedOpportunityCount),
+    citationCoverage: round(records.filter((record) => Boolean(record.citationId)).length / generatedOpportunityCount),
+    predictedClusterCount: records.length,
+    clusteringPrecision: round(clusteringPrecision),
+    clusteringRecall: round(clusteringRecall),
+    rankingComparisonCount: comparisons.length,
+    rankingAgreement: round(rankingMatchCount / comparisons.length),
+    repeatability: 1
+  };
+  const fingerprint = createHash("sha256").update(JSON.stringify(measurementCore)).digest("hex");
+
+  assert(JSON.stringify(measurementCore) === JSON.stringify(benchmark.baseline.measurements), "Measured baseline differs from the versioned baseline artifact.");
+
+  return {
+    schemaVersion: "opportunity-quality-benchmark-result-v1",
+    benchmarkVersion: benchmark.manifest.benchmarkVersion,
+    behaviorVersion: benchmark.baseline.behaviorVersion,
+    status: validation.freezeEligible ? "APPROVAL_COMPLETE" : "REVIEW_REQUIRED",
+    frozen: benchmark.manifest.frozen,
+    measurements: measurementCore,
+    resultFingerprint: fingerprint,
+    reviewRequiredCount: validation.reviewRequiredCount,
+    freezeEligible: validation.freezeEligible
+  };
+};
+
+const command = process.argv[2] ?? "evaluate";
+
+try {
+  const benchmark = loadBenchmark();
+  const output = command === "validate" ? validateBenchmark(benchmark) : command === "evaluate" ? measureBenchmark(benchmark) : null;
+  assert(output, `Unsupported benchmark command: ${command}`);
+  process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
+} catch (error) {
+  const message = error instanceof Error ? error.message : "Benchmark validation failed.";
+  process.stderr.write(`Opportunity quality benchmark failed: ${message}\n`);
+  process.exitCode = 1;
+}

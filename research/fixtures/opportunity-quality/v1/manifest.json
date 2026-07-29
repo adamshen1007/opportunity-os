@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "opportunity-quality-benchmark-manifest-v1",
+  "benchmarkVersion": "1.0.0",
+  "status": "APPROVED",
+  "frozen": true,
+  "createdAt": "2026-07-28T00:00:00.000Z",
+  "corpusFile": "source-records.json",
+  "expectedClustersFile": "expected-clusters.json",
+  "rankingComparisonsFile": "ranking-comparisons.json",
+  "rubricFile": "rubric.json",
+  "baselineFile": "baseline.json",
+  "approvalFile": "approval.json",
+  "recordCount": 32,
+  "expectedClusterCount": 8,
+  "rankingComparisonCount": 16,
+  "baselineBehavior": "one-source-record-one-opportunity-v1",
+  "fixtureSafety": {
+    "syntheticOnly": true,
+    "containsPersonalData": false,
+    "containsCredentials": false,
+    "containsPrivateConversations": false,
+    "containsRawProviderPayloads": false
+  }
+}

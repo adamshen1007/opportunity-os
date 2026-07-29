@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "opportunity-quality-expected-clusters-v1",
+  "benchmarkVersion": "1.0.0",
+  "clusters": [
+    { "id": "cluster-01", "opportunityId": "opportunity-01", "label": "Release diagnosis and verification overhead", "definition": "Repeated manual work required to diagnose releases, compare environments, verify recovery, and assemble sign-off evidence.", "memberSourceIds": ["src-001", "src-002", "src-003", "src-004"], "reviewStatus": "APPROVED" },
+    { "id": "cluster-02", "opportunityId": "opportunity-02", "label": "Research synthesis fragmentation", "definition": "Repeated manual consolidation, tagging, traceability, and reshaping of interview research.", "memberSourceIds": ["src-005", "src-006", "src-007", "src-008"], "reviewStatus": "APPROVED" },
+    { "id": "cluster-03", "opportunityId": "opportunity-03", "label": "Subscription reconciliation exceptions", "definition": "Manual investigation and reconciliation of invoice, plan-change, credit, and renewal exceptions.", "memberSourceIds": ["src-009", "src-010", "src-011", "src-012"], "reviewStatus": "APPROVED" },
+    { "id": "cluster-04", "opportunityId": "opportunity-04", "label": "Incident handoff context loss", "definition": "Missing timeline, ownership, impact, and diagnostic context when incident responsibility changes.", "memberSourceIds": ["src-013", "src-014", "src-015", "src-016"], "reviewStatus": "APPROVED" },
+    { "id": "cluster-05", "opportunityId": "opportunity-05", "label": "Vendor questionnaire repetition", "definition": "Repeated preparation, evidence retrieval, assignment, and freshness checking for vendor reviews.", "memberSourceIds": ["src-017", "src-018", "src-019", "src-020"], "reviewStatus": "APPROVED" },
+    { "id": "cluster-06", "opportunityId": "opportunity-06", "label": "Inventory exception triage", "definition": "Manual collection, prioritization, context gathering, and closure of inventory exceptions.", "memberSourceIds": ["src-021", "src-022", "src-023", "src-024"], "reviewStatus": "APPROVED" },
+    { "id": "cluster-07", "opportunityId": "opportunity-07", "label": "Compliance evidence collection", "definition": "Repeated and late collection, dating, deduplication, and tracking of audit evidence.", "memberSourceIds": ["src-025", "src-026", "src-027", "src-028"], "reviewStatus": "APPROVED" },
+    { "id": "cluster-08", "opportunityId": "opportunity-08", "label": "Support escalation context assembly", "definition": "Manual preparation and reuse of symptoms, prior actions, outcomes, and escalation-readiness context.", "memberSourceIds": ["src-029", "src-030", "src-031", "src-032"], "reviewStatus": "APPROVED" }
+  ]
+}

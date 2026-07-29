@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "opportunity-quality-baseline-v1",
+  "benchmarkVersion": "1.0.0",
+  "behaviorVersion": "one-source-record-one-opportunity-v1",
+  "reviewStatus": "APPROVED",
+  "frozen": true,
+  "measurements": {
+    "sourceRecordCount": 32,
+    "generatedOpportunityCount": 32,
+    "expectedOpportunityCount": 8,
+    "duplicateOpportunityRate": 0.75,
+    "citationCoverage": 1,
+    "predictedClusterCount": 32,
+    "clusteringPrecision": 0,
+    "clusteringRecall": 0,
+    "rankingComparisonCount": 16,
+    "rankingAgreement": 0.5,
+    "repeatability": 1
+  }
+}

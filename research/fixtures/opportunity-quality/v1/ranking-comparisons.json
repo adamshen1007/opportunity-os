@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "opportunity-quality-ranking-comparisons-v1",
+  "benchmarkVersion": "1.0.0",
+  "comparisons": [
+    { "id": "pair-01", "leftOpportunityId": "opportunity-01", "rightOpportunityId": "opportunity-02", "preferredOpportunityId": "opportunity-01", "rationale": "Draft judgment favors urgent release verification overhead.", "reviewStatus": "APPROVED" },
+    { "id": "pair-02", "leftOpportunityId": "opportunity-01", "rightOpportunityId": "opportunity-03", "preferredOpportunityId": "opportunity-03", "rationale": "Draft judgment favors repeated revenue reconciliation exceptions.", "reviewStatus": "APPROVED" },
+    { "id": "pair-03", "leftOpportunityId": "opportunity-01", "rightOpportunityId": "opportunity-04", "preferredOpportunityId": "opportunity-01", "rationale": "Draft judgment favors broad release-frequency impact.", "reviewStatus": "APPROVED" },
+    { "id": "pair-04", "leftOpportunityId": "opportunity-01", "rightOpportunityId": "opportunity-05", "preferredOpportunityId": "opportunity-05", "rationale": "Draft judgment favors highly repetitive questionnaire work.", "reviewStatus": "APPROVED" },
+    { "id": "pair-05", "leftOpportunityId": "opportunity-02", "rightOpportunityId": "opportunity-03", "preferredOpportunityId": "opportunity-02", "rationale": "Draft judgment favors cross-functional research synthesis frequency.", "reviewStatus": "APPROVED" },
+    { "id": "pair-06", "leftOpportunityId": "opportunity-02", "rightOpportunityId": "opportunity-04", "preferredOpportunityId": "opportunity-04", "rationale": "Draft judgment favors time-sensitive incident continuity.", "reviewStatus": "APPROVED" },
+    { "id": "pair-07", "leftOpportunityId": "opportunity-02", "rightOpportunityId": "opportunity-05", "preferredOpportunityId": "opportunity-02", "rationale": "Draft judgment favors broader recurring synthesis demand.", "reviewStatus": "APPROVED" },
+    { "id": "pair-08", "leftOpportunityId": "opportunity-02", "rightOpportunityId": "opportunity-06", "preferredOpportunityId": "opportunity-06", "rationale": "Draft judgment favors operational inventory urgency.", "reviewStatus": "APPROVED" },
+    { "id": "pair-09", "leftOpportunityId": "opportunity-03", "rightOpportunityId": "opportunity-04", "preferredOpportunityId": "opportunity-03", "rationale": "Draft judgment favors measurable reconciliation cost.", "reviewStatus": "APPROVED" },
+    { "id": "pair-10", "leftOpportunityId": "opportunity-03", "rightOpportunityId": "opportunity-05", "preferredOpportunityId": "opportunity-05", "rationale": "Draft judgment favors repeated questionnaire reuse potential.", "reviewStatus": "APPROVED" },
+    { "id": "pair-11", "leftOpportunityId": "opportunity-03", "rightOpportunityId": "opportunity-06", "preferredOpportunityId": "opportunity-03", "rationale": "Draft judgment favors direct financial workflow impact.", "reviewStatus": "APPROVED" },
+    { "id": "pair-12", "leftOpportunityId": "opportunity-03", "rightOpportunityId": "opportunity-07", "preferredOpportunityId": "opportunity-07", "rationale": "Draft judgment favors deadline-sensitive compliance work.", "reviewStatus": "APPROVED" },
+    { "id": "pair-13", "leftOpportunityId": "opportunity-04", "rightOpportunityId": "opportunity-05", "preferredOpportunityId": "opportunity-04", "rationale": "Draft judgment favors incident response urgency.", "reviewStatus": "APPROVED" },
+    { "id": "pair-14", "leftOpportunityId": "opportunity-04", "rightOpportunityId": "opportunity-06", "preferredOpportunityId": "opportunity-06", "rationale": "Draft judgment favors recurring inventory exception volume.", "reviewStatus": "APPROVED" },
+    { "id": "pair-15", "leftOpportunityId": "opportunity-04", "rightOpportunityId": "opportunity-07", "preferredOpportunityId": "opportunity-04", "rationale": "Draft judgment favors immediate incident continuity.", "reviewStatus": "APPROVED" },
+    { "id": "pair-16", "leftOpportunityId": "opportunity-04", "rightOpportunityId": "opportunity-08", "preferredOpportunityId": "opportunity-08", "rationale": "Draft judgment favors frequent support escalation handoffs.", "reviewStatus": "APPROVED" }
+  ]
+}
