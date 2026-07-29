@@ -96,6 +96,7 @@ function toScanPersistenceClient(client: RuntimeClient, includeTransaction = tru
     generatedOpportunityRecord: delegate(client.generatedOpportunityRecord as never),
     opportunityRankingResult: delegate(client.opportunityRankingResult as never),
     opportunityRankingItem: delegate(client.opportunityRankingItem as never),
+    privateBetaFeedback: delegate(client.privateBetaFeedback as never),
     ...(includeTransaction ? {
       transaction: <T>(operation: (database: ApiScanPersistenceDatabaseClient) => Promise<T>) =>
         client.$transaction(

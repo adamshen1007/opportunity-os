@@ -102,4 +102,14 @@ describe("Dashboard component test infrastructure", () => {
     expect(source).toContain("Evidence cluster");
     expect(source).toContain("Cluster fingerprint");
   });
+
+  it("clears deleted scans from recent history and the active dashboard state", () => {
+    const workbench = readFileSync(path.resolve(import.meta.dirname, "../features/scans/reddit-scan-workbench.tsx"), "utf8");
+    const activeScanContext = readFileSync(path.resolve(import.meta.dirname, "../features/scans/active-scan-context.tsx"), "utf8");
+
+    expect(workbench).toContain("clearActiveScan(scan.scanId)");
+    expect(workbench).toContain('setScanState({ status: "ready", message: "Scan deleted. Run a new scan to continue." })');
+    expect(activeScanContext).toContain("window.localStorage.removeItem(LAST_SCAN_STORAGE_KEY)");
+    expect(activeScanContext).toContain('setStatus("empty")');
+  });
 });

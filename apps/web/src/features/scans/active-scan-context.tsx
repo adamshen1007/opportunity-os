@@ -11,6 +11,7 @@ interface ActiveScanContextValue {
   readonly status: ActiveScanStatus;
   readonly scan?: DashboardApiScanResultDto;
   readonly setActiveScan: (scan: DashboardApiScanResultDto) => void;
+  readonly clearActiveScan: (scanId: string) => void;
 }
 
 const ActiveScanContext = createContext<ActiveScanContextValue | undefined>(undefined);
@@ -35,6 +36,15 @@ export function ActiveScanProvider({ children }: Readonly<{ children: ReactNode 
     window.localStorage.setItem(LAST_SCAN_STORAGE_KEY, nextScan.scanId);
     setScan(nextScan);
     setStatus("ready");
+  }, []);
+
+  const clearActiveScan = useCallback((scanId: string) => {
+    setScan((current) => {
+      if (current?.scanId !== scanId) return current;
+      window.localStorage.removeItem(LAST_SCAN_STORAGE_KEY);
+      setStatus("empty");
+      return undefined;
+    });
   }, []);
 
   useEffect(() => {
@@ -71,7 +81,10 @@ export function ActiveScanProvider({ children }: Readonly<{ children: ReactNode 
     };
   }, [setActiveScan]);
 
-  const value = useMemo(() => ({ status, scan, setActiveScan }), [scan, setActiveScan, status]);
+  const value = useMemo(
+    () => ({ status, scan, setActiveScan, clearActiveScan }),
+    [clearActiveScan, scan, setActiveScan, status]
+  );
   return <ActiveScanContext.Provider value={value}>{children}</ActiveScanContext.Provider>;
 }
 

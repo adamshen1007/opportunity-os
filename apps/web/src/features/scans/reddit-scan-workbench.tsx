@@ -235,7 +235,7 @@ export function ScanResultView({ result }: { readonly result: DashboardApiScanRe
 }
 
 export function RedditScanWorkbench() {
-  const { scan: activeScan, setActiveScan } = useActiveScan();
+  const { scan: activeScan, setActiveScan, clearActiveScan } = useActiveScan();
   const didHydrateScanState = useRef(false);
   const didResumeScanJob = useRef(false);
   const [source, setSource] = useState<DashboardApiScanSource>("stack-exchange");
@@ -466,7 +466,13 @@ export function RedditScanWorkbench() {
                   <button className="scan-delete-button" type="button" aria-label={`Delete scan ${scan.scanId}`} onClick={async () => {
                     const client = createDashboardApiClient({ baseUrl: apiBaseUrl, correlationId: createCorrelationId(), fetch: window.fetch.bind(window) });
                     const deleted = await deleteScan(client, scan.scanId);
-                    if (deleted.ok) setRecentScans((current) => current.filter((item) => item.scanId !== scan.scanId));
+                    if (deleted.ok) {
+                      setRecentScans((current) => current.filter((item) => item.scanId !== scan.scanId));
+                      clearActiveScan(scan.scanId);
+                      if (scanState.result?.scanId === scan.scanId) {
+                        setScanState({ status: "ready", message: "Scan deleted. Run a new scan to continue." });
+                      }
+                    }
                   }}>Delete</button>
                 </li>
               ))}

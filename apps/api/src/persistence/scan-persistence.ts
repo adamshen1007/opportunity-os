@@ -162,7 +162,11 @@ export function createInMemoryScanPersistenceStore(input: InMemoryScanPersistenc
       const existed = results.delete(scanId);
       const record = records.get(scanId);
       records.delete(scanId);
-      jobs.delete(scanId);
+      for (const [jobId, job] of jobs.entries()) {
+        if (job.ownerPrincipalId === scope.principalId && (job.jobId === scanId || job.resultScanId === scanId)) {
+          jobs.delete(jobId);
+        }
+      }
       for (const opportunityId of record?.opportunityIds ?? []) opportunityRecordIds.delete(opportunityId);
       return existed || record !== undefined;
     }
@@ -218,6 +222,7 @@ export interface ApiScanPersistenceDatabaseClient {
   readonly generatedOpportunityRecord: ApiScanPersistenceDatabaseDelegate;
   readonly opportunityRankingResult: ApiScanPersistenceDatabaseDelegate;
   readonly opportunityRankingItem: ApiScanPersistenceDatabaseDelegate;
+  readonly privateBetaFeedback?: ApiScanPersistenceDatabaseDelegate;
   readonly transaction?: <T>(operation: (database: ApiScanPersistenceDatabaseClient) => Promise<T>) => Promise<T>;
 }
 
@@ -299,28 +304,207 @@ export function createDatabaseScanPersistenceStore(database: ApiScanPersistenceD
       });
     },
     async deleteScanResult(scope, scanId) {
-      const result = await this.getScanResult(scope, scanId);
-      if (!result || !database.scanRunRecord.delete) return false;
-      const rankingIds = [...new Set(result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.rankingRunId)))];
-      const generatedIds = result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.generationOutputId));
-      const candidateIds = result.opportunities.map((item) => toOwnedPersistenceId(scanId, item.provenance.candidateId));
-      const analysisIds = [...new Set(result.opportunities.flatMap((item) => item.provenance.analysisRequestIds).map((id) => toOwnedPersistenceId(scanId, id)))];
-      const normalizedIds = [...new Set(result.opportunities.flatMap((item) => item.provenance.normalizedContentIds).map((id) => toOwnedPersistenceId(scanId, id)))];
-      const rawIds = [...new Set(result.opportunities.flatMap((item) => item.provenance.rawContentIds).map((id) => toOwnedPersistenceId(scanId, id)))];
-      await database.evidenceClusterMembership?.deleteMany?.({ where: { scanId } });
-      await database.opportunityRankingItem.deleteMany?.({ where: { rankingResultId: { in: rankingIds } } });
-      await database.opportunityRankingResult.deleteMany?.({ where: { id: { in: rankingIds } } });
-      await database.generatedOpportunityRecord.deleteMany?.({ where: { id: { in: generatedIds } } });
-      await database.candidateOpportunityRecord.deleteMany?.({ where: { id: { in: candidateIds } } });
-      await database.evidenceCluster?.deleteMany?.({ where: { scanId } });
-      await database.analysisResult.deleteMany?.({ where: { id: { in: analysisIds } } });
-      await database.normalizedContent.deleteMany?.({ where: { id: { in: normalizedIds } } });
-      await database.rawSourceContent.deleteMany?.({ where: { id: { in: rawIds } } });
-      await database.scanRunRecord.delete({ where: { id: scanId } });
-      await memory.deleteScanResult(scope, scanId);
-      return true;
+      if (!database.transaction) {
+        throw new Error("Transactional scan deletion is unavailable.");
+      }
+      const deleted = await database.transaction((transaction) => deleteOwnedScanGraph(transaction, scope, scanId));
+      if (deleted) await memory.deleteScanResult(scope, scanId);
+      return deleted;
     }
   };
+}
+
+async function deleteOwnedScanGraph(
+  database: ApiScanPersistenceDatabaseClient,
+  scope: ApiOwnershipScope,
+  scanId: string
+): Promise<boolean> {
+  const scan = await requireFindUnique(database.scanRunRecord, {
+    where: { id: scanId, ...ownerWhere(scope) },
+    select: { id: true, result: true }
+  });
+  if (!scan) return false;
+
+  const rawRows = await requireFindMany(database.rawSourceContent, {
+    where: { scanId },
+    select: { id: true }
+  });
+  const rawIds = readIds(rawRows);
+  const normalizedRows = rawIds.length > 0
+    ? await requireFindMany(database.normalizedContent, {
+      where: { rawSourceContentId: { in: rawIds } },
+      select: { id: true }
+    })
+    : [];
+  const normalizedIds = readIds(normalizedRows);
+  const analysisRows = normalizedIds.length > 0
+    ? await requireFindMany(database.analysisResult, {
+      where: { normalizedContentId: { in: normalizedIds } },
+      select: { id: true }
+    })
+    : [];
+  const analysisIds = readIds(analysisRows);
+  const clusterRows = await requireFindMany(requireDelegate(database.evidenceCluster), {
+    where: { scanId, ...ownerWhere(scope) },
+    select: { id: true }
+  });
+  const clusterIds = readIds(clusterRows);
+  const membershipRows = await requireFindMany(requireDelegate(database.evidenceClusterMembership), {
+    where: { scanId, ...ownerWhere(scope) },
+    select: { id: true, rawSourceContentId: true, normalizedContentId: true, analysisResultId: true }
+  });
+  const membershipIds = readIds(membershipRows);
+  const candidateRows = clusterIds.length > 0 || analysisIds.length > 0
+    ? await requireFindMany(database.candidateOpportunityRecord, {
+      where: {
+        OR: [
+          ...(clusterIds.length > 0 ? [{ evidenceClusterId: { in: clusterIds } }] : []),
+          ...(analysisIds.length > 0 ? [{ analysisResultId: { in: analysisIds } }] : [])
+        ]
+      },
+      select: { id: true }
+    })
+    : [];
+  const candidateIds = readIds(candidateRows);
+  const rankingRows = await requireFindMany(database.opportunityRankingResult, {
+    where: { scanId },
+    select: { id: true }
+  });
+  const rankingIds = readIds(rankingRows);
+  const rankingItemRows = rankingIds.length > 0
+    ? await requireFindMany(database.opportunityRankingItem, {
+      where: { rankingResultId: { in: rankingIds } },
+      select: { id: true, generatedOpportunityId: true }
+    })
+    : [];
+  const rankingItemIds = readIds(rankingItemRows);
+  const generatedFromRankings = readStringFields(rankingItemRows, "generatedOpportunityId");
+  const generatedRows = candidateIds.length > 0
+    ? await requireFindMany(database.generatedOpportunityRecord, {
+      where: { candidateOpportunityId: { in: candidateIds } },
+      select: { id: true }
+    })
+    : [];
+  const generatedIds = uniqueStrings([...readIds(generatedRows), ...generatedFromRankings]);
+  const opportunityIds = readOpportunityIds(scan);
+
+  const feedbackWhere = [
+    ...(generatedIds.length > 0 ? [{ opportunityRecordId: { in: generatedIds } }] : []),
+    ...(opportunityIds.length > 0 ? [{ opportunityId: { in: opportunityIds } }] : [])
+  ];
+  if (feedbackWhere.length > 0) {
+    await requireDeleteMany(requireDelegate(database.privateBetaFeedback), {
+      where: { ...ownerWhere(scope), OR: feedbackWhere }
+    });
+  }
+  if (rankingItemIds.length > 0) {
+    await requireDeleteMany(database.opportunityRankingItem, { where: { id: { in: rankingItemIds } } });
+  }
+  if (rankingIds.length > 0) {
+    await requireDeleteMany(database.opportunityRankingResult, { where: { id: { in: rankingIds }, scanId } });
+  }
+  if (generatedIds.length > 0) {
+    await requireDeleteMany(database.generatedOpportunityRecord, { where: { id: { in: generatedIds } } });
+  }
+  if (candidateIds.length > 0) {
+    await requireDeleteMany(database.candidateOpportunityRecord, { where: { id: { in: candidateIds } } });
+  }
+  if (membershipIds.length > 0) {
+    await requireDeleteMany(requireDelegate(database.evidenceClusterMembership), {
+      where: { id: { in: membershipIds }, scanId, ...ownerWhere(scope) }
+    });
+  }
+  if (clusterIds.length > 0) {
+    await requireDeleteMany(requireDelegate(database.evidenceCluster), {
+      where: { id: { in: clusterIds }, scanId, ...ownerWhere(scope) }
+    });
+  }
+  if (analysisIds.length > 0) {
+    await requireDeleteMany(database.analysisResult, { where: { id: { in: analysisIds } } });
+  }
+  if (normalizedIds.length > 0) {
+    await requireDeleteMany(database.normalizedContent, { where: { id: { in: normalizedIds } } });
+  }
+  if (rawIds.length > 0) {
+    await requireDeleteMany(database.rawSourceContent, { where: { id: { in: rawIds }, scanId } });
+  }
+
+  await requireDeleteMany(database.scanRunRecord, {
+    where: {
+      ...ownerWhere(scope),
+      safeMetadata: { path: ["resultScanId"], equals: scanId }
+    }
+  });
+  const scanDelete = await requireDeleteMany(database.scanRunRecord, {
+    where: { id: scanId, ...ownerWhere(scope) }
+  });
+  return readDeleteCount(scanDelete) > 0;
+}
+
+function requireDelegate(
+  delegate: ApiScanPersistenceDatabaseDelegate | undefined
+): ApiScanPersistenceDatabaseDelegate {
+  if (!delegate) throw new Error("Transactional scan deletion is unavailable.");
+  return delegate;
+}
+
+async function requireFindUnique(
+  delegate: ApiScanPersistenceDatabaseDelegate,
+  args: unknown
+): Promise<unknown> {
+  if (!delegate.findUnique) throw new Error("Transactional scan deletion is unavailable.");
+  return delegate.findUnique(args);
+}
+
+async function requireFindMany(
+  delegate: ApiScanPersistenceDatabaseDelegate,
+  args: unknown
+): Promise<readonly unknown[]> {
+  if (!delegate.findMany) throw new Error("Transactional scan deletion is unavailable.");
+  return delegate.findMany(args);
+}
+
+async function requireDeleteMany(
+  delegate: ApiScanPersistenceDatabaseDelegate,
+  args: unknown
+): Promise<unknown> {
+  if (!delegate.deleteMany) throw new Error("Transactional scan deletion is unavailable.");
+  return delegate.deleteMany(args);
+}
+
+function readIds(rows: readonly unknown[]): readonly string[] {
+  return readStringFields(rows, "id");
+}
+
+function readStringFields(rows: readonly unknown[], field: string): readonly string[] {
+  return uniqueStrings(rows.flatMap((row) => {
+    if (!row || typeof row !== "object") return [];
+    const value = (row as Record<string, unknown>)[field];
+    return typeof value === "string" ? [value] : [];
+  }));
+}
+
+function uniqueStrings(values: readonly string[]): readonly string[] {
+  return [...new Set(values)].sort();
+}
+
+function readOpportunityIds(scan: unknown): readonly string[] {
+  if (!scan || typeof scan !== "object") return [];
+  const result = (scan as Record<string, unknown>).result;
+  if (!result || typeof result !== "object") return [];
+  const opportunities = (result as Record<string, unknown>).opportunities;
+  if (!Array.isArray(opportunities)) return [];
+  return uniqueStrings(opportunities.flatMap((opportunity) => {
+    if (!opportunity || typeof opportunity !== "object") return [];
+    const opportunityId = (opportunity as Record<string, unknown>).opportunityId;
+    return typeof opportunityId === "string" ? [opportunityId] : [];
+  }));
+}
+
+function readDeleteCount(result: unknown): number {
+  if (!result || typeof result !== "object") return 0;
+  const count = (result as Record<string, unknown>).count;
+  return typeof count === "number" ? count : 0;
 }
 
 async function upsertScanJob(database: ApiScanPersistenceDatabaseClient, job: ApiScanJobRecord): Promise<void> {

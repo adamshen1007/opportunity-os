@@ -15,7 +15,8 @@ export default function PrivacyPage() {
         </Panel>
         <Panel title="Your controls">
           <ul className="privacy-list">
-            <li>Delete a completed scan from Recent scans on the Overview page. Related normalized, analysis, candidate, generated, and ranking records are removed.</li>
+            <li>Delete a completed scan from Recent scans on the Overview page. Its jobs, source records, normalized content, analyses, evidence clusters, candidates, opportunities, rankings, and feedback are removed together.</li>
+            <li>Encrypted backups and point-in-time recovery snapshots expire under the operator&apos;s retention policy; a restored backup must replay deletion requests before it is reopened to users.</li>
             <li>Sign out from the sidebar to revoke the current beta session immediately.</li>
             <li>Ask the beta operator to remove a feedback record by its feedback identifier while account-level ownership controls remain in closed beta.</li>
           </ul>

@@ -106,4 +106,16 @@ describe("database schema policy", () => {
     expect(schema).not.toMatch(/\bproviderPayload\b/u);
     expect(schema).not.toMatch(/\brawProviderResponse\b/u);
   });
+
+  it("keeps deletion foreign keys compatible with explicit transactional graph removal", () => {
+    const schema = fs.readFileSync(schemaPath, "utf8");
+
+    expect(schema).toMatch(/model NormalizedContent[\s\S]*rawSourceContent\s+RawSourceContent\s+@relation\([^\n]*onDelete:\s*Cascade\)/u);
+    expect(schema).toMatch(/model AnalysisResult[\s\S]*normalizedContent\s+NormalizedContent\s+@relation\([^\n]*onDelete:\s*Cascade\)/u);
+    expect(schema).toMatch(/model EvidenceCluster[\s\S]*scan\s+ScanRunRecord\s+@relation\([^\n]*onDelete:\s*Cascade\)/u);
+    expect(schema).toMatch(/model EvidenceClusterMembership[\s\S]*cluster\s+EvidenceCluster\s+@relation\([^\n]*onDelete:\s*Cascade\)/u);
+    expect(schema).toMatch(/model OpportunityRankingItem[\s\S]*rankingResult\s+OpportunityRankingResult\s+@relation\([^\n]*onDelete:\s*Cascade\)/u);
+    expect(schema).toMatch(/model OpportunityRankingItem[\s\S]*generatedOpportunity\s+GeneratedOpportunityRecord\s+@relation\([^\n]*onDelete:\s*Cascade\)/u);
+    expect(schema).toMatch(/model PrivateBetaFeedback[\s\S]*opportunityRecord\s+GeneratedOpportunityRecord\?\s+@relation\([^\n]*onDelete:\s*SetNull\)/u);
+  });
 });
