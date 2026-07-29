@@ -66,6 +66,12 @@ describe("durable scan jobs", () => {
       new Error("Live LLM output failed structured citation validation. No result was saved.")
     )).toBe("Live LLM output failed structured citation validation. No result was saved.");
     expect(toSafeScanJobFailureMessage(
+      new Error("The live datasource is rate-limited. Retry after the provider recovers.")
+    )).toBe("The live datasource is rate-limited. Retry after the provider recovers.");
+    expect(toSafeScanJobFailureMessage(
+      new Error("The live datasource was unavailable. No result was saved.")
+    )).toBe("The live datasource was unavailable. No result was saved.");
+    expect(toSafeScanJobFailureMessage(
       new Error("secret token raw provider response")
     )).toBe("Scan failed before safe output was produced. Retry when the datasource is available.");
   });

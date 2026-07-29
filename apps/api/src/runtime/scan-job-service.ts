@@ -28,7 +28,9 @@ export function toSafeScanJobFailureMessage(error: unknown): string {
     error.message === "Live LLM output failed structured citation validation. No result was saved." ||
     error.message === "The live LLM provider was unavailable or rejected the request. No result was saved." ||
     error.message === "Live analysis configuration is unavailable; the live scan failed closed." ||
-    error.message === "Live analysis configuration does not match the approved pilot provider and model."
+    error.message === "Live analysis configuration does not match the approved pilot provider and model." ||
+    error.message === "The live datasource is rate-limited. Retry after the provider recovers." ||
+    error.message === "The live datasource was unavailable. No result was saved."
   )) {
     return error.message;
   }

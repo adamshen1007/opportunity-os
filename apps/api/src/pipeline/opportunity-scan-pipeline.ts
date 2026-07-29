@@ -57,6 +57,7 @@ import type {
 import { API_SCAN_MODES, API_SCAN_STAGE_STATUSES } from "./scan-pipeline-dto.js";
 import type { ApiScanRequest } from "./scan-request.js";
 import { createScanValidationMetrics } from "./scan-validation-metrics.js";
+import { mapSequentially } from "./sequential-map.js";
 
 export type OpportunityScanPipelineContext = {
   readonly correlationId: string;
@@ -234,7 +235,13 @@ async function readSource(input: OpportunityScanPipelineInput): Promise<SourceRe
         pageSize: input.limit
       }
     });
-    if (!provider.ok) throw new Error(provider.error.message);
+    if (!provider.ok) {
+      throw new Error(
+        provider.error.code === "rate-limited"
+          ? "The live datasource is rate-limited. Retry after the provider recovers."
+          : "The live datasource was unavailable. No result was saved."
+      );
+    }
     return {
       mode: provider.result.mode,
       items: provider.result.items.slice(0, input.limit).map(mapStackExchangeQuestion),
@@ -575,7 +582,11 @@ export async function runOpportunityScanPipeline(input: OpportunityScanPipelineI
   const scanId = `scan-${safeId(sourceName)}-${safeId(source.community)}-${safeId(input.requestedAt)}`;
   const rawContent = posts.map((post) => mapPostToRawContent(post, input.requestedAt));
   const normalizedContent = rawContent.map((raw) => normalizeRawContent(raw));
-  const analyses = await Promise.all(normalizedContent.map((normalized) => analyzeContent(normalized, input, source.mode)));
+  // Live provider calls are intentionally serialized to avoid burst quota failures.
+  const analyses = await mapSequentially(
+    normalizedContent,
+    (normalized) => analyzeContent(normalized, input, source.mode)
+  );
   const clusteringInputs = posts.map((post, index) => {
     const raw = rawContent[index] as PipelineRawContent;
     const normalized = normalizedContent[index] as PipelineNormalizedContent;
