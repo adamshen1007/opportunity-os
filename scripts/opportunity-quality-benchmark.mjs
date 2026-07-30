@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 const fixtureRoot = path.resolve(import.meta.dirname, "../research/fixtures/opportunity-quality/v1");
 
@@ -17,7 +18,7 @@ const unique = (values) => new Set(values).size === values.length;
 
 const round = (value) => Number(value.toFixed(6));
 
-const loadBenchmark = () => ({
+export const loadBenchmark = () => ({
   manifest: readJson("manifest.json"),
   sourceRecords: readJson("source-records.json"),
   expectedClusters: readJson("expected-clusters.json"),
@@ -26,6 +27,74 @@ const loadBenchmark = () => ({
   baseline: readJson("baseline.json"),
   approval: readJson("approval.json")
 });
+
+export const normalizeCanonicalString = (value) => value.normalize("NFC").replace(/\r\n?/gu, "\n");
+
+// Compare normalized Unicode code points directly so ordering never consults host locale data.
+export const compareCanonicalStrings = (left, right) => {
+  const leftCodePoints = [...normalizeCanonicalString(left)];
+  const rightCodePoints = [...normalizeCanonicalString(right)];
+  const sharedLength = Math.min(leftCodePoints.length, rightCodePoints.length);
+
+  for (let index = 0; index < sharedLength; index += 1) {
+    const difference = leftCodePoints[index].codePointAt(0) - rightCodePoints[index].codePointAt(0);
+    if (difference !== 0) {
+      return difference;
+    }
+  }
+
+  return leftCodePoints.length - rightCodePoints.length;
+};
+
+const normalizeCanonicalValue = (value) => {
+  if (typeof value === "string") {
+    return normalizeCanonicalString(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(normalizeCanonicalValue);
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort(compareCanonicalStrings)
+        .map((key) => [key, normalizeCanonicalValue(value[key])])
+    );
+  }
+  return value;
+};
+
+const sortById = (values) => [...values].sort((left, right) => compareCanonicalStrings(left.id, right.id));
+
+export const createDatasetIdentity = (benchmark) => {
+  const { createdAt: _createdAt, ...manifest } = benchmark.manifest;
+  const { approvedAt: _approvedAt, ...approval } = benchmark.approval;
+  const logicalInputs = {
+    manifest,
+    sourceRecords: {
+      ...benchmark.sourceRecords,
+      records: sortById(benchmark.sourceRecords.records)
+    },
+    expectedClusters: {
+      ...benchmark.expectedClusters,
+      clusters: sortById(benchmark.expectedClusters.clusters).map((cluster) => ({
+        ...cluster,
+        memberSourceIds: [...cluster.memberSourceIds].sort(compareCanonicalStrings)
+      }))
+    },
+    rankingComparisons: {
+      ...benchmark.rankingComparisons,
+      comparisons: sortById(benchmark.rankingComparisons.comparisons)
+    },
+    rubric: benchmark.rubric,
+    baseline: benchmark.baseline,
+    approval: {
+      ...approval,
+      approvalScope: [...approval.approvalScope].sort(compareCanonicalStrings)
+    }
+  };
+  const canonicalDataset = JSON.stringify(normalizeCanonicalValue(logicalInputs));
+  return createHash("sha256").update(canonicalDataset).digest("hex");
+};
 
 const validateFixtureSafety = (records) => {
   const serialized = JSON.stringify(records);
@@ -185,6 +254,7 @@ const measureBenchmark = (benchmark) => {
     behaviorVersion: benchmark.baseline.behaviorVersion,
     status: validation.freezeEligible ? "APPROVAL_COMPLETE" : "REVIEW_REQUIRED",
     frozen: benchmark.manifest.frozen,
+    datasetFingerprint: createDatasetIdentity(benchmark),
     measurements: measurementCore,
     resultFingerprint: fingerprint,
     reviewRequiredCount: validation.reviewRequiredCount,
@@ -298,25 +368,30 @@ const measureClusteredBehavior = async (benchmark) => {
   };
   return {
     ...resultCore,
+    datasetFingerprint: createDatasetIdentity(benchmark),
     resultFingerprint: createHash("sha256").update(JSON.stringify(resultCore)).digest("hex")
   };
 };
 
-const command = process.argv[2] ?? "evaluate";
+const isDirectExecution = process.argv[1] !== undefined && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
-try {
-  const benchmark = loadBenchmark();
-  const output = command === "validate"
-    ? validateBenchmark(benchmark)
-    : command === "evaluate"
-      ? measureBenchmark(benchmark)
-      : command === "evaluate-clustered"
-        ? await measureClusteredBehavior(benchmark)
-        : null;
-  assert(output, `Unsupported benchmark command: ${command}`);
-  process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
-} catch (error) {
-  const message = error instanceof Error ? error.message : "Benchmark validation failed.";
-  process.stderr.write(`Opportunity quality benchmark failed: ${message}\n`);
-  process.exitCode = 1;
+if (isDirectExecution) {
+  const command = process.argv[2] ?? "evaluate";
+
+  try {
+    const benchmark = loadBenchmark();
+    const output = command === "validate"
+      ? validateBenchmark(benchmark)
+      : command === "evaluate"
+        ? measureBenchmark(benchmark)
+        : command === "evaluate-clustered"
+          ? await measureClusteredBehavior(benchmark)
+          : null;
+    assert(output, `Unsupported benchmark command: ${command}`);
+    process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Benchmark validation failed.";
+    process.stderr.write(`Opportunity quality benchmark failed: ${message}\n`);
+    process.exitCode = 1;
+  }
 }
