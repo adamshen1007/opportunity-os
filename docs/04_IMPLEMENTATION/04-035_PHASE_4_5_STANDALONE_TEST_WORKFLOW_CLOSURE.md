@@ -4,9 +4,9 @@
 
 This closure slice investigates GitHub Actions `test` run `30449791751` for audited commit `7489189ec9afa2600a1d05cd428388c362f357ae`. It changes no product behavior, benchmark fixtures, quality thresholds, approval records, ranking results, provider configuration, or pilot-gate evidence.
 
-External GitHub verification status: PENDING. The local correction cannot be called closed until an authorized later commit produces a successful standalone `test` workflow run for the exact candidate SHA and again for the final `main` SHA.
+External GitHub verification status: **EXTERNALLY VERIFIED**.
 
-Local remediation status: **VERIFIED — INDEPENDENT RE-REVIEW REQUIRED**.
+Closure status: **EXTERNALLY VERIFIED — MERGED TO MAIN**.
 
 Overall Phase 4.5 pilot-gate status: NO-GO.
 
@@ -86,7 +86,7 @@ The root repository test imports the actual comparator through a direct-executio
 
 The old and corrected canonical identity objects are byte-for-byte identical for the approved ASCII fixtures. The approved dataset fingerprint therefore remains `247bd42c0f98e68c7f187326b602a8034a6fd702a196989c0b50e62317b821e3`; the result fingerprint remains `8ccbd52ad5412a962d4443c9a1d9d3fe418bd339fd96a0da2cf4f81383452905`; and benchmark measurements remain unchanged. The expected constants remain independently defined in the root test.
 
-Post-remediation strict clean-copy verification ran `corepack enable`, `pnpm install --frozen-lockfile`, and `pnpm test` without a preceding build or any compiled output. Installation and the root test exited successfully; the canonical-order regression and clustered benchmark each executed exactly once; all ten root Node tests passed; the benchmark produced the 26-package dependency closure; and the workspace graph completed 55 uncached Turbo tasks. No provider credential or live network access was required after installation. External GitHub verification remains **PENDING**, and the overall Phase 4.5 pilot-gate status remains **NO-GO**.
+Post-remediation strict clean-copy verification ran `corepack enable`, `pnpm install --frozen-lockfile`, and `pnpm test` without a preceding build or any compiled output. Installation and the root test exited successfully; the canonical-order regression and clustered benchmark each executed exactly once; all ten root Node tests passed; the benchmark produced the 26-package dependency closure; and the workspace graph completed 55 uncached Turbo tasks. No provider credential or live network access was required after installation. These local results established the candidate for external verification; they were not used as a substitute for the external GitHub evidence recorded below. The overall Phase 4.5 pilot-gate status remains **NO-GO**.
 
 ## Regression Risk
 
@@ -123,6 +123,67 @@ Three fingerprint negative controls were performed only in isolated temporary co
 
 The primary-repository verification sequence is recorded in the remediation report. It does not replace the isolated clean-copy evidence above because its required `pnpm build` occurs before `pnpm test`.
 
-## External Evidence Still Required
+## External GitHub Evidence
 
-After an authorized commit and push, capture the standalone `test` workflow name, event, branch, candidate commit SHA, run ID and URL, start/completion timestamps, conclusion, and the successful install and `pnpm test` step names. Repeat the evidence capture for the final `main` commit. Until then, external status remains **PENDING** and the Phase 4.5 pilot gate remains governed by its existing fail-closed evidence manifest.
+GitHub CLI was unavailable during this evidence-only documentation update. The records below use the operator-supplied and previously captured GitHub evidence; no workflow was rerun and no external success is inferred from local testing.
+
+### Pull Request
+
+- PR: `#1`
+- head branch: `codex/phase-4-5-standalone-test-workflow-closure`
+- candidate SHA: `d5f3ace3c97e2734822753cd34869a3a65e730c5`
+- base: `main`
+- merged at: `2026-07-30T10:57:13Z`
+- merge SHA: `ac71625cbccd5e7549102e5da179e60751d6a251`
+- changed files: `5`
+
+### Candidate Pull-Request Workflow
+
+- workflow: `test`
+- run number: `75`
+- run ID: `30536388589`
+- event: `pull_request`
+- candidate SHA: `d5f3ace3c97e2734822753cd34869a3a65e730c5`
+- status: `completed`
+- conclusion: `success`
+- job: `test`
+- runner: GitHub-hosted Ubuntu
+- install step: `success`
+- test step: `success`
+- installation duration: approximately `5.3 seconds`
+- test-step duration: approximately `2 minutes 2 seconds`
+- job activity: `2026-07-30T10:52:59.9551703Z` through `2026-07-30T10:55:13.9176747Z`
+
+### Final Main Workflow
+
+- workflow: `test`
+- run number: `76`
+- run ID: `30536673270`
+- event: `push`
+- branch: `main`
+- final-main SHA: `ac71625cbccd5e7549102e5da179e60751d6a251`
+- status: `completed`
+- conclusion: `success`
+- job: `test`
+- runner: GitHub-hosted Ubuntu
+- install step: `success`
+- test step: `success`
+- installation duration: approximately `5.0 seconds`
+- test-step duration: approximately `2 minutes 6 seconds`
+- job activity: `2026-07-30T10:57:26.9400528Z` through `2026-07-30T10:59:48.5358480Z`
+- checkout resolved: `ac71625cbccd5e7549102e5da179e60751d6a251`
+- final test summary: `Tasks: 55 successful, 55 total`; `Cached: 0 cached, 55 total`
+
+## Closure Conclusion
+
+Standalone GitHub test-workflow discrepancy: **EXTERNALLY VERIFIED**.
+
+The clean pull-request runner passed for the exact candidate commit, and the exact merged `main` commit passed the subsequent push workflow. Both required external evidence points now exist, so this standalone CI discrepancy is externally verified. This conclusion depends on the captured GitHub records above, not on local test results.
+
+This closure does not add or alter a readiness check in `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json`. The approved manifest remains at 13 P0 checks, its verifier result remains `NO-GO` with 8 of 13 checks passing, and five separate P0 checks remain unresolved:
+
+- `production.hosted-release`
+- `production.migrations`
+- `production.rollback`
+- `identity.hosted-two-user-journey`
+- `operations.automated-backup-rpo`
