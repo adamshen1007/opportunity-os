@@ -1,12 +1,12 @@
 # 04-034_PHASE_4_5_PILOT_GATE.md
 
 **Task:** `TASK-P45-G01`  
-**Recorded:** 2026-07-29  
-**Decision:** **NO-GO**
+**Recorded:** 2026-08-11
+**Decision:** **GO**
 
 ## 1. Executive Readiness Summary
 
-Opportunity OS has strong deterministic safety and intelligence coverage, a verified source-neutral live datasource path, an operator-observed schema-validated Gemini scan, alert-delivery evidence, and a successful isolated database restore. It is not yet eligible for design-partner invitations because unresolved P0 production checks remain.
+Opportunity OS has deterministic safety and intelligence coverage, matched hosted releases, a rehearsed production migration and rollback path, verified two-user isolation and deletion, a verified Stack Exchange live datasource path, an operator-observed schema-validated Gemini scan, alert-delivery evidence, automated daily database backups, and a successful isolated database restore. All 13 P0 checks pass for the controlled design-partner pilot. Reddit-specific live readiness remains outside the verified pilot scope.
 
 The gate is fail-closed. `pnpm verify:pilot-gate` reads the versioned evidence manifest at `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` and exits nonzero unless every P0 check is `pass`.
 
@@ -15,14 +15,14 @@ The gate is fail-closed. `pnpm verify:pilot-gate` reads the versioned evidence m
 | Check | Result | Safe evidence identifier |
 | --- | --- | --- |
 | Canonical HTTPS origins | Pass | `canonical-hosted-origins-20260728` |
-| Same deployed commit | Fail | `hosted-release-sha-mismatch-20260729` |
-| Clean production migration status | Manual required | `production-migration-status-required-20260729` |
-| Rollback rehearsal | Manual required | `hosted-rollback-rehearsal-required-20260729` |
+| Same deployed commit | Pass | `matched-hosted-release-33b7f13-20260811` |
+| Production migration path | Pass | `production-migration-path-rehearsed-20260811` |
+| Rollback rehearsal | Pass | `matched-hosted-rollback-7489189-to-33b7f13-20260811` |
 | Monitoring alert delivery | Pass | `render-alert-delivery-20260728` |
 | Isolated backup restore | Pass | `isolated-postgresql-restore-20260729` |
-| Automated backup RPO | Fail | `automated-backup-rpo-gap-20260729` |
+| Automated backup RPO | Pass | `supabase-pro-daily-backup-rpo-20260811` |
 
-Public verification on 2026-07-29 found the API at commit prefix `3c2fe1c` and the web app at commit prefix `1b9d40c`. Both were healthy, but they were not the same release.
+On 2026-08-11, Render deployed the current `main` candidate and public verification passed against full release SHA `33b7f134dc69ee7565ad2260baed9a8f208e5f4f` on both the API and web origins. The production API moved to Render Starter and a subsequent deployment ran `migrate deploy` plus `migrate status`, found all ten migrations through `20260729110000_add_evidence_clusters` current, completed the pre-deploy stage, and only then promoted the API. A matched-release rollback then switched both canonical origins to previous known-good SHA `7489189ec9afa2600a1d05cd428388c362f357ae`; hosted verification passed before the candidate was restored on both providers and verified again. A disposable PostgreSQL 16 rehearsal also passed the final ten-migration chain plus repeat-deploy idempotency. A separate protected staging project passed current-baseline verification, and its migration-9 public-schema backup with synthetic relational data passed an isolated PostgreSQL 17 migration-10 upgrade without table or count regression. Isolated non-production rehearsals then proved failed migration detection, promotion blocking, recovery of a failed Prisma ledger, recovery from an observed durable partial state, and return to the committed baseline without changing production.
 
 ## 3. Two-User Isolation Results
 
@@ -30,7 +30,7 @@ Deterministic API coverage passes invite acceptance, replay protection, expirati
 
 Transactional deletion coverage passes owner scoping, full relational deletion, feedback deletion, rollback after injected failure, repeated deletion, stale identifiers, and orphan checks.
 
-The required two-user hosted journey is **MANUAL ACTION REQUIRED**. Two fresh invites must complete the entire hosted workflow against the same deployed release, including deletion and stale-resource confirmation. Safe evidence identifier: `hosted-two-user-journey-required-20260729`.
+On 2026-08-11, two fresh hosted users completed isolated journeys against matched candidate SHA `33b7f134dc69ee7565ad2260baed9a8f208e5f4f`. One used explicit Stack Exchange fixture mode and one used the approved controlled Stack Exchange live path. Both completed login, scan, results, evidence, ranking, feedback, transactional deletion, stale-resource denial, and logout. Unique resource identifiers were denied bidirectionally. The shared public ranking identifier remained owner-scoped: each user received only their own ranked opportunities, deleting one user's scan removed only that user's ranking view, and the other user's view remained intact until its own deletion. No protected or personal values were recorded. Safe evidence identifier: `hosted-two-user-owner-isolation-33b7f13-20260811`.
 
 ## 4. Opportunity-Quality Benchmark Results
 
@@ -64,16 +64,11 @@ Fixture mode remains the CI default. Tests require failed live execution to fail
 
 Render alert delivery and an isolated PostgreSQL restore rehearsal pass. The restore reached migration `20260729110000_add_evidence_clusters`, passed relational integrity verification, and returned healthy API/database status.
 
-The current hosted database plan does not provide evidenced automated backups meeting the 24-hour RPO. A manual logical backup is useful recovery evidence but does not close this P0 requirement.
+The production Supabase project has operator-observed automated daily PostgreSQL backups with seven-day retention, satisfying the approved 24-hour database-backup RPO. This managed backup evidence remains distinct from the manual logical backup and isolated restore rehearsal.
 
 ## 8. Unresolved Risks
 
-1. Web and API do not expose the same release commit.
-2. Final production migration status has not been rerun and recorded for the current baseline.
-3. Rollback has not been rehearsed against a matched release.
-4. Two isolated users have not completed the full hosted journey against one release.
-5. Automated backups do not meet the required 24-hour RPO.
-6. Reddit-specific live readiness remains unverified; the pilot may use only the verified Stack Exchange scope.
+1. Reddit-specific live readiness remains unverified; the pilot may use only the verified Stack Exchange scope.
 
 ## 9. Evidence Index
 
@@ -93,15 +88,21 @@ The 2026-07-29 gate run produced these results:
 - Prisma schema validation: pass
 - opportunity-quality benchmark: all thresholds passed with fingerprint `8ccbd52ad5412a962d4443c9a1d9d3fe418bd339fd96a0da2cf4f81383452905`
 - Stack Exchange live smoke: pass with three safe items
-- hosted release verification: fail because the API release does not match the current/web release
-- hosted two-user Playwright journey: not run because fresh protected invites were unavailable and the release mismatch must be resolved first
-- final production migration verification: not run because the protected database environment was unavailable
+- hosted release verification: passed on 2026-08-11 at full SHA `33b7f134dc69ee7565ad2260baed9a8f208e5f4f`
+- hosted fixture Playwright journey: passed on 2026-08-11 against the matched candidate with visible fixture-fallback labeling
+- hosted two-user Playwright journey: 1 passed on 2026-08-11 against the matched candidate; separate fixture and controlled Stack Exchange live sessions passed bidirectional owner isolation, owner-scoped ranking projections, transactional deletion, stale-resource denial, and logout
+- production migration ledger: all ten migrations through the approved baseline are complete and not rolled back as observed through the protected Supabase connector on 2026-08-11
+- production Render promotion guard: passed on 2026-08-11 on Starter; `migrate deploy` and `migrate status` completed before the API was promoted, and the final hosted-release verifier passed
+- final ten-migration clean/idempotency rehearsal: passed on 2026-08-11 against a confirmed-empty disposable PostgreSQL 16 database; connection details were not printed
+- protected staging status: passed on 2026-08-11 against a separate isolated Supabase project at baseline `20260729110000_add_evidence_clusters`; a transient first-attempt provider connection failure cleared before the exact passing retry
+- isolated restored-backup upgrade: passed on 2026-08-11 after restoring a private PostgreSQL 17 public-schema backup containing the first nine migrations and representative synthetic relational data; migration 10 reached the approved baseline without table or count regression
+- controlled failed-migration non-promotion and recovery rehearsal: passed on 2026-08-11 in an isolated non-production service and staging database; Render blocked both failed candidates, the second left one observed durable synthetic partial state, targeted cleanup and Prisma ledger resolution succeeded, the normal ten-migration baseline was restored, and canonical production verification remained unchanged
 - live Gemini smoke: not rerun because protected credentials were unavailable in the gate shell; prior operator-observed hosted evidence remains recorded
 - isolated restore verification and alert delivery: prior dated evidence retained; neither was re-executed in this gate run
-- rollback rehearsal: not run because hosting-console rollback evidence is still required
+- rollback rehearsal: passed on 2026-08-11 by promoting previous known-good SHA `7489189ec9afa2600a1d05cd428388c362f357ae` on both canonical origins, passing the hosted-release verifier, restoring candidate `33b7f134dc69ee7565ad2260baed9a8f208e5f4f`, and passing the verifier again
 
 ## 10. Final Decision
 
-**NO-GO for a controlled design-partner pilot.**
+**GO for a controlled design-partner pilot.**
 
-Under the gate rules, every unresolved P0 item is blocking. Development and operator preparation may continue, but design-partner invitations must wait until the five unresolved P0 checks above are evidenced as passing and `pnpm verify:pilot-gate` returns `GO`.
+On 2026-08-11, `pnpm verify:pilot-gate` returned `GO` with 13 of 13 P0 checks passing and no unresolved entries. The pilot remains limited to the verified Stack Exchange provider scope; this decision does not claim Reddit live readiness or authorize work beyond Phase 4.5.
