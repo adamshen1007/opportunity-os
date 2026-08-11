@@ -1,6 +1,14 @@
 # Implementation
 
-Current external-user launch gate: [`04-026_EXTERNAL_USER_LAUNCH.md`](04-026_EXTERNAL_USER_LAUNCH.md).
+## Current Phase 4.5 Authority
+
+Current implementation phase: **Phase 4.5 — Design-Partner Readiness**.
+
+- [`04-028_PHASE_4_5_EXECUTION_PLAN.md`](04-028_PHASE_4_5_EXECUTION_PLAN.md) is the approved Phase 4.5 execution plan.
+- [`04-034_PHASE_4_5_PILOT_GATE.md`](04-034_PHASE_4_5_PILOT_GATE.md) defines `TASK-P45-G01` and the fail-closed design-partner pilot gate.
+- [`evidence/phase-4-5-pilot-gate.json`](evidence/phase-4-5-pilot-gate.json) is the machine-readable current P0 readiness state consumed by `pnpm verify:pilot-gate`.
+
+Do not duplicate the current pass count or unresolved blocker list here. Read the evidence manifest for the current state.
 
 Roadmap, implementation task guidance, design-partner validation walkthroughs, and Private Beta deployment/operations guidance.
 
@@ -29,7 +37,8 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md` defines Phase 4 Milestones 35-39: source-neutral scans, Stack Exchange integration, dashboard source selection, attribution, and real-data validation.
 - `04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md` defines Phase 4 Milestones 40-43 production composition, API controls, host deployment, smoke testing, monitoring, backup, and rollback.
 - `04-025_DESIGN_PARTNER_PILOT.md` defines the Phase 4 Milestone 44 pilot cohort, session workflow, metrics, and Go gates.
-- `04-026_EXTERNAL_USER_LAUNCH.md` defines M45-M51 production connectivity, durable access, honest scan UX, persistence continuity, security hardening, and closed-beta launch gate.
+- `04-026_EXTERNAL_USER_LAUNCH.md` defines the historical M45-M51 production connectivity, durable access, honest scan UX, persistence continuity, security hardening, and closed-beta launch gate.
+- `04-027_EXTERNAL_USER_SCALE_READINESS.md` defines Phase 4 Milestones 53-57 active-session, durable scan-job, evidence-quality, deletion-control, and operations-summary readiness.
 - `04-028_PHASE_4_5_EXECUTION_PLAN.md` defines the approved Phase 4.5 safety and intelligence workstreams.
 - `04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md` defines Slice A1 hosted release, rollback, migration baseline, clean-database, and restored-backup verification.
 - `04-030_OPPORTUNITY_QUALITY_VALIDATION.md` defines the approved and frozen Phase 4.5 quality benchmark, clustering, synthesis, and ranking results.
@@ -37,3 +46,4 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-032_PHASE_4_5_TRANSACTIONAL_DELETION.md` defines owner-scoped transactional scan deletion, relational coverage, shared-evidence rules, and backup-retention limitations.
 - `04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md` defines safe operations monitoring, alert evidence, backup policy, and the isolated restore rehearsal.
 - `04-034_PHASE_4_5_PILOT_GATE.md` records the fail-closed final design-partner pilot decision and safe evidence identifiers.
+- `04-035_PHASE_4_5_STANDALONE_TEST_WORKFLOW_CLOSURE.md` records the supporting standalone GitHub test-workflow closure without replacing the pilot-gate authority.

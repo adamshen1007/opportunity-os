@@ -11,9 +11,9 @@
 
 ## Engineering Kit v3.0 Status
 
-Engineering Kit v3.0 is the canonical reference for future Codex work.
+Engineering Kit v3.0 remains the canonical foundation for stable architecture, terminology, and engineering guidance. Current implementation-phase authority is defined by the active implementation plan, gate document, and evidence manifest identified below.
 
-It reflects completed implementation through Phase 4 Milestone 33 and active Phase 4 Milestone 34 External MVP Runtime work:
+The historical milestone catalog below preserves Engineering Kit context through Phase 4 Milestone 33. It does not determine the current implementation phase or pilot readiness:
 
 - Phase 0 Repository Foundation
 - Phase 1 M1 Runtime Configuration
@@ -50,7 +50,19 @@ It reflects completed implementation through Phase 4 Milestone 33 and active Pha
 - Phase 4 M32 Product Data Schema
 - Phase 4 M33 Reddit Live Provider Transport
 
-Current implementation is Phase 4 Milestones 40-44: production runtime composition, external API security, deployment automation, observability, and design-partner pilot readiness. See `docs/04_IMPLEMENTATION/04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md` and `docs/04_IMPLEMENTATION/04-025_DESIGN_PARTNER_PILOT.md`. From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
+## Current Active Phase
+
+The active implementation phase is **Phase 4.5 — Design-Partner Readiness**.
+
+Current execution and readiness authority:
+
+- `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md` — approved Phase 4.5 execution plan.
+- `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md` — `TASK-P45-G01` fail-closed design-partner pilot gate.
+- `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` — machine-readable current P0 readiness state consumed by `pnpm verify:pilot-gate`.
+
+Do not infer the current pilot decision from historical milestone descriptions in this index. For current readiness, use the gate document and evidence manifest. Do not duplicate volatile pass counts or blocker lists here.
+
+From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
 ## Purpose
 
@@ -200,6 +212,18 @@ Documents:
 - 04-021_EXTERNAL_MVP_RUNTIME.md
 - 04-022_EXTERNAL_MVP_READINESS_GATE.md
 - 04-023_MULTI_SOURCE_PRODUCT_VALIDATION.md
+- 04-024_PRODUCTION_RUNTIME_AND_DEPLOYMENT.md
+- 04-025_DESIGN_PARTNER_PILOT.md
+- 04-026_EXTERNAL_USER_LAUNCH.md
+- 04-027_EXTERNAL_USER_SCALE_READINESS.md
+- 04-028_PHASE_4_5_EXECUTION_PLAN.md
+- 04-029_PHASE_4_5_HOSTED_RELEASE_AND_MIGRATION_RUNBOOK.md
+- 04-030_OPPORTUNITY_QUALITY_VALIDATION.md
+- 04-031_PHASE_4_5_LIVE_DATASOURCE_VERIFICATION.md
+- 04-032_PHASE_4_5_TRANSACTIONAL_DELETION.md
+- 04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md
+- 04-034_PHASE_4_5_PILOT_GATE.md
+- 04-035_PHASE_4_5_STANDALONE_TEST_WORKFLOW_CLOSURE.md
 
 - Development playbooks
 
@@ -341,6 +365,8 @@ For v3.0 and later Codex work, also read:
 - `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`
 - `developer-ai/00_CONTEXT/REPOSITORY_OVERVIEW.md`
 - `developer-ai/00_CONTEXT/ARCHITECTURE_MAP.md`
+
+For the current Phase 4.5 implementation and readiness decision, follow the authority chain in **Current Active Phase** above before using historical implementation records.
 
 ## Source of Truth Matrix
 
