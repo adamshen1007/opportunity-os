@@ -9,7 +9,7 @@ This runbook closes the repository-controlled parts of:
 
 Opportunity OS uses the existing Vercel, Render, and hosted PostgreSQL capabilities for the design-partner pilot. It does not add a telemetry vendor or expose private operational data.
 
-Repository implementation is complete. Alert delivery, hosted backup retention, and an isolated restore rehearsal remain **MANUAL ACTION REQUIRED** until an operator completes the console steps and records safe evidence.
+Repository implementation is complete. Monitoring alert delivery and the isolated restore rehearsal have passed. The production Supabase project has operator-observed automated daily database backups meeting the approved 24-hour RPO. The final `TASK-P45-G01` verifier returns **GO** with all 13 P0 checks passing.
 
 ## Safe Operational Surfaces
 
@@ -191,9 +191,26 @@ Alert evidence:
 - the message referenced the Slice A1 release commit and linked to the corresponding Render deploy logs
 - no recipient address, message identifier, token, or credential is recorded in repository evidence
 
-Hosted backup retention: **DEFERRED BY OPERATOR FOR LIMITED PILOT - Supabase Free does not provide automated project backups**
+Hosted automated database backup RPO: **PASS - Supabase Pro automated daily backups evidenced 2026-08-11**
 
-The operator accepted this gap for the limited design-partner pilot on 2026-07-29. The verified manual logical backup is the current recovery point. This acceptance does not satisfy the 24-hour automated-backup RPO and must not be represented as full production recovery readiness.
+Current account-specific evidence:
+
+- production database provider: Supabase PostgreSQL
+- safe project label: `opportunity-os`
+- environment: `main / PRODUCTION`
+- region: `ap-southeast-1`
+- PostgreSQL major version: 17
+- project status: `ACTIVE_HEALTHY`
+- plan observed: `PRO`
+- observation time: `2026-08-11T11:30:50+08:00`
+- latest visible scheduled backup: `2026-08-10T21:44:25.770Z`
+- seven consecutive daily recovery points were visible at `2026-08-10T21:44:25.770Z`, `2026-08-09T21:43:30Z`, `2026-08-08T21:44:19Z`, `2026-08-07T21:44:10Z`, `2026-08-06T21:43:55Z`, `2026-08-05T21:44:24Z`, and `2026-08-04T21:43:35Z`, each with a Restore action
+
+The production Render API is bound through a protected `DATABASE_URL` to the verified `opportunity-os` Supabase project. The protected value is not recorded.
+
+Supabase's current [database-backup documentation](https://supabase.com/docs/guides/platform/backups), [pricing page](https://supabase.com/pricing), and [database-backups feature page](https://supabase.com/features/database-backups) state that Pro projects receive automatic daily database backups with seven days of retention. Supabase's [PITR guidance](https://supabase.com/blog/postgres-point-in-time-recovery) describes daily backups as having a worst-case data-loss window of up to 24 hours. The operator-observed active daily schedule therefore satisfies this runbook's approved database-backup RPO of no more than 24 hours. PITR is not enabled or claimed.
+
+Supabase database backups do not include objects stored through the Storage API. This evidence closes only the PostgreSQL database-backup RPO check; it does not claim file or object-storage recovery.
 
 Manual logical backup: **PASS - 2026-07-29 UTC**
 
@@ -211,6 +228,12 @@ Restore evidence:
 - live datasource and live LLM execution remained disabled during the restore smoke test
 - the temporary API and restored database were stopped and removed after verification; the private backup was retained with owner-only file permissions
 
-Limited design-partner pilot: **CONDITIONAL GO** under the recorded backup-risk acceptance.
+The July 29 restore rehearsal used a manual logical backup, not the managed Supabase daily backup. It remains valid evidence of PostgreSQL restore capability and is separate from the automated-backup RPO evidence.
 
-Full production recovery readiness: **NO-GO** until an automated backup process meeting the 24-hour RPO is enabled and evidenced.
+Design-partner pilot: **GO** on 2026-08-11 after every P0 check in the current Phase 4.5 evidence manifest passed and `pnpm verify:pilot-gate` returned `GO`.
+
+Current recovery status:
+
+- automated database backup RPO: **PASS**
+- existing isolated restore rehearsal: **PASS**
+- overall Phase 4.5 pilot gate: **GO**

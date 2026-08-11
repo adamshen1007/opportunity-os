@@ -7,25 +7,25 @@
       "id": "production.hosted-release",
       "area": "production",
       "priority": "P0",
-      "status": "fail",
-      "evidenceId": "hosted-release-sha-mismatch-20260729",
-      "safeSummary": "The canonical API and web origins are healthy but expose different release commits."
+      "status": "pass",
+      "evidenceId": "matched-hosted-release-33b7f13-20260811",
+      "safeSummary": "The canonical Render API and Vercel web origins are healthy and expose the same verified full release commit."
     },
     {
       "id": "production.migrations",
       "area": "production",
       "priority": "P0",
-      "status": "manual-required",
-      "evidenceId": "production-migration-status-required-20260729",
-      "safeSummary": "The final hosted migration status must be rerun with the protected production database environment."
+      "status": "pass",
+      "evidenceId": "production-migration-path-rehearsed-20260811",
+      "safeSummary": "Protected staging, clean-database, restored-backup, Render pre-deploy, and isolated failed-migration recovery rehearsals reached the approved ten-migration baseline without exposing connection details or changing production."
     },
     {
       "id": "production.rollback",
       "area": "production",
       "priority": "P0",
-      "status": "manual-required",
-      "evidenceId": "hosted-rollback-rehearsal-required-20260729",
-      "safeSummary": "A same-release Render and Vercel rollback rehearsal has not been recorded."
+      "status": "pass",
+      "evidenceId": "matched-hosted-rollback-7489189-to-33b7f13-20260811",
+      "safeSummary": "Both canonical origins were switched to the previous known-good release, verified at the same SHA, restored to the candidate, and verified at the same candidate SHA without recording protected configuration."
     },
     {
       "id": "identity.auth-and-isolation",
@@ -39,9 +39,9 @@
       "id": "identity.hosted-two-user-journey",
       "area": "identity-and-privacy",
       "priority": "P0",
-      "status": "manual-required",
-      "evidenceId": "hosted-two-user-journey-required-20260729",
-      "safeSummary": "Two complete isolated hosted user journeys have not been recorded against one release."
+      "status": "pass",
+      "evidenceId": "hosted-two-user-owner-isolation-33b7f13-20260811",
+      "safeSummary": "Two fresh hosted users completed isolated fixture and controlled Stack Exchange live journeys, owner-scoped evidence, ranking, and feedback checks, transactional deletion with stale-resource denial, and logout on the verified candidate release."
     },
     {
       "id": "privacy.transactional-deletion",
@@ -103,9 +103,9 @@
       "id": "operations.automated-backup-rpo",
       "area": "monitoring-and-recovery",
       "priority": "P0",
-      "status": "fail",
-      "evidenceId": "automated-backup-rpo-gap-20260729",
-      "safeSummary": "The hosted database plan does not currently provide an evidenced automated backup process meeting the 24-hour RPO."
+      "status": "pass",
+      "evidenceId": "supabase-pro-daily-backup-rpo-20260811",
+      "safeSummary": "The production Supabase PostgreSQL project has operator-observed automated daily backups with seven-day retention, satisfying the approved 24-hour database-backup RPO."
     }
   ]
 }
