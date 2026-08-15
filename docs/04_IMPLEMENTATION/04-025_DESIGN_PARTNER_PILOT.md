@@ -1,8 +1,12 @@
 # 04-025_DESIGN_PARTNER_PILOT.md
 
 **Document ID:** 04-025
-**Status:** Active Pilot Gate
-**Scope:** Phase 4 Milestone 44
+**Status:** Approved Phase 5 Pilot Contract
+**Scope:** Phase 5 - Design-Partner Learning Pilot
+
+## Authority Relationship
+
+This document owns the approved pilot hypothesis, cohort structure, session workflow, metrics, and value thresholds. `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` owns the current Phase 5 task order, gates, and authorization boundaries. This contract is not an independent active gate and does not authorize invitations.
 
 ## Objective
 
@@ -41,4 +45,4 @@ If any safety gate fails, stop the pilot. If value metrics fail, improve source 
 
 ## Operator Record
 
-For every release, record commit SHA, API URL, web URL, migration status, health result, fixture smoke result, live smoke result, backup timestamp, rollback target, and pilot decision. Store no secret values in the record.
+For every release, record the commit SHA, safe canonical-origin identifiers, migration status, health result, fixture smoke result, live smoke result, backup timestamp, rollback target, and pilot decision. Store no secret values, participant identities, invitation values, session values, protected URLs, prompts, or provider payloads in the repository record.

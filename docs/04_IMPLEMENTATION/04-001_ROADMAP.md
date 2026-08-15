@@ -2,7 +2,7 @@
 
 
 **Document ID:** 04-001
-**Version:** 3.1.0
+**Version:** 3.2.0
 **Status:** Approved (Implementation)
 **Layer:** 3 – Implementation
 **Owner:** Engineering Team
@@ -86,18 +86,15 @@ Completed:
 - Phase 4 M32 Product Data Schema
 - Phase 4 M33 Reddit Live Provider Transport
 
+Closed readiness prerequisite:
+
+- Phase 4.5 Design-Partner Readiness - `TASK-P45-G01` returned `GO` with 13 of 13 P0 checks passing on 2026-08-11.
+
 Current:
 
-- Phase 4 M35 Multi-Source Scan Boundary
-- Phase 4 M36 Stack Exchange Live Connector
-- Phase 4 M37 Multi-Source Pipeline and Persistence
-- Phase 4 M38 Dashboard Source Selection
-- Phase 4 M39 Real-Data Product Validation
-- Phase 4 M40 Production Runtime Composition
-- Phase 4 M41 External API Security
-- Phase 4 M42 Deployment Automation
-- Phase 4 M43 Production Observability
-- Phase 4 M44 Design-Partner Pilot
+- Phase 5 Design-Partner Learning Pilot
+- `TASK-P5-G00` Authority Transition And Phase Plan Freeze
+- documentation and governance only until G00 passes independent review
 
 Slice G is the final External MVP Runtime readiness gate. It validates repository policy, lint, build, tests, Playwright, Docker Compose, env-gated Reddit smoke testing, env-gated LLM smoke testing, the deployment checklist, Reddit setup guide, LLM setup guide, dashboard walkthrough, smoke test report, and Go / No-Go decision in `docs/04_IMPLEMENTATION/04-022_EXTERNAL_MVP_READINESS_GATE.md`.
 
@@ -3174,9 +3171,9 @@ Readiness is defined in `docs/04_IMPLEMENTATION/04-027_EXTERNAL_USER_SCALE_READI
 
 Each future milestone must be independently demonstrable and must not bypass package boundaries established by Engineering Kit v3.0.
 
-## Phase 4.5 - Design-Partner Readiness
+## Phase 4.5 - Design-Partner Readiness (Closed)
 
-Phase 4.5 is the active execution boundary after Phase 4 Milestones 53-57. It prepares Opportunity OS for a safe, valuable design-partner pilot through two parallel workstreams defined in `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md`.
+Phase 4.5 was the execution boundary after Phase 4 Milestones 53-57. It prepared Opportunity OS for a safe, valuable design-partner pilot through two parallel workstreams defined in `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md`.
 
 Workstream A - Production Safety Before Design Partners:
 
@@ -3220,6 +3217,29 @@ Monitoring and recovery implementation is defined in `docs/04_IMPLEMENTATION/04-
 The final convergence decision is recorded in `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md` and validated by `pnpm verify:pilot-gate`. As of 2026-07-29 the decision is `NO-GO`: the canonical services expose different commits, final hosted migration and rollback evidence are incomplete, the two-user hosted journey is incomplete, and automated backups do not meet the required 24-hour RPO.
 
 No Phase 4.5 task may bypass the existing ownership boundaries of `packages/database`, `packages/analysis`, `packages/opportunity-pipeline`, `packages/opportunity-candidates`, `packages/opportunity-generation`, `packages/opportunity-ranking`, `packages/llm-analysis`, `apps/api`, or `apps/web`.
+
+Phase 4.5 closed on 2026-08-11 when `TASK-P45-G01` returned `GO` with all 13 P0 checks passing. Its plan, gate record, and evidence manifest remain historical authority for that prerequisite and must not be rewritten as Phase 5 evidence.
+
+## Phase 5 - Design-Partner Learning Pilot
+
+Phase 5 tests whether the existing hosted product produces evidence-backed opportunities that controlled design partners understand, trust, find useful, and voluntarily return to use. Its canonical plan is `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`.
+
+The governed order is:
+
+1. `TASK-P5-G00` Authority Transition And Phase Plan Freeze.
+2. `TASK-P5-G01` Pilot Evidence Contract And Gate.
+3. `TASK-P5-A01` Cohort 1 Readiness.
+4. `TASK-P5-A02` Cohort 1 Execution.
+5. `TASK-P5-G02` Cohort 1 Decision.
+6. `TASK-P5-B01` Evidence-Led Remediation, only when G02 evidence requires it.
+7. `TASK-P5-A03` optional Cohort 2 Expansion, eligible only after G02 `GO` and explicit cohort authorization.
+8. `TASK-P5-G03` Phase 5 Exit Gate after G02 and any additional evidence required by the G01 contract.
+
+The active task is `TASK-P5-G00`. It may change governance and documentation only. No product code, provider configuration, migration, infrastructure, deployment, production mutation, or pilot invitation is authorized during G00.
+
+Phase 5 begins with five design partners in one narrow domain and the verified Stack Exchange live scope. Expansion toward ten is eligible after a passing Cohort 1 decision with no unresolved critical safety or reliability incident, but it is not automatically required. G01 must freeze whether G03 can proceed from sufficient Cohort 1 and repeat-use evidence or requires Cohort 2 evidence. Reddit remains outside verified scope.
+
+Phase 5 does not authorize public launch, product-market-fit claims, self-service access, new connectors, payments, subscriptions, CRM integrations, notifications, enterprise identity, broader multi-tenancy, schedulers, workers, recommendation engines, speculative infrastructure, or a subsequent phase.
 
 
 # Quality Gates
@@ -3328,3 +3348,4 @@ Referenced by:
 | 3.0.7       | 2026-07-04                      | Added Phase 3 Milestone 30 bug triage, feature request, feedback review, readiness, release, launch, and troubleshooting documentation. |
 | 3.0.8       | 2026-07-04                      | Added Phase 3 Milestone 30 PR governance and documentation consistency verification. |
 | 3.1.0       | 2026-07-28                      | Added the Phase 4.5 parallel production-safety and opportunity-intelligence workstreams with stable task identifiers and a shared design-partner pilot gate. |
+| 3.2.0       | 2026-08-15                      | Closed Phase 4.5 at its verified GO prerequisite and added the governance-first Phase 5 Design-Partner Learning Pilot sequence. |
