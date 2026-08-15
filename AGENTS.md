@@ -4,17 +4,17 @@
 
 Opportunity OS turns customer conversations into evidence-backed, explainable, ranked startup opportunities. Primary users are founders, product teams, and investors; the current release target is a controlled design-partner pilot.
 
-The repository is transitioning into **Phase 5 — Design-Partner Learning Pilot**. The active task is `TASK-P5-G00`, the Phase 5 Authority Transition and Plan Freeze. Its canonical plan and fail-closed draft state are maintained in `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` and `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json`.
+The repository is in **Phase 5 — Design-Partner Learning Pilot**. The active task is `TASK-P5-G01`, the Pilot Evidence Contract and Gate. Its canonical plan, frozen evidence contract, and fail-closed state are maintained in `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`, `docs/04_IMPLEMENTATION/04-037_PHASE_5_EVIDENCE_CONTRACT.md`, and `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json`.
 
-Phase 4.5 is closed at `GO` with 13 of 13 P0 checks passing. Its manifest and `pnpm verify:pilot-gate` remain the production-safety prerequisite and must stay `GO`. Phase 5 itself remains `NO-GO`: product work, cohort preparation, and design-partner invitations are not authorized until G00 passes independent review and the applicable subsequent task is separately authorized.
+Phase 4.5 is closed at `GO` with 13 of 13 P0 checks passing. Its manifest and `pnpm verify:pilot-gate` remain the production-safety prerequisite and must stay `GO`. G00 is externally complete at merged `main` SHA `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91` with its reviewed canonical digest unchanged. Phase 5 itself remains `NO-GO`: G01 authorizes aggregate evidence-contract documentation and deterministic gate tooling only. Product/runtime work, cohort readiness, and design-partner invitations remain unauthorized.
 
 ## 2. Scope and Non-Goals
 
-Active G00 scope is documentation and governance only: align the repository authority chain, freeze the Phase 5 plan, bootstrap the fail-closed Phase 5 manifest, and preserve the closed Phase 4.5 evidence. Preserve the existing invite-only model, owner isolation, transactional deletion, evidence/provenance, deterministic quality benchmark, fail-closed provider behavior, and operator-safe monitoring and recovery controls.
+Active G01 scope is evidence governance and deterministic repository tooling only: freeze session/cohort/privacy/aggregation semantics, add aggregate-only evidence and schema artifacts, implement the dependency-free Phase 5 gate and boundary tests, resolve Cohort 2 as optional, and preserve the closed Phase 4.5 evidence. Preserve the existing invite-only model, owner isolation, transactional deletion, evidence/provenance, deterministic quality benchmark, fail-closed provider behavior, and operator-safe monitoring and recovery controls.
 
-The active task does not include product code, workflows, migrations, provider configuration, infrastructure, deployments, production mutations, pilot invitations, or participant evidence. Phase 5 does not include enterprise features, additional connectors, payments, subscriptions, CRM integrations, notifications, multi-tenancy expansion, schedulers, workers, recommendation engines, complex admin consoles, external identity providers, or infrastructure unrelated to evidenced pilot remediation.
+The active task does not include product/runtime behavior, app/package changes, workflows, migrations, provider configuration, infrastructure, deployments, production mutations, pilot invitations, participant selection, or real participant evidence. Phase 5 does not include enterprise features, additional connectors, payments, subscriptions, CRM integrations, notifications, multi-tenancy expansion, schedulers, workers, recommendation engines, complex admin consoles, external identity providers, or infrastructure unrelated to evidenced pilot remediation.
 
-**Do not implement during G00:** any runtime behavior or subsequent Phase 5 task. Reddit-specific readiness remains unverified; verified Stack Exchange evidence must not be presented as Reddit readiness.
+**Do not implement during G01:** any product/runtime behavior, cohort activity, or subsequent Phase 5 task. Reddit-specific readiness remains unverified; verified Stack Exchange evidence must not be presented as Reddit readiness.
 
 ## 3. Authoritative Documents
 
@@ -78,6 +78,7 @@ Run commands from the repository root. Do not substitute npm or yarn for pnpm.
 | External smoke verification | `pnpm smoke:external` |
 | Hosted release verification | `pnpm verify:hosted-release` |
 | Fail-closed pilot gate | `pnpm verify:pilot-gate` |
+| Fail-closed Phase 5 gate | `pnpm verify:phase-5-gate` |
 | Clean-database migration check | `pnpm --filter @opportunity-os/database verify:migrations:clean` |
 | Staging migration check | `pnpm --filter @opportunity-os/database verify:migrations:staging` |
 | Isolated restored-database check | `pnpm verify:restore` |
@@ -88,19 +89,21 @@ No repository-wide format command is defined; formatting is an unresolved comman
 
 ## 7. Acceptance and Verification Gates
 
-For any change, map the affected Phase 5 acceptance criteria to observable evidence and preserve the Phase 4.5 prerequisite. The documentation-only G00 decision requires:
+For any change, map the affected Phase 5 acceptance criteria to observable evidence and preserve the Phase 4.5 prerequisite. The G01 candidate decision requires:
 
 - repository and instruction inspection;
-- authority consistency across `AGENTS.md`, the Phase 5 plan and manifest, the roadmap, the implementation order, both documentation indexes, and the pilot contract;
+- authority consistency across `AGENTS.md`, the Phase 5 plan, evidence contract and manifests, the roadmap, the implementation order, both documentation indexes, and the pilot contract;
 - `git diff --check`, `pnpm repo:check`, `node scripts/verify-repository.mjs --phase phase-4-milestone-57`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`;
-- stale-current-authority and secret-pattern scans;
+- focused negative/boundary tests for exact threshold arithmetic, source/mode eligibility, aggregate privacy, Cohort 2 optionality, and validation revisions;
+- `pnpm verify:phase-5-gate` returning the expected fail-closed `NO-GO` for the empty, not-started cohort record;
+- stale-current-authority, changed-path, and secret-pattern scans;
 - `pnpm verify:pilot-gate` remaining `GO` with 13 of 13 checks passing and no unresolved entries;
 - a whole-branch diff review against `main`; and
-- the two-stage independent candidate and closure review defined by `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`.
+- fresh independent candidate review and exact-byte publication verification before G01 becomes externally complete.
 
 Migration, rollback, hosted two-user isolation, live-provider, alert, backup, restore, and frozen quality-benchmark outcomes are closed Phase 4.5 prerequisite evidence. G00 preserves their gate result; it does not rerun or re-prove those operator and hosted rehearsals.
 
-The Phase 4.5 prerequisite remains fail-closed: every P0 check in `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` must stay `pass`, and `pnpm verify:pilot-gate` must return `GO`. The Phase 5 bootstrap manifest remains `NO-GO` until its governed checks pass. Never claim an operator, cohort, value, or hosted gate from repository-only evidence. For each skipped gate, record the reason, strongest substitute evidence, and readiness impact.
+The Phase 4.5 prerequisite remains fail-closed: every P0 check in `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` must stay `pass`, and `pnpm verify:pilot-gate` must return `GO`. The Phase 5 manifest remains `NO-GO` until its governed checks pass. Never claim an operator, cohort, value, or hosted gate from repository-only evidence. For each skipped gate, record the reason, strongest substitute evidence, and readiness impact.
 
 ## 8. Git and Publication Boundaries
 
@@ -116,4 +119,4 @@ Follow the global working agreement for human-only actions. Repository-specific 
 
 ## 10. Repository-Specific Completion Additions
 
-Follow the global completion-report contract. For Opportunity OS, also report the current Phase 5 manifest decision, unresolved P0 check IDs, the closed Phase 4.5 prerequisite decision, fixture-versus-live evidence, skipped hosted or operator gates, and whether `pnpm verify:pilot-gate` returned `GO`. Do not recommend beginning a subsequent task or phase while its governing gate remains non-`GO`.
+Follow the global completion-report contract. For Opportunity OS, also report the current Phase 5 manifest decision, unresolved P0 check IDs, the closed Phase 4.5 prerequisite decision, fixture-versus-live evidence, skipped hosted or operator gates, whether `pnpm verify:pilot-gate` returned `GO`, and the exact expected `pnpm verify:phase-5-gate` decision. Do not recommend beginning a subsequent task or phase while its governing gate remains non-`GO`.

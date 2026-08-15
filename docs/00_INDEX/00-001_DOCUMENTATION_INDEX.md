@@ -57,11 +57,13 @@ The active implementation phase is **Phase 5 - Design-Partner Learning Pilot**.
 Current execution and readiness authority:
 
 - `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` - Phase 5 objective, governed task order, acceptance criteria, gates, and authorization boundaries.
-- `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json` - fail-closed draft Phase 5 state.
+- `docs/04_IMPLEMENTATION/04-037_PHASE_5_EVIDENCE_CONTRACT.md` - frozen G01 aggregate evidence, privacy, metric arithmetic, Cohort 2, remediation, and deterministic gate semantics.
+- `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json` - fail-closed Phase 5 authority/check state.
+- `docs/04_IMPLEMENTATION/evidence/phase-5-cohort-evidence.json` - aggregate-only cohort evidence consumed by `pnpm verify:phase-5-gate`.
 - `docs/04_IMPLEMENTATION/04-025_DESIGN_PARTNER_PILOT.md` - approved pilot hypothesis, cohort structure, workflow, and value thresholds.
 - `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md` and `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` - closed Phase 4.5 `GO` prerequisite consumed by `pnpm verify:pilot-gate`.
 
-The active task is documentation-only `TASK-P5-G00`. Do not infer the current Phase 5 decision from historical milestone descriptions or the closed Phase 4.5 gate. For current state, use the Phase 5 plan and manifest. Do not duplicate volatile pass counts or blocker lists here.
+G00 is externally complete at its independently reviewed and exact-byte published state. The active task is `TASK-P5-G01`, limited to the evidence contract and deterministic gate tooling. Product/runtime implementation, cohort readiness, participant selection, invitations, and A01 remain unauthorized. Do not infer the current Phase 5 decision from historical milestone descriptions or the closed Phase 4.5 gate. For current state, use the Phase 5 plan and manifest. Do not duplicate volatile pass counts or blocker lists here.
 
 From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
@@ -225,6 +227,8 @@ Documents:
 - 04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md
 - 04-034_PHASE_4_5_PILOT_GATE.md
 - 04-035_PHASE_4_5_STANDALONE_TEST_WORKFLOW_CLOSURE.md
+- 04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md
+- 04-037_PHASE_5_EVIDENCE_CONTRACT.md
 
 - Development playbooks
 

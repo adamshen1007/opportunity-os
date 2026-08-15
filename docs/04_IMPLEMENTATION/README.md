@@ -5,11 +5,13 @@
 Current implementation phase: **Phase 5 - Design-Partner Learning Pilot**.
 
 - [`04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`](04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md) defines the Phase 5 objective, task order, gates, and authorization boundaries.
-- [`evidence/phase-5-design-partner-pilot.json`](evidence/phase-5-design-partner-pilot.json) is the fail-closed draft Phase 5 state. It is not yet consumed by a verifier.
+- [`04-037_PHASE_5_EVIDENCE_CONTRACT.md`](04-037_PHASE_5_EVIDENCE_CONTRACT.md) freezes the G01 session, source, cohort, privacy, arithmetic, remediation, and gate semantics.
+- [`evidence/phase-5-design-partner-pilot.json`](evidence/phase-5-design-partner-pilot.json) is the fail-closed Phase 5 state consumed with aggregate evidence by `pnpm verify:phase-5-gate`.
+- [`evidence/phase-5-cohort-evidence.json`](evidence/phase-5-cohort-evidence.json) is the aggregate-only cohort record; its G01 candidate contains no real participant evidence.
 - [`04-025_DESIGN_PARTNER_PILOT.md`](04-025_DESIGN_PARTNER_PILOT.md) owns the approved pilot hypothesis, cohort structure, session workflow, and value thresholds.
 - [`04-034_PHASE_4_5_PILOT_GATE.md`](04-034_PHASE_4_5_PILOT_GATE.md) and [`evidence/phase-4-5-pilot-gate.json`](evidence/phase-4-5-pilot-gate.json) preserve the closed Phase 4.5 `GO` prerequisite consumed by `pnpm verify:pilot-gate`.
 
-The active task is documentation-only `TASK-P5-G00`. Do not begin product work, cohort preparation, or invitations until its independent review passes and the applicable subsequent task is separately authorized. Do not duplicate volatile Phase 5 check state here; read the Phase 5 manifest.
+G00 is externally complete at its reviewed/published state. The active task is `TASK-P5-G01`, limited to evidence-contract documentation, aggregate manifests/schema, and deterministic gate tooling. Do not begin product/runtime work, cohort preparation, participant selection, or invitations. A01 remains unauthorized until G01 passes independent review, exact reviewed bytes are published and verified, and A01 is separately authorized. Do not duplicate volatile Phase 5 check state here; read the Phase 5 manifest.
 
 Roadmap, implementation task guidance, design-partner validation walkthroughs, and Private Beta deployment/operations guidance.
 
@@ -49,3 +51,4 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-034_PHASE_4_5_PILOT_GATE.md` records the fail-closed final design-partner pilot decision and safe evidence identifiers.
 - `04-035_PHASE_4_5_STANDALONE_TEST_WORKFLOW_CLOSURE.md` records the supporting standalone GitHub test-workflow closure without replacing the pilot-gate authority.
 - `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` defines the governed Phase 5 learning-pilot sequence and its fail-closed authorization boundaries.
+- `04-037_PHASE_5_EVIDENCE_CONTRACT.md` defines the frozen Phase 5 aggregate evidence and deterministic gate contract.

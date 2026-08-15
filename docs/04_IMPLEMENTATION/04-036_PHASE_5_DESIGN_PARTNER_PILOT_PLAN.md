@@ -2,27 +2,27 @@
 
 **Document ID:** 04-036
 
-**Task:** `TASK-P5-G00`
+**Task:** `TASK-P5-G01`
 
 **Phase:** Phase 5 - Design-Partner Learning Pilot
 
-**Status:** Candidate Review Passed - Closure Review Required
+**Status:** G01 Candidate - Independent Review Required
 
-**Baseline:** `f738112afcb9fa5d4aa71a49beb700561baa8781`
+**Baseline:** `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91`
 
 **Recorded:** 2026-08-15
 
 ## 1. Decision
 
-**PHASE 5 GOVERNANCE CANDIDATE REVIEW PASSED - CLOSURE REVIEW REQUIRED - TASK-P5-G01 NOT AUTHORIZED**
+**PHASE 5 G01 EVIDENCE CONTRACT READY - INDEPENDENT REVIEW REQUIRED**
 
-Phase 4.5 is closed at `GO` with all 13 P0 checks passing. Phase 5 is the next governed phase, but only `TASK-P5-G00` is executable until this plan, the implementation order, the repository authority surfaces, and the Phase 5 evidence manifest pass a fresh independent review.
+Phase 4.5 is closed at `GO` with all 13 P0 checks passing. G00 is externally complete: PR #5 published the exact reviewed authority state to `main` at `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91`, and the merged-main canonical digest matched `fa6f76f97b4fbea15dc47f504287c51357be49407e00671e834e36b67e82d9bb`.
 
-No pilot invitation, product feature work, production mutation, provider expansion, deployment, or subsequent Phase 5 task is authorized by this draft.
+G01 is the active authorized task. It may freeze aggregate evidence semantics and add dependency-free deterministic gate tooling only. No pilot invitation, product/runtime work, production mutation, provider expansion, deployment, or `TASK-P5-A01` work is authorized.
 
 ## 2. Authority Chain
 
-After `TASK-P5-G00` passes independent review, Phase 5 authority is:
+Current Phase 5 authority is:
 
 1. `AGENTS.md`.
 2. This plan.
@@ -33,7 +33,7 @@ After `TASK-P5-G00` passes independent review, Phase 5 authority is:
 7. Phase 4.5 records as closed historical readiness evidence.
 8. Stable product, architecture, and engineering foundations.
 
-The Phase 4.5 manifest remains the authoritative production-safety prerequisite and `pnpm verify:pilot-gate` must continue to return `GO`. It is not the Phase 5 exit gate. The Phase 5 manifest is a fail-closed governance bootstrap until `TASK-P5-G01` freezes its session, cohort, and exit-gate semantics.
+The Phase 4.5 manifest remains the authoritative production-safety prerequisite and `pnpm verify:pilot-gate` must continue to return `GO`. It is not the Phase 5 exit gate. The Phase 5 manifest and `04-037_PHASE_5_EVIDENCE_CONTRACT.md` now freeze the v1 session, cohort, privacy, aggregation, remediation, and exit-gate semantics; the candidate remains fail-closed pending independent review and exact-byte publication.
 
 ## 3. Objective
 
@@ -82,8 +82,8 @@ If pilot evidence exposes a blocker that cannot be resolved safely within the ex
 
 | Order | Task | Purpose | Authorization boundary |
 | ---: | --- | --- | --- |
-| 1 | `TASK-P5-G00` - Authority Transition And Phase Plan Freeze | Make Phase 5 repository-authoritative. | Documentation and governance only. |
-| 2 | `TASK-P5-G01` - Pilot Evidence Contract And Gate | Define machine-readable session, cohort, privacy, aggregation, and Phase 5 gate semantics. | Begins only after G00 independent approval and separate task authorization. |
+| 1 | `TASK-P5-G00` - Authority Transition And Phase Plan Freeze | Make Phase 5 repository-authoritative. | Externally complete at the reviewed/published G00 state. |
+| 2 | `TASK-P5-G01` - Pilot Evidence Contract And Gate | Define machine-readable session, cohort, privacy, aggregation, and Phase 5 gate semantics. | Active; evidence governance and deterministic repository tooling only. |
 | 3 | `TASK-P5-A01` - Cohort 1 Readiness | Freeze the matched release, narrow domain, protocol, five-participant cohort, and operator procedure. | No product feature work. No invitations before this gate passes. |
 | 4 | `TASK-P5-A02` - Cohort 1 Execution | Run the first five controlled design-partner sessions. | Production operation only under the approved procedure. |
 | 5 | `TASK-P5-G02` - Cohort 1 Decision | Evaluate safety, reliability, trust, and value evidence. | Evidence and review only. |
@@ -91,7 +91,7 @@ If pilot evidence exposes a blocker that cannot be resolved safely within the ex
 | 7 | `TASK-P5-A03` - Cohort 2 Expansion | Optionally expand toward ten total participants. | Eligible, but not automatically required, after G02 `GO` and explicit cohort authorization. |
 | 8 | `TASK-P5-G03` - Phase 5 Exit Gate | Decide whether the value and trust hypothesis passes. | Begins after G02 and any remediation or additional cohort evidence required by the G01 contract; does not authorize a subsequent phase. |
 
-No Cohort 2 invitation may occur before `TASK-P5-G02`. `TASK-P5-B01` is skipped when Cohort 1 passes without material remediation. `TASK-P5-A03` is eligible after a passing G02 decision but is not a mandatory Phase 5 prerequisite in this bootstrap plan. `TASK-P5-G01` must freeze the exact evidence rule that determines whether G03 may proceed from sufficient Cohort 1 and repeat-use evidence or requires Cohort 2 evidence. Until G01 freezes that rule, neither path may claim exit eligibility.
+No Cohort 2 invitation may occur before `TASK-P5-G02`. `TASK-P5-B01` is skipped when Cohort 1 passes without material remediation. `TASK-P5-A03` is optional: G03 may proceed directly after a genuine current-revision G02 `GO` when every threshold, repeat-use rule, safety/reliability rule, and other G03 prerequisite passes. If Cohort 2 executes, its completed evidence is mandatory input to G03 and cannot be selectively ignored.
 
 ## 7. Dependencies
 
@@ -133,7 +133,7 @@ Additional Phase 5 acceptance criteria:
 
 ## 9. Verification Gates
 
-### G0 - Governance Consistency
+### G0 - Governance Consistency (Complete)
 
 Before any Phase 5 implementation or participant invitation, `AGENTS.md`, this plan, the implementation order, both documentation indexes, the pilot contract, and the Phase 5 manifest must agree on one authority chain.
 
@@ -150,7 +150,11 @@ docker compose config
 pnpm verify:pilot-gate
 ```
 
-`pnpm verify:pilot-gate` must remain `GO`, with 13 of 13 checks passing and no unresolved entries. G00 then follows the two-stage review and closure workflow in Section 11.
+`pnpm verify:pilot-gate` must remain `GO`, with 13 of 13 checks passing and no unresolved entries. G00 completed through the two-stage review and closure workflow recorded in Section 11.
+
+### G01 - Evidence Contract Candidate Gate
+
+During G01, run the G0 commands plus JSON parse checks, focused Phase 5 boundary tests, scope/security scans, and `pnpm verify:phase-5-gate`. The empty aggregate record must return expected `NO-GO`; repository-only evidence cannot claim participant success. G01 follows the non-self-referential independent review and exact-byte publication rule in Section 12.
 
 ### G1 - Pre-Cohort Operational Gate
 
@@ -194,7 +198,7 @@ A Phase 5 `GO` means only that the controlled pilot produced sufficient safety, 
 
 Published pilot evidence may contain safe aggregates and evidence identifiers. It must not contain participant identities, private responses, invitation codes, session tokens, credentials, raw prompts, provider payloads, protected URLs, database connection details, or raw causes.
 
-## 11. TASK-P5-G00 Acceptance
+## 11. Historical TASK-P5-G00 Acceptance And Closure Record
 
 The pre-review candidate is ready only when:
 
@@ -247,8 +251,37 @@ Before hashing, verify that the complete G00 change from the fixed baseline cont
 
 The manifest must contain eight LF-terminated lines, with no header, footer, blank line, carriage return, or additional whitespace. The canonical G00 final-state digest is the lowercase SHA-256 hexadecimal digest of those manifest bytes. The digest manifest is external review evidence and is not added to any of the eight reviewed files.
 
-Post-review and post-publication completion state:
+Verified post-review and post-publication completion state:
 
-**PHASE 5 GOVERNANCE TRANSITION APPROVED - TASK-P5-G01 NOT AUTHORIZED**
+**PHASE 5 GOVERNANCE TRANSITION APPROVED - TASK-P5-G01 AUTHORIZED SEPARATELY**
 
-This state is derived from the immutable merged bytes plus the canonical digest-bound external review and publication evidence; merged files do not need to claim an event before it occurs. Only after both external facts are verified and a separate task authorization is given may `TASK-P5-G01` begin.
+This state is derived from the immutable merged bytes plus the canonical digest-bound external review and publication evidence. Both facts were verified on 2026-08-15: PR #5 merged the exact reviewed bytes at `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91`, and the merged-main digest matched `fa6f76f97b4fbea15dc47f504287c51357be49407e00671e834e36b67e82d9bb`. G01 was then separately authorized.
+
+## 12. TASK-P5-G01 Acceptance And Publication Model
+
+G01 freezes `phase-5-pilot-evidence-v1` in `04-037_PHASE_5_EVIDENCE_CONTRACT.md`, aggregate evidence in `evidence/phase-5-cohort-evidence.json`, its JSON Schema, and the dependency-free `pnpm verify:phase-5-gate` evaluator.
+
+The candidate is ready for independent review only when:
+
+- approved `04-025` thresholds and session flow are unchanged;
+- exact integer numerator/denominator rules are documented and tested;
+- Stack Exchange live is the only value-qualifying source/mode and fixture activity cannot satisfy value gates;
+- repository evidence is aggregate-only and private operator evidence remains outside Git;
+- Cohort 2 is optional after genuine G02 `GO`, but mandatory in final aggregates if executed;
+- failed historical revisions remain immutable and revalidation uses monotonic revisions through A01, A02, and G02;
+- malformed, impossible, unknown, participant-level, and secret-like evidence fails closed;
+- the empty G01 evidence returns expected `NO-GO`;
+- Phase 4.5 remains `GO`, 13 of 13;
+- no product/runtime, provider, migration, infrastructure, deployment, production, invitation, or participant action occurs; and
+- all prescribed local verification passes.
+
+G01 uses a non-self-referential publication rule. `governance.evidence-contract` remains `external-required` in the candidate. G01 becomes externally complete only when an independent review passes, the exact reviewed bytes are separately published to `main`, and the published bytes are verified unchanged. No closure-only mutation is required to set the candidate check to `pass`; a later governed task may record the completed historical fact.
+
+Until that external completion and separate A01 authorization:
+
+```text
+Phase 5: NO-GO
+product/runtime implementation: NOT AUTHORIZED
+cohort invitations: NOT AUTHORIZED
+TASK-P5-A01: NOT AUTHORIZED
+```
