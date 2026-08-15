@@ -52,15 +52,16 @@ The historical milestone catalog below preserves Engineering Kit context through
 
 ## Current Active Phase
 
-The active implementation phase is **Phase 4.5 — Design-Partner Readiness**.
+The active implementation phase is **Phase 5 - Design-Partner Learning Pilot**.
 
 Current execution and readiness authority:
 
-- `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md` — approved Phase 4.5 execution plan.
-- `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md` — `TASK-P45-G01` fail-closed design-partner pilot gate.
-- `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` — machine-readable current P0 readiness state consumed by `pnpm verify:pilot-gate`.
+- `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` - Phase 5 objective, governed task order, acceptance criteria, gates, and authorization boundaries.
+- `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json` - fail-closed draft Phase 5 state.
+- `docs/04_IMPLEMENTATION/04-025_DESIGN_PARTNER_PILOT.md` - approved pilot hypothesis, cohort structure, workflow, and value thresholds.
+- `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md` and `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` - closed Phase 4.5 `GO` prerequisite consumed by `pnpm verify:pilot-gate`.
 
-Do not infer the current pilot decision from historical milestone descriptions in this index. For current readiness, use the gate document and evidence manifest. Do not duplicate volatile pass counts or blocker lists here.
+The active task is documentation-only `TASK-P5-G00`. Do not infer the current Phase 5 decision from historical milestone descriptions or the closed Phase 4.5 gate. For current state, use the Phase 5 plan and manifest. Do not duplicate volatile pass counts or blocker lists here.
 
 From Milestone 15 onward the project transitions from platform foundation to real provider and product capability, but each capability must still follow the staged implementation order in `docs/05_BOOTSTRAP/05-005_IMPLEMENTATION_ORDER.md`.
 
@@ -347,7 +348,7 @@ Examples:
 
 - Review Pull Request
 
-## Phase 5 — Implementation
+## Implementation Workflow
 
 Read:
 
@@ -366,7 +367,7 @@ For v3.0 and later Codex work, also read:
 - `developer-ai/00_CONTEXT/REPOSITORY_OVERVIEW.md`
 - `developer-ai/00_CONTEXT/ARCHITECTURE_MAP.md`
 
-For the current Phase 4.5 implementation and readiness decision, follow the authority chain in **Current Active Phase** above before using historical implementation records.
+For the current Phase 5 implementation and readiness decision, follow the authority chain in **Current Active Phase** above before using historical implementation records.
 
 ## Source of Truth Matrix
 

@@ -1,14 +1,15 @@
 # Implementation
 
-## Current Phase 4.5 Authority
+## Current Phase 5 Authority
 
-Current implementation phase: **Phase 4.5 — Design-Partner Readiness**.
+Current implementation phase: **Phase 5 - Design-Partner Learning Pilot**.
 
-- [`04-028_PHASE_4_5_EXECUTION_PLAN.md`](04-028_PHASE_4_5_EXECUTION_PLAN.md) is the approved Phase 4.5 execution plan.
-- [`04-034_PHASE_4_5_PILOT_GATE.md`](04-034_PHASE_4_5_PILOT_GATE.md) defines `TASK-P45-G01` and the fail-closed design-partner pilot gate.
-- [`evidence/phase-4-5-pilot-gate.json`](evidence/phase-4-5-pilot-gate.json) is the machine-readable current P0 readiness state consumed by `pnpm verify:pilot-gate`.
+- [`04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`](04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md) defines the Phase 5 objective, task order, gates, and authorization boundaries.
+- [`evidence/phase-5-design-partner-pilot.json`](evidence/phase-5-design-partner-pilot.json) is the fail-closed draft Phase 5 state. It is not yet consumed by a verifier.
+- [`04-025_DESIGN_PARTNER_PILOT.md`](04-025_DESIGN_PARTNER_PILOT.md) owns the approved pilot hypothesis, cohort structure, session workflow, and value thresholds.
+- [`04-034_PHASE_4_5_PILOT_GATE.md`](04-034_PHASE_4_5_PILOT_GATE.md) and [`evidence/phase-4-5-pilot-gate.json`](evidence/phase-4-5-pilot-gate.json) preserve the closed Phase 4.5 `GO` prerequisite consumed by `pnpm verify:pilot-gate`.
 
-Do not duplicate the current pass count or unresolved blocker list here. Read the evidence manifest for the current state.
+The active task is documentation-only `TASK-P5-G00`. Do not begin product work, cohort preparation, or invitations until its independent review passes and the applicable subsequent task is separately authorized. Do not duplicate volatile Phase 5 check state here; read the Phase 5 manifest.
 
 Roadmap, implementation task guidance, design-partner validation walkthroughs, and Private Beta deployment/operations guidance.
 
@@ -47,3 +48,4 @@ Roadmap, implementation task guidance, design-partner validation walkthroughs, a
 - `04-033_PHASE_4_5_MONITORING_AND_RECOVERY.md` defines safe operations monitoring, alert evidence, backup policy, and the isolated restore rehearsal.
 - `04-034_PHASE_4_5_PILOT_GATE.md` records the fail-closed final design-partner pilot decision and safe evidence identifiers.
 - `04-035_PHASE_4_5_STANDALONE_TEST_WORKFLOW_CLOSURE.md` records the supporting standalone GitHub test-workflow closure without replacing the pilot-gate authority.
+- `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` defines the governed Phase 5 learning-pilot sequence and its fail-closed authorization boundaries.

@@ -1,14 +1,14 @@
 # 05-005_IMPLEMENTATION_ORDER.md
 
 **Document ID:** 05-005
-**Version:** 3.1.0
+**Version:** 3.2.0
 **Status:** Approved (Engineering Kit v3.0)
 **Layer:** 4 - Repository Bootstrap
 **Owner:** Architecture Team
 
 # Implementation Order
 
-This document is the authoritative build sequence for Opportunity OS through the Phase 4.5 Design-Partner Readiness workstreams.
+This document is the authoritative build sequence for Opportunity OS through the Phase 5 Design-Partner Learning Pilot.
 
 Every Codex task must follow this order unless an approved Architecture Decision Record explicitly supersedes it.
 
@@ -61,10 +61,13 @@ The following milestones are complete in Engineering Kit v3.0:
 | Phase 4 M31 - Local Product Runtime | Complete | `apps/api`, `apps/web`, repository scripts |
 | Phase 4 M32 - Product Data Schema | Complete | `packages/database`, `apps/api` |
 | Phase 4 M33 - Reddit Live Provider Transport | Complete | `packages/connectors-reddit` |
+| Phase 4.5 - Design-Partner Readiness | Complete | production safety and opportunity intelligence; `TASK-P45-G01` GO |
 
 ## Current Platform State
 
-The repository now contains foundation packages, connector SDK/runtime/host contracts, Reddit connector contracts, deterministic non-network Reddit runtime behavior, Reddit provider transport contracts, controlled live Reddit provider transport, Raw Content contracts, Normalization contracts, Embedding contracts, LLM Analysis Foundation contracts, Structured Analysis Foundation contracts, Opportunity Engine Foundation contracts, Opportunity Pipeline Foundation contracts, Candidate Opportunity Engine contracts, Opportunity Generation Workflow Foundation contracts, the Opportunity Ranking Engine, the REST API application boundary in `apps/api`, the Dashboard MVP in `apps/web`, completed Product Validation Loop behavior for deterministic design-partner validation, completed Phase 3 Milestone 29 Private Beta deployment readiness, completed Phase 3 Milestone 30 Beta Operations policy, completed Phase 4 Milestone 31 Local Product Runtime, completed Phase 4 Milestone 32 Product Data Schema, completed Phase 4 Milestone 33 Reddit Live Provider Transport, and active Phase 4 Milestone 34 External MVP Runtime.
+The repository now contains the foundation, acquisition, intelligence, ranking, API, dashboard, persistence, invite-only identity, hosted-operation, owner-isolation, transactional-deletion, monitoring, backup, restore, rollback, and quality controls required by the closed Phase 4.5 gate. `TASK-P45-G01` returned `GO` with all 13 P0 checks passing for the controlled Stack Exchange pilot scope. Reddit-specific live readiness remains unverified.
+
+The active repository task is documentation-only `TASK-P5-G00`, which aligns the Phase 5 authority chain and freezes the learning-pilot plan. No Phase 5 runtime work or participant invitation is authorized by this transition.
 
 The repository does not yet contain:
 
@@ -90,7 +93,7 @@ Engineering Kit v3.0 establishes this future order:
 | Phase 4 M31 - Local Product Runtime | Complete | `apps/api`, `apps/web`, repository scripts |
 | Phase 4 M32 - Product Data Schema | Complete | `packages/database`, `apps/api` |
 | Phase 4 M33 - Reddit Live Provider Transport | Complete | `packages/connectors-reddit` |
-| Phase 4 M34 - External MVP Runtime | Active | deployment workflow, production env, health checks, readiness gate |
+| Phase 4 M34 - External MVP Runtime | Complete | deployment workflow, production env, health checks, readiness gate |
 
 ## Phase 4 M31 Boundary
 
@@ -1112,3 +1115,35 @@ pnpm lint
 ```
 
 Phase 4.5 documentation is established only when the roadmap, canonical execution plan, and implementation order contain the same stable task identifiers and dependency direction.
+
+Phase 4.5 closed on 2026-08-11 when its fail-closed pilot gate returned `GO` with 13 of 13 P0 checks passing. The Phase 4.5 plan, gate, and manifest remain closed historical evidence and a continuing prerequisite; they do not define the active Phase 5 task.
+
+## Phase 5 - Design-Partner Learning Pilot
+
+Phase 5 begins from merged baseline `f738112afcb9fa5d4aa71a49beb700561baa8781`. Its canonical plan is `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`, and its fail-closed draft state is `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json`.
+
+The authoritative order is:
+
+1. `TASK-P5-G00` Authority Transition And Phase Plan Freeze.
+2. `TASK-P5-G01` Pilot Evidence Contract And Gate, after G00 independent approval and separate authorization.
+3. `TASK-P5-A01` Cohort 1 Readiness, after G01 approval.
+4. `TASK-P5-A02` Cohort 1 Execution, after the pre-cohort gate and explicit invitation authorization.
+5. `TASK-P5-G02` Cohort 1 Decision.
+6. `TASK-P5-B01` Evidence-Led Remediation only when G02 records a concrete blocker and the remediation is separately authorized.
+7. `TASK-P5-A03` optional Cohort 2 Expansion, eligible only after G02 `GO`, no unresolved critical safety or reliability issue, and explicit cohort authorization.
+8. `TASK-P5-G03` Phase 5 Exit Gate after G02 and any remediation or additional cohort evidence required by the G01 evidence contract.
+
+Ordering rules:
+
+- `TASK-P5-G00` is documentation and governance only.
+- Phase 4.5 `pnpm verify:pilot-gate` must remain `GO` throughout Phase 5.
+- Phase 5 evidence and verifier semantics must be frozen before cohort readiness work begins.
+- every cohort must use a matched hosted API and web release;
+- safety P0 outcomes are evaluated before value metrics;
+- no cohort expansion occurs while a critical safety or reliability issue remains;
+- G01 must decide whether the exit gate can proceed from sufficient Cohort 1 and repeat-use evidence or requires Cohort 2; A03 is not mandatory until that rule is frozen;
+- value failure leads to evidence-led remediation, not automatic source or feature expansion;
+- Stack Exchange is the only verified live datasource for the pilot; Reddit readiness is not claimed; and
+- no Phase 5 `GO` automatically authorizes a subsequent phase.
+
+`TASK-P5-G00` completion follows the full non-recursive candidate-review, digest-bound closure-review, and exact-byte publication workflow in `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`. Authority consistency, the Phase 4.5 `GO` prerequisite, and deterministic verification are necessary but not sufficient on their own. Product work, deployment, production mutation, pilot invitations, and `TASK-P5-G01` remain prohibited until G00 is complete and the next task is separately authorized.

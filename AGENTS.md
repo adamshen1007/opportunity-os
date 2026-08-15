@@ -4,31 +4,33 @@
 
 Opportunity OS turns customer conversations into evidence-backed, explainable, ranked startup opportunities. Primary users are founders, product teams, and investors; the current release target is a controlled design-partner pilot.
 
-The repository is in **Phase 4.5 — Design-Partner Readiness**. The active milestone is `TASK-P45-G01`, the Safe and Valuable Design-Partner Pilot Gate. The authoritative decision and unresolved P0 checks are maintained in `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json`; do not duplicate revision-specific counts or blocker lists here.
+The repository is transitioning into **Phase 5 — Design-Partner Learning Pilot**. The active task is `TASK-P5-G00`, the Phase 5 Authority Transition and Plan Freeze. Its canonical plan and fail-closed draft state are maintained in `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` and `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json`.
 
-The current objective is to close the manifest's unresolved checks with safe evidence and make `pnpm verify:pilot-gate` return `GO`. Treat any non-`GO` result as blocking and do not invite design partners before then.
+Phase 4.5 is closed at `GO` with 13 of 13 P0 checks passing. Its manifest and `pnpm verify:pilot-gate` remain the production-safety prerequisite and must stay `GO`. Phase 5 itself remains `NO-GO`: product work, cohort preparation, and design-partner invitations are not authorized until G00 passes independent review and the applicable subsequent task is separately authorized.
 
 ## 2. Scope and Non-Goals
 
-Active Phase 4.5 scope is limited to the approved production-safety and opportunity-intelligence workstreams in `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md`, converging at `TASK-P45-G01`. Preserve the existing invite-only model, owner isolation, transactional deletion, evidence/provenance, deterministic quality benchmark, fail-closed provider behavior, and operator-safe monitoring and recovery controls.
+Active G00 scope is documentation and governance only: align the repository authority chain, freeze the Phase 5 plan, bootstrap the fail-closed Phase 5 manifest, and preserve the closed Phase 4.5 evidence. Preserve the existing invite-only model, owner isolation, transactional deletion, evidence/provenance, deterministic quality benchmark, fail-closed provider behavior, and operator-safe monitoring and recovery controls.
 
-The active milestone does not include enterprise features, additional connectors, payments, subscriptions, CRM integrations, notifications, multi-tenancy, schedulers, workers, recommendation engines, complex admin consoles, external identity providers, or infrastructure unrelated to the pilot.
+The active task does not include product code, workflows, migrations, provider configuration, infrastructure, deployments, production mutations, pilot invitations, or participant evidence. Phase 5 does not include enterprise features, additional connectors, payments, subscriptions, CRM integrations, notifications, multi-tenancy expansion, schedulers, workers, recommendation engines, complex admin consoles, external identity providers, or infrastructure unrelated to evidenced pilot remediation.
 
-**Do not implement in the active milestone:** future platform expansion, speculative integrations, broader production scale work, or any feature not required by a named Phase 4.5 acceptance criterion. Reddit-specific readiness remains unverified; verified Stack Exchange evidence must not be presented as Reddit readiness.
+**Do not implement during G00:** any runtime behavior or subsequent Phase 5 task. Reddit-specific readiness remains unverified; verified Stack Exchange evidence must not be presented as Reddit readiness.
 
 ## 3. Authoritative Documents
 
 Within repository scope, use this precedence order:
 
 1. `AGENTS.override.md`, if later added at an applicable path, then this `AGENTS.md`.
-2. `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md` for approved Phase 4.5 scope and acceptance criteria.
-3. `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md` and `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` for the current fail-closed decision and evidence state.
-4. Task-specific Phase 4.5 records indexed by `docs/04_IMPLEMENTATION/README.md`.
-5. `docs/00_INDEX/00-001_DOCUMENTATION_INDEX.md`, then the approved vision, engineering principles, architecture, domain model, PRD, specifications, and bootstrap documents it indexes.
-6. `developer-ai/` standards, patterns, playbooks, and checklists.
-7. Existing code, tests, package scripts, CI, and deployment configuration as implementation evidence.
+2. `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md` for Phase 5 scope, task order, acceptance criteria, gates, and authorization boundaries.
+3. `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json` for the current fail-closed Phase 5 state.
+4. Task-specific Phase 5 records indexed by `docs/04_IMPLEMENTATION/README.md`.
+5. `docs/04_IMPLEMENTATION/04-025_DESIGN_PARTNER_PILOT.md` for the approved pilot hypothesis, cohort structure, session flow, and value thresholds.
+6. `docs/04_IMPLEMENTATION/04-028_PHASE_4_5_EXECUTION_PLAN.md`, `docs/04_IMPLEMENTATION/04-034_PHASE_4_5_PILOT_GATE.md`, and `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` as closed Phase 4.5 scope and readiness evidence.
+7. `docs/00_INDEX/00-001_DOCUMENTATION_INDEX.md`, then the approved vision, engineering principles, architecture, domain model, PRD, specifications, and bootstrap documents it indexes.
+8. `developer-ai/` standards, patterns, playbooks, and checklists.
+9. Existing code, tests, package scripts, CI, and deployment configuration as implementation evidence.
 
-The approved active-milestone plan controls within its scope unless a higher-authority repository instruction explicitly overrides it. The current evidence manifest controls over earlier readiness summaries. Resolve other conflicts by preserving the narrowest safe Phase 4.5 interpretation and record the resolution.
+The approved active-task plan controls within its scope unless a higher-authority repository instruction explicitly overrides it. The current Phase 5 manifest controls over earlier Phase 5 readiness summaries; the Phase 4.5 manifest continues to control its closed prerequisite gate. Resolve other conflicts by preserving the narrowest safe Phase 5 interpretation and record the resolution.
 
 ## 4. Repository, Stack, and Layout
 
@@ -86,19 +88,19 @@ No repository-wide format command is defined; formatting is an unresolved comman
 
 ## 7. Acceptance and Verification Gates
 
-For any change, map the affected Phase 4.5 acceptance criteria to observable evidence and run the relevant gates. The full `TASK-P45-G01` decision requires:
+For any change, map the affected Phase 5 acceptance criteria to observable evidence and preserve the Phase 4.5 prerequisite. The documentation-only G00 decision requires:
 
 - repository and instruction inspection;
-- `pnpm repo:check`, `node scripts/verify-repository.mjs --phase phase-4-milestone-57`, `pnpm lint`, `pnpm build`, and `pnpm test`;
-- relevant targeted, integration, security, contract, browser, and smoke tests;
-- migration status, clean migration, production-like upgrade, idempotency, rollback, and isolated restore evidence when data or release behavior is involved;
-- two-user owner-isolation and transactional-deletion verification;
-- the frozen quality benchmark thresholds: clustering precision at least 85%, recall at least 75%, duplicate opportunity rate at most 10%, citation coverage 100%, ranking agreement at least 75%, improvement at least 15 percentage points, and repeatability 100%;
-- controlled live datasource and live LLM evidence without fixture substitution;
-- matched web/API release SHA, hosted health/CORS checks, hosted Playwright journey, rollback rehearsal, monitoring/alert evidence, and automated backups meeting the 24-hour RPO;
-- secrets and sensitive-data review, documentation/link/schema validation, whole-branch diff review against `main`, and a separate review pass.
+- authority consistency across `AGENTS.md`, the Phase 5 plan and manifest, the roadmap, the implementation order, both documentation indexes, and the pilot contract;
+- `git diff --check`, `pnpm repo:check`, `node scripts/verify-repository.mjs --phase phase-4-milestone-57`, `pnpm lint`, `pnpm build`, `pnpm test`, and `docker compose config`;
+- stale-current-authority and secret-pattern scans;
+- `pnpm verify:pilot-gate` remaining `GO` with 13 of 13 checks passing and no unresolved entries;
+- a whole-branch diff review against `main`; and
+- the two-stage independent candidate and closure review defined by `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`.
 
-The gate is fail-closed: every P0 check in `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` must be `pass`, and `pnpm verify:pilot-gate` must return `GO`. Never claim an operator or hosted gate from repository-only evidence. For each skipped gate, record the reason, strongest substitute evidence, and readiness impact.
+Migration, rollback, hosted two-user isolation, live-provider, alert, backup, restore, and frozen quality-benchmark outcomes are closed Phase 4.5 prerequisite evidence. G00 preserves their gate result; it does not rerun or re-prove those operator and hosted rehearsals.
+
+The Phase 4.5 prerequisite remains fail-closed: every P0 check in `docs/04_IMPLEMENTATION/evidence/phase-4-5-pilot-gate.json` must stay `pass`, and `pnpm verify:pilot-gate` must return `GO`. The Phase 5 bootstrap manifest remains `NO-GO` until its governed checks pass. Never claim an operator, cohort, value, or hosted gate from repository-only evidence. For each skipped gate, record the reason, strongest substitute evidence, and readiness impact.
 
 ## 8. Git and Publication Boundaries
 
@@ -114,4 +116,4 @@ Follow the global working agreement for human-only actions. Repository-specific 
 
 ## 10. Repository-Specific Completion Additions
 
-Follow the global completion-report contract. For Opportunity OS, also report the current pilot-manifest decision, unresolved P0 check IDs, fixture-versus-live evidence, skipped hosted or operator gates, and whether `pnpm verify:pilot-gate` returned `GO`. Do not recommend beginning a new milestone while the active gate remains non-`GO`.
+Follow the global completion-report contract. For Opportunity OS, also report the current Phase 5 manifest decision, unresolved P0 check IDs, the closed Phase 4.5 prerequisite decision, fixture-versus-live evidence, skipped hosted or operator gates, and whether `pnpm verify:pilot-gate` returned `GO`. Do not recommend beginning a subsequent task or phase while its governing gate remains non-`GO`.

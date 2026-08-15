@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "0.1.0",
+  "phaseId": "P5",
+  "phaseGateTaskId": "TASK-P5-G03",
+  "currentTaskId": "TASK-P5-G00",
+  "recordedAt": "2026-08-15",
+  "baselineSha": "f738112afcb9fa5d4aa71a49beb700561baa8781",
+  "status": "draft",
+  "decision": "NO-GO",
+  "productRuntimeImplementationAuthorized": false,
+  "cohortInvitationsAuthorized": false,
+  "governanceClosure": {
+    "candidateReview": "pass",
+    "closureReviewRequired": true,
+    "publicationToMainRequired": true,
+    "externalEvidenceRule": "The authority transition is satisfied only when an independent closure-review PASS names the canonical eight-file final-state SHA-256 digest defined by the Phase 5 plan and the same eight-file state is published to main with matching pre-publication and post-merge digests; reviewed bytes must not change after PASS."
+  },
+  "checks": [
+    {
+      "id": "prerequisite.phase-4-5-pilot-gate",
+      "area": "prerequisite",
+      "priority": "P0",
+      "status": "pass",
+      "evidenceId": "phase-4-5-pilot-gate-go-13-of-13-20260811",
+      "safeSummary": "The closed Phase 4.5 production-safety and intelligence gate passed all 13 P0 checks for the controlled Stack Exchange pilot scope."
+    },
+    {
+      "id": "governance.authority-transition",
+      "area": "governance",
+      "priority": "P0",
+      "status": "external-required",
+      "evidenceId": "phase-5-governance-digest-bound-review-and-publication-required",
+      "safeSummary": "The Phase 5 authority transition requires a candidate review, a digest-bound independent closure-review PASS, and publication of the exact reviewed bytes to main before G00 is complete."
+    },
+    {
+      "id": "governance.evidence-contract",
+      "area": "governance",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "phase-5-evidence-contract-not-started",
+      "safeSummary": "The session, cohort, privacy, aggregation, and exit-gate evidence contract remains to be frozen by TASK-P5-G01."
+    },
+    {
+      "id": "cohort-1.readiness",
+      "area": "cohort-1",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "phase-5-cohort-1-readiness-not-started",
+      "safeSummary": "The matched release, narrow domain, five-participant cohort, protocol, and operator procedure are not yet authorized or frozen."
+    },
+    {
+      "id": "cohort-1.execution",
+      "area": "cohort-1",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "phase-5-cohort-1-execution-not-started",
+      "safeSummary": "No Phase 5 design-partner session is authorized or recorded."
+    },
+    {
+      "id": "cohort-1.decision",
+      "area": "cohort-1",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "phase-5-cohort-1-decision-not-started",
+      "safeSummary": "Cohort 1 safety, reliability, trust, and value evidence has not been evaluated."
+    },
+    {
+      "id": "phase.exit-review",
+      "area": "phase-exit",
+      "priority": "P0",
+      "status": "manual-required",
+      "evidenceId": "phase-5-exit-review-not-started",
+      "safeSummary": "The Phase 5 value and trust hypothesis has not been evaluated or independently reviewed."
+    }
+  ],
+  "openDecisions": [
+    {
+      "id": "cohort-2.exit-requirement",
+      "ownerTaskId": "TASK-P5-G01",
+      "status": "unresolved",
+      "safeSummary": "G01 must decide whether sufficient Cohort 1 and repeat-use evidence can reach the exit gate or whether Cohort 2 evidence is required; expansion is eligible after G02 GO but is not mandatory in this bootstrap manifest."
+    }
+  ],
+  "notes": [
+    "This bootstrap manifest is not consumed by pnpm verify:pilot-gate.",
+    "TASK-P5-G01 must freeze Phase 5 evidence and verifier semantics before cohort readiness work begins.",
+    "Reddit live readiness remains outside the verified pilot scope."
+  ]
+}
