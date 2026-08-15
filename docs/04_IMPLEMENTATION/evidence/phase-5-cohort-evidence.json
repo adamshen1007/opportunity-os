@@ -6,10 +6,10 @@
   "validationHistory": [],
   "cohort1": {
     "cohortId": "cohort-1",
-    "state": "not-started",
+    "state": "ready",
     "validationRevision": 1,
-    "releaseSha": null,
-    "domainId": null,
+    "releaseSha": "28c4f93cc1a77c9452cf593ad07a2a05c19d1ce4",
+    "domainId": "small-ecommerce-powerful-customer-services-v1",
     "datasource": "stack-exchange",
     "mode": "live",
     "g02Decision": "not-evaluated",

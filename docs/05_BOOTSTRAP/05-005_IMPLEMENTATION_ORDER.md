@@ -67,7 +67,7 @@ The following milestones are complete in Engineering Kit v3.0:
 
 The repository now contains the foundation, acquisition, intelligence, ranking, API, dashboard, persistence, invite-only identity, hosted-operation, owner-isolation, transactional-deletion, monitoring, backup, restore, rollback, and quality controls required by the closed Phase 4.5 gate. `TASK-P45-G01` returned `GO` with all 13 P0 checks passing for the controlled Stack Exchange pilot scope. Reddit-specific live readiness remains unverified.
 
-G00 is externally complete at its independently reviewed and exact-byte published state. The active repository task is `TASK-P5-G01`, which freezes aggregate evidence, privacy, metric arithmetic, Cohort 2, remediation, and deterministic gate semantics. No Phase 5 product/runtime work, cohort readiness, participant selection, or invitation is authorized.
+G01 is externally complete at its independently reviewed and exact-byte published state. The active repository task is `TASK-P5-A01`, which freezes aggregate-only Cohort 1 readiness, the matched release, current production safeguards, approved narrow domain, private roster facts, and operator protocol. No Phase 5 product/runtime work, invitation, session execution, or A02 work is authorized.
 
 The repository does not yet contain:
 
@@ -1125,8 +1125,8 @@ Phase 5 governance began from baseline `f738112afcb9fa5d4aa71a49beb700561baa8781
 The authoritative order is:
 
 1. `TASK-P5-G00` Authority Transition And Phase Plan Freeze - externally complete.
-2. `TASK-P5-G01` Pilot Evidence Contract And Gate - active, after G00 independent approval, exact-byte publication, and separate authorization.
-3. `TASK-P5-A01` Cohort 1 Readiness, after G01 approval.
+2. `TASK-P5-G01` Pilot Evidence Contract And Gate - externally complete at the reviewed and published G01 state.
+3. `TASK-P5-A01` Cohort 1 Readiness - active, after G01 approval and separate authorization.
 4. `TASK-P5-A02` Cohort 1 Execution, after the pre-cohort gate and explicit invitation authorization.
 5. `TASK-P5-G02` Cohort 1 Decision.
 6. `TASK-P5-B01` Evidence-Led Remediation only when G02 records a concrete blocker and the remediation is separately authorized.
@@ -1135,7 +1135,7 @@ The authoritative order is:
 
 Ordering rules:
 
-- `TASK-P5-G00` is historical complete; `TASK-P5-G01` is aggregate evidence governance and deterministic repository tooling only.
+- `TASK-P5-G00` and `TASK-P5-G01` are historically complete; `TASK-P5-A01` is aggregate-only Cohort 1 readiness governance.
 - Phase 4.5 `pnpm verify:pilot-gate` must remain `GO` throughout Phase 5.
 - Phase 5 evidence and verifier semantics must be frozen before cohort readiness work begins.
 - every cohort must use a matched hosted API and web release;
@@ -1146,4 +1146,4 @@ Ordering rules:
 - Stack Exchange is the only verified live datasource for the pilot; Reddit readiness is not claimed; and
 - no Phase 5 `GO` automatically authorizes a subsequent phase.
 
-`TASK-P5-G00` completed through the full non-recursive candidate-review, digest-bound closure-review, and exact-byte publication workflow in `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`. `TASK-P5-G01` uses its own non-self-referential independent-review and exact-byte publication rule. Product/runtime work, deployment, production mutation, participant selection, pilot invitations, and `TASK-P5-A01` remain prohibited until G01 is externally complete and A01 is separately authorized.
+`TASK-P5-G00` and `TASK-P5-G01` completed through their governed independent-review and exact-byte publication workflows. `TASK-P5-A01` is separately authorized for readiness governance only. Product/runtime work, deployment, production mutation, invite creation or sending, sessions, and `TASK-P5-A02` remain prohibited until the A01 candidate passes independent review and its exact reviewed bytes are published and verified.

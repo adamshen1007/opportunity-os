@@ -6,7 +6,7 @@
 
 **Contract version:** `phase-5-pilot-evidence-v1`
 
-**Status:** Candidate - Independent Review Required
+**Status:** Approved - Externally Complete
 
 **Baseline:** `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91`
 
@@ -14,11 +14,11 @@
 
 ## 1. Decision
 
-**PHASE 5 G01 EVIDENCE CONTRACT READY - INDEPENDENT REVIEW REQUIRED**
+**PHASE 5 G01 EVIDENCE CONTRACT EXTERNALLY COMPLETE**
 
-This contract freezes aggregate evidence and deterministic gate semantics for the Phase 5 design-partner learning pilot. It collects no participant evidence and authorizes no product/runtime change, deployment, production mutation, provider change, participant selection, invitation, cohort execution, or `TASK-P5-A01` work.
+This contract freezes aggregate evidence and deterministic gate semantics for the Phase 5 design-partner learning pilot. The exact reviewed G01 state was published to `main` at `28c4f93cc1a77c9452cf593ad07a2a05c19d1ce4`, with canonical digest `930185fc07283f0ed175fe0ede59985dfa22abe225b25c42bef55906500b9109`. It collects no participant evidence and authorizes no product/runtime change, deployment, production mutation, provider change, invitation, or cohort execution.
 
-Phase 5 remains `NO-GO`. `productRuntimeImplementationAuthorized` and `cohortInvitationsAuthorized` remain false.
+Phase 5 remains `NO-GO`. `productRuntimeImplementationAuthorized` remains false. A01 governs any candidate invitation flag and its publication-effectiveness boundary.
 
 ## 2. Authority And Preconditions
 
@@ -177,7 +177,7 @@ It must not hold names, emails, participant references or pseudonyms, hashes of 
 ## 8. Machine-Readable Artifacts
 
 - `evidence/phase-5-design-partner-pilot.json` owns Phase 5 authority/check state.
-- `evidence/phase-5-cohort-evidence.json` owns aggregate cohort values and validation history. Its G01 candidate contains no real participant evidence and remains `not-started`.
+- `evidence/phase-5-cohort-evidence.json` owns aggregate cohort values and validation history. Its A01 candidate records only a `ready` state and binding metadata; all participant/session/value/safety counts remain zero.
 - `schemas/phase-5-cohort-evidence.schema.json` closes the aggregate shape, enums, allowed fields, and non-negative integer counts.
 - `scripts/verify-phase-5-design-partner-pilot.mjs` validates and evaluates the records without network, database, secrets, or dependencies.
 - `scripts/verify-phase-5-design-partner-pilot.test.mjs` freezes negative and boundary behavior.
@@ -186,7 +186,7 @@ The verifier closes the Phase 5 manifest as well as the cohort evidence: only th
 
 ## 9. Deterministic Gate Lifecycle
 
-`pnpm verify:phase-5-gate` fails closed and returns `NO-GO` during G01/A01/A02/G02 until evidence and governed checks support another decision. Its nonzero exit for the empty G01 record is expected.
+`pnpm verify:phase-5-gate` fails closed and returns `NO-GO` during A01/A02/G02 until evidence and governed checks support another decision. Its nonzero exit for the zero-activity A01 record is expected.
 
 Final Phase 5 `GO` additionally requires `currentTaskId = TASK-P5-G03` and every canonical P0 check, including `phase.exit-review`, to be `pass`; passing Cohort 1 value metrics alone can never produce the phase decision.
 
@@ -194,18 +194,18 @@ For G03, substantive evidence is frozen before independent whole-evidence candid
 
 ## 10. G01 Completion And Handoff
 
-G01 remains externally required in the candidate manifest. It completes externally only after:
+G01 completed externally after:
 
 1. fresh independent candidate review passes;
 2. exact candidate bytes pass deterministic verification;
 3. separately authorized publication puts those exact reviewed bytes on `main`; and
 4. published bytes are verified unchanged.
 
-Until then:
+A01 is now the active readiness task. Until its candidate passes independent review and exact-byte publication verification:
 
 ```text
 Phase 5: NO-GO
 product/runtime implementation: NOT AUTHORIZED
-cohort invitations: NOT AUTHORIZED
-TASK-P5-A01: NOT AUTHORIZED
+cohort invitations: NOT OPERATIONALLY EFFECTIVE
+TASK-P5-A02: NOT AUTHORIZED
 ```
