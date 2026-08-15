@@ -67,7 +67,7 @@ The following milestones are complete in Engineering Kit v3.0:
 
 The repository now contains the foundation, acquisition, intelligence, ranking, API, dashboard, persistence, invite-only identity, hosted-operation, owner-isolation, transactional-deletion, monitoring, backup, restore, rollback, and quality controls required by the closed Phase 4.5 gate. `TASK-P45-G01` returned `GO` with all 13 P0 checks passing for the controlled Stack Exchange pilot scope. Reddit-specific live readiness remains unverified.
 
-The active repository task is documentation-only `TASK-P5-G00`, which aligns the Phase 5 authority chain and freezes the learning-pilot plan. No Phase 5 runtime work or participant invitation is authorized by this transition.
+G00 is externally complete at its independently reviewed and exact-byte published state. The active repository task is `TASK-P5-G01`, which freezes aggregate evidence, privacy, metric arithmetic, Cohort 2, remediation, and deterministic gate semantics. No Phase 5 product/runtime work, cohort readiness, participant selection, or invitation is authorized.
 
 The repository does not yet contain:
 
@@ -1120,12 +1120,12 @@ Phase 4.5 closed on 2026-08-11 when its fail-closed pilot gate returned `GO` wit
 
 ## Phase 5 - Design-Partner Learning Pilot
 
-Phase 5 begins from merged baseline `f738112afcb9fa5d4aa71a49beb700561baa8781`. Its canonical plan is `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`, and its fail-closed draft state is `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json`.
+Phase 5 governance began from baseline `f738112afcb9fa5d4aa71a49beb700561baa8781`; G01 begins from published G00 main SHA `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91`. Its canonical plan is `docs/04_IMPLEMENTATION/04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`, its G01 contract is `docs/04_IMPLEMENTATION/04-037_PHASE_5_EVIDENCE_CONTRACT.md`, and its fail-closed state is `docs/04_IMPLEMENTATION/evidence/phase-5-design-partner-pilot.json`.
 
 The authoritative order is:
 
-1. `TASK-P5-G00` Authority Transition And Phase Plan Freeze.
-2. `TASK-P5-G01` Pilot Evidence Contract And Gate, after G00 independent approval and separate authorization.
+1. `TASK-P5-G00` Authority Transition And Phase Plan Freeze - externally complete.
+2. `TASK-P5-G01` Pilot Evidence Contract And Gate - active, after G00 independent approval, exact-byte publication, and separate authorization.
 3. `TASK-P5-A01` Cohort 1 Readiness, after G01 approval.
 4. `TASK-P5-A02` Cohort 1 Execution, after the pre-cohort gate and explicit invitation authorization.
 5. `TASK-P5-G02` Cohort 1 Decision.
@@ -1135,15 +1135,15 @@ The authoritative order is:
 
 Ordering rules:
 
-- `TASK-P5-G00` is documentation and governance only.
+- `TASK-P5-G00` is historical complete; `TASK-P5-G01` is aggregate evidence governance and deterministic repository tooling only.
 - Phase 4.5 `pnpm verify:pilot-gate` must remain `GO` throughout Phase 5.
 - Phase 5 evidence and verifier semantics must be frozen before cohort readiness work begins.
 - every cohort must use a matched hosted API and web release;
 - safety P0 outcomes are evaluated before value metrics;
 - no cohort expansion occurs while a critical safety or reliability issue remains;
-- G01 must decide whether the exit gate can proceed from sufficient Cohort 1 and repeat-use evidence or requires Cohort 2; A03 is not mandatory until that rule is frozen;
+- Cohort 2 is optional after a genuine G02 `GO`; direct G03 eligibility is allowed from sufficient Cohort 1 and repeat-use evidence, while completed Cohort 2 evidence is mandatory in final aggregates if A03 executes;
 - value failure leads to evidence-led remediation, not automatic source or feature expansion;
 - Stack Exchange is the only verified live datasource for the pilot; Reddit readiness is not claimed; and
 - no Phase 5 `GO` automatically authorizes a subsequent phase.
 
-`TASK-P5-G00` completion follows the full non-recursive candidate-review, digest-bound closure-review, and exact-byte publication workflow in `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`. Authority consistency, the Phase 4.5 `GO` prerequisite, and deterministic verification are necessary but not sufficient on their own. Product work, deployment, production mutation, pilot invitations, and `TASK-P5-G01` remain prohibited until G00 is complete and the next task is separately authorized.
+`TASK-P5-G00` completed through the full non-recursive candidate-review, digest-bound closure-review, and exact-byte publication workflow in `04-036_PHASE_5_DESIGN_PARTNER_PILOT_PLAN.md`. `TASK-P5-G01` uses its own non-self-referential independent-review and exact-byte publication rule. Product/runtime work, deployment, production mutation, participant selection, pilot invitations, and `TASK-P5-A01` remain prohibited until G01 is externally complete and A01 is separately authorized.

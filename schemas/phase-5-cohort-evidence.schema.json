@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opportunity-os.local/schemas/phase-5-cohort-evidence.schema.json",
+  "title": "Opportunity OS Phase 5 aggregate cohort evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractVersion",
+    "phaseId",
+    "currentValidationRevision",
+    "validationHistory",
+    "cohort1",
+    "cohort2"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "contractVersion": { "const": "phase-5-pilot-evidence-v1" },
+    "phaseId": { "const": "P5" },
+    "currentValidationRevision": { "type": "integer", "minimum": 1 },
+    "validationHistory": {
+      "type": "array",
+      "$comment": "The verifier requires exactly one contiguous entry for every revision before currentValidationRevision; JSON Schema cannot express that cross-field length relationship.",
+      "items": { "$ref": "#/$defs/validationHistoryEntry" }
+    },
+    "cohort1": { "$ref": "#/$defs/cohort" },
+    "cohort2": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/cohort" }
+      ]
+    }
+  },
+  "$defs": {
+    "nonNegativeInteger": { "type": "integer", "minimum": 0 },
+    "validationHistoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validationRevision", "decision", "evidenceId", "evidenceDigest"],
+      "properties": {
+        "validationRevision": { "type": "integer", "minimum": 1 },
+        "decision": { "enum": ["GO", "NO-GO"] },
+        "evidenceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-z0-9][a-z0-9.-]{0,159}$"
+        },
+        "evidenceDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "cohort": {
+      "type": "object",
+      "$comment": "The dependency-free verifier enforces cross-field count arithmetic, live-session backing, lifecycle consistency, and completed Cohort 2 eligibility.",
+      "additionalProperties": false,
+      "required": [
+        "cohortId",
+        "state",
+        "validationRevision",
+        "releaseSha",
+        "domainId",
+        "datasource",
+        "mode",
+        "g02Decision",
+        "primaryParticipantCount",
+        "primarySessionCount",
+        "initiatedLiveScanAttempts",
+        "completedLiveScanAttempts",
+        "primarySessionsWithSavedOpportunity",
+        "usefulnessRatingCount",
+        "usefulnessRatingSum",
+        "evidenceQualityRatingCount",
+        "evidenceQualityRatingSum",
+        "rankingQualityRatingCount",
+        "rankingQualityRatingSum",
+        "displayedLiveOpportunityCount",
+        "displayedLiveOpportunityWithEvidenceAndProvenanceCount",
+        "voluntaryRepeatParticipantCount",
+        "fixtureSessionCount",
+        "liveSessionCount",
+        "criticalSecretExposureCount",
+        "unauthorizedAccessIncidentCount",
+        "dataLossIncidentCount",
+        "criticalReliabilityIncidentCount"
+      ],
+      "properties": {
+        "cohortId": { "enum": ["cohort-1", "cohort-2"] },
+        "state": { "enum": ["not-started", "ready", "in-progress", "completed", "invalidated"] },
+        "validationRevision": { "type": "integer", "minimum": 1 },
+        "releaseSha": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+          ]
+        },
+        "domainId": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" }
+          ]
+        },
+        "datasource": { "const": "stack-exchange" },
+        "mode": { "const": "live" },
+        "g02Decision": { "enum": ["not-evaluated", "GO", "NO-GO"] },
+        "primaryParticipantCount": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "primarySessionCount": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "initiatedLiveScanAttempts": { "$ref": "#/$defs/nonNegativeInteger" },
+        "completedLiveScanAttempts": { "$ref": "#/$defs/nonNegativeInteger" },
+        "primarySessionsWithSavedOpportunity": { "$ref": "#/$defs/nonNegativeInteger" },
+        "usefulnessRatingCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "usefulnessRatingSum": { "$ref": "#/$defs/nonNegativeInteger" },
+        "evidenceQualityRatingCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "evidenceQualityRatingSum": { "$ref": "#/$defs/nonNegativeInteger" },
+        "rankingQualityRatingCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "rankingQualityRatingSum": { "$ref": "#/$defs/nonNegativeInteger" },
+        "displayedLiveOpportunityCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "displayedLiveOpportunityWithEvidenceAndProvenanceCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "voluntaryRepeatParticipantCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "fixtureSessionCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "liveSessionCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "criticalSecretExposureCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "unauthorizedAccessIncidentCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "dataLossIncidentCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "criticalReliabilityIncidentCount": { "$ref": "#/$defs/nonNegativeInteger" }
+      }
+    }
+  }
+}
