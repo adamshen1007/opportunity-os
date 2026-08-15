@@ -93,8 +93,8 @@ Closed readiness prerequisite:
 Current:
 
 - Phase 5 Design-Partner Learning Pilot
-- `TASK-P5-G01` Pilot Evidence Contract And Gate
-- aggregate evidence governance and deterministic gate tooling only; product/runtime work and invitations remain unauthorized
+- `TASK-P5-A01` Cohort 1 Readiness
+- aggregate-only readiness governance; product/runtime work, invitations, and sessions remain unauthorized pending reviewed publication
 
 Slice G is the final External MVP Runtime readiness gate. It validates repository policy, lint, build, tests, Playwright, Docker Compose, env-gated Reddit smoke testing, env-gated LLM smoke testing, the deployment checklist, Reddit setup guide, LLM setup guide, dashboard walkthrough, smoke test report, and Go / No-Go decision in `docs/04_IMPLEMENTATION/04-022_EXTERNAL_MVP_READINESS_GATE.md`.
 
@@ -3235,7 +3235,7 @@ The governed order is:
 7. `TASK-P5-A03` optional Cohort 2 Expansion, eligible only after G02 `GO` and explicit cohort authorization.
 8. `TASK-P5-G03` Phase 5 Exit Gate after G02 and any additional evidence required by the G01 contract.
 
-G00 is externally complete at the exact independently reviewed and published state. The active task is `TASK-P5-G01`. It may change aggregate evidence governance, schema, and dependency-free repository gate tooling only. No product/runtime code, provider configuration, migration, infrastructure, deployment, production mutation, participant selection, pilot invitation, or A01 work is authorized during G01.
+G01 is externally complete at the exact independently reviewed and published state. The active task is `TASK-P5-A01`. It may freeze the matched release, current production safeguards, approved narrow domain, private five-person cohort facts, and operator protocol only. No product/runtime code, provider configuration, migration, infrastructure, deployment, production mutation, invitation, session, or A02 work is authorized during A01.
 
 Phase 5 begins with five design partners in one narrow domain and the verified Stack Exchange live scope. Cohort 2 is optional: G03 may proceed directly after a genuine current-revision G02 `GO` when all thresholds, repeat-use rules, safety/reliability rules, and other prerequisites pass. If Cohort 2 executes, its completed evidence is mandatory in the final aggregate and cannot be ignored. Reddit remains outside verified scope.
 

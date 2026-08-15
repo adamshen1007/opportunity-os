@@ -2,16 +2,16 @@
   "schemaVersion": "1.0.0",
   "phaseId": "P5",
   "phaseGateTaskId": "TASK-P5-G03",
-  "currentTaskId": "TASK-P5-G01",
+  "currentTaskId": "TASK-P5-A01",
   "recordedAt": "2026-08-15",
   "baselineSha": "f738112afcb9fa5d4aa71a49beb700561baa8781",
   "status": "candidate",
   "decision": "NO-GO",
   "productRuntimeImplementationAuthorized": false,
-  "cohortInvitationsAuthorized": false,
+  "cohortInvitationsAuthorized": true,
   "publishedGovernanceBaseline": {
-    "mainSha": "9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91",
-    "canonicalDigest": "fa6f76f97b4fbea15dc47f504287c51357be49407e00671e834e36b67e82d9bb"
+    "mainSha": "28c4f93cc1a77c9452cf593ad07a2a05c19d1ce4",
+    "canonicalDigest": "930185fc07283f0ed175fe0ede59985dfa22abe225b25c42bef55906500b9109"
   },
   "checks": [
     {
@@ -34,17 +34,17 @@
       "id": "governance.evidence-contract",
       "area": "governance",
       "priority": "P0",
-      "status": "external-required",
-      "evidenceId": "phase-5-evidence-contract-independent-review-and-publication-required",
-      "safeSummary": "The G01 evidence contract and deterministic gate are a candidate until independent review passes and the exact reviewed bytes are separately published to main."
+      "status": "pass",
+      "evidenceId": "phase-5-evidence-contract-published-main-28c4f93-20260815",
+      "safeSummary": "The independently reviewed G01 evidence contract and deterministic gate were published unchanged to main and their canonical digest matched the reviewed state."
     },
     {
       "id": "cohort-1.readiness",
       "area": "cohort-1",
       "priority": "P0",
-      "status": "manual-required",
-      "evidenceId": "phase-5-cohort-1-readiness-not-started",
-      "safeSummary": "The matched release, narrow domain, five-participant cohort, protocol, and operator procedure are not yet authorized or frozen."
+      "status": "external-required",
+      "evidenceId": "phase-5-cohort-1-readiness-candidate-20260815",
+      "safeSummary": "The matched release, current production safeguards, narrow domain, private five-person roster, and operator protocol are frozen in the A01 candidate pending independent review and exact-byte publication."
     },
     {
       "id": "cohort-1.execution",
@@ -83,7 +83,8 @@
   ],
   "notes": [
     "The Phase 5 gate reads aggregate-only cohort evidence and makes no network or database calls.",
-    "TASK-P5-A01 remains unauthorized until G01 independent review and exact-byte publication are externally verified and A01 is separately authorized.",
+    "G01 is externally complete at the independently reviewed and published main state; A01 is the active authorized readiness task.",
+    "The invitation flag is not operationally effective until the A01 candidate passes independent review and its exact reviewed bytes are published and verified on main.",
     "Reddit live readiness remains outside the verified pilot scope."
   ]
 }

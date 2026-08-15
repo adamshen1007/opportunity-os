@@ -2,23 +2,23 @@
 
 **Document ID:** 04-036
 
-**Task:** `TASK-P5-G01`
+**Task:** `TASK-P5-A01`
 
 **Phase:** Phase 5 - Design-Partner Learning Pilot
 
-**Status:** G01 Candidate - Independent Review Required
+**Status:** A01 Candidate - Independent Review Required
 
-**Baseline:** `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91`
+**Baseline:** `28c4f93cc1a77c9452cf593ad07a2a05c19d1ce4`
 
 **Recorded:** 2026-08-15
 
 ## 1. Decision
 
-**PHASE 5 G01 EVIDENCE CONTRACT READY - INDEPENDENT REVIEW REQUIRED**
+**PHASE 5 A01 COHORT 1 READINESS READY - INDEPENDENT REVIEW REQUIRED**
 
-Phase 4.5 is closed at `GO` with all 13 P0 checks passing. G00 is externally complete: PR #5 published the exact reviewed authority state to `main` at `9dd3dd6c3e1e71f0a131778ecbc731d7480ceb91`, and the merged-main canonical digest matched `fa6f76f97b4fbea15dc47f504287c51357be49407e00671e834e36b67e82d9bb`.
+Phase 4.5 is closed at `GO` with all 13 P0 checks passing. G01 is externally complete at merged `main` SHA `28c4f93cc1a77c9452cf593ad07a2a05c19d1ce4`; the published canonical G01 digest is `930185fc07283f0ed175fe0ede59985dfa22abe225b25c42bef55906500b9109`.
 
-G01 is the active authorized task. It may freeze aggregate evidence semantics and add dependency-free deterministic gate tooling only. No pilot invitation, product/runtime work, production mutation, provider expansion, deployment, or `TASK-P5-A01` work is authorized.
+A01 is the active authorized task. It may freeze aggregate-only Cohort 1 readiness, including the matched release, current production safeguards, approved narrow domain, private five-person cohort facts, and operator protocol. No pilot invitation, session, product/runtime work, production mutation, provider expansion, deployment, or `TASK-P5-A02` work is authorized.
 
 ## 2. Authority Chain
 
@@ -33,7 +33,7 @@ Current Phase 5 authority is:
 7. Phase 4.5 records as closed historical readiness evidence.
 8. Stable product, architecture, and engineering foundations.
 
-The Phase 4.5 manifest remains the authoritative production-safety prerequisite and `pnpm verify:pilot-gate` must continue to return `GO`. It is not the Phase 5 exit gate. The Phase 5 manifest and `04-037_PHASE_5_EVIDENCE_CONTRACT.md` now freeze the v1 session, cohort, privacy, aggregation, remediation, and exit-gate semantics; the candidate remains fail-closed pending independent review and exact-byte publication.
+The Phase 4.5 manifest remains the authoritative production-safety prerequisite and `pnpm verify:pilot-gate` must continue to return `GO`. It is not the Phase 5 exit gate. The Phase 5 manifest and `04-037_PHASE_5_EVIDENCE_CONTRACT.md` freeze the v1 session, cohort, privacy, aggregation, remediation, and exit-gate semantics. `04-038_PHASE_5_COHORT_1_READINESS.md` owns the A01 candidate boundary; it remains fail-closed pending independent review and exact-byte publication.
 
 ## 3. Objective
 
@@ -83,8 +83,8 @@ If pilot evidence exposes a blocker that cannot be resolved safely within the ex
 | Order | Task | Purpose | Authorization boundary |
 | ---: | --- | --- | --- |
 | 1 | `TASK-P5-G00` - Authority Transition And Phase Plan Freeze | Make Phase 5 repository-authoritative. | Externally complete at the reviewed/published G00 state. |
-| 2 | `TASK-P5-G01` - Pilot Evidence Contract And Gate | Define machine-readable session, cohort, privacy, aggregation, and Phase 5 gate semantics. | Active; evidence governance and deterministic repository tooling only. |
-| 3 | `TASK-P5-A01` - Cohort 1 Readiness | Freeze the matched release, narrow domain, protocol, five-participant cohort, and operator procedure. | No product feature work. No invitations before this gate passes. |
+| 2 | `TASK-P5-G01` - Pilot Evidence Contract And Gate | Define machine-readable session, cohort, privacy, aggregation, and Phase 5 gate semantics. | Externally complete at the reviewed and published G01 state. |
+| 3 | `TASK-P5-A01` - Cohort 1 Readiness | Freeze the matched release, narrow domain, protocol, five-participant cohort, and operator procedure. | Active; no product feature work, invitation, or session before reviewed publication. |
 | 4 | `TASK-P5-A02` - Cohort 1 Execution | Run the first five controlled design-partner sessions. | Production operation only under the approved procedure. |
 | 5 | `TASK-P5-G02` - Cohort 1 Decision | Evaluate safety, reliability, trust, and value evidence. | Evidence and review only. |
 | 6 | `TASK-P5-B01` - Evidence-Led Remediation | Correct an explicit blocker demonstrated by G02 evidence. | Conditional and separately authorized; skip if no remediation is required. |
@@ -275,13 +275,13 @@ The candidate is ready for independent review only when:
 - no product/runtime, provider, migration, infrastructure, deployment, production, invitation, or participant action occurs; and
 - all prescribed local verification passes.
 
-G01 uses a non-self-referential publication rule. `governance.evidence-contract` remains `external-required` in the candidate. G01 becomes externally complete only when an independent review passes, the exact reviewed bytes are separately published to `main`, and the published bytes are verified unchanged. No closure-only mutation is required to set the candidate check to `pass`; a later governed task may record the completed historical fact.
+G01 used a non-self-referential publication rule. `governance.evidence-contract` remained `external-required` in the G01 candidate and became externally complete only after independent review passed, the exact reviewed bytes were separately published to `main`, and the published bytes were verified unchanged. No closure-only mutation was required; A01 now records that completed historical fact.
 
-Until that external completion and separate A01 authorization:
+G01 is externally complete at merged main SHA `28c4f93cc1a77c9452cf593ad07a2a05c19d1ce4`, with canonical digest `930185fc07283f0ed175fe0ede59985dfa22abe225b25c42bef55906500b9109`. A01 is separately authorized for readiness governance. Until the A01 candidate passes independent review and exact-byte publication verification:
 
 ```text
 Phase 5: NO-GO
 product/runtime implementation: NOT AUTHORIZED
-cohort invitations: NOT AUTHORIZED
-TASK-P5-A01: NOT AUTHORIZED
+cohort invitations: NOT OPERATIONALLY EFFECTIVE
+TASK-P5-A02: NOT AUTHORIZED
 ```
