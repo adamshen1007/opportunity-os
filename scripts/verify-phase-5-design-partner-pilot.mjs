@@ -234,6 +234,7 @@ export function evaluateCohortMetrics(input) {
     distinctParticipants: input.voluntaryRepeatParticipantCount,
     pass: input.voluntaryRepeatParticipantCount >= 3
   };
+  const diagnosticsComplete = hasRequiredDiagnostics(input);
   const safetyPass =
     input.criticalSecretExposureCount === 0 &&
     input.unauthorizedAccessIncidentCount === 0 &&
@@ -249,6 +250,7 @@ export function evaluateCohortMetrics(input) {
     input.state === "completed" &&
     input.primaryParticipantCount === 5 &&
     input.primarySessionCount === 5 &&
+    diagnosticsComplete &&
     safetyPass &&
     valuePass;
 
@@ -343,7 +345,9 @@ export function evaluatePhase5Gate({ manifest, evidence }) {
   const allChecksPass = unresolved.length === 0;
   const executedEvidencePass = evidence.cohort2 === null
     ? evidence.cohort1.g02Decision === "GO" && cohort1Metrics.g02Eligible
-    : aggregateMetrics.safetyPass && aggregateMetrics.valuePass;
+    : aggregateMetrics.safetyPass &&
+      aggregateMetrics.valuePass &&
+      hasRequiredDiagnostics(evidence.cohort2);
   const computedDecision =
     manifest.currentTaskId === "TASK-P5-G03" && allChecksPass && executedEvidencePass ? "GO" : "NO-GO";
   if (manifest.decision !== computedDecision) {
@@ -529,6 +533,10 @@ function assertRatingRange(count, sum, label) {
   if (sum < count || sum > count * 5) {
     throw new Error(`${label} rating sum is outside the valid 1-5 range.`);
   }
+}
+
+function hasRequiredDiagnostics(input) {
+  return input.evidenceQualityRatingCount > 0 && input.rankingQualityRatingCount > 0;
 }
 
 function assertNonNegativeInteger(value, field) {
