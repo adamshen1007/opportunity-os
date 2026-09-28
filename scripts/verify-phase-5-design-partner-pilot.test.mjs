@@ -207,6 +207,47 @@ test("usefulness requires ratings, exact 3.5 average, and possible sums", () => 
 test("diagnostic ratings do not create value thresholds", () => {
   const metrics = evaluateCohortMetrics(passingCohort({ evidenceQualityRatingSum: 4, rankingQualityRatingSum: 4 }));
   assert.equal(metrics.valuePass, true);
+  assert.equal(metrics.g02Eligible, true);
+});
+
+test("zero evidence-quality diagnostics block G02 eligibility", () => {
+  const metrics = evaluateCohortMetrics(passingCohort({
+    evidenceQualityRatingCount: 0,
+    evidenceQualityRatingSum: 0
+  }));
+  assert.equal(metrics.valuePass, true);
+  assert.equal(metrics.g02Eligible, false);
+});
+
+test("zero ranking-quality diagnostics block G02 eligibility", () => {
+  const metrics = evaluateCohortMetrics(passingCohort({
+    rankingQualityRatingCount: 0,
+    rankingQualityRatingSum: 0
+  }));
+  assert.equal(metrics.valuePass, true);
+  assert.equal(metrics.g02Eligible, false);
+});
+
+test("zero required diagnostics block G02 eligibility", () => {
+  const metrics = evaluateCohortMetrics(passingCohort({
+    evidenceQualityRatingCount: 0,
+    evidenceQualityRatingSum: 0,
+    rankingQualityRatingCount: 0,
+    rankingQualityRatingSum: 0
+  }));
+  assert.equal(metrics.valuePass, true);
+  assert.equal(metrics.g02Eligible, false);
+});
+
+test("diagnostic rating sums must remain valid for the one-to-five scale", () => {
+  assert.throws(
+    () => evaluateCohortMetrics(passingCohort({ evidenceQualityRatingCount: 1, evidenceQualityRatingSum: 0 })),
+    /rating sum/u
+  );
+  assert.throws(
+    () => evaluateCohortMetrics(passingCohort({ rankingQualityRatingCount: 1, rankingQualityRatingSum: 6 })),
+    /rating sum/u
+  );
 });
 
 test("evidence and provenance coverage requires a nonzero exact 100 percent denominator", () => {
@@ -289,6 +330,38 @@ test("executed Cohort 2 evidence cannot be ignored when it worsens final aggrega
   assert.equal(report.directG03Eligible, false);
 });
 
+test("executed Cohort 2 cannot omit evidence-quality diagnostics and produce final Phase 5 GO", () => {
+  const passingChecks = manifest().checks.map((item) => ({ ...item, status: "pass" }));
+  assert.throws(() => evaluatePhase5Gate({
+    manifest: manifest({ currentTaskId: "TASK-P5-G03", decision: "GO", checks: passingChecks }),
+    evidence: evidence({
+      cohort1: passingCohort(),
+      cohort2: passingCohort({
+        cohortId: "cohort-2",
+        g02Decision: "not-evaluated",
+        evidenceQualityRatingCount: 0,
+        evidenceQualityRatingSum: 0
+      })
+    })
+  }), /manifest decision/u);
+});
+
+test("executed Cohort 2 cannot omit ranking-quality diagnostics and produce final Phase 5 GO", () => {
+  const passingChecks = manifest().checks.map((item) => ({ ...item, status: "pass" }));
+  assert.throws(() => evaluatePhase5Gate({
+    manifest: manifest({ currentTaskId: "TASK-P5-G03", decision: "GO", checks: passingChecks }),
+    evidence: evidence({
+      cohort1: passingCohort(),
+      cohort2: passingCohort({
+        cohortId: "cohort-2",
+        g02Decision: "not-evaluated",
+        rankingQualityRatingCount: 0,
+        rankingQualityRatingSum: 0
+      })
+    })
+  }), /manifest decision/u);
+});
+
 test("an incomplete Cohort 2 cannot produce final Phase 5 GO", () => {
   const allPassManifest = manifest({
     currentTaskId: "TASK-P5-G03",
@@ -327,7 +400,12 @@ test("Cohort 2 may expand to ten total participants but cannot exceed that ceili
     manifest: finalManifest,
     evidence: evidence({
       cohort1: passingCohort(),
-      cohort2: passingCohort({ cohortId: "cohort-2", g02Decision: "not-evaluated" })
+      cohort2: passingCohort({
+        cohortId: "cohort-2",
+        g02Decision: "not-evaluated",
+        evidenceQualityRatingSum: 4,
+        rankingQualityRatingSum: 4
+      })
     })
   });
   assert.equal(sizeFiveReport.decision, "GO");
